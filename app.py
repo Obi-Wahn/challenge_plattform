@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, abort, ses
 from datetime import datetime, timedelta
 import os
 import sqlite3
+from werkzeug.utils import secure_filename
 
 from config import DATABASE, UPLOAD_FOLDER, SECRET_KEY, ADMIN_PASSWORD
 #print("APP LOADED")
@@ -10,7 +11,37 @@ from config import DATABASE, UPLOAD_FOLDER, SECRET_KEY, ADMIN_PASSWORD
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {"pde"}
 
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+# ---------- Hilfsfunktionen ----------
+def challenge_status(challenge):
+    if not challenge:
+        return "NONE"
+
+    now = datetime.now()
+    start = datetime.fromisoformat(challenge["start_time"])
+    end = datetime.fromisoformat(challenge["end_time"])
+
+    if now < start:
+        return "NOT_STARTED"
+    elif start <= now <= end:
+        return "RUNNING"
+    else:
+        return "FINISHED"
+      
+def challenge_remaining_seconds(challenge):
+    if not challenge:
+        return 0
+
+    now = datetime.now()
+    end = datetime.fromisoformat(challenge["end_time"])
+    remaining = (end - now).total_seconds()
+
+    return max(0, int(remaining))
 
 # ---------- Datenbank ----------
 def get_db():
@@ -62,11 +93,6 @@ def index():
         return redirect(url_for("challenge_view"))
 
     return render_template("index.html")
-
-
-@app.route("/challenge")
-def challenge():
-    return render_template("challenge.html")
 
 
 @app.route("/scoreboard")
@@ -150,24 +176,99 @@ def challenge_view():
         return redirect(url_for("index"))
 
     challenge = get_active_challenge()
+    tasks = []
+    message = None
+    status = "NONE"
+    remaining = 0
+    submitted_task_ids = set()
 
     if not challenge:
-        return render_template(
-            "challenge.html",
-            message="Aktuell ist keine Challenge aktiv."
+        message = "Aktuell ist keine Challenge aktiv."
+    else:
+        status = challenge_status(challenge)
+        remaining = challenge_remaining_seconds(challenge)
+
+        tasks = query_db(
+            "SELECT * FROM tasks WHERE challenge_id = ?",
+            (challenge["id"],)
         )
 
-    tasks = query_db(
-        "SELECT * FROM tasks WHERE challenge_id = ?",
-        (challenge["id"],)
-    )
+        # 🔹 Eigene Abgaben des Teams holen
+        submissions = query_db(
+            "SELECT task_id FROM submissions WHERE team_id = ?",
+            (session["team_id"],)
+        )
+        submitted_task_ids = {s["task_id"] for s in submissions}
+
+        if status == "FINISHED":
+            message = "⏱ Die Challenge ist beendet. Abgaben sind nicht mehr möglich."
 
     return render_template(
         "challenge.html",
+        team=session.get("team_name"),
         challenge=challenge,
         tasks=tasks,
-        team=session["team_name"]
+        message=message,
+        status=status,
+        remaining=remaining,
+        submitted_task_ids=submitted_task_ids
     )
+
+
+@app.route("/submit/<int:task_id>", methods=["POST"])
+def submit_task(task_id):
+    if "team_id" not in session:
+        abort(403)
+
+    challenge = get_active_challenge()
+    if not challenge or challenge_status(challenge) != "RUNNING":
+        abort(403)
+
+    team_id = session["team_id"]
+
+    # Einmal-Abgabe prüfen
+    existing = query_db(
+        "SELECT * FROM submissions WHERE team_id = ? AND task_id = ?",
+        (team_id, task_id),
+        one=True
+    )
+    if existing:
+        abort(403)
+
+    # Datei prüfen
+    if "file" not in request.files:
+        abort(400)
+
+    file = request.files["file"]
+
+    if file.filename == "":
+        abort(400)
+
+    if not allowed_file(file.filename):
+        abort(400)
+
+    # Datei speichern
+    filename = secure_filename(file.filename)
+    team_folder = os.path.join(app.config["UPLOAD_FOLDER"], str(team_id))
+    os.makedirs(team_folder, exist_ok=True)
+
+    filepath = os.path.join(team_folder, f"task_{task_id}_{filename}")
+    file.save(filepath)
+
+    # DB-Eintrag
+    query_db(
+        """
+        INSERT INTO submissions (team_id, task_id, filename, timestamp, points)
+        VALUES (?, ?, ?, ?, 0)
+        """,
+        (team_id, task_id, filepath, datetime.now().isoformat())
+    )
+
+    # 🔴 DAS WAR DER FEHLENDE TEIL
+    return redirect(url_for("challenge_view"))
+
+
+
 
 
 if __name__ == "__main__":
