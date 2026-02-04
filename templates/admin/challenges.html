@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1 class="mb-4">🏁 Challenges verwalten</h1>
+
+<div class="event-card">
+
+  {% if challenges|length == 0 %}
+    <p class="text-secondary">
+      Noch keine Challenges angelegt.
+    </p>
+  {% endif %}
+
+  <ul class="list-group list-group-flush">
+    {% for c in challenges %}
+      <li class="list-group-item bg-transparent text-light d-flex justify-content-between">
+        <span>
+          <strong>{{ c.title }}</strong>
+        </span>
+        <span class="text-secondary">
+          ID {{ c.id }}
+        </span>
+      </li>
+    {% endfor %}
+  </ul>
+
+</div>
+
+<a href="/admin/dashboard" class="text-secondary mt-4 d-block">
+  ← zurück zum Admin-Dashboard
+</a>
+
+{% endblock %}
