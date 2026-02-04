@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-<p>Team-Anmeldung (Platzhalter)</p>
-<a href="/challenge">Zur Challenge</a>
+
+<h2>Team-Anmeldung</h2>
+
+<form method="post">
+  <input type="text" name="team" placeholder="Teamname" required>
+  <button type="submit">Teilnehmen</button>
+</form>
+
 {% endblock %}
