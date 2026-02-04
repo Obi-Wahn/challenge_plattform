@@ -1,5 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
+
 <h2>Admin Dashboard</h2>
-<p>Admin-Funktionen folgen.</p>
+
+<a href="/admin/challenge/new">➕ Neue Challenge anlegen</a>
+
+<ul>
+{% for c in challenges %}
+  <li>
+    <strong>{{ c.title }}</strong>
+    {% if c.active %}
+      (AKTIV)
+    {% else %}
+      <a href="/admin/challenge/{{ c.id }}/activate">Aktivieren</a>
+    {% endif %}
+    |
+    <a href="/admin/challenge/{{ c.id }}/tasks">Aufgaben</a>
+  </li>
+{% endfor %}
+</ul>
+
 {% endblock %}
