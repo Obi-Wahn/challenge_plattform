@@ -1,54 +1,123 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2 class="mb-4">📝 Abgaben bewerten</h2>
+<h1 class="mb-5">📝 Abgaben bewerten</h1>
+
+{% if submissions|length == 0 %}
+  <div class="event-card text-center">
+    <p class="text-secondary mb-0">
+      🎉 Aktuell gibt es keine Abgaben.
+    </p>
+  </div>
+{% endif %}
 
 {% for submission in submissions %}
 <div class="event-card mb-4">
 
-  <h4 class="mb-2">
-    {{ submission.team_name }} – {{ submission.task_title }}
-  </h4>
+  <!-- Kopfbereich -->
+  <div class="d-flex justify-content-between align-items-start mb-3">
 
-  <p class="text-secondary mb-3">
-    Hochgeladene Datei:
-    <a href="{{ url_for('download_submission', sid=submission.id) }}">
-      {{ submission.filename }}
-    </a>
-  </p>
+    <div>
+      <h3 class="mb-1">
+        👥 {{ submission.team_name }}
 
-  <form method="post">
-    <input type="hidden" name="submission_id" value="{{ submission.id }}">
+        {% if submission.points is not none %}
+          <span class="badge bg-success ms-2">✔ bewertet</span>
+        {% else %}
+          <span class="badge bg-warning text-dark ms-2">⏳ offen</span>
+        {% endif %}
+      </h3>
 
-    <div class="row align-items-end">
-      <div class="col-md-4">
-        <label class="form-label">Punkte</label>
-        <input
-          type="number"
-          class="form-control"
-          name="points"
-          min="0"
-          max="{{ submission.max_points }}"
-          placeholder="0 – {{ submission.max_points }}"
-          required>
-      </div>
-
-      <div class="col-md-8">
-        <label class="form-label">Feedback (optional)</label>
-        <input
-          type="text"
-          class="form-control"
-          name="feedback"
-          placeholder="Kurzer Hinweis für das Team">
-      </div>
+      <p class="text-secondary mb-0">
+        Aufgabe: <strong>{{ submission.task_title }}</strong>
+      </p>
     </div>
 
-    <button class="btn btn-primary mt-3">
-      Bewertung speichern
-    </button>
+    <a
+      href="{{ url_for('download_submission', submission_id=submission.id) }}"
+      class="btn btn-outline-light"
+    >
+      ⬇️ Datei herunterladen
+    </a>
+
+  </div>
+
+  <hr class="my-4" style="border-color: rgba(255,255,255,0.15);">
+
+  <!-- Bewertungsformular -->
+  <form method="post">
+
+    <input type="hidden" name="submission_id" value="{{ submission.id }}">
+
+    <div class="row g-4 align-items-end">
+
+      <!-- Punkte -->
+      <div class="col-md-3">
+        <label class="form-label">
+          Punkte
+          <span class="text-secondary">
+            (0 – {{ submission.max_points }})
+          </span>
+        </label>
+
+        <input
+          type="number"
+          name="points"
+          class="form-control form-control-lg"
+          min="0"
+          max="{{ submission.max_points }}"
+          value="{{ submission.points if submission.points is not none else '' }}"
+          placeholder="z. B. {{ submission.max_points }}"
+          required
+        >
+      </div>
+
+      <!-- Feedback -->
+      <div class="col-md-7">
+        <label class="form-label">
+          Feedback (optional)
+        </label>
+
+        <input
+          type="text"
+          name="feedback"
+          class="form-control form-control-lg"
+          value="{{ submission.feedback or '' }}"
+          placeholder="Kurzer Hinweis für das Team"
+        >
+      </div>
+
+      <!-- Aktionen -->
+      <div class="col-md-2 d-flex flex-column gap-2">
+
+        <button class="btn btn-primary w-100">
+          {% if submission.points is not none %}
+            ✏️ Bewertung aktualisieren
+          {% else %}
+            💾 Bewertung speichern
+          {% endif %}
+        </button>
+
+        {% if submission.points is not none %}
+        <button
+          name="soft_reset"
+          value="1"
+          class="btn btn-outline-warning w-100"
+        >
+          ♻️ Bewertung zurücksetzen
+        </button>
+        {% endif %}
+
+      </div>
+
+    </div>
   </form>
 
 </div>
 {% endfor %}
+
+<a href="/admin/dashboard" class="text-secondary">
+  ← zurück zum Admin-Dashboard
+</a>
 
 {% endblock %}

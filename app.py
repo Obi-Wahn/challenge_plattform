@@ -271,25 +271,66 @@ def manage_tasks(cid):
         tasks=tasks
     )
 
-@app.route("/admin/submissions")
+@app.route("/admin/submissions", methods=["GET", "POST"])
 def admin_submissions():
+    if not session.get("is_admin"):
+        abort(403)
+
+    # ---------------------------
+    # POST: Bewertung / Reset
+    # ---------------------------
+    if request.method == "POST":
+        submission_id = request.form.get("submission_id")
+
+        # Soft-Reset (Bewertung zurücksetzen)
+        if "soft_reset" in request.form:
+            query_db(
+                "UPDATE submissions SET points = NULL, feedback = NULL WHERE id = ?",
+                (submission_id,)
+            )
+            return redirect("/admin/submissions")
+
+        # Bewertung speichern / aktualisieren
+        points = request.form.get("points")
+        feedback = request.form.get("feedback", "")
+
+        if points is not None:
+            query_db(
+                """
+                UPDATE submissions
+                SET points = ?, feedback = ?
+                WHERE id = ?
+                """,
+                (int(points), feedback, submission_id)
+            )
+
+        return redirect("/admin/submissions")
+
+    # ---------------------------
+    # GET: Abgaben anzeigen
+    # ---------------------------
     submissions = query_db("""
-        SELECT submissions.id,
-               teams.name AS team,
-               tasks.title AS task,
-               submissions.filename,
-               submissions.points,
-               submissions.comment
+        SELECT
+          submissions.id,
+          submissions.filename,
+          submissions.points,
+          submissions.feedback,
+          tasks.max_points,
+          teams.name AS team_name,
+          tasks.title AS task_title
         FROM submissions
         JOIN teams ON submissions.team_id = teams.id
         JOIN tasks ON submissions.task_id = tasks.id
-        ORDER BY teams.name
+        ORDER BY
+          submissions.points IS NOT NULL,
+          teams.name
     """)
 
     return render_template(
-        "admin/submissions.html",
+        "admin/review.html",
         submissions=submissions
     )
+
 
 @app.route("/admin/grade/<int:submission_id>", methods=["POST"])
 def grade_submission(submission_id):
@@ -382,6 +423,46 @@ def delete_team(team_id):
 def admin_teams():
     teams = query_db("SELECT id, name FROM teams ORDER BY name")
     return render_template("admin/teams.html", teams=teams)
+
+@app.route("/admin/review", methods=["GET", "POST"])
+def admin_review():
+    if not session.get("is_admin"):
+        abort(403)
+
+    submissions = query_db("""
+        SELECT
+          submissions.id,
+          submissions.filename,
+          submissions.max_points,
+          teams.name AS team_name,
+          tasks.title AS task_title
+        FROM submissions
+        JOIN teams ON submissions.team_id = teams.id
+        JOIN tasks ON submissions.task_id = tasks.id
+        WHERE submissions.points IS NULL
+    """)
+
+    return render_template(
+        "admin/review.html",
+        submissions=submissions
+    )
+    
+@app.route("/admin/challenges")
+def admin_challenges():
+    if not session.get("is_admin"):
+        abort(403)
+
+    challenges = query_db("""
+        SELECT *
+        FROM challenges
+        ORDER BY id DESC
+    """)
+
+    return render_template(
+        "admin/challenges.html",
+        challenges=challenges
+    )
+
 
 
 # ---------- Teams ----------

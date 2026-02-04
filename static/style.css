@@ -1,102 +1,90 @@
-/* === Night Code Jam – Social Coding Event === */
-
-:root {
-  --bg-main: #0f0c29;
-  --bg-secondary: #1a1440;
-  --bg-card: rgba(255, 255, 255, 0.05);
-  --accent: #5ee7df;
-  --accent-soft: #9f7aea;
-  --text-main: #f5f5f5;
-  --text-muted: #b3b3d1;
-  --border-soft: rgba(255,255,255,0.12);
-}
-
+/* ====== Grundlayout ====== */
 body {
-  background: radial-gradient(circle at top,
-    #2b1055,
-    #1a1440 40%,
-    #0f0c29 100%);
-  color: var(--text-main);
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: radial-gradient(circle at top, #1a1f36, #0b0f1f);
+  color: #e6e8ef;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* Navbar */
-.navbar {
-  background: rgba(10, 8, 40, 0.85) !important;
+/* ====== Sterne (dezent!) ====== */
+.stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent url("/static/stars.svg") repeat;
+  opacity: 0.15;
+  z-index: -1;
+}
+
+/* ====== Karten ====== */
+.event-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
   backdrop-filter: blur(6px);
-  border-bottom: 1px solid var(--border-soft);
 }
 
-.navbar-brand {
-  font-weight: 700;
-  letter-spacing: 0.5px;
+/* ====== Typografie ====== */
+h1, h2, h3 {
+  font-weight: 600;
+  letter-spacing: 0.3px;
 }
 
-/* Headings */
-h1, h2, h3, h4 {
-  font-weight: 700;
-  letter-spacing: 0.4px;
+h1 {
+  font-size: 2.2rem;
 }
 
 h2 {
-  margin-bottom: 1rem;
+  font-size: 1.6rem;
 }
 
-/* Cards */
-.card,
-.list-group-item {
-  background: var(--bg-card);
-  border: 1px solid var(--border-soft);
-  border-radius: 14px;
-  color: var(--text-main);
+p, label {
+  font-size: 1rem;
+  color: #cfd3ff;
 }
 
-/* Buttons */
+/* ====== Tabellen ====== */
+table {
+  color: #f0f2ff;
+}
+
+thead th {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  color: #9fa6ff;
+}
+
+tbody td {
+  font-size: 1.1rem;
+}
+
+/* ====== Buttons ====== */
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+  background: linear-gradient(135deg, #5ee7df, #9f7aea);
   border: none;
-  color: #0f0c29;
+  color: #0b0f1f;
   font-weight: 600;
 }
 
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
 .btn-outline-light {
-  border-color: var(--border-soft);
+  border-color: rgba(255,255,255,0.3);
+  color: #fff;
 }
 
-.btn-outline-light:hover {
-  background: rgba(255,255,255,0.1);
+input, textarea, select {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
 }
 
-/* Event cards */
-.event-card {
-  background: var(--bg-card);
-  border-radius: 16px;
-  padding: 20px;
-  border: 1px solid var(--border-soft);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.event-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 25px rgba(0,0,0,0.35);
-}
-
-/* Tables */
-.table {
-  --bs-table-bg: transparent;
-  --bs-table-striped-bg: rgba(255,255,255,0.04);
-  color: var(--text-main);
-}
-
-/* Muted text */
-.text-secondary {
-  color: var(--text-muted) !important;
-}
-
-/* Footer */
-footer {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  opacity: 0.8;
+input::placeholder, textarea::placeholder {
+  color: #aaa;
 }
