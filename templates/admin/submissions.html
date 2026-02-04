@@ -3,7 +3,7 @@
 
 <h2>Abgaben bewerten</h2>
 
-<table border="1" cellpadding="6">
+<table>
   <tr>
     <th>Team</th>
     <th>Aufgabe</th>
@@ -24,15 +24,15 @@
     <td>{{ s.comment or "" }}</td>
     <td>
       <form method="post" action="/admin/grade/{{ s.id }}">
-        <input type="number" name="points" placeholder="Punkte" required>
-        <input type="text" name="comment" placeholder="Kommentar">
-        <button type="submit">Speichern</button>
+        <input type="number" name="points" required>
+        <input type="text" name="comment">
+        <button type="submit">💾</button>
       </form>
 
       <form method="post"
             action="/admin/reset/{{ s.id }}"
             onsubmit="return confirm('Abgabe wirklich löschen?')">
-        <button type="submit">Soft-Reset</button>
+        <button type="submit" class="reset">♻</button>
       </form>
     </td>
   </tr>

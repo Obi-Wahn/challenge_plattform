@@ -4,7 +4,7 @@
 <h2>Aktive Challenge</h2>
 
 {% if message %}
-  <p>{{ message }}</p>
+  <p class="blocked">{{ message }}</p>
 {% endif %}
 
 {% if challenge %}
@@ -12,42 +12,42 @@
   <p><strong>Challenge:</strong> {{ challenge.title }}</p>
 
   {% if status == "RUNNING" %}
-    <p><strong>⏱ Restzeit:</strong> <span id="timer"></span></p>
+    <p class="timer">⏱ Restzeit: <span id="timer"></span></p>
   {% elif status == "FINISHED" %}
-    <p><strong>⏱ Zeit abgelaufen</strong></p>
+    <p class="blocked">⛔ Zeit abgelaufen</p>
   {% endif %}
 
   <ul>
   {% for task in tasks %}
-    <li style="margin-bottom: 1em;">
+    <li>
       <strong>{{ task.title }}</strong><br>
       {{ task.description }}<br>
-      Max Punkte: {{ task.max_points }}<br>
+      <em>Max Punkte: {{ task.max_points }}</em><br><br>
 
       {% if status == "RUNNING" %}
         {% if task.id in submitted_task_ids %}
-          ✅ <em>Abgabe erfolgt</em>
+          <span class="ok">✅ Abgabe erfolgt</span>
         {% else %}
           <form method="post"
-      action="/submit/{{ task.id }}"
-      enctype="multipart/form-data">
+                action="/submit/{{ task.id }}"
+                enctype="multipart/form-data">
 
-  <input type="file"
-         name="file"
-         accept=".pde"
-         onchange="validateFile(this, {{ task.id }})"
-         required>
+            <input type="file"
+                   name="file"
+                   accept=".pde"
+                   onchange="validateFile(this, {{ task.id }})"
+                   required>
 
-  <button type="submit"
-          id="submit-btn-{{ task.id }}"
-          disabled>
-    Abgeben
-  </button>
-</form>
-
+            <br>
+            <button type="submit"
+                    id="submit-btn-{{ task.id }}"
+                    disabled>
+              Abgeben
+            </button>
+          </form>
         {% endif %}
       {% else %}
-        ⛔ <em>Keine Abgabe möglich</em>
+        <span class="blocked">⛔ Keine Abgabe möglich</span>
       {% endif %}
     </li>
   {% endfor %}
@@ -76,21 +76,18 @@ updateTimer();
 setInterval(updateTimer, 1000);
 
 function validateFile(input, taskId) {
-  const button = document.getElementById("submit-btn-" + taskId);
-
-  if (!input.files || input.files.length === 0) {
-    button.disabled = true;
+  const btn = document.getElementById("submit-btn-" + taskId);
+  if (!input.files.length) {
+    btn.disabled = true;
     return;
   }
-
-  const fileName = input.files[0].name.toLowerCase();
-
-  if (fileName.endsWith(".pde")) {
-    button.disabled = false;
+  const name = input.files[0].name.toLowerCase();
+  if (name.endsWith(".pde")) {
+    btn.disabled = false;
   } else {
-    alert("Bitte eine .pde-Datei auswählen.");
+    alert("Bitte eine .pde-Datei auswählen");
     input.value = "";
-    button.disabled = true;
+    btn.disabled = true;
   }
 }
 </script>
