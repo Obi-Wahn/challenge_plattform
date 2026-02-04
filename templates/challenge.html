@@ -5,19 +5,95 @@
 
 {% if message %}
   <p>{{ message }}</p>
-{% else %}
+{% endif %}
+
+{% if challenge %}
   <p><strong>Team:</strong> {{ team }}</p>
   <p><strong>Challenge:</strong> {{ challenge.title }}</p>
 
+  {% if status == "RUNNING" %}
+    <p><strong>⏱ Restzeit:</strong> <span id="timer"></span></p>
+  {% elif status == "FINISHED" %}
+    <p><strong>⏱ Zeit abgelaufen</strong></p>
+  {% endif %}
+
   <ul>
   {% for task in tasks %}
-    <li>
+    <li style="margin-bottom: 1em;">
       <strong>{{ task.title }}</strong><br>
       {{ task.description }}<br>
-      Max Punkte: {{ task.max_points }}
+      Max Punkte: {{ task.max_points }}<br>
+
+      {% if status == "RUNNING" %}
+        {% if task.id in submitted_task_ids %}
+          ✅ <em>Abgabe erfolgt</em>
+        {% else %}
+          <form method="post"
+      action="/submit/{{ task.id }}"
+      enctype="multipart/form-data">
+
+  <input type="file"
+         name="file"
+         accept=".pde"
+         onchange="validateFile(this, {{ task.id }})"
+         required>
+
+  <button type="submit"
+          id="submit-btn-{{ task.id }}"
+          disabled>
+    Abgeben
+  </button>
+</form>
+
+        {% endif %}
+      {% else %}
+        ⛔ <em>Keine Abgabe möglich</em>
+      {% endif %}
     </li>
   {% endfor %}
   </ul>
+{% endif %}
+
+{% if status == "RUNNING" %}
+<script>
+let remaining = {{ remaining }};
+const timer = document.getElementById("timer");
+
+function updateTimer() {
+  if (remaining <= 0) {
+    timer.innerText = "00:00";
+    location.reload();
+    return;
+  }
+  const min = Math.floor(remaining / 60);
+  const sec = remaining % 60;
+  timer.innerText =
+    String(min).padStart(2, '0') + ":" + String(sec).padStart(2, '0');
+  remaining--;
+}
+
+updateTimer();
+setInterval(updateTimer, 1000);
+
+function validateFile(input, taskId) {
+  const button = document.getElementById("submit-btn-" + taskId);
+
+  if (!input.files || input.files.length === 0) {
+    button.disabled = true;
+    return;
+  }
+
+  const fileName = input.files[0].name.toLowerCase();
+
+  if (fileName.endsWith(".pde")) {
+    button.disabled = false;
+  } else {
+    alert("Bitte eine .pde-Datei auswählen.");
+    input.value = "";
+    button.disabled = true;
+  }
+}
+</script>
 {% endif %}
 
 {% endblock %}
