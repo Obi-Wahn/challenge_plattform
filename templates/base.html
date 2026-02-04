@@ -1,11 +1,21 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="de">
 <head>
-    <title>Challenge Platform</title>
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8">
+  <title>Coding Challenge</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Challenge Platform</h1>
-    {% block content %}{% endblock %}
+
+<div class="container">
+  <h1>🏁 Coding Challenge</h1>
+
+  {% block content %}{% endblock %}
+
+  <div class="footer">
+    Offline Coding Challenge · Weiterbildung Informatik
+  </div>
+</div>
+
 </body>
 </html>
