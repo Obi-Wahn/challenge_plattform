@@ -16,6 +16,13 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
+def query_db(query, args=(), one=False):
+    conn = get_db()
+    cur = conn.execute(query, args)
+    rv = cur.fetchall()
+    conn.commit()
+    conn.close()
+    return (rv[0] if rv else None) if one else rv
 
 # ---------- Initialisierung ----------
 @app.route("/")
@@ -46,7 +53,25 @@ def admin_login():
 
 @app.route("/admin/dashboard")
 def admin_dashboard():
-    return render_template("admin/dashboard.html")
+    challenges = query_db("SELECT * FROM challenges ORDER BY id DESC")
+    return render_template("admin/dashboard.html", challenges=challenges)
+
+@app.route("/admin/challenge/new", methods=["GET", "POST"])
+def new_challenge():
+    if request.method == "POST":
+        title = request.form["title"]
+        duration = int(request.form["duration"])  # Minuten
+
+        start = datetime.now()
+        end = start + timedelta(minutes=duration)
+
+        query_db(
+            "INSERT INTO challenges (title, start_time, end_time, active) VALUES (?, ?, ?, 0)",
+            (title, start.isoformat(), end.isoformat())
+        )
+        return redirect(url_for("admin_dashboard"))
+
+    return render_template("admin/new_challenge.html")
 
 
 if __name__ == "__main__":
