@@ -1,36 +1,46 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>🧩 Live Event</h2>
+<h2 class="mb-3">🧩 Social Coding Event</h2>
 
 {% if not challenge %}
-  <div class="event-card">
-    <p class="text-secondary">
-      Noch ist kein Event aktiv – lehnt euch zurück ☕
-    </p>
+  <div class="event-card text-secondary">
+    Noch ist kein Event aktiv – lehnt euch zurück ☕
   </div>
+
 {% else %}
 
+<!-- Team + Challenge -->
 <div class="mb-3 text-secondary">
   Team <strong>{{ team }}</strong> · {{ challenge.title }}
 </div>
 
-{% if status == "RUNNING" %}
-  <div class="event-card mb-3">
-    ⏱ Restzeit:
-    <strong><span id="timer"></span></strong>
+<!-- Statusanzeige -->
+{% if challenge.paused %}
+  <div class="event-card mb-3 text-warning">
+    ⏸ <strong>Challenge pausiert</strong><br>
+    Abgaben sind aktuell deaktiviert.
+  </div>
+{% else %}
+  <div class="event-card mb-3 text-success">
+    🟢 <strong>Challenge läuft</strong><br>
+    Abgaben sind möglich.
   </div>
 {% endif %}
 
+<!-- Aufgaben -->
 <div class="row g-3">
 
 {% for task in tasks %}
   <div class="col-md-6">
-    <div class="event-card">
+    <div class="event-card h-100">
 
       <h5>{{ task.title }}</h5>
       <p class="text-secondary">{{ task.description }}</p>
-      <small>Max Punkte: {{ task.max_points }}</small>
+
+      <small class="text-secondary">
+        Max. Punkte: {{ task.max_points }}
+      </small>
 
       <hr>
 
@@ -38,23 +48,31 @@
         <span class="badge bg-success">
           ✔ Abgegeben ({{ submission_map[task.id].points }} Punkte)
         </span>
+
       {% else %}
-        {% if status == "RUNNING" %}
-          <form method="post"
-                action="/submit/{{ task.id }}"
-                enctype="multipart/form-data">
+        <form method="post"
+              action="/submit/{{ task.id }}"
+              enctype="multipart/form-data"
+              class="{% if challenge.paused %}opacity-50{% endif %}">
 
-            <input type="file"
-                   name="file"
-                   accept=".pde"
-                   class="form-control mb-2"
-                   required>
+          <input type="file"
+                 name="file"
+                 accept=".pde"
+                 class="form-control mb-2"
+                 {% if challenge.paused %}disabled{% endif %}
+                 required>
 
-            <button class="btn btn-outline-light">
-              Abgeben
-            </button>
-          </form>
-        {% endif %}
+          <button class="btn btn-outline-light w-100"
+                  {% if challenge.paused %}disabled{% endif %}>
+            📤 Abgeben
+          </button>
+
+          {% if challenge.paused %}
+            <small class="text-warning d-block mt-2">
+              ⏸ Upload während Pause nicht möglich
+            </small>
+          {% endif %}
+        </form>
       {% endif %}
 
     </div>
@@ -64,22 +82,11 @@
 </div>
 {% endif %}
 
-{% if status == "RUNNING" %}
+<!-- Auto-Refresh alle 15 Sekunden -->
 <script>
-let remaining = {{ remaining }};
-const timer = document.getElementById("timer");
-
-function updateTimer() {
-  if (remaining <= 0) location.reload();
-  const min = Math.floor(remaining / 60);
-  const sec = remaining % 60;
-  timer.innerText =
-    String(min).padStart(2, '0') + ":" + String(sec).padStart(2, '0');
-  remaining--;
-}
-updateTimer();
-setInterval(updateTimer, 1000);
+  setTimeout(() => {
+    location.reload();
+  }, 15000);
 </script>
-{% endif %}
 
 {% endblock %}
