@@ -13,6 +13,12 @@ app.secret_key = SECRET_KEY
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {"pde"}
 
+@app.before_request
+def force_http():
+    if request.headers.get("X-Forwarded-Proto") == "https":
+        return redirect(request.url.replace("https://", "http://"), code=301)
+
+
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -123,6 +129,7 @@ def admin_login():
         if request.form["password"] == ADMIN_PASSWORD:
             return redirect(url_for("admin_dashboard"))
         else:
+            print("ABORT 403 - 1")
             abort(403)
     return render_template("admin/login.html")
 
@@ -353,6 +360,7 @@ def challenge_view():
 @app.route("/submit/<int:task_id>", methods=["POST"])
 def submit_task(task_id):
     if "team_id" not in session:
+        print("ABORT 403 - 1")
         abort(403)
 
     challenge = get_active_challenge()
