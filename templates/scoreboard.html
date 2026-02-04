@@ -1,63 +1,40 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2 class="mb-4 text-center">🏆 Night Code Jam · Live Scoreboard</h2>
+<h1 class="text-center mb-5">🏆 Social Coding Event – Scoreboard</h1>
 
-{% if challenge %}
 <div class="event-card">
 
-<table class="table table-borderless align-middle">
+<table class="table table-borderless text-center align-middle">
   <thead>
     <tr>
-      <th>Team</th>
+      <th class="text-start">Team</th>
       {% for task in tasks %}
-        <th class="text-center">{{ task.title }}</th>
+        <th>{{ task.title }}</th>
       {% endfor %}
-      <th class="text-center">Gesamt</th>
+      <th>Gesamt</th>
     </tr>
   </thead>
 
   <tbody>
-  {% for team in teams %}
-    <tr
-      {% if loop.index == 1 %}
-        style="background: rgba(94,231,223,0.15);"
-      {% elif loop.index == 2 %}
-        style="background: rgba(159,122,234,0.12);"
-      {% elif loop.index == 3 %}
-        style="background: rgba(255,255,255,0.08);"
-      {% endif %}
-    >
-      <td>
-        <strong>
-          {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% endif %}
-          {{ team.name }}
-        </strong>
+    {% for team in teams %}
+    <tr style="font-size: 1.3rem;">
+      <td class="text-start fw-bold">
+        {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% endif %}
+        {{ team.name }}
       </td>
 
       {% for task in tasks %}
-        <td class="text-center">
-          {{ team.task_points[task.id] }}
-        </td>
+        <td>{{ team.task_points[task.id] }}</td>
       {% endfor %}
 
-      <td class="text-center">
-        <strong>{{ team.total }}</strong>
-      </td>
+      <td class="fw-bold">{{ team.total }}</td>
     </tr>
-  {% endfor %}
+    {% endfor %}
   </tbody>
 </table>
 
 </div>
-
-<p class="text-center text-secondary mt-4">
-  Gemeinsam coden · voneinander lernen · Spaß haben
-</p>
-
-{% else %}
-<p>Kein aktives Event</p>
-{% endif %}
 
 <script>
 setTimeout(() => location.reload(), 5000);

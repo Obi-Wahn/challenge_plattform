@@ -63,16 +63,16 @@ def start_screen():
     challenge = get_active_challenge()
 
     if not challenge:
-        return render_template(
-            "start.html",
-            start_time=None
-        )
+        status = "NONE"
+    else:
+        status = challenge_status(challenge)
 
     return render_template(
         "start.html",
-        start_time=challenge["start_time"],
-        title=challenge["title"]
+        challenge=challenge,
+        status=status
     )
+
 
 
 # ---------- Datenbank ----------

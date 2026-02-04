@@ -34,9 +34,9 @@
   </div>
 </div>
 
-{% if start_time %}
+{% if status == "PLANNED" %}
 <script>
-let start = {{ start_time }};
+let start = {{ challenge.start_time }};
 function updateCountdown() {
   const now = Math.floor(Date.now() / 1000);
   let diff = start - now;
