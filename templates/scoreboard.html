@@ -1,5 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Scoreboard</h2>
-<p>Highscore kommt hier rein.</p>
+
+<h2>🏆 Scoreboard</h2>
+
+{% if challenge %}
+  <p><strong>{{ challenge.title }}</strong></p>
+
+  <ol>
+  {% for team in teams %}
+    <li>{{ team.name }} – {{ team.score }} Punkte</li>
+  {% endfor %}
+  </ol>
+{% else %}
+  <p>Keine aktive Challenge</p>
+{% endif %}
+
+<script>
+setTimeout(() => location.reload(), 5000);
+</script>
+
 {% endblock %}
