@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4">📝 Abgaben bewerten</h2>
+
+{% for submission in submissions %}
+<div class="event-card mb-4">
+
+  <h4 class="mb-2">
+    {{ submission.team_name }} – {{ submission.task_title }}
+  </h4>
+
+  <p class="text-secondary mb-3">
+    Hochgeladene Datei:
+    <a href="{{ url_for('download_submission', sid=submission.id) }}">
+      {{ submission.filename }}
+    </a>
+  </p>
+
+  <form method="post">
+    <input type="hidden" name="submission_id" value="{{ submission.id }}">
+
+    <div class="row align-items-end">
+      <div class="col-md-4">
+        <label class="form-label">Punkte</label>
+        <input
+          type="number"
+          class="form-control"
+          name="points"
+          min="0"
+          max="{{ submission.max_points }}"
+          placeholder="0 – {{ submission.max_points }}"
+          required>
+      </div>
+
+      <div class="col-md-8">
+        <label class="form-label">Feedback (optional)</label>
+        <input
+          type="text"
+          class="form-control"
+          name="feedback"
+          placeholder="Kurzer Hinweis für das Team">
+      </div>
+    </div>
+
+    <button class="btn btn-primary mt-3">
+      Bewertung speichern
+    </button>
+  </form>
+
+</div>
+{% endfor %}
+
+{% endblock %}
