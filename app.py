@@ -34,19 +34,33 @@ def allowed_file(filename):
 
 # ---------- Hilfsfunktionen ----------
 def challenge_status(challenge):
-    if not challenge:
-        return "NONE"
+    # sqlite3.Row → Zugriff per ["spalte"]
+    start_raw = challenge["start_time"]
+    end_raw = challenge["end_time"]
+
+    # Noch kein Event geplant
+    if start_raw is None or end_raw is None:
+        return "not_scheduled"
+
+    # Falls SQLite schon datetime liefert (selten, aber möglich)
+    if isinstance(start_raw, datetime):
+        start = start_raw
+    else:
+        start = datetime.fromisoformat(start_raw)
+
+    if isinstance(end_raw, datetime):
+        end = end_raw
+    else:
+        end = datetime.fromisoformat(end_raw)
 
     now = datetime.now()
-    start = datetime.fromisoformat(challenge["start_time"])
-    end = datetime.fromisoformat(challenge["end_time"])
 
     if now < start:
-        return "NOT_STARTED"
+        return "upcoming"
     elif start <= now <= end:
-        return "RUNNING"
+        return "running"
     else:
-        return "FINISHED"
+        return "finished"
       
 def challenge_remaining_seconds(challenge):
     if not challenge:
@@ -461,6 +475,78 @@ def admin_challenges():
         challenges=challenges
     )
 
+@app.route("/admin/challenges/<int:cid>/delete", methods=["POST"])
+def admin_delete_challenge(cid):
+    if not session.get("is_admin"):
+        abort(403)
+
+    # Abgaben der Challenge löschen
+    query_db("""
+        DELETE FROM submissions
+        WHERE task_id IN (
+            SELECT id FROM tasks WHERE challenge_id = ?
+        )
+    """, (cid,))
+
+    # Aufgaben löschen
+    query_db(
+        "DELETE FROM tasks WHERE challenge_id = ?",
+        (cid,)
+    )
+
+    # Challenge löschen
+    query_db(
+        "DELETE FROM challenges WHERE id = ?",
+        (cid,)
+    )
+
+    return redirect("/admin/challenges")
+
+@app.route("/admin/tasks/<int:tid>/delete", methods=["POST"])
+def admin_delete_task(tid):
+    if not session.get("is_admin"):
+        abort(403)
+
+    # Abgaben löschen
+    query_db(
+        "DELETE FROM submissions WHERE task_id = ?",
+        (tid,)
+    )
+
+    # Aufgabe löschen
+    query_db(
+        "DELETE FROM tasks WHERE id = ?",
+        (tid,)
+    )
+
+    return redirect(request.referrer or "/admin/challenges")
+
+@app.route("/admin/challenges/<int:cid>/pause", methods=["POST"])
+def admin_pause_challenge(cid):
+    if not session.get("is_admin"):
+        abort(403)
+
+    query_db(
+        "UPDATE challenges SET paused = 1 WHERE id = ?",
+        (cid,)
+    )
+
+    return redirect("/admin/challenges")
+
+
+@app.route("/admin/challenges/<int:cid>/resume", methods=["POST"])
+def admin_resume_challenge(cid):
+    if not session.get("is_admin"):
+        abort(403)
+
+    query_db(
+        "UPDATE challenges SET paused = 0 WHERE id = ?",
+        (cid,)
+    )
+
+    return redirect("/admin/challenges")
+
+
 @app.route("/admin/challenges/new", methods=["GET", "POST"])
 def admin_challenge_new():
     if not session.get("is_admin"):
@@ -494,14 +580,15 @@ def admin_challenge_tasks(cid):
 
     if request.method == "POST":
         title = request.form["title"]
+        description = request.form["description"]
         max_points = int(request.form["max_points"])
 
         query_db(
             """
-            INSERT INTO tasks (challenge_id, title, max_points)
-            VALUES (?, ?, ?)
+            INSERT INTO tasks (challenge_id, title, description, max_points)
+            VALUES (?, ?, ?, ?)
             """,
-            (cid, title, max_points)
+            (cid, title, description, max_points)
         )
 
         return redirect(f"/admin/challenges/{cid}/tasks")
@@ -517,59 +604,84 @@ def admin_challenge_tasks(cid):
         tasks=tasks
     )
 
+@app.route("/admin/challenges/<int:cid>/start", methods=["POST"])
+def admin_challenge_start(cid):
+    if not session.get("is_admin"):
+        abort(403)
 
+    now = datetime.now().isoformat(timespec="seconds")
+
+    query_db(
+        "UPDATE challenges SET start_time = ?, end_time = NULL WHERE id = ?",
+        (now, cid)
+    )
+
+    return redirect("/admin/challenges")
+
+@app.route("/admin/challenges/<int:cid>/stop", methods=["POST"])
+def admin_challenge_stop(cid):
+    if not session.get("is_admin"):
+        abort(403)
+
+    now = datetime.now().isoformat(timespec="seconds")
+
+    query_db(
+        "UPDATE challenges SET end_time = ? WHERE id = ?",
+        (now, cid)
+    )
+
+    return redirect("/admin/challenges")
 
 # ---------- Teams ----------
 @app.route("/challenge")
 def challenge_view():
     if "team_id" not in session:
-        return redirect(url_for("index"))
+        return redirect("/")
 
-    challenge = get_active_challenge()
-    submission_map = {}
-    tasks = []
-    message = None
-    status = "NONE"
-    remaining = 0
-    submitted_task_ids = set()
+    team_id = session["team_id"]
+
+    # ✅ EINZIGE aktive Challenge: die zuletzt angelegte
+    challenge = query_db(
+        "SELECT * FROM challenges ORDER BY id DESC LIMIT 1",
+        one=True
+    )
 
     if not challenge:
-        message = "Aktuell ist keine Challenge aktiv."
-    else:
-        status = challenge_status(challenge)
-        remaining = challenge_remaining_seconds(challenge)
-
-        tasks = query_db(
-            "SELECT * FROM tasks WHERE challenge_id = ?",
-            (challenge["id"],)
+        return render_template(
+            "challenge.html",
+            challenge=None,
+            tasks=[],
+            submission_map={},
+            team=session.get("team")
         )
 
-        # 🔹 Eigene Abgaben des Teams holen
-        submissions = query_db("""
-            SELECT task_id, points, comment
-            FROM submissions
-            WHERE team_id = ?
-        """, (session["team_id"],))
+    tasks = query_db(
+        "SELECT * FROM tasks WHERE challenge_id = ?",
+        (challenge["id"],)
+    )
 
-        submission_map = {
-            s["task_id"]: s for s in submissions
-        }
-        submitted_task_ids = {s["task_id"] for s in submissions}
+    submissions = query_db(
+        """
+        SELECT s.*
+        FROM submissions s
+        JOIN tasks t ON s.task_id = t.id
+        WHERE s.team_id = ? AND t.challenge_id = ?
+        """,
+        (team_id, challenge["id"])
+    )
 
-        if status == "FINISHED":
-            message = "⏱ Die Challenge ist beendet. Abgaben sind nicht mehr möglich."
+    submission_map = {s["task_id"]: s for s in submissions}
 
     return render_template(
         "challenge.html",
-        team=session.get("team_name"),
         challenge=challenge,
         tasks=tasks,
-        message=message,
-        status=status,
-        remaining=remaining,
-        submitted_task_ids=submitted_task_ids,
-        submission_map=submission_map
+        submission_map=submission_map,
+        team=session.get("team")
     )
+
+
+
 
 
 @app.route("/submit/<int:task_id>", methods=["POST"])
@@ -579,7 +691,7 @@ def submit_task(task_id):
         abort(403)
 
     challenge = get_active_challenge()
-    if not challenge or challenge_status(challenge) != "RUNNING":
+    if not challenge:
         abort(403)
 
     team_id = session["team_id"]
@@ -591,6 +703,14 @@ def submit_task(task_id):
         one=True
     )
     if existing:
+        abort(403)
+        
+    challenge = query_db(
+        "SELECT * FROM challenges ORDER BY id DESC LIMIT 1",
+        one=True
+    )
+
+    if challenge["paused"]:
         abort(403)
 
     # Datei prüfen
@@ -627,4 +747,9 @@ def submit_task(task_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(
+      host="0.0.0.0",
+      port=5000,
+      debug=True
+    )
+
