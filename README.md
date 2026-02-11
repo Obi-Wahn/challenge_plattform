@@ -112,4 +112,4 @@ challenge-platform/
 
 ## 📝 Lizenz
 
-Dieses Projekt wurde im Rahmen einer Weiterbildungsmaßnahme erstellt.
+Dieses Projekt wurde für eine Weiterbildungsmaßnahme Informatik für Lehrkräfte erstellt.
