@@ -88,7 +88,7 @@ Voraussetzung: Python 3.8 oder höher.
 ## 📖 Nutzung
 
 1.  **Admin-Zugang**:
-    *   Rufe [http://<Meine IP>:8000/admin](http://localhost:8000/admin) auf (Link auch im Footer der Seite).
+    *   Rufe [http://< Meine IP >:8000/admin](http://localhost:8000/admin) auf (Link auch im Footer der Seite).
     *   Login mit dem in der `.env` definierten Passwort (`ADMIN_PASSWORD`).
     *   Erstelle eine neue Challenge.
     *   Füge Aufgaben hinzu, wähle Punkte und das erlaubte Dateiformat.
