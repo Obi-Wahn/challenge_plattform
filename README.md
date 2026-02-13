@@ -71,7 +71,7 @@ Voraussetzung: Python 3.8 oder höher.
     Erstelle eine `.env` Datei im Hauptverzeichnis (siehe `.env.example`):
     ```ini
     SECRET_KEY=dein-geheimer-schluessel
-    ADMIN_PASSWORD=neues-sicheres-admin-passwort # <-- HIER ANPASSEN!
+    ADMIN_PASSWORD=dein-sicheres-passwort # <-- HIER ÄNDERN! (Standard: admin123)
     DATABASE_URL=sqlite:///data/challenge.db
     # FLASK_ENV=development
     ```
