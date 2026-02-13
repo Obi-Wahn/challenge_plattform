@@ -72,8 +72,6 @@ Voraussetzung: Python 3.8 oder höher.
     ```ini
     SECRET_KEY=dein-geheimer-schluessel
     ADMIN_PASSWORD=dein-sicheres-passwort # <-- HIER ÄNDERN! (Standard: admin123)
-    DATABASE_URL=sqlite:///data/challenge.db
-    # FLASK_ENV=development
     ```
 
 5.  **Datenbank vorbereiten**
