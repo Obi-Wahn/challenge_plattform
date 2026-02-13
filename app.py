@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from flask import Flask, redirect, request
 from config import Config
 from extensions import db, csrf
