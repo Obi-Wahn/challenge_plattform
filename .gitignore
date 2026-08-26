@@ -47,6 +47,9 @@ data/*.sqlite3
 # Uploads
 uploads/
 
+# Local debug artifacts
+cookies.txt
+
 # macOS
 .DS_Store
 
