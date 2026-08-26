@@ -8,19 +8,29 @@ import qrcode
 
 public_bp = Blueprint('public', __name__)
 
+def generate_qr_code():
+    # QR code of the URL this request reached the server on, so students can
+    # scan it (e.g. off a projector) instead of typing the LAN address.
+    qr_img = qrcode.make(request.host_url)
+    buffer = io.BytesIO()
+    qr_img.save(buffer, format="PNG")
+    return base64.b64encode(buffer.getvalue()).decode("ascii")
+
 @public_bp.route("/", methods=["GET", "POST"])
 def index():
+    qr_code_data = generate_qr_code()
+
     if request.method == "POST":
         team_name = request.form.get("team")
         password = request.form.get("password")
-        
+
         if not team_name or not password:
-            return render_template("index.html", error="Bitte Teamname und Passwort angeben.")
+            return render_template("index.html", error="Bitte Teamname und Passwort angeben.", qr_code_data=qr_code_data)
 
         # Check if team exists
         existing_team = Team.query.filter_by(name=team_name).first()
         if existing_team:
-             return render_template("index.html", error="Teamname vergeben. Bitte einloggen oder anderen Namen wählen.")
+             return render_template("index.html", error="Teamname vergeben. Bitte einloggen oder anderen Namen wählen.", qr_code_data=qr_code_data)
 
         # Create new team
         new_team = Team(name=team_name)
@@ -33,7 +43,7 @@ def index():
         session["team_name"] = new_team.name
         return redirect(url_for("challenge.view"))
 
-    return render_template("index.html")
+    return render_template("index.html", qr_code_data=qr_code_data)
 
 @public_bp.route("/login", methods=["GET", "POST"])
 @limiter.limit("5 per minute")
@@ -120,17 +130,9 @@ def start():
             status = "PLANNED"
             start_time_ts = challenge.start_time
 
-    # QR code for the URL this page was reached on, so students can scan it
-    # (e.g. off a projector) instead of typing the LAN address by hand.
-    qr_img = qrcode.make(request.host_url)
-    buffer = io.BytesIO()
-    qr_img.save(buffer, format="PNG")
-    qr_code_data = base64.b64encode(buffer.getvalue()).decode("ascii")
-
     return render_template(
         "start.html",
         challenge=challenge,
         status=status,
-        start_time=start_time_ts,
-        qr_code_data=qr_code_data
+        start_time=start_time_ts
     )
