@@ -15,7 +15,7 @@
 <div class="event-card mb-4">
 
   <!-- Kopfbereich -->
-  <div class="d-flex justify-content-between align-items-start mb-3">
+  <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
 
     <div>
       <h3 class="mb-1">
@@ -33,8 +33,8 @@
       </p>
     </div>
 
-    <div class="mb-4">
-      <button class="btn btn-sm btn-outline-secondary me-2" type="button" data-bs-toggle="collapse"
+    <div class="d-flex flex-wrap gap-2 mb-4">
+      <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse"
         data-bs-target="#desc-{{ submission.id }}" aria-expanded="false">
         ℹ️ Aufgabenbeschreibung
       </button>
@@ -43,7 +43,7 @@
         📄 Code anzeigen
       </button>
       <a href="{{ url_for('admin.download_submission', submission_id=submission.id) }}"
-        class="btn btn-sm btn-outline-light ms-2">
+        class="btn btn-sm btn-outline-light">
         ⬇️ Datei herunterladen
       </a>
     </div>
