@@ -33,6 +33,12 @@
       </select>
     </div>
 
+    <div class="mb-3">
+      <label class="form-label">Hinweis (optional, während des Events freischaltbar)</label>
+      <textarea name="hint" class="form-control" rows="2"
+        placeholder="Tipp, falls ein Team nicht weiterkommt"></textarea>
+    </div>
+
     <button class="btn btn-primary">
       ➕ Aufgabe hinzufügen
     </button>
@@ -63,6 +69,15 @@
         <a href="{{ url_for('admin.task_edit', tid=t.id) }}" class="btn btn-outline-info btn-sm">
           ✏️
         </a>
+
+        {% if t.hint %}
+        <form method="post" action="{{ url_for('admin.task_toggle_hint', tid=t.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm {% if t.hint_visible %}btn-info{% else %}btn-outline-info{% endif %}">
+            💡 {% if t.hint_visible %}sichtbar{% else %}verborgen{% endif %}
+          </button>
+        </form>
+        {% endif %}
 
         <form method="post" action="{{ url_for('admin.task_delete', tid=t.id) }}"
           onsubmit="return confirm('Aufgabe wirklich löschen?');">
