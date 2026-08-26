@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
-from extensions import db
+from extensions import db, limiter
 from models import Team, Challenge, Task, Submission
 import time # Added for start route
 
@@ -33,6 +33,7 @@ def index():
     return render_template("index.html")
 
 @public_bp.route("/login", methods=["GET", "POST"])
+@limiter.limit("5 per minute")
 def login():
     if request.method == "POST":
         team_name = request.form.get("team")

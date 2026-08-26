@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, current_app
-from extensions import db
+from extensions import db, limiter
 
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route("/admin/login", methods=["GET", "POST"])
+@limiter.limit("5 per minute")
 def admin_login():
     if request.method == "POST":
         password = request.form.get("password")
