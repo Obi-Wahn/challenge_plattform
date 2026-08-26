@@ -1,4 +1,5 @@
 import os
+import socket
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -52,6 +53,18 @@ def create_app():
 
 app = create_app()
 
+def get_local_ip():
+    # Determines the IP this machine would use to reach the network, without
+    # actually sending anything - used to show students which address to open.
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("8.8.8.8", 80))
+        return s.getsockname()[0]
+    except OSError:
+        return "127.0.0.1"
+    finally:
+        s.close()
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all() # Auto-create tables for dev
@@ -60,16 +73,23 @@ if __name__ == "__main__":
     # arbitrary code execution and this app is bound to 0.0.0.0 for LAN access,
     # so it must only be enabled explicitly for local development.
     debug_mode = os.environ.get("FLASK_DEBUG", "false").strip().lower() in ("1", "true", "yes")
+    port = 8000
 
     if debug_mode:
         # Flask's built-in dev server, with debugger and auto-reload, for local development only.
         app.run(
           host="0.0.0.0",
-          port=8000,
+          port=port,
           debug=True
         )
     else:
         # Production WSGI server for real deployments (e.g. the school LAN).
         from waitress import serve
-        serve(app, host="0.0.0.0", port=8000)
+
+        print(f"Server läuft auf:")
+        print(f"  http://localhost:{port}  (auf diesem Rechner)")
+        print(f"  http://{get_local_ip()}:{port}  (für andere Geräte im gleichen Netzwerk)")
+        print("Zum Beenden: STRG+C\n")
+
+        serve(app, host="0.0.0.0", port=port)
 

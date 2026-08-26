@@ -31,3 +31,9 @@ class Config:
     UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
     ALLOWED_EXTENSIONS = {"pde"}
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB max upload
+
+    # Rate limiting
+    # The app runs as a single process on one machine, so per-process
+    # in-memory storage is sufficient - this makes that an explicit choice
+    # instead of Flask-Limiter's unconfigured fallback (which warns on startup).
+    RATELIMIT_STORAGE_URI = "memory://"
