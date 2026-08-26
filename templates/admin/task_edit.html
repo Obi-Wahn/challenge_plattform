@@ -44,6 +44,10 @@
                         </option>
                         <option value=".py" {% if task.allowed_extension=='.py' %}selected{% endif %}>.py (Python)
                         </option>
+                        <option value=".hex" {% if task.allowed_extension=='.hex' %}selected{% endif %}>.hex
+                            (MakeCode/Calliope)</option>
+                        <option value=".mkcd" {% if task.allowed_extension=='.mkcd' %}selected{% endif %}>.mkcd
+                            (MakeCode-Projekt)</option>
                     </select>
                 </div>
 
