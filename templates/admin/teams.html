@@ -1,22 +1,34 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Teams verwalten</h2>
+<h2 class="mb-4">👥 Teams verwalten</h2>
 
-<ul>
-  {% for team in teams %}
-  <li>
-    {{ team.name }}
+<div class="event-card">
 
-    <form method="post" action="{{ url_for('admin.team_delete', team_id=team.id) }}" style="display:inline"
-      onsubmit="return confirm('Team wirklich löschen? Alle Abgaben und Punkte gehen verloren.')">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="reset">🗑 Löschen</button>
-    </form>
-  </li>
-  {% endfor %}
-</ul>
+  {% if teams|length == 0 %}
+  <p class="text-secondary mb-0">Noch keine Teams registriert.</p>
+  {% endif %}
 
-<a href="{{ url_for('admin.dashboard') }}">⬅ zurück</a>
+  <ul class="list-group list-group-flush">
+    {% for team in teams %}
+    <li class="list-group-item bg-transparent text-light d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <strong>{{ team.name }}</strong>
+
+      <form method="post" action="{{ url_for('admin.team_delete', team_id=team.id) }}"
+        onsubmit="return confirm('Team wirklich löschen? Alle Abgaben und Punkte gehen verloren.');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-outline-danger btn-sm">
+          🗑 Löschen
+        </button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+
+</div>
+
+<a href="{{ url_for('admin.dashboard') }}" class="text-secondary mt-4 d-block">
+  ← zurück zum Admin-Dashboard
+</a>
 
 {% endblock %}
