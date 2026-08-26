@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1 class="mb-4">⚙️ Einstellungen</h1>
+
+<div class="event-card">
+
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <label class="form-label">Name der Veranstaltung</label>
+    <input type="text" name="site_name" class="form-control form-control-lg mb-3"
+      value="{{ settings.site_name }}" placeholder="z. B. Night Code Jam" required>
+
+    <label class="form-label">Untertitel</label>
+    <input type="text" name="tagline" class="form-control form-control-lg"
+      value="{{ settings.tagline }}" placeholder="Kurzer Beschreibungstext" required>
+
+    <button class="btn btn-primary mt-4">
+      💾 Speichern
+    </button>
+  </form>
+
+</div>
+
+<a href="{{ url_for('admin.dashboard') }}" class="text-secondary mt-4 d-block">
+  ← zurück zur Übersicht
+</a>
+
+{% endblock %}

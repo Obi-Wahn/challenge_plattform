@@ -67,3 +67,22 @@ class Submission(db.Model):
     feedback = db.Column(db.Text, nullable=True)
 
     __table_args__ = (db.UniqueConstraint('team_id', 'task_id', name='_team_task_uc'),)
+
+class Settings(db.Model):
+    __tablename__ = 'settings'
+    id = db.Column(db.Integer, primary_key=True)
+    site_name = db.Column(db.String(100), nullable=False, default="Night Code Jam")
+    tagline = db.Column(
+        db.String(300),
+        nullable=False,
+        default="Ein entspannter Abend mit Code, Ideen und guter Gesellschaft."
+    )
+
+    @classmethod
+    def get(cls):
+        settings = cls.query.first()
+        if not settings:
+            settings = cls()
+            db.session.add(settings)
+            db.session.commit()
+        return settings
