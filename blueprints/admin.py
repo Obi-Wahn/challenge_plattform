@@ -35,10 +35,8 @@ def challenge_new():
 
 @admin_bp.route("/challenge/<int:cid>/activate")
 def challenge_activate(cid):
-    # Deactivate all
-    Challenge.query.update({Challenge.active: False})
-    # Activate one
     challenge = Challenge.query.get_or_404(cid)
+    Challenge.query.update({Challenge.active: False})
     challenge.active = True
     db.session.commit()
     return redirect(url_for('admin.dashboard'))
@@ -128,7 +126,7 @@ def submissions():
              feedback = request.form.get("feedback", "")
              submission = Submission.query.get(submission_id)
              if submission and points: # Check if points is not empty string
-                 submission.points = int(points)
+                 submission.points = max(0, min(int(points), submission.task.max_points))
                  submission.feedback = feedback
                  db.session.commit()
         return redirect(url_for('admin.submissions'))
@@ -163,18 +161,6 @@ def submissions():
         })
 
     return render_template("admin/review.html", submissions=submissions_data)
-
-@admin_bp.route("/grade/<int:submission_id>", methods=["POST"])
-def submission_grade(submission_id):
-    points = int(request.form["points"])
-    comment = request.form.get("comment", "")
-    
-    submission = Submission.query.get_or_404(submission_id)
-    submission.points = points
-    submission.feedback = comment # Model unified 'comment' to 'feedback'
-    db.session.commit()
-    
-    return redirect(url_for('admin.submissions'))
 
 @admin_bp.route("/reset/<int:submission_id>", methods=["POST"])
 def submission_reset(submission_id):

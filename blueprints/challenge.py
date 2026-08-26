@@ -10,10 +10,6 @@ challenge_bp = Blueprint('challenge', __name__)
 def allowed_file(filename, allowed_ext):
     return "." in filename and filename.lower().endswith(allowed_ext.lower())
 
-def get_active_challenge():
-    # In old app: SELECT * FROM challenges WHERE active = 1
-    return Challenge.query.filter_by(active=True).first()
-
 @challenge_bp.route("/challenge")
 def view():
     if "team_id" not in session:
@@ -22,19 +18,7 @@ def view():
     team_id = session["team_id"]
     team = Team.query.get(team_id) # Ensure team exists
 
-    # Logic from app.py: "EINZIGE aktive Challenge: die zuletzt angelegte" (Wait, app.py said that but code did ORDER BY id DESC LIMIT 1)
-    # Actually app.py said:
-    # challenge = query_db("SELECT * FROM challenges ORDER BY id DESC LIMIT 1", one=True)
-    # But get_active_challenge used WHERE active=1.
-    # The view used the *latest* one, not necessarily active?
-    # Let's check app.py trace again.
-    # 644: challenge = query_db("SELECT * FROM challenges ORDER BY id DESC LIMIT 1", one=True)
-    # This implies the team sees the LATEST challenge, regardless of active status?
-    # But later:
-    # 693: challenge = get_active_challenge() (in submit_task)
-    #
-    # I should probably stick to "show the latest one".
-    
+    # Teams always see the most recently created challenge, regardless of its active flag.
     challenge = Challenge.query.order_by(Challenge.id.desc()).first()
 
     if not challenge:
@@ -64,40 +48,25 @@ def submit_task(task_id):
     if "team_id" not in session:
         abort(403)
 
-    # Submission allowed only for ACTIVE challenge?
-    # app.py: 
-    # challenge = get_active_challenge() (WHERE active=1)
-    # if not challenge: abort(403)
-    
-    # Logic fix: View shows LATEST challenge, but submit checked ACTIVE challenge.
-    # We should stick to the latest challenge to allow submission if it's visible.
-    
+    # Submissions are only accepted for the most recently created challenge,
+    # matching what teams see on the challenge page.
     challenge = Challenge.query.order_by(Challenge.id.desc()).first()
     if not challenge:
         abort(403)
-        
-    # Check if task belongs to active challenge?
+
     task = Task.query.get_or_404(task_id)
     if task.challenge_id != challenge.id:
-        abort(403) # Task not part of active challenge
+        abort(403) # Task not part of the current challenge
+
+    if challenge.paused:
+        abort(403)
 
     team_id = session["team_id"]
 
-    # Check existing
     existing = Submission.query.filter_by(team_id=team_id, task_id=task_id).first()
     if existing:
         abort(403)
 
-    # Paused check
-    # app.py checked if ANY challenge was paused? 
-    # 708: challenge = query_db("SELECT * FROM challenges ORDER BY id DESC LIMIT 1", one=True)
-    # if challenge["paused"]: abort(403)
-    # It seems to check the LATEST challenge for paused status.
-    latest_challenge = Challenge.query.order_by(Challenge.id.desc()).first()
-    if latest_challenge and latest_challenge.paused:
-        abort(403)
-
-    # File check
     if "file" not in request.files:
         abort(400)
     
