@@ -65,9 +65,24 @@ def get_local_ip():
     finally:
         s.close()
 
+def ensure_task_hint_columns():
+    # db.create_all() only creates missing tables, not missing columns on a
+    # table that already exists (e.g. tasks on an existing school-PC
+    # database), so newly added columns need to be migrated in explicitly.
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(db.engine)
+    columns = {c["name"] for c in inspector.get_columns("tasks")}
+    with db.engine.begin() as conn:
+        if "hint" not in columns:
+            conn.execute(text("ALTER TABLE tasks ADD COLUMN hint TEXT"))
+        if "hint_visible" not in columns:
+            conn.execute(text("ALTER TABLE tasks ADD COLUMN hint_visible BOOLEAN DEFAULT 0"))
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all() # Auto-create tables for dev
+        ensure_task_hint_columns()
 
     # Debug mode is off by default: the built-in Werkzeug debugger allows
     # arbitrary code execution and this app is bound to 0.0.0.0 for LAN access,

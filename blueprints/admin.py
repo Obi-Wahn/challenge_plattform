@@ -50,13 +50,15 @@ def challenge_tasks(cid):
         description = request.form["description"]
         max_points = int(request.form["max_points"])
         allowed_extension = request.form.get("allowed_extension", ".pde")
-        
+        hint = request.form.get("hint", "").strip() or None
+
         task = Task(
-            challenge_id=cid, 
-            title=title, 
-            description=description, 
+            challenge_id=cid,
+            title=title,
+            description=description,
             max_points=max_points,
-            allowed_extension=allowed_extension
+            allowed_extension=allowed_extension,
+            hint=hint
         )
         db.session.add(task)
         db.session.commit()
@@ -105,10 +107,18 @@ def task_edit(tid):
         task.description = request.form["description"]
         task.max_points = int(request.form["max_points"])
         task.allowed_extension = request.form.get("allowed_extension", ".pde")
+        task.hint = request.form.get("hint", "").strip() or None
         db.session.commit()
         return redirect(url_for('admin.challenge_tasks', cid=cid))
 
     return render_template("admin/task_edit.html", task=task)
+
+@admin_bp.route("/tasks/<int:tid>/toggle_hint", methods=["POST"])
+def task_toggle_hint(tid):
+    task = Task.query.get_or_404(tid)
+    task.hint_visible = not task.hint_visible
+    db.session.commit()
+    return redirect(url_for('admin.challenge_tasks', cid=task.challenge_id))
 
 @admin_bp.route("/submissions", methods=["GET", "POST"])
 def submissions():
