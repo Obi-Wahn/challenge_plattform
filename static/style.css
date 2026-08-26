@@ -28,6 +28,12 @@ body {
   backdrop-filter: blur(6px);
 }
 
+@media (max-width: 576px) {
+  .event-card {
+    padding: 1.25rem;
+  }
+}
+
 /* ====== Typografie ====== */
 h1, h2, h3 {
   font-weight: 600;
