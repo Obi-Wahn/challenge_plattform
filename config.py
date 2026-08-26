@@ -19,6 +19,10 @@ class Config:
     ADMIN_PASSWORD = _require_env("ADMIN_PASSWORD")
     
     # Database
+    # The data/ directory only exists on disk because of this file (it holds
+    # no other tracked files), so it must be created before SQLite can open
+    # a database inside it on a fresh checkout.
+    os.makedirs(os.path.join(BASE_DIR, "data"), exist_ok=True)
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or \
         "sqlite:///" + os.path.join(BASE_DIR, "data", "challenge.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
