@@ -2,6 +2,9 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from extensions import db, limiter
 from models import Team, Challenge, Task, Submission
 import time # Added for start route
+import base64
+import io
+import qrcode
 
 public_bp = Blueprint('public', __name__)
 
@@ -116,5 +119,18 @@ def start():
         if challenge.start_time > now:
             status = "PLANNED"
             start_time_ts = challenge.start_time
-    
-    return render_template("start.html", challenge=challenge, status=status, start_time=start_time_ts)
+
+    # QR code for the URL this page was reached on, so students can scan it
+    # (e.g. off a projector) instead of typing the LAN address by hand.
+    qr_img = qrcode.make(request.host_url)
+    buffer = io.BytesIO()
+    qr_img.save(buffer, format="PNG")
+    qr_code_data = base64.b64encode(buffer.getvalue()).decode("ascii")
+
+    return render_template(
+        "start.html",
+        challenge=challenge,
+        status=status,
+        start_time=start_time_ts,
+        qr_code_data=qr_code_data
+    )

@@ -26,6 +26,12 @@
                 </div>
 
                 <div class="mb-3">
+                    <label class="form-label">Hinweis (optional, während des Events freischaltbar)</label>
+                    <textarea name="hint" class="form-control" rows="2"
+                        placeholder="Tipp, falls ein Team nicht weiterkommt">{{ task.hint or '' }}</textarea>
+                </div>
+
+                <div class="mb-3">
                     <label class="form-label">Erlaubtes Dateiformat</label>
                     <select name="allowed_extension" class="form-select">
                         <option value=".pde" {% if task.allowed_extension=='.pde' %}selected{% endif %}>.pde
