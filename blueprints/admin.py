@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, abort, send_from_directory, current_app
 from extensions import db
-from models import Team, Challenge, Task, Submission
+from models import Team, Challenge, Task, Submission, Settings
 from datetime import datetime
 import os
 
@@ -203,3 +203,19 @@ def team_delete(team_id):
     db.session.delete(team)
     db.session.commit()
     return redirect(url_for('admin.teams'))
+
+@admin_bp.route("/settings", methods=["GET", "POST"])
+def settings():
+    site_settings = Settings.get()
+
+    if request.method == "POST":
+        site_name = request.form.get("site_name", "").strip()
+        tagline = request.form.get("tagline", "").strip()
+        if site_name:
+            site_settings.site_name = site_name
+        if tagline:
+            site_settings.tagline = tagline
+        db.session.commit()
+        return redirect(url_for('admin.settings'))
+
+    return render_template("admin/settings.html", settings=site_settings)

@@ -41,6 +41,13 @@ def create_app():
             return ""
         return Markup(markdown.markdown(text))
 
+    # Site branding (name, tagline) is admin-editable, stored in the DB,
+    # and injected into every template instead of being hardcoded.
+    @app.context_processor
+    def inject_site_settings():
+        from models import Settings
+        return {"site_settings": Settings.get()}
+
     return app
 
 app = create_app()

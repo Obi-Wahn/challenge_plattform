@@ -6,12 +6,11 @@
 
     <h1 class="mb-3">
       Welcome to<br>
-      <span style="color: var(--accent)">Night Code Jam</span>
+      <span style="color: var(--accent)">{{ site_settings.site_name }}</span>
     </h1>
 
     <p class="text-secondary mb-4">
-      Ein entspannter Abend mit Code, Ideen und guter Gesellschaft.
-      Kein Druck – nur Kreativität.
+      {{ site_settings.tagline }}
     </p>
 
     {% if error %}
