@@ -28,6 +28,22 @@
 </div>
 {% endif %}
 
+<!-- Fortschrittsanzeige -->
+{% if tasks %}
+<div class="mb-4">
+  <div class="d-flex justify-content-between text-secondary small mb-1">
+    <span>Fortschritt</span>
+    <span>{{ submission_map|length }} / {{ tasks|length }} Aufgaben abgegeben</span>
+  </div>
+  <div class="progress" style="height: 10px;">
+    <div class="progress-bar bg-success" role="progressbar"
+      style="width: {{ (submission_map|length / tasks|length * 100)|round(1) }}%;"
+      aria-valuenow="{{ submission_map|length }}" aria-valuemin="0" aria-valuemax="{{ tasks|length }}">
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <!-- Aufgaben -->
 <div class="row g-3">
 
@@ -44,6 +60,12 @@
       <small class="text-secondary">
         Max. Punkte: {{ task.max_points }}
       </small>
+
+      {% if task.hint_visible and task.hint %}
+      <div class="mt-2 p-2 rounded bg-dark border border-info text-light small">
+        💡 <strong>Hinweis:</strong> {{ task.hint | markdown }}
+      </div>
+      {% endif %}
 
       <hr>
 

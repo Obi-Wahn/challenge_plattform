@@ -54,6 +54,8 @@ class Task(db.Model):
     description = db.Column(db.Text, nullable=True)
     max_points = db.Column(db.Integer, default=0)
     allowed_extension = db.Column(db.String(10), default=".pde")
+    hint = db.Column(db.Text, nullable=True)
+    hint_visible = db.Column(db.Boolean, default=False)
     submissions = db.relationship('Submission', backref='task', lazy=True, cascade="all, delete-orphan")
 
 class Submission(db.Model):
