@@ -61,9 +61,15 @@ if __name__ == "__main__":
     # so it must only be enabled explicitly for local development.
     debug_mode = os.environ.get("FLASK_DEBUG", "false").strip().lower() in ("1", "true", "yes")
 
-    app.run(
-      host="0.0.0.0",
-      port=8000,
-      debug=debug_mode
-    )
+    if debug_mode:
+        # Flask's built-in dev server, with debugger and auto-reload, for local development only.
+        app.run(
+          host="0.0.0.0",
+          port=8000,
+          debug=True
+        )
+    else:
+        # Production WSGI server for real deployments (e.g. the school LAN).
+        from waitress import serve
+        serve(app, host="0.0.0.0", port=8000)
 
