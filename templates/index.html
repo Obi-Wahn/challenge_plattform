@@ -35,6 +35,14 @@
       Bereits registriert? <a href="{{ url_for('public.login') }}">Hier einloggen</a>
     </p>
 
+    {% if qr_code_data %}
+    <div class="mt-5">
+      <img src="data:image/png;base64,{{ qr_code_data }}" alt="QR-Code zu dieser Seite"
+        style="width: 160px; height: 160px; background: white; padding: 8px; border-radius: 8px;">
+      <p class="text-secondary small mt-2">📱 Für Freunde: QR-Code scannen zum Beitreten</p>
+    </div>
+    {% endif %}
+
   </div>
 
 </div>
