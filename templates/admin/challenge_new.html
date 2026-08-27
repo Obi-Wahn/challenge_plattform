@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1 class="mb-4">➕ Neue Challenge</h1>
+<h1 class="mb-4">➕ Neuer Wettbewerb</h1>
 
 <div class="event-card">
 
   <form method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <label class="form-label">Titel der Challenge</label>
+    <label class="form-label">Titel des Wettbewerbs</label>
     <input type="text" name="title" class="form-control form-control-lg"
       placeholder="z. B. {{ site_settings.site_name }} – Runde 1" required>
 
     <button class="btn btn-primary mt-4">
-      💾 Challenge anlegen
+      💾 Wettbewerb anlegen
     </button>
   </form>
 
