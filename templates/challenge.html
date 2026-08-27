@@ -18,12 +18,12 @@
 <!-- Statusanzeige -->
 {% if challenge.paused %}
 <div class="event-card mb-3 text-warning">
-  ⏸ <strong>Challenge pausiert</strong><br>
+  ⏸ <strong>Wettbewerb pausiert</strong><br>
   Abgaben sind aktuell deaktiviert.
 </div>
 {% else %}
 <div class="event-card mb-3 text-success">
-  🟢 <strong>Challenge läuft</strong><br>
+  🟢 <strong>Wettbewerb läuft</strong><br>
   Abgaben sind möglich.
 </div>
 {% endif %}
@@ -99,7 +99,7 @@
 
         {% if challenge.paused %}
         <small class="text-warning d-block mt-2">
-          ⏸ Upload während Pause nicht möglich
+          ⏸ Hochladen während der Pause nicht möglich
         </small>
         {% endif %}
       </form>
