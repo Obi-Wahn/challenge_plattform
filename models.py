@@ -73,7 +73,7 @@ class Submission(db.Model):
 class Settings(db.Model):
     __tablename__ = 'settings'
     id = db.Column(db.Integer, primary_key=True)
-    site_name = db.Column(db.String(100), nullable=False, default="Night Code Jam")
+    site_name = db.Column(db.String(100), nullable=False, default="Coding-Wettbewerb")
     tagline = db.Column(
         db.String(300),
         nullable=False,
