@@ -77,7 +77,7 @@ class Settings(db.Model):
     tagline = db.Column(
         db.String(300),
         nullable=False,
-        default="Ein entspannter Abend mit Code, Ideen und guter Gesellschaft."
+        default="Ein Wettbewerb für Code, Ideen und Kreativität."
     )
 
     @classmethod
