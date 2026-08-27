@@ -130,6 +130,10 @@ challenge_plattform/
 └── data/                    # SQLite Datenbank (wird erstellt)
 ```
 
+## 🙏 Herkunft & Mitwirkende
+
+Dieses Projekt basiert auf der ursprünglichen Version von [frankjuchim](https://github.com/frankjuchim/challenge_plattform). Ein großer Teil der hier beschriebenen Weiterentwicklung (Sicherheits-Härtung, Offline-Fähigkeit, neue Funktionen, Übersetzungen) wurde mit Unterstützung von KI (Claude Code) umgesetzt.
+
 ## 📝 Lizenz
 
 Dieses Projekt wurde für eine Weiterbildungsmaßnahme Informatik für Lehrkräfte erstellt.
