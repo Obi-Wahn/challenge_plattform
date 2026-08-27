@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2 class="mb-4">🎛 Event Control</h2>
+<h2 class="mb-4">🎛 Steuerzentrale</h2>
 
 <div class="row g-4">
 
   <div class="col-md-3">
     <a href="{{ url_for('admin.challenges_list') }}" class="btn btn-outline-light w-100 py-4">
-      🏁<br><strong>Challenges</strong>
+      🏁<br><strong>Wettbewerbe</strong>
     </a>
   </div>
 
@@ -25,7 +25,7 @@
 
   <div class="col-md-3">
     <a href="{{ url_for('public.scoreboard') }}" class="btn btn-outline-light w-100 py-4">
-      🏆<br><strong>Scoreboard</strong>
+      🏆<br><strong>Rangliste</strong>
     </a>
   </div>
 
@@ -40,7 +40,7 @@
 
 <hr class="my-4">
 
-<h4>Events</h4>
+<h4>Wettbewerbe</h4>
 <ul>
   {% for c in challenges %}
   <li>
@@ -55,7 +55,7 @@
 </ul>
 
 <a href="{{ url_for('auth.admin_logout') }}" class="btn btn-sm btn-outline-secondary mt-3">
-  🔓 Logout
+  🔓 Abmelden
 </a>
 
 {% endblock %}

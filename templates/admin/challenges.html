@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2 class="mb-4">🎛 Admin · Challenges</h2>
+<h2 class="mb-4">🎛 Admin · Wettbewerbe</h2>
 
 <div class="mb-4">
   <a href="{{ url_for('admin.challenge_new') }}" class="btn btn-primary">
-    ➕ Neue Challenge
+    ➕ Neuer Wettbewerb
   </a>
 </div>
 
 {% if challenges|length == 0 %}
 <div class="event-card">
   <p class="text-secondary">
-    Es wurden noch keine Challenges angelegt.
+    Es wurden noch keine Wettbewerbe angelegt.
   </p>
 </div>
 {% endif %}
@@ -65,7 +65,7 @@
 
         <!-- Löschen -->
         <form method="post" action="{{ url_for('admin.challenge_delete', cid=c.id) }}"
-          onsubmit="return confirm('Challenge wirklich löschen? Alle Aufgaben und Abgaben gehen verloren!');">
+          onsubmit="return confirm('Wettbewerb wirklich löschen? Alle Aufgaben und Abgaben gehen verloren!');">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button class="btn btn-danger btn-sm">
             🗑 Löschen
