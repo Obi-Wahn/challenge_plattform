@@ -36,6 +36,13 @@
           aktiv
         </span>
         {% endif %}
+
+        {% if c.start_time %}
+        <div class="text-secondary small mt-2">
+          🕒 Start: {{ c.start_time.strftime('%d.%m.%Y, %H:%M') }} Uhr
+          {% if c.end_time %}· Ende: {{ c.end_time.strftime('%d.%m.%Y, %H:%M') }} Uhr{% endif %}
+        </div>
+        {% endif %}
       </div>
 
       <!-- RECHTER BEREICH: ACTIONS -->
@@ -44,6 +51,11 @@
         <!-- Aufgaben -->
         <a href="{{ url_for('admin.challenge_tasks', cid=c.id) }}" class="btn btn-outline-light btn-sm">
           📋 Aufgaben
+        </a>
+
+        <!-- Bearbeiten (Titel & Zeiten) -->
+        <a href="{{ url_for('admin.challenge_edit', cid=c.id) }}" class="btn btn-outline-info btn-sm">
+          ✏️ Bearbeiten
         </a>
 
         <!-- Pause / Fortsetzen -->
