@@ -12,17 +12,44 @@
       {{ site_settings.tagline }}
     </p>
 
-    {% if start_time %}
+    {% if status == "upcoming" %}
       <div class="event-card mb-4">
         <h2 class="mb-3">Startet in</h2>
         <h1 style="font-size: 4rem;">
           <span id="countdown"></span>
         </h1>
+        <p class="text-secondary mb-0">
+          Beginn um {{ challenge.start_time.strftime('%H:%M') }} Uhr
+        </p>
       </div>
+
+    {% elif status == "running" %}
+      <div class="event-card mb-4">
+        <h2 class="mb-3 text-success">🟢 Es geht los!</h2>
+        {% if seconds %}
+        <p class="text-secondary mb-2">Verbleibende Zeit</p>
+        <h1 style="font-size: 4rem;">
+          <span id="countdown"></span>
+        </h1>
+        {% else %}
+        <p class="text-secondary mb-0">
+          Viel Erfolg beim Programmieren!
+        </p>
+        {% endif %}
+      </div>
+
+    {% elif status == "finished" %}
+      <div class="event-card mb-4">
+        <h2 class="mb-3">🏁 Der Wettbewerb ist beendet</h2>
+        <p class="text-secondary mb-0">
+          Schaut euch die <a href="{{ url_for('public.scoreboard') }}">Rangliste</a> an.
+        </p>
+      </div>
+
     {% else %}
       <div class="event-card">
-        <p class="text-secondary">
-          Noch kein Event geplant – bleibt entspannt 🙂
+        <p class="text-secondary mb-0">
+          Noch kein Wettbewerb geplant – bleibt entspannt 🙂
         </p>
       </div>
     {% endif %}
@@ -34,27 +61,33 @@
   </div>
 </div>
 
-{% if status == "PLANNED" %}
+{% if seconds %}
 <script>
-let start = {{ challenge.start_time }};
-function updateCountdown() {
-  const now = Math.floor(Date.now() / 1000);
-  let diff = start - now;
+  // The server sends the remaining seconds, so the countdown does not depend on
+  // the clock or timezone of the device showing this page.
+  let remaining = {{ seconds }};
 
-  if (diff <= 0) {
-    location.reload();
-    return;
+  function updateCountdown() {
+    if (remaining <= 0) {
+      location.reload();
+      return;
+    }
+
+    const hours = Math.floor(remaining / 3600);
+    const minutes = Math.floor((remaining % 3600) / 60);
+    const secs = remaining % 60;
+
+    const parts = [minutes, secs].map(v => String(v).padStart(2, "0"));
+    if (hours > 0) {
+      parts.unshift(String(hours));
+    }
+
+    document.getElementById("countdown").innerText = parts.join(":");
+    remaining -= 1;
   }
 
-  const min = Math.floor(diff / 60);
-  const sec = diff % 60;
-
-  document.getElementById("countdown").innerText =
-    String(min).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
-}
-
-updateCountdown();
-setInterval(updateCountdown, 1000);
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
 </script>
 {% endif %}
 

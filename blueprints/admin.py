@@ -23,15 +23,47 @@ def challenges_list():
     challenges = Challenge.query.order_by(Challenge.id.desc()).all()
     return render_template("admin/challenges.html", challenges=challenges)
 
+def parse_datetime_local(value):
+    # Parses the value of an <input type="datetime-local">, e.g. "2026-09-19T14:30".
+    # Empty or malformed input means "not scheduled" rather than an error.
+    value = (value or "").strip()
+    if not value:
+        return None
+    for fmt in ("%Y-%m-%dT%H:%M", "%Y-%m-%dT%H:%M:%S"):
+        try:
+            return datetime.strptime(value, fmt)
+        except ValueError:
+            continue
+    return None
+
 @admin_bp.route("/challenges/new", methods=["GET", "POST"])
 def challenge_new():
     if request.method == "POST":
         title = request.form["title"]
-        challenge = Challenge(title=title)
+        challenge = Challenge(
+            title=title,
+            start_time=parse_datetime_local(request.form.get("start_time")),
+            end_time=parse_datetime_local(request.form.get("end_time"))
+        )
         db.session.add(challenge)
         db.session.commit()
         return redirect(url_for('admin.challenges_list'))
     return render_template("admin/challenge_new.html")
+
+@admin_bp.route("/challenges/<int:cid>/edit", methods=["GET", "POST"])
+def challenge_edit(cid):
+    challenge = Challenge.query.get_or_404(cid)
+
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        if title:
+            challenge.title = title
+        challenge.start_time = parse_datetime_local(request.form.get("start_time"))
+        challenge.end_time = parse_datetime_local(request.form.get("end_time"))
+        db.session.commit()
+        return redirect(url_for('admin.challenges_list'))
+
+    return render_template("admin/challenge_edit.html", challenge=challenge)
 
 @admin_bp.route("/challenge/<int:cid>/activate")
 def challenge_activate(cid):
