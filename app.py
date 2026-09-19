@@ -4,7 +4,7 @@ import socket
 from dotenv import load_dotenv
 load_dotenv()
 
-from flask import Flask, redirect, request
+from flask import Flask
 from config import Config
 from extensions import db, csrf, limiter
 from blueprints.auth import auth_bp
@@ -26,12 +26,6 @@ def create_app():
     app.register_blueprint(public_bp)
     app.register_blueprint(challenge_bp)
     app.register_blueprint(admin_bp)
-
-    # Global Middleware
-    @app.before_request
-    def force_http():
-        if request.headers.get("X-Forwarded-Proto") == "https":
-            return redirect(request.url.replace("https://", "http://"), code=301)
 
     # Custom Filters
     @app.template_filter('markdown')
