@@ -6,7 +6,7 @@ class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=True) # nullable for migration of old teams, but we reset DB anyway
-    submissions = db.relationship('Submission', backref='team', lazy=True)
+    submissions = db.relationship('Submission', backref='team', lazy=True, cascade="all, delete-orphan")
 
     def set_password(self, password):
         from werkzeug.security import generate_password_hash
