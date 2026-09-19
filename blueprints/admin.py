@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, abort, send_from_directory, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, session, abort, send_from_directory, current_app, flash
 from extensions import db
 from models import Team, Challenge, Task, Submission, Settings
 from datetime import datetime
@@ -238,6 +238,22 @@ def download_submission(submission_id):
 def teams():
     teams = Team.query.order_by(Team.name).all()
     return render_template("admin/teams.html", teams=teams)
+
+@admin_bp.route("/team/<int:team_id>/reset_password", methods=["POST"])
+def team_reset_password(team_id):
+    team = Team.query.get_or_404(team_id)
+    new_password = request.form.get("new_password", "").strip()
+
+    if not new_password:
+        flash(f"Kein Passwort eingegeben – das Passwort von Team „{team.name}“ wurde nicht geändert.", "warning")
+    else:
+        team.set_password(new_password)
+        db.session.commit()
+        # The password is deliberately not echoed back: the admin screen may be
+        # projected during an event, and whoever typed it already knows it.
+        flash(f"Neues Passwort für Team „{team.name}“ gespeichert.", "success")
+
+    return redirect(url_for('admin.teams'))
 
 @admin_bp.route("/team/delete/<int:team_id>", methods=["POST"])
 def team_delete(team_id):
