@@ -26,6 +26,10 @@
         {% else %}
         <span class="badge bg-warning text-dark ms-2">⏳ offen</span>
         {% endif %}
+
+        {% if submission.resubmit_allowed %}
+        <span class="badge bg-info text-dark ms-2">🔓 Korrektur freigegeben</span>
+        {% endif %}
       </h3>
 
       <p class="text-secondary mb-0">
@@ -117,7 +121,17 @@
       </div>
 
       <div class="col-md-12 mt-2">
-        <div class="d-flex justify-content-end">
+        <div class="d-flex flex-wrap justify-content-end gap-2">
+          <button type="submit"
+            formaction="{{ url_for('admin.submission_allow_resubmit', submission_id=submission.id) }}"
+            class="btn btn-sm {% if submission.resubmit_allowed %}btn-info{% else %}btn-outline-info{% endif %}">
+            {% if submission.resubmit_allowed %}
+            🔒 Korrektur wieder sperren
+            {% else %}
+            🔓 Erneut abgeben erlauben
+            {% endif %}
+          </button>
+
           <button type="submit" formaction="{{ url_for('admin.submission_reset', submission_id=submission.id) }}"
             class="btn btn-outline-danger btn-sm"
             onclick="return confirm('Abgabe wirklich unwiderruflich löschen? Das Team kann dann neu abgeben.');">
