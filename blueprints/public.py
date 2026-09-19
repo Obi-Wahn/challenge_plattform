@@ -45,7 +45,9 @@ def index():
     return render_template("index.html", qr_code_data=qr_code_data)
 
 @public_bp.route("/login", methods=["GET", "POST"])
-@limiter.limit("5 per minute")
+# Only actual login attempts count towards the limit - merely opening or
+# reloading the login page must not lock anyone out.
+@limiter.limit("5 per minute", methods=["POST"])
 def login():
     if request.method == "POST":
         team_name = request.form.get("team")
