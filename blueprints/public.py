@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
 from extensions import db, limiter
 from models import Team, Challenge, Task, Submission
+from scoring import get_standings, get_podium
 import base64
 import io
 import qrcode
@@ -71,44 +72,35 @@ def logout():
 
 @public_bp.route("/scoreboard")
 def scoreboard():
-    # Logic fix: Use LATEST challenge to match other views
+    # Use LATEST challenge to match other views
     challenge = Challenge.query.order_by(Challenge.id.desc()).first()
 
     if not challenge:
         return render_template("scoreboard.html", challenge=None)
 
-    tasks = Task.query.filter_by(challenge_id=challenge.id).order_by(Task.id).all()
-    teams = Team.query.order_by(Team.name).all()
-    
-    # Submissions for this challenge
-    submissions = Submission.query.join(Task).filter(Task.challenge_id == challenge.id).all()
-
-    # Prepare score map
-    score_map = {}
-    for team in teams:
-        score_map[team.id] = {
-            "name": team.name,
-            "task_points": {t.id: 0 for t in tasks},
-            "total": 0
-        }
-
-    for s in submissions:
-        if s.team_id in score_map:
-            score_map[s.team_id]["task_points"][s.task_id] = s.points or 0 # Handle None points
-            score_map[s.team_id]["total"] += (s.points or 0)
-
-    # Sort by total
-    sorted_teams = sorted(
-        score_map.values(),
-        key=lambda x: x["total"],
-        reverse=True
-    )
+    tasks, standings = get_standings(challenge)
 
     return render_template(
         "scoreboard.html",
         challenge=challenge,
         tasks=tasks,
-        teams=sorted_teams
+        teams=standings
+    )
+
+@public_bp.route("/siegerehrung")
+def siegerehrung():
+    challenge = Challenge.query.order_by(Challenge.id.desc()).first()
+
+    if not challenge:
+        return render_template("siegerehrung.html", challenge=None, podium=[])
+
+    _tasks, standings = get_standings(challenge)
+
+    return render_template(
+        "siegerehrung.html",
+        challenge=challenge,
+        podium=get_podium(standings),
+        team_count=len([e for e in standings if e["total"] > 0])
     )
 
 @public_bp.route("/start")

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="text-center mb-5">
+  <h1 class="display-4 fw-bold">🏆 Siegerehrung</h1>
+  <p class="lead text-secondary">
+    {% if challenge %}{{ challenge.title }}{% else %}{{ site_settings.site_name }}{% endif %}
+  </p>
+</div>
+
+{% if not podium %}
+<div class="event-card text-center p-5">
+  <h3 class="text-secondary mb-0">
+    Noch keine bewerteten Abgaben – sobald Punkte vergeben sind, erscheint hier das Siegertreppchen.
+  </h3>
+</div>
+
+{% else %}
+
+<!-- Von Platz 3 aufwärts einzeln aufdecken -->
+<div class="text-center mb-4" id="reveal-controls">
+  <button class="btn btn-primary btn-lg" id="reveal-next">
+    🥁 Nächsten Platz verkünden
+  </button>
+  <button class="btn btn-outline-light btn-lg ms-2" id="reveal-all">
+    Alle anzeigen
+  </button>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    {% for stufe in podium | reverse %}
+    <div class="event-card mb-4 text-center podium-step" data-place="{{ stufe.place }}" hidden>
+      <div style="font-size: 3.5rem; line-height: 1;">
+        {% if stufe.place == 1 %}🥇{% elif stufe.place == 2 %}🥈{% else %}🥉{% endif %}
+      </div>
+
+      <h2 class="mt-2 mb-3 text-secondary">{{ stufe.place }}. Platz</h2>
+
+      {% for team in stufe.teams %}
+      <div class="fw-bold" style="font-size: {% if stufe.place == 1 %}3rem{% else %}2.2rem{% endif %};">
+        {{ team.name }}
+      </div>
+      {% endfor %}
+
+      <div class="text-secondary mt-2" style="font-size: 1.3rem;">
+        {{ stufe.teams[0].total }} {% if stufe.teams[0].total == 1 %}Punkt{% else %}Punkte{% endif %}
+        {% if stufe.teams | length > 1 %}
+        <span class="badge bg-info text-dark ms-2">punktgleich</span>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="text-center mt-4">
+  <a href="{{ url_for('public.scoreboard') }}" class="text-secondary">
+    Vollständige Rangliste ansehen
+  </a>
+</div>
+
+<script>
+  // The steps are revealed from the lowest place upwards, so the winner comes last.
+  const steps = Array.from(document.querySelectorAll(".podium-step"));
+  const nextButton = document.getElementById("reveal-next");
+  const allButton = document.getElementById("reveal-all");
+  let revealed = 0;
+
+  function revealNext() {
+    if (revealed >= steps.length) return;
+    const step = steps[revealed];
+    step.hidden = false;
+    step.scrollIntoView({ behavior: "smooth", block: "center" });
+    revealed += 1;
+    if (revealed >= steps.length) {
+      nextButton.disabled = true;
+      nextButton.textContent = "🎉 Alle Plätze verkündet";
+    }
+  }
+
+  function revealAll() {
+    while (revealed < steps.length) {
+      steps[revealed].hidden = false;
+      revealed += 1;
+    }
+    nextButton.disabled = true;
+    nextButton.textContent = "🎉 Alle Plätze verkündet";
+  }
+
+  nextButton.addEventListener("click", revealNext);
+  allButton.addEventListener("click", revealAll);
+
+  // Space bar also advances, handy when the page is projected.
+  document.addEventListener("keydown", (event) => {
+    if (event.code === "Space") {
+      event.preventDefault();
+      revealNext();
+    }
+  });
+</script>
+
+{% endif %}
+
+{% endblock %}

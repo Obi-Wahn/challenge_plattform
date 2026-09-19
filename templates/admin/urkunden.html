@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="no-print">
+  <h2 class="mb-3">📜 Urkunden</h2>
+
+  {% if entries %}
+  <p class="text-secondary">
+    Eine Urkunde pro Team, je eine Seite. Zum Ausdrucken <strong>Strg + P</strong> drücken
+    (im Druckdialog Querformat wählen) oder die fertige PDF-Datei herunterladen.
+  </p>
+
+  <div class="d-flex flex-wrap gap-2 mb-4">
+    <button class="btn btn-primary" onclick="window.print();">
+      🖨️ Drucken
+    </button>
+    <a href="{{ url_for('admin.certificates_pdf') }}" class="btn btn-outline-light">
+      ⬇️ Alle als PDF herunterladen
+    </a>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
+      ← zurück zum Admin-Dashboard
+    </a>
+  </div>
+  {% else %}
+  <div class="event-card">
+    <p class="text-secondary mb-0">Noch keine Teams registriert – es gibt nichts zu drucken.</p>
+  </div>
+  <a href="{{ url_for('admin.dashboard') }}" class="text-secondary mt-4 d-block">
+    ← zurück zum Admin-Dashboard
+  </a>
+  {% endif %}
+</div>
+
+{% for entry in entries %}
+<div class="certificate">
+  <div class="certificate-inner">
+    <div class="certificate-event">{{ site_settings.site_name }}</div>
+    <div class="certificate-title">Urkunde</div>
+    <div class="certificate-label">verliehen an das Team</div>
+    <div class="certificate-team">{{ entry.name }}</div>
+
+    <div class="certificate-label">
+      {% if challenge %}
+      für die Teilnahme am Wettbewerb „{{ challenge.title }}“
+      {% else %}
+      für die Teilnahme am Wettbewerb
+      {% endif %}
+    </div>
+
+    {% if entry.rank in [1, 2, 3] %}
+    <div class="certificate-place">
+      {% if entry.rank == 1 %}🥇{% elif entry.rank == 2 %}🥈{% else %}🥉{% endif %}
+      {{ entry.rank }}. Platz
+    </div>
+    {% endif %}
+
+    <div class="certificate-points">
+      {{ entry.total }} {% if entry.total == 1 %}Punkt{% else %}Punkte{% endif %}
+      {% if task_count %}· {{ entry.solved }} von {{ task_count }} Aufgaben bearbeitet{% endif %}
+    </div>
+
+    <div class="certificate-footer">
+      <div>{{ today }}</div>
+      <div class="certificate-signature">Unterschrift</div>
+    </div>
+
+    <div class="no-print certificate-single-link">
+      <a href="{{ url_for('admin.certificate_pdf_single', team_id=entry.team_id) }}">
+        ⬇️ nur diese Urkunde als PDF
+      </a>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<style>
+  .certificate {
+    background: #ffffff;
+    color: #1e1e3c;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    padding: 1rem;
+  }
+
+  .certificate-inner {
+    border: 2px solid #5a5a78;
+    padding: 2.5rem 2rem;
+    text-align: center;
+  }
+
+  .certificate-event { font-size: 1.1rem; color: #5a5a78; }
+  .certificate-title { font-size: 3rem; font-weight: 700; margin: 0.5rem 0 1rem; }
+  .certificate-label { font-size: 1rem; color: #3c3c50; margin: 0.4rem 0; }
+  .certificate-team { font-size: 2.2rem; font-weight: 700; margin: 0.5rem 0; }
+  .certificate-place { font-size: 1.5rem; font-weight: 700; color: #966e14; margin: 1rem 0 0.5rem; }
+  .certificate-points { font-size: 1.05rem; color: #3c3c50; }
+
+  .certificate-footer { margin-top: 3rem; color: #6a6a80; font-size: 0.9rem; }
+  .certificate-signature {
+    border-top: 1px solid #8c8ca0;
+    width: 16rem;
+    margin: 0.3rem auto 0;
+    padding-top: 0.3rem;
+    font-size: 0.8rem;
+  }
+
+  .certificate-single-link { margin-top: 1.5rem; font-size: 0.85rem; }
+
+  @media print {
+    /* Only the certificates themselves go on paper. */
+    .no-print,
+    nav,
+    footer,
+    .stars,
+    .alert { display: none !important; }
+
+    body { background: #ffffff !important; margin: 0; padding: 0; }
+
+    /* The page container's own padding would otherwise add to every
+       certificate's height and push it onto a second sheet. */
+    .container, .container-fluid {
+      padding: 0 !important;
+      margin: 0 !important;
+      max-width: none !important;
+      width: 100% !important;
+    }
+
+    .certificate {
+      margin: 0;
+      padding: 0;
+      border-radius: 0;
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .certificate:last-of-type {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    .certificate-inner {
+      /* A4 landscape (210mm high) minus the 1cm page margins, in absolute
+         units - vh is not reliable across print engines and made the frame
+         overflow onto a second sheet. */
+      height: 186mm;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    @page { size: A4 landscape; margin: 1cm; }
+  }
+</style>
+
+{% endblock %}
