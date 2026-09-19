@@ -40,11 +40,11 @@
           <tbody>
             {% for team in teams %}
             <tr
-              class="align-middle fs-5 {% if loop.index == 1 %}bg-warning bg-opacity-10{% elif loop.index == 2 %}bg-secondary bg-opacity-10{% elif loop.index == 3 %}bg-danger bg-opacity-10{% endif %}">
+              class="align-middle fs-5 {% if team.rank == 1 %}bg-warning bg-opacity-10{% elif team.rank == 2 %}bg-secondary bg-opacity-10{% elif team.rank == 3 %}bg-danger bg-opacity-10{% endif %}">
 
               <td class="p-4 text-center fw-bold">
-                {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{
-                loop.index }}{% endif %}
+                {% if team.rank == 1 %}🥇{% elif team.rank == 2 %}🥈{% elif team.rank == 3 %}🥉{% else %}{{
+                team.rank }}{% endif %}
               </td>
 
               <td class="p-4 fw-bold">

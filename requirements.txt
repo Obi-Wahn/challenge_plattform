@@ -7,3 +7,4 @@ python-dotenv==1.0.0
 Markdown==3.5.1
 waitress==3.0.2
 qrcode[pil]==8.2
+fpdf2==2.8.8

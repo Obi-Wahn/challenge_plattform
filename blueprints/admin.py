@@ -1,7 +1,10 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, abort, send_from_directory, current_app, flash
+from flask import Blueprint, render_template, request, redirect, url_for, session, abort, send_from_directory, send_file, current_app, flash
 from extensions import db
 from models import Team, Challenge, Task, Submission, Settings
+from scoring import get_standings
+from certificates import build_certificates_pdf
 from datetime import datetime
+import io
 import os
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -282,6 +285,69 @@ def team_delete(team_id):
     db.session.delete(team)
     db.session.commit()
     return redirect(url_for('admin.teams'))
+
+def _certificate_data():
+    """Collects everything the certificates need, for the latest challenge."""
+    challenge = Challenge.query.order_by(Challenge.id.desc()).first()
+    if not challenge:
+        return None, [], 0
+
+    tasks, standings = get_standings(challenge)
+    return challenge, standings, len(tasks)
+
+@admin_bp.route("/urkunden")
+def certificates_print():
+    challenge, standings, task_count = _certificate_data()
+    return render_template(
+        "admin/urkunden.html",
+        challenge=challenge,
+        entries=standings,
+        task_count=task_count,
+        today=datetime.now().strftime("%d.%m.%Y")
+    )
+
+@admin_bp.route("/urkunden.pdf")
+def certificates_pdf():
+    challenge, standings, task_count = _certificate_data()
+    if not standings:
+        flash("Es sind noch keine Teams registriert – es gibt nichts zu drucken.", "warning")
+        return redirect(url_for('admin.certificates_print'))
+
+    pdf_bytes = build_certificates_pdf(
+        Settings.get().site_name,
+        challenge.title if challenge else "",
+        standings,
+        task_count
+    )
+    return send_file(
+        io.BytesIO(pdf_bytes),
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name=f"Urkunden_{safe_name(challenge.title if challenge else 'Wettbewerb')}.pdf"
+    )
+
+@admin_bp.route("/urkunden/<int:team_id>.pdf")
+def certificate_pdf_single(team_id):
+    team = Team.query.get_or_404(team_id)
+    challenge, standings, task_count = _certificate_data()
+
+    entry = next((e for e in standings if e["team_id"] == team_id), None)
+    if entry is None:
+        # Team exists but has no place in the current challenge yet.
+        entry = {"team_id": team.id, "name": team.name, "total": 0, "solved": 0, "rank": 0}
+
+    pdf_bytes = build_certificates_pdf(
+        Settings.get().site_name,
+        challenge.title if challenge else "",
+        [entry],
+        task_count
+    )
+    return send_file(
+        io.BytesIO(pdf_bytes),
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name=f"Urkunde_{safe_name(team.name)}.pdf"
+    )
 
 @admin_bp.route("/settings", methods=["GET", "POST"])
 def settings():
