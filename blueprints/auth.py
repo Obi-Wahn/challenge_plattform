@@ -4,7 +4,9 @@ from extensions import db, limiter
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route("/admin/login", methods=["GET", "POST"])
-@limiter.limit("5 per minute")
+# Only actual login attempts count towards the limit - merely opening or
+# reloading the login page must not lock anyone out.
+@limiter.limit("5 per minute", methods=["POST"])
 def admin_login():
     if request.method == "POST":
         password = request.form.get("password")
