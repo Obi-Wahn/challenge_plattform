@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
 from extensions import db, limiter
 from models import Team, Challenge, Task, Submission
-import time # Added for start route
 import base64
 import io
 import qrcode
@@ -112,27 +111,26 @@ def scoreboard():
 
 @public_bp.route("/start")
 def start():
-    challenge = Challenge.query.filter_by(active=True).first()
-    
-    # Check if there is a PLANNED challenge (future start time)
-    # If multiple, take the next one. For simplicity, we check if ANY challenge has a start_time in future
-    # But current data model might not support "planned" status explicitly other than via time.
-    # Let's assume we want to show countdown for the active challenge if it hasn't started yet, 
-    # or just a general "next event" page. 
-    
-    # Reusing existing logic concept from previous file content if applicable
-    status = "IDLE"
-    start_time_ts = 0
-    
-    if challenge and challenge.start_time:
-        now = time.time()
-        if challenge.start_time > now:
-            status = "PLANNED"
-            start_time_ts = challenge.start_time
+    # Same challenge the teams see on their own page.
+    challenge = Challenge.query.order_by(Challenge.id.desc()).first()
 
+    status = "not_scheduled"
+    seconds = 0
+
+    if challenge:
+        status = challenge.status()
+        if status == "upcoming":
+            seconds = challenge.seconds_until_start
+        elif status == "running":
+            # Stays 0 when no end time is set, which hides the countdown.
+            seconds = challenge.remaining_seconds
+
+    # The remaining seconds are counted down in the browser instead of passing
+    # an absolute timestamp, so a wrong clock or timezone on a viewer's device
+    # cannot skew the countdown.
     return render_template(
         "start.html",
         challenge=challenge,
         status=status,
-        start_time=start_time_ts
+        seconds=seconds
     )

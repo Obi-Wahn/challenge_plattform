@@ -29,14 +29,23 @@ class Challenge(db.Model):
     tasks = db.relationship('Task', backref='challenge', lazy=True, cascade="all, delete-orphan")
 
     def status(self):
+        # end_time is optional: a challenge can have a start countdown without
+        # a fixed end, in which case it just keeps running once it has started.
         now = datetime.now()
-        if not self.start_time or not self.end_time:
+        if not self.start_time:
             return "not_scheduled"
         if now < self.start_time:
             return "upcoming"
-        if self.start_time <= now <= self.end_time:
+        if not self.end_time or now <= self.end_time:
             return "running"
         return "finished"
+
+    @property
+    def seconds_until_start(self):
+        if not self.start_time:
+            return 0
+        remaining = (self.start_time - datetime.now()).total_seconds()
+        return max(0, int(remaining))
 
     @property
     def remaining_seconds(self):
