@@ -7,8 +7,9 @@ def get_standings(challenge):
     """Returns (tasks, standings) for a challenge, best team first.
 
     Every registered team is included, even without a submission. Teams on the
-    same total share a rank and the following rank skips accordingly
-    (1, 2, 2, 4), so a tie is never resolved arbitrarily.
+    same total share a rank and the next team moves up rather than the rank
+    being skipped (1, 2, 2, 3), so a tie never leaves a place on the podium
+    empty and a tie is never resolved arbitrarily.
     """
     tasks = Task.query.filter_by(challenge_id=challenge.id).order_by(Task.id).all()
     teams = Team.query.order_by(Team.name).all()
@@ -38,9 +39,9 @@ def get_standings(challenge):
 
     rank = 0
     previous_total = None
-    for position, entry in enumerate(ordered, start=1):
+    for entry in ordered:
         if entry["total"] != previous_total:
-            rank = position
+            rank += 1
             previous_total = entry["total"]
         entry["rank"] = rank
 
