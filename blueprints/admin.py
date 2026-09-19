@@ -199,10 +199,31 @@ def submissions():
             "max_points": s.task.max_points,
             "points": s.points,
             "feedback": s.feedback,
+            "resubmit_allowed": s.resubmit_allowed,
             "code": content
         })
 
     return render_template("admin/review.html", submissions=submissions_data)
+
+@admin_bp.route("/submissions/<int:submission_id>/allow_resubmit", methods=["POST"])
+def submission_allow_resubmit(submission_id):
+    submission = Submission.query.get_or_404(submission_id)
+    submission.resubmit_allowed = not submission.resubmit_allowed
+    db.session.commit()
+
+    if submission.resubmit_allowed:
+        flash(
+            f"Team „{submission.team.name}“ kann die Aufgabe „{submission.task.title}“ "
+            "jetzt noch einmal abgeben.",
+            "success"
+        )
+    else:
+        flash(
+            f"Erneutes Abgeben für Team „{submission.team.name}“ wurde wieder gesperrt.",
+            "warning"
+        )
+
+    return redirect(url_for('admin.submissions'))
 
 @admin_bp.route("/reset/<int:submission_id>", methods=["POST"])
 def submission_reset(submission_id):

@@ -63,8 +63,10 @@ def submit_task(task_id):
 
     team_id = session["team_id"]
 
+    # A team may only submit once per task, unless an admin explicitly
+    # released this submission for a correction.
     existing = Submission.query.filter_by(team_id=team_id, task_id=task_id).first()
-    if existing:
+    if existing and not existing.resubmit_allowed:
         abort(403)
 
     if "file" not in request.files:
@@ -81,13 +83,30 @@ def submit_task(task_id):
     filepath = os.path.join(team_folder, f"task_{task_id}_{filename}")
     file.save(filepath)
 
-    submission = Submission(
-        team_id=team_id,
-        task_id=task_id,
-        filename=filepath,
-        timestamp=datetime.now()
-    )
-    db.session.add(submission)
+    if existing:
+        # Correction: replace the file and clear the previous grading, so the
+        # submission goes back into the admin's review queue. The release is
+        # used up, so a further correction needs a new one.
+        previous_filepath = existing.filename
+        existing.filename = filepath
+        existing.timestamp = datetime.now()
+        existing.points = None
+        existing.feedback = None
+        existing.resubmit_allowed = False
+
+        if previous_filepath != filepath:
+            try:
+                os.remove(previous_filepath)
+            except OSError:
+                pass # An already missing old file must not break the submission.
+    else:
+        db.session.add(Submission(
+            team_id=team_id,
+            task_id=task_id,
+            filename=filepath,
+            timestamp=datetime.now()
+        ))
+
     db.session.commit()
 
     return redirect(url_for("challenge.view"))
