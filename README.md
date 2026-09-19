@@ -115,7 +115,6 @@ challenge_plattform/
 ├── extensions.py          # Datenbank & Extensions
 ├── models.py               # Datenbankmodelle
 ├── requirements.txt       # Abhängigkeiten
-├── migrate_db.py          # Historisches Migrationsskript (Spalten-Migrationen laufen inzwischen automatisch beim Start)
 ├── .env.example            # Vorlage für die eigene .env
 ├── blueprints/             # Modulare Routen
 │   ├── admin.py

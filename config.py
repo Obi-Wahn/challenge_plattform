@@ -28,8 +28,9 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Uploads
+    # The allowed file type is configured per task (Task.allowed_extension),
+    # not globally.
     UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
-    ALLOWED_EXTENSIONS = {"pde"}
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB max upload
 
     # Rate limiting
