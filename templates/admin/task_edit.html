@@ -71,7 +71,9 @@
         spellChecker: false,
         status: false,
         autoDownloadFontAwesome: false,
-        toolbar: ["bold", "italic", "heading", "|", "quote", "code", "unordered-list", "ordered-list", "|", "preview", "guide"]
+        // No "guide" button: it links to an external website, which is
+        // unreachable on the offline machine this runs on.
+        toolbar: ["bold", "italic", "heading", "|", "quote", "code", "unordered-list", "ordered-list", "|", "preview"]
     });
 </script>
 
