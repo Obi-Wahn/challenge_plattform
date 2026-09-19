@@ -76,6 +76,8 @@ class Submission(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.now)
     points = db.Column(db.Integer, nullable=True)
     feedback = db.Column(db.Text, nullable=True)
+    # Set by an admin to let the team replace this submission once.
+    resubmit_allowed = db.Column(db.Boolean, default=False)
 
     __table_args__ = (db.UniqueConstraint('team_id', 'task_id', name='_team_task_uc'),)
 
