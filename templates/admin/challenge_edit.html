@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1 class="mb-4">✏️ Wettbewerb bearbeiten</h1>
+
+<div class="event-card">
+
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <label class="form-label">Titel des Wettbewerbs</label>
+    <input type="text" name="title" class="form-control form-control-lg" value="{{ challenge.title }}" required>
+
+    <div class="row g-3 mt-1">
+      <div class="col-md-6">
+        <label class="form-label">Startzeit <span class="text-secondary">(optional)</span></label>
+        <input type="datetime-local" name="start_time" class="form-control"
+          value="{{ challenge.start_time.strftime('%Y-%m-%dT%H:%M') if challenge.start_time else '' }}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Endzeit <span class="text-secondary">(optional)</span></label>
+        <input type="datetime-local" name="end_time" class="form-control"
+          value="{{ challenge.end_time.strftime('%Y-%m-%dT%H:%M') if challenge.end_time else '' }}">
+      </div>
+    </div>
+
+    <p class="text-secondary small mt-2 mb-0">
+      Ist eine Startzeit gesetzt, zeigt die
+      <a href="{{ url_for('public.start') }}" target="_blank">Countdown-Seite</a> einen Countdown bis zum Beginn.
+      Ohne Endzeit läuft der Wettbewerb nach dem Start einfach weiter. Felder leeren entfernt die jeweilige Zeit wieder.
+    </p>
+
+    <button class="btn btn-primary mt-4">
+      💾 Speichern
+    </button>
+  </form>
+
+</div>
+
+<a href="{{ url_for('admin.challenges_list') }}" class="text-secondary mt-4 d-block">
+  ← zurück zur Übersicht
+</a>
+
+{% endblock %}
