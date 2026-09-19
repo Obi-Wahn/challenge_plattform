@@ -3,6 +3,11 @@
 
 <h2 class="mb-4">👥 Teams verwalten</h2>
 
+<p class="text-secondary">
+  Hat ein Team sein Passwort vergessen, kannst du hier ein neues setzen und es dem Team sagen –
+  die bisherigen Abgaben und Punkte bleiben dabei erhalten.
+</p>
+
 <div class="event-card">
 
   {% if teams|length == 0 %}
@@ -14,13 +19,29 @@
     <li class="list-group-item bg-transparent text-light d-flex flex-wrap justify-content-between align-items-center gap-2">
       <strong>{{ team.name }}</strong>
 
-      <form method="post" action="{{ url_for('admin.team_delete', team_id=team.id) }}"
-        onsubmit="return confirm('Team wirklich löschen? Alle Abgaben und Punkte gehen verloren.');">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button class="btn btn-outline-danger btn-sm">
-          🗑 Löschen
-        </button>
-      </form>
+      <div class="d-flex flex-wrap align-items-center gap-2">
+
+        <!-- Passwort zurücksetzen -->
+        <form method="post" action="{{ url_for('admin.team_reset_password', team_id=team.id) }}"
+          class="d-flex flex-wrap gap-2">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="text" name="new_password" class="form-control form-control-sm" style="width: 12rem;"
+            placeholder="Neues Passwort" required>
+          <button class="btn btn-outline-warning btn-sm">
+            🔑 Passwort setzen
+          </button>
+        </form>
+
+        <!-- Löschen -->
+        <form method="post" action="{{ url_for('admin.team_delete', team_id=team.id) }}"
+          onsubmit="return confirm('Team wirklich löschen? Alle Abgaben und Punkte gehen verloren.');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-outline-danger btn-sm">
+            🗑 Löschen
+          </button>
+        </form>
+
+      </div>
     </li>
     {% endfor %}
   </ul>
