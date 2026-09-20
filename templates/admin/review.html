@@ -1,7 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1 class="mb-5">📝 Abgaben bewerten</h1>
+<h1 class="mb-2">📝 Abgaben bewerten</h1>
+
+{% if challenge %}
+<p class="text-secondary mb-5">
+  Abgaben des Wettbewerbs <strong class="text-light">{{ challenge.title }}</strong>.
+</p>
+{% else %}
+<p class="text-secondary mb-5">Es gibt noch keinen Wettbewerb.</p>
+{% endif %}
 
 {% if submissions|length == 0 %}
 <div class="event-card text-center">

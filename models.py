@@ -4,9 +4,16 @@ from extensions import db
 class Team(db.Model):
     __tablename__ = 'teams'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True, nullable=False)
-    password_hash = db.Column(db.String(200), nullable=True) # nullable for migration of old teams, but we reset DB anyway
+    # A team belongs to the competition it registered for. Nullable so teams
+    # from before this became a rule survive the migration.
+    challenge_id = db.Column(db.Integer, db.ForeignKey('challenges.id'), nullable=True)
+    name = db.Column(db.String(100), nullable=False)
+    password_hash = db.Column(db.String(200), nullable=True)
     submissions = db.relationship('Submission', backref='team', lazy=True, cascade="all, delete-orphan")
+
+    # Team names only need to be unique within their own competition, so the
+    # same team can take part in several competitions.
+    __table_args__ = (db.UniqueConstraint('challenge_id', 'name', name='_challenge_team_uc'),)
 
     def set_password(self, password):
         from werkzeug.security import generate_password_hash
@@ -27,6 +34,17 @@ class Challenge(db.Model):
     active = db.Column(db.Boolean, default=False)
     paused = db.Column(db.Boolean, default=False)
     tasks = db.relationship('Task', backref='challenge', lazy=True, cascade="all, delete-orphan")
+    teams = db.relationship('Team', backref='challenge', lazy=True, cascade="all, delete-orphan")
+
+    @classmethod
+    def current(cls):
+        """The competition everything refers to: the activated one.
+
+        Falls back to the newest competition while none has been activated,
+        so a fresh installation works without pressing "aktivieren" first.
+        """
+        return (cls.query.filter_by(active=True).first()
+                or cls.query.order_by(cls.id.desc()).first())
 
     def status(self):
         # end_time is optional: a challenge can have a start countdown without

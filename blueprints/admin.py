@@ -39,8 +39,15 @@ def parse_datetime_local(value):
             continue
     return None
 
+def latest_challenge_with_teams():
+    """The most recent competition that has teams, as a source for a carry-over."""
+    return (Challenge.query.filter(Challenge.teams.any())
+            .order_by(Challenge.id.desc()).first())
+
 @admin_bp.route("/challenges/new", methods=["GET", "POST"])
 def challenge_new():
+    previous = latest_challenge_with_teams()
+
     if request.method == "POST":
         title = request.form["title"]
         challenge = Challenge(
@@ -49,9 +56,28 @@ def challenge_new():
             end_time=parse_datetime_local(request.form.get("end_time"))
         )
         db.session.add(challenge)
+        db.session.flush() # assigns the id the copied teams are bound to
+
+        # Optionally take the teams of the previous competition along, keeping
+        # their passwords so the same groups can log in as before.
+        if previous and request.form.get("copy_teams"):
+            for source in sorted(previous.teams, key=lambda t: t.name.lower()):
+                copy = Team(name=source.name, challenge_id=challenge.id)
+                copy.password_hash = source.password_hash
+                db.session.add(copy)
+
         db.session.commit()
+
+        if previous and request.form.get("copy_teams"):
+            flash(
+                f"Wettbewerb angelegt und {len(previous.teams)} Team(s) aus "
+                f"„{previous.title}“ übernommen.",
+                "success"
+            )
+
         return redirect(url_for('admin.challenges_list'))
-    return render_template("admin/challenge_new.html")
+
+    return render_template("admin/challenge_new.html", previous=previous)
 
 @admin_bp.route("/challenges/<int:cid>/edit", methods=["GET", "POST"])
 def challenge_edit(cid):
@@ -176,12 +202,19 @@ def submissions():
                  db.session.commit()
         return redirect(url_for('admin.submissions'))
 
-    # List submissions
-    raw_submissions = Submission.query.join(Team).join(Task).order_by(
-        Submission.points.isnot(None), 
+    # Only the submissions of the current competition - older events stay in the
+    # database but must not clutter the review list.
+    challenge = Challenge.current()
+    if not challenge:
+        return render_template("admin/review.html", submissions=[], challenge=None)
+
+    raw_submissions = Submission.query.join(Team).join(Task).filter(
+        Task.challenge_id == challenge.id
+    ).order_by(
+        Submission.points.isnot(None),
         Team.name
     ).all()
-    
+
     submissions_data = []
     for s in raw_submissions:
         content = "Datei konnte nicht gelesen werden."
@@ -206,7 +239,7 @@ def submissions():
             "code": content
         })
 
-    return render_template("admin/review.html", submissions=submissions_data)
+    return render_template("admin/review.html", submissions=submissions_data, challenge=challenge)
 
 @admin_bp.route("/submissions/<int:submission_id>/allow_resubmit", methods=["POST"])
 def submission_allow_resubmit(submission_id):
@@ -260,8 +293,12 @@ def download_submission(submission_id):
 
 @admin_bp.route("/teams")
 def teams():
-    teams = Team.query.order_by(Team.name).all()
-    return render_template("admin/teams.html", teams=teams)
+    # Teams belong to the competition they registered for, so only the current
+    # one is listed here.
+    challenge = Challenge.current()
+    teams = (Team.query.filter_by(challenge_id=challenge.id).order_by(Team.name).all()
+             if challenge else [])
+    return render_template("admin/teams.html", teams=teams, challenge=challenge)
 
 @admin_bp.route("/team/<int:team_id>/reset_password", methods=["POST"])
 def team_reset_password(team_id):
@@ -288,7 +325,7 @@ def team_delete(team_id):
 
 def _certificate_data():
     """Collects everything the certificates need, for the latest challenge."""
-    challenge = Challenge.query.order_by(Challenge.id.desc()).first()
+    challenge = Challenge.current()
     if not challenge:
         return None, [], 0
 
