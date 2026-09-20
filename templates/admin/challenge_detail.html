@@ -108,31 +108,36 @@
 {% endif %}
 
 <!-- ===== VORBEREITUNG ===== -->
+<!-- Reihenfolge wie beim Vorbereiten: erst der Wettbewerb selbst, dann wer
+     mitmacht, dann was zu tun ist. -->
 <h5 class="text-secondary text-uppercase mb-3 section-label">Vorbereitung</h5>
 <div class="row g-3 mb-5">
   <div class="col-md-3 col-6">
-    <a href="{{ url_for('admin.challenge_tasks', cid=challenge.id) }}" class="btn btn-outline-light w-100 py-4">
-      📋<br><strong>Aufgaben</strong>
-      <div class="small text-secondary">{{ overview.tasks }} angelegt</div>
-    </a>
-  </div>
-  <div class="col-md-3 col-6">
-    <a href="{{ url_for('admin.challenge_edit', cid=challenge.id) }}" class="btn btn-outline-light w-100 py-4">
+    <a href="{{ url_for('admin.challenge_edit', cid=challenge.id) }}" class="btn btn-outline-light w-100 h-100 py-4">
       🕒<br><strong>Titel &amp; Zeiten</strong>
+      <div class="small text-secondary">
+        {% if challenge.start_time or challenge.end_time %}gesetzt{% else %}noch offen{% endif %}
+      </div>
     </a>
   </div>
   <div class="col-md-3 col-6">
     {% if is_current %}
-    <a href="{{ url_for('admin.teams') }}" class="btn btn-outline-light w-100 py-4">
+    <a href="{{ url_for('admin.teams') }}" class="btn btn-outline-light w-100 h-100 py-4">
       👥<br><strong>Teams</strong>
       <div class="small text-secondary">{{ overview.teams }} angemeldet</div>
     </a>
     {% else %}
-    <span class="btn btn-outline-secondary w-100 py-4 disabled">
+    <span class="btn btn-outline-secondary w-100 h-100 py-4 disabled">
       👥<br><strong>Teams</strong>
       <div class="small">{{ overview.teams }} angemeldet</div>
     </span>
     {% endif %}
+  </div>
+  <div class="col-md-3 col-6">
+    <a href="{{ url_for('admin.challenge_tasks', cid=challenge.id) }}" class="btn btn-outline-light w-100 h-100 py-4">
+      📋<br><strong>Aufgaben</strong>
+      <div class="small text-secondary">{{ overview.tasks }} angelegt</div>
+    </a>
   </div>
 </div>
 
@@ -141,7 +146,7 @@
 <div class="row g-3 mb-5">
   <div class="col-md-3 col-6">
     {% if is_current %}
-    <a href="{{ url_for('admin.submissions') }}" class="btn btn-outline-light w-100 py-4 position-relative">
+    <a href="{{ url_for('admin.submissions') }}" class="btn btn-outline-light w-100 h-100 py-4 position-relative">
       📝<br><strong>Bewertungen</strong>
       <div class="small text-secondary">{{ overview.submissions }} Abgaben</div>
       {% if overview.open_reviews %}
@@ -151,7 +156,7 @@
       {% endif %}
     </a>
     {% else %}
-    <span class="btn btn-outline-secondary w-100 py-4 disabled">
+    <span class="btn btn-outline-secondary w-100 h-100 py-4 disabled">
       📝<br><strong>Bewertungen</strong>
       <div class="small">{{ overview.submissions }} Abgaben</div>
     </span>
@@ -159,13 +164,14 @@
   </div>
   <div class="col-md-3 col-6">
     {% if is_current %}
-    <a href="{{ url_for('public.start') }}" target="_blank" class="btn btn-outline-light w-100 py-4">
+    <a href="{{ url_for('public.start') }}" target="_blank" class="btn btn-outline-light w-100 h-100 py-4">
       ⏱️<br><strong>Countdown</strong>
       <div class="small text-secondary">zum Projizieren</div>
     </a>
     {% else %}
-    <span class="btn btn-outline-secondary w-100 py-4 disabled">
+    <span class="btn btn-outline-secondary w-100 h-100 py-4 disabled">
       ⏱️<br><strong>Countdown</strong>
+      <div class="small">zum Projizieren</div>
     </span>
     {% endif %}
   </div>
@@ -176,29 +182,35 @@
 <div class="row g-3 mb-5">
   <div class="col-md-3 col-6">
     {% if is_current %}
-    <a href="{{ url_for('public.scoreboard') }}" class="btn btn-outline-light w-100 py-4">
+    <a href="{{ url_for('public.scoreboard') }}" class="btn btn-outline-light w-100 h-100 py-4">
       📊<br><strong>Rangliste</strong>
+      <div class="small text-secondary">Punkte aller Teams</div>
     </a>
     {% else %}
-    <span class="btn btn-outline-secondary w-100 py-4 disabled">📊<br><strong>Rangliste</strong></span>
+    <span class="btn btn-outline-secondary w-100 h-100 py-4 disabled">📊<br><strong>Rangliste</strong>
+      <div class="small">Punkte aller Teams</div></span>
     {% endif %}
   </div>
   <div class="col-md-3 col-6">
     {% if is_current %}
-    <a href="{{ url_for('public.siegerehrung') }}" class="btn btn-outline-light w-100 py-4">
+    <a href="{{ url_for('public.siegerehrung') }}" class="btn btn-outline-light w-100 h-100 py-4">
       🏆<br><strong>Siegerehrung</strong>
+      <div class="small text-secondary">die besten drei</div>
     </a>
     {% else %}
-    <span class="btn btn-outline-secondary w-100 py-4 disabled">🏆<br><strong>Siegerehrung</strong></span>
+    <span class="btn btn-outline-secondary w-100 h-100 py-4 disabled">🏆<br><strong>Siegerehrung</strong>
+      <div class="small">die besten drei</div></span>
     {% endif %}
   </div>
   <div class="col-md-3 col-6">
     {% if is_current %}
-    <a href="{{ url_for('admin.certificates_print') }}" class="btn btn-outline-light w-100 py-4">
+    <a href="{{ url_for('admin.certificates_print') }}" class="btn btn-outline-light w-100 h-100 py-4">
       📜<br><strong>Urkunden</strong>
+      <div class="small text-secondary">für alle Teams</div>
     </a>
     {% else %}
-    <span class="btn btn-outline-secondary w-100 py-4 disabled">📜<br><strong>Urkunden</strong></span>
+    <span class="btn btn-outline-secondary w-100 h-100 py-4 disabled">📜<br><strong>Urkunden</strong>
+      <div class="small">für alle Teams</div></span>
     {% endif %}
   </div>
 </div>
