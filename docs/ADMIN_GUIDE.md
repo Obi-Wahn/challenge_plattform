@@ -58,9 +58,11 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
       eine Datei hochladen, bewerten, Rangliste und Urkunde ansehen. Danach
       den Testwettbewerb löschen – mit ihm verschwinden seine Teams und
       Abgaben.
-- [ ] **`data/` auf einen USB-Stick kopieren.** Die automatische Sicherung
-      der Anwendung liegt im selben Ordner und hilft nicht, wenn der Rechner
-      ausfällt.
+- [ ] **`data/` und `uploads/` auf einen USB-Stick kopieren.** Beide: In
+      `data/` steckt die Datenbank, in `uploads/` die abgegebenen Dateien.
+      Die Datenbank merkt sich zu jeder Abgabe nur den Pfad, nicht die Datei.
+      Die automatische Sicherung der Anwendung liegt im selben Ordner und
+      hilft nicht, wenn der Rechner ausfällt.
 - [ ] **Netzwerk testen:** Server starten und von einem *anderen* Gerät die
       Adresse aufrufen, die im Terminal steht. Klappt das nicht, liegt es
       meist an der Firewall des Schul-PCs (Port 8000 eingehend erlauben).
@@ -125,6 +127,8 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 
 | Symptom | Ursache und Abhilfe |
 |---|---|
+| Team tippt seinen Namen anders geschrieben | Beim **Anmelden** ist das in Ordnung: „die pixelpiraten“ findet „Die Pixelpiraten“, solange es nur ein Team dieses Namens gibt. Nur wenn zwei Teams nebeneinander existieren, die sich allein in der Schreibweise unterscheiden, muss die Schreibweise stimmen. |
+| Zwei Teams mit fast gleichem Namen | Beim **Registrieren** zählt die Schreibweise: „Die Hacker“ und „die hacker“ werden zwei verschiedene Teams. Umgebende Leerzeichen werden dagegen entfernt, `„ Team A “` wird zu `„Team A“`. Wenn das stört, Team löschen und neu anmelden lassen. |
 | Ein Team kommt nicht mehr rein | Passwort vergessen. `/admin` → *Teams* → neues Passwort setzen und dem Team sagen. Das alte wird nicht angezeigt – auch nicht dir. |
 | Ein Team hat die falsche Datei hochgeladen | `/admin` → *Abgaben* → **🔓 Erneut abgeben erlauben**. Das gilt **einmal**; die bisherige Bewertung wird dabei gelöscht und die Abgabe landet wieder in der Warteschlange. |
 | „Abgabe nicht möglich" bei einem Team | Wettbewerb pausiert, Endzeit überschritten, oder das Team gehört zu einem anderen Wettbewerb. |
@@ -142,8 +146,9 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 
 ## 📦 Nach dem Wettbewerb
 
-- [ ] **`data/` und `uploads/` sichern**, solange noch alles frisch ist.
-      Darin stecken die Abgaben der Teams.
+- [ ] **`data/` und `uploads/` sichern**, solange noch alles frisch ist –
+      dieselben zwei Verzeichnisse wie am Vortag. In `data/` stecken Punkte
+      und Bewertungen, in `uploads/` die Programme der Teams.
 - [ ] **Gut gelaufene Aufgaben exportieren** (Aufgaben-Seite: **⬇️ Alle Aufgaben sichern**, oder das ⬇️ neben einer
       einzelnen Aufgabe) und
       die Datei aufheben. Beim nächsten Mal wieder einlesen.

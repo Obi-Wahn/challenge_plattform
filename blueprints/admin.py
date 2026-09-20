@@ -3,6 +3,7 @@ from flask import (Blueprint, render_template, request, redirect, url_for, sessi
 from extensions import db
 from models import Team, Challenge, Task, Submission, Settings, TASK_FORMATS
 from scoring import get_standings
+from task_rules import KEIN_TITEL, PUNKTE_KEINE_ZAHL, clean_task_values
 from certificates import (build_certificates_for, certificate_entry, signature_font,
                           SIGNATURE_FONTS, DEFAULT_SIGNATURE_FONT,
                           certificate_orientation, CERTIFICATE_ORIENTATIONS,
@@ -20,6 +21,24 @@ def restrict_admin():
         return
     if not session.get("is_admin"):
         return redirect(url_for('auth.admin_login'))
+
+# Was der Lehrkraft angezeigt wird, wenn aus dem Formular keine Aufgabe wird.
+PROBLEM_MELDUNG = {
+    KEIN_TITEL: "Die Aufgabe braucht einen Titel - nichts gespeichert.",
+    PUNKTE_KEINE_ZAHL: "Die Punktzahl muss eine Zahl sein - nichts gespeichert.",
+}
+
+
+def geprüfte_aufgabenwerte(form):
+    """Die Werte aus dem Aufgabenformular, nach denselben Regeln wie beim Einlesen."""
+    return clean_task_values(
+        form.get("title"),
+        form.get("description"),
+        form.get("max_points"),
+        form.get("allowed_extension"),
+        form.get("hint"),
+    )
+
 
 def challenge_overview(challenge):
     """The numbers both the control centre and the competition page show."""
@@ -180,22 +199,17 @@ def challenge_tasks(cid):
     challenge = db.get_or_404(Challenge, cid)
 
     if request.method == "POST":
-        title = request.form["title"]
-        description = request.form["description"]
-        max_points = int(request.form["max_points"])
-        allowed_extension = request.form.get("allowed_extension", ".pde")
-        hint = request.form.get("hint", "").strip() or None
+        werte, hinweise, problem = geprüfte_aufgabenwerte(request.form)
 
-        task = Task(
-            challenge_id=cid,
-            title=title,
-            description=description,
-            max_points=max_points,
-            allowed_extension=allowed_extension,
-            hint=hint
-        )
-        db.session.add(task)
+        if problem:
+            flash(PROBLEM_MELDUNG[problem], "warning")
+            return redirect(url_for('admin.challenge_tasks', cid=cid))
+
+        db.session.add(Task(challenge_id=cid, **werte))
         db.session.commit()
+
+        for hinweis in hinweise:
+            flash(hinweis, "warning")
         return redirect(url_for('admin.challenge_tasks', cid=cid))
 
     tasks = Task.query.filter_by(challenge_id=cid).order_by(Task.id).all()
@@ -332,12 +346,18 @@ def task_edit(tid):
     cid = task.challenge_id
     
     if request.method == "POST":
-        task.title = request.form["title"]
-        task.description = request.form["description"]
-        task.max_points = int(request.form["max_points"])
-        task.allowed_extension = request.form.get("allowed_extension", ".pde")
-        task.hint = request.form.get("hint", "").strip() or None
+        werte, hinweise, problem = geprüfte_aufgabenwerte(request.form)
+
+        if problem:
+            flash(PROBLEM_MELDUNG[problem], "warning")
+            return redirect(url_for('admin.task_edit', tid=tid))
+
+        for feld, wert in werte.items():
+            setattr(task, feld, wert)
         db.session.commit()
+
+        for hinweis in hinweise:
+            flash(hinweis, "warning")
         return redirect(url_for('admin.challenge_tasks', cid=cid))
 
     return render_template("admin/task_edit.html", task=task, task_formats=TASK_FORMATS)

@@ -2,6 +2,7 @@ from flask import (Blueprint, render_template, request, redirect, url_for, sessi
                    abort, current_app, send_file)
 from extensions import db
 from models import Team, Challenge, Task, Submission
+from uploads import zum_loeschen_vormerken
 from scoring import get_standings
 from certificates import build_certificates_for, certificate_entry
 from werkzeug.utils import secure_filename
@@ -124,11 +125,12 @@ def submit_task(task_id):
         existing.feedback = None
         existing.resubmit_allowed = False
 
+        # Die alte Datei geht erst weg, wenn die Umstellung gespeichert ist -
+        # dieselbe Regel wie beim Löschen einer Abgabe. Würde sie vorher
+        # gelöscht und das Speichern scheiterte, zeigte die Datenbank auf
+        # eine Datei, die es nicht mehr gibt.
         if previous_filepath != filepath:
-            try:
-                os.remove(previous_filepath)
-            except OSError:
-                pass # An already missing old file must not break the submission.
+            zum_loeschen_vormerken(db.session, previous_filepath)
     else:
         db.session.add(Submission(
             team_id=team_id,
@@ -137,7 +139,17 @@ def submit_task(task_id):
             timestamp=datetime.now()
         ))
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception:
+        # Die gerade geschriebene Datei gehört zu einer Abgabe, die es nun
+        # nicht gibt. Sie bliebe sonst als Waise liegen.
+        db.session.rollback()
+        try:
+            os.remove(filepath)
+        except OSError:
+            pass
+        raise
 
     return redirect(url_for("challenge.view"))
 

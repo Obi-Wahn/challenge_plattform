@@ -202,11 +202,21 @@ heimischen Rechner ausführen, nicht während eines Wettbewerbs. Bei einer
 **neuen Hauptversion** (der ersten Zahl) lohnt der Blick in die Oberfläche
 besonders: Dort ändern sich schon mal Klassennamen oder Symbole.
 
-## 💾 Datenbank und Sicherungen
+## 💾 Daten und Sicherungen
 
-Alle Daten liegen in `data/challenge.db`. Diese Datei ist der Wettbewerb –
-Teams, Aufgaben, Abgaben und Punkte. Sie gehört **nicht** ins Repository und
-wird von `.gitignore` ausgeschlossen.
+Ein Wettbewerb steckt in **zwei** Verzeichnissen, und für eine Sicherung
+braucht man beide:
+
+| Verzeichnis | Inhalt |
+|---|---|
+| `data/` | die Datenbank `challenge.db`: Teams, Aufgaben, Punkte, Bewertungen |
+| `uploads/` | die abgegebenen Dateien der Teams |
+
+Die Datenbank merkt sich zu jeder Abgabe nur den **Pfad** der Datei, nicht die
+Datei selbst. Wer nur `data/` sichert, hat nach einem Ausfall zwar die
+Punktestände, aber nicht die Programme, für die sie vergeben wurden. Beide
+Verzeichnisse gehören **nicht** ins Repository und werden von `.gitignore`
+ausgeschlossen.
 
 Bringt eine neue Version der Anwendung eine Änderung an der Datenbankstruktur
 mit, wird diese beim Start automatisch ergänzt. **Vor der ersten solchen
@@ -228,9 +238,10 @@ die aktuelle Datei zur Seite legen und die Kopie nach `data/challenge.db`
 umbenennen. Alte Kopien kann man löschen, sobald klar ist, dass alles passt.
 
 **Wofür sie nicht gut ist:** Sie ersetzt keine regelmäßige Sicherung. Sie liegt
-im selben Ordner – geht die Festplatte kaputt oder wird das Verzeichnis
-gelöscht, ist sie mit weg. Vor einem echten Wettbewerb lohnt es sich, `data/`
-zusätzlich auf einen USB-Stick zu kopieren.
+im selben Ordner und enthält nur die Datenbank – geht die Festplatte kaputt
+oder wird das Verzeichnis gelöscht, ist sie mit weg, und die abgegebenen
+Dateien waren ohnehin nie darin. Vor einem echten Wettbewerb gehören deshalb
+**`data/` und `uploads/`** auf einen USB-Stick.
 
 ## 📋 Protokolldatei
 
@@ -317,6 +328,7 @@ challenge_plattform/
 ├── task_exchange.py       # Aufgaben sichern und einlesen
 ├── network.py             # Adresse, unter der die Teams beitreten
 ├── uploads.py             # löscht Dateien mit ihrer Abgabe
+├── task_rules.py          # Regeln für Aufgabenwerte, für Formular und Import
 ├── requirements.txt       # Abhängigkeiten
 ├── requirements-dev.txt   # zusätzlich zum Testen
 ├── pytest.ini             # Test-Einstellungen

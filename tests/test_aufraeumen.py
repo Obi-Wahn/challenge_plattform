@@ -174,3 +174,121 @@ class TestAbgabeUeberDieOberflaeche:
         })
 
         assert not os.path.exists(pfad)
+
+
+class TestKorrekturabgabe:
+    """Die alte Datei geht erst weg, wenn die Umstellung gespeichert ist.
+
+    Beim Löschen einer Abgabe war das schon so; beim Ersetzen wurde die alte
+    Datei vorher entfernt. Scheiterte das Speichern danach, zeigte die
+    Datenbank weiter auf eine Datei, die es nicht mehr gab.
+    """
+
+    def abgabe_und_korrektur(self, flask_app, make_challenge, make_task,
+                             logged_in_team, upload, database):
+        from models import Submission
+
+        challenge = make_challenge(
+            start_time=datetime.now() - timedelta(hours=1),
+            end_time=datetime.now() + timedelta(hours=1),
+        )
+        task = make_task(challenge)
+        client, team = logged_in_team(challenge)
+
+        client.post(f"/submit/{task.id}", data={
+            "csrf_token": csrf_token(client, "/challenge"),
+            "file": upload(b"erste fassung", "erste.sb3"),
+        }, content_type="multipart/form-data")
+
+        abgabe = Submission.query.first()
+        erster_pfad = abgabe.filename
+        assert os.path.exists(erster_pfad)
+
+        abgabe.resubmit_allowed = True
+        database.session.commit()
+
+        return client, task, abgabe, erster_pfad
+
+    def test_alte_datei_verschwindet_nach_der_korrektur(
+            self, flask_app, make_challenge, make_task, logged_in_team, upload,
+            database):
+        client, task, _abgabe, erster_pfad = self.abgabe_und_korrektur(
+            flask_app, make_challenge, make_task, logged_in_team, upload, database)
+
+        client.post(f"/submit/{task.id}", data={
+            "csrf_token": csrf_token(client, "/challenge"),
+            "file": upload(b"zweite fassung", "zweite.sb3"),
+        }, content_type="multipart/form-data")
+
+        assert not os.path.exists(erster_pfad)
+
+    def test_neue_datei_ist_da_und_in_der_datenbank(
+            self, flask_app, make_challenge, make_task, logged_in_team, upload,
+            database):
+        from models import Submission
+
+        client, task, _abgabe, _erster = self.abgabe_und_korrektur(
+            flask_app, make_challenge, make_task, logged_in_team, upload, database)
+
+        client.post(f"/submit/{task.id}", data={
+            "csrf_token": csrf_token(client, "/challenge"),
+            "file": upload(b"zweite fassung", "zweite.sb3"),
+        }, content_type="multipart/form-data")
+
+        abgabe = Submission.query.first()
+        assert os.path.exists(abgabe.filename)
+        with open(abgabe.filename, "rb") as datei:
+            assert datei.read() == b"zweite fassung"
+
+    def test_scheitert_das_speichern_bleibt_die_alte_datei(
+            self, flask_app, make_challenge, make_task, logged_in_team, upload,
+            database, monkeypatch):
+        """Der Fall, für den die Reihenfolge überhaupt geändert wurde."""
+        client, task, _abgabe, erster_pfad = self.abgabe_und_korrektur(
+            flask_app, make_challenge, make_task, logged_in_team, upload, database)
+
+        import blueprints.challenge as herausforderung
+
+        def kaputtes_commit():
+            raise RuntimeError("Datenbank nicht erreichbar")
+
+        monkeypatch.setattr(herausforderung.db.session, "commit", kaputtes_commit)
+
+        try:
+            client.post(f"/submit/{task.id}", data={
+                "csrf_token": csrf_token(client, "/challenge"),
+                "file": upload(b"zweite fassung", "zweite.sb3"),
+            }, content_type="multipart/form-data")
+        except RuntimeError:
+            pass
+
+        assert os.path.exists(erster_pfad), \
+            "die alte Datei wurde gelöscht, obwohl die Umstellung nicht gespeichert wurde"
+
+    def test_scheitert_das_speichern_bleibt_keine_waise_liegen(
+            self, flask_app, make_challenge, make_task, logged_in_team, upload,
+            database, monkeypatch):
+        client, task, _abgabe, erster_pfad = self.abgabe_und_korrektur(
+            flask_app, make_challenge, make_task, logged_in_team, upload, database)
+
+        vorher = set()
+        for wurzel, _o, namen in os.walk(flask_app.config["UPLOAD_FOLDER"]):
+            vorher.update(os.path.join(wurzel, n) for n in namen)
+
+        import blueprints.challenge as herausforderung
+        monkeypatch.setattr(herausforderung.db.session, "commit",
+                            lambda: (_ for _ in ()).throw(RuntimeError("kaputt")))
+
+        try:
+            client.post(f"/submit/{task.id}", data={
+                "csrf_token": csrf_token(client, "/challenge"),
+                "file": upload(b"zweite fassung", "zweite.sb3"),
+            }, content_type="multipart/form-data")
+        except RuntimeError:
+            pass
+
+        nachher = set()
+        for wurzel, _o, namen in os.walk(flask_app.config["UPLOAD_FOLDER"]):
+            nachher.update(os.path.join(wurzel, n) for n in namen)
+
+        assert nachher == vorher, f"neue Waisen: {nachher - vorher}"
