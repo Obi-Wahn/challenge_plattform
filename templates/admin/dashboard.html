@@ -3,77 +3,185 @@
 
 <h2 class="mb-4">🎛 Steuerzentrale</h2>
 
-<div class="row g-4">
+{% if not challenge %}
 
-  <div class="col-md-3">
-    <a href="{{ url_for('admin.challenges_list') }}" class="btn btn-outline-light w-100 py-4">
-      🏁<br><strong>Wettbewerbe</strong>
-    </a>
-  </div>
+<div class="event-card mb-5">
+  <h4 class="mb-2">Noch kein Wettbewerb angelegt</h4>
+  <p class="text-secondary">
+    Alles hier – Aufgaben, Teams, Bewertungen, Rangliste, Siegerehrung und Urkunden –
+    gehört zu einem Wettbewerb. Lege zuerst einen an.
+  </p>
+  <a href="{{ url_for('admin.challenge_new') }}" class="btn btn-primary">
+    ➕ Ersten Wettbewerb anlegen
+  </a>
+</div>
 
-  <div class="col-md-3">
-    <a href="{{ url_for('admin.submissions') }}" class="btn btn-outline-light w-100 py-4">
-      📝<br><strong>Bewertungen</strong>
-    </a>
-  </div>
-
-  <div class="col-md-3">
-    <a href="{{ url_for('admin.teams') }}" class="btn btn-outline-light w-100 py-4">
-      👥<br><strong>Teams</strong>
-    </a>
-  </div>
-
-  <div class="col-md-3">
-    <a href="{{ url_for('public.scoreboard') }}" class="btn btn-outline-light w-100 py-4">
-      🏆<br><strong>Rangliste</strong>
-    </a>
-  </div>
-
-  <div class="col-md-3">
+<div class="row g-3 mb-5">
+  <div class="col-md-3 col-6">
     <a href="{{ url_for('admin.settings') }}" class="btn btn-outline-light w-100 py-4">
       ⚙️<br><strong>Einstellungen</strong>
     </a>
   </div>
+</div>
 
-  <div class="col-md-3">
-    <a href="{{ url_for('public.start') }}" class="btn btn-outline-light w-100 py-4">
-      ⏱️<br><strong>Countdown</strong>
+{% else %}
+
+{% set finished = challenge.status() == "finished" %}
+{% set here = url_for('admin.dashboard') %}
+
+<!-- ===== STATUSZEILE: der aktuelle Wettbewerb ===== -->
+<div class="event-card mb-5">
+  <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+
+    <div>
+      <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+        <h3 class="mb-0">
+          <a href="{{ url_for('admin.challenge_detail', cid=challenge.id) }}"
+            class="text-light text-decoration-none">{{ challenge.title }}</a>
+        </h3>
+
+        {% if finished %}
+        <span class="badge bg-secondary fs-6">🏁 beendet</span>
+        {% elif challenge.paused %}
+        <span class="badge bg-warning text-dark fs-6">⏸ pausiert</span>
+        {% elif challenge.status() == "upcoming" %}
+        <span class="badge bg-info text-dark fs-6">🕒 geplant</span>
+        {% else %}
+        <span class="badge bg-success fs-6">🟢 läuft</span>
+        {% endif %}
+      </div>
+
+      <div class="text-secondary">
+        {% if challenge.start_time %}
+        🕒 {{ challenge.start_time.strftime('%d.%m.%Y, %H:%M') }} Uhr
+        {% if challenge.end_time %}– {{ challenge.end_time.strftime('%H:%M') }} Uhr{% endif %}
+        {% else %}
+        🕒 Keine Zeiten gesetzt
+        {% endif %}
+      </div>
+
+      <div class="text-secondary mt-2">
+        👥 {{ overview.teams }} Teams · 📋 {{ overview.tasks }} Aufgaben ·
+        📤 {{ overview.submissions }} Abgaben
+        {% if overview.open_reviews %}
+        · <span class="text-warning">⏳ {{ overview.open_reviews }} Bewertungen offen</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+      {% if not finished %}
+      {% if challenge.paused %}
+      <form method="post" action="{{ url_for('admin.challenge_resume', cid=challenge.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="next" value="{{ here }}">
+        <button class="btn btn-success">▶ Fortsetzen</button>
+      </form>
+      {% else %}
+      <form method="post" action="{{ url_for('admin.challenge_pause', cid=challenge.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="next" value="{{ here }}">
+        <button class="btn btn-warning">⏸ Pause</button>
+      </form>
+      {% endif %}
+
+      <form method="post" action="{{ url_for('admin.challenge_finish', cid=challenge.id) }}"
+        onsubmit="return confirm('Wettbewerb jetzt beenden? Teams können danach nichts mehr abgeben. Das lässt sich wieder rückgängig machen.');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="next" value="{{ here }}">
+        <button class="btn btn-danger">🏁 Wettbewerb beenden</button>
+      </form>
+      {% else %}
+      <form method="post" action="{{ url_for('admin.challenge_reopen', cid=challenge.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="next" value="{{ here }}">
+        <button class="btn btn-outline-light">🔓 Wieder öffnen</button>
+      </form>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== VORBEREITUNG ===== -->
+<h5 class="text-secondary text-uppercase mb-3 section-label">Vorbereitung</h5>
+<div class="row g-3 mb-5">
+  <div class="col-md-3 col-6">
+    <a href="{{ url_for('admin.challenge_detail', cid=challenge.id) }}" class="btn btn-outline-light w-100 py-4">
+      🏁<br><strong>Wettbewerb</strong>
+      <div class="small text-secondary">alles auf einen Blick</div>
     </a>
   </div>
+  <div class="col-md-3 col-6">
+    <a href="{{ url_for('admin.challenge_tasks', cid=challenge.id) }}" class="btn btn-outline-light w-100 py-4">
+      📋<br><strong>Aufgaben</strong>
+      <div class="small text-secondary">{{ overview.tasks }} angelegt</div>
+    </a>
+  </div>
+  <div class="col-md-3 col-6">
+    <a href="{{ url_for('admin.settings') }}" class="btn btn-outline-light w-100 py-4">
+      ⚙️<br><strong>Einstellungen</strong>
+    </a>
+  </div>
+</div>
 
-  <div class="col-md-3">
+<!-- ===== WÄHREND ===== -->
+<h5 class="text-secondary text-uppercase mb-3 section-label">Während des Wettbewerbs</h5>
+<div class="row g-3 mb-5">
+  <div class="col-md-3 col-6">
+    <a href="{{ url_for('admin.submissions') }}" class="btn btn-outline-light w-100 py-4 position-relative">
+      📝<br><strong>Bewertungen</strong>
+      <div class="small text-secondary">{{ overview.submissions }} Abgaben</div>
+      {% if overview.open_reviews %}
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
+        {{ overview.open_reviews }}
+      </span>
+      {% endif %}
+    </a>
+  </div>
+  <div class="col-md-3 col-6">
+    <a href="{{ url_for('admin.teams') }}" class="btn btn-outline-light w-100 py-4">
+      👥<br><strong>Teams</strong>
+      <div class="small text-secondary">{{ overview.teams }} angemeldet</div>
+    </a>
+  </div>
+  <div class="col-md-3 col-6">
+    <a href="{{ url_for('public.start') }}" target="_blank" class="btn btn-outline-light w-100 py-4">
+      ⏱️<br><strong>Countdown</strong>
+      <div class="small text-secondary">zum Projizieren</div>
+    </a>
+  </div>
+</div>
+
+<!-- ===== ABSCHLUSS ===== -->
+<h5 class="text-secondary text-uppercase mb-3 section-label">Zum Abschluss</h5>
+<div class="row g-3 mb-5">
+  <div class="col-md-3 col-6">
+    <a href="{{ url_for('public.scoreboard') }}" class="btn btn-outline-light w-100 py-4">
+      📊<br><strong>Rangliste</strong>
+    </a>
+  </div>
+  <div class="col-md-3 col-6">
     <a href="{{ url_for('public.siegerehrung') }}" class="btn btn-outline-light w-100 py-4">
       🏆<br><strong>Siegerehrung</strong>
     </a>
   </div>
-
-  <div class="col-md-3">
+  <div class="col-md-3 col-6">
     <a href="{{ url_for('admin.certificates_print') }}" class="btn btn-outline-light w-100 py-4">
       📜<br><strong>Urkunden</strong>
     </a>
   </div>
-
 </div>
 
+{% endif %}
 
-<hr class="my-4">
-
-<h4>Wettbewerbe</h4>
-<ul>
-  {% for c in challenges %}
-  <li>
-    {{ c.title }}
-    {% if c.active %}
-    <span class="badge bg-success">aktiv</span>
-    {% else %}
-    <a href="{{ url_for('admin.challenge_activate', cid=c.id) }}">aktivieren</a>
-    {% endif %}
-  </li>
-  {% endfor %}
-</ul>
-
-<a href="{{ url_for('auth.admin_logout') }}" class="btn btn-sm btn-outline-secondary mt-3">
-  🔓 Abmelden
-</a>
+<div class="d-flex flex-wrap align-items-center gap-3">
+  <a href="{{ url_for('admin.challenges_list') }}" class="btn btn-sm btn-outline-light">
+    🏁 Alle Wettbewerbe{% if challenge_count %} ({{ challenge_count }}){% endif %}
+  </a>
+  <a href="{{ url_for('auth.admin_logout') }}" class="btn btn-sm btn-outline-secondary">
+    🔓 Abmelden
+  </a>
+</div>
 
 {% endblock %}

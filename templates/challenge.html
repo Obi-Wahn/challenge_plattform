@@ -16,7 +16,16 @@
 </div>
 
 <!-- Statusanzeige -->
-{% if challenge.paused %}
+{% set offen = challenge.accepts_submissions %}
+{% if challenge.status() == "finished" %}
+<div class="event-card mb-3 text-light">
+  🏁 <strong>Der Wettbewerb ist beendet</strong><br>
+  <span class="text-secondary">
+    Abgaben sind nicht mehr möglich. Schaut euch die
+    <a href="{{ url_for('public.scoreboard') }}">Rangliste</a> an.
+  </span>
+</div>
+{% elif challenge.paused %}
 <div class="event-card mb-3 text-warning">
   ⏸ <strong>Wettbewerb pausiert</strong><br>
   Abgaben sind aktuell deaktiviert.
@@ -93,7 +102,7 @@
       {% endif %}
 
       <form method="post" action="{{ url_for('challenge.submit_task', task_id=task.id) }}" enctype="multipart/form-data"
-        class="{% if challenge.paused %}opacity-50{% endif %}{% if not submission %} mt-0{% endif %}">
+        class="{% if not offen %}opacity-50{% endif %}{% if not submission %} mt-0{% endif %}">
 
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
@@ -101,14 +110,18 @@
           <small class="text-secondary d-block mb-1">Erlaubtes Format: <strong>{{ task.allowed_extension
               }}</strong></small>
           <input type="file" name="file" accept="{{ task.allowed_extension }}" class="form-control" {% if
-            challenge.paused %}disabled{% endif %} required>
+            not offen %}disabled{% endif %} required>
         </div>
 
-        <button class="btn btn-outline-light w-100" {% if challenge.paused %}disabled{% endif %}>
+        <button class="btn btn-outline-light w-100" {% if not offen %}disabled{% endif %}>
           {% if submission %}🔁 Korrektur abgeben{% else %}📤 Abgeben{% endif %}
         </button>
 
-        {% if challenge.paused %}
+        {% if challenge.status() == "finished" %}
+        <small class="text-secondary d-block mt-2">
+          🏁 Der Wettbewerb ist beendet
+        </small>
+        {% elif challenge.paused %}
         <small class="text-warning d-block mt-2">
           ⏸ Hochladen während der Pause nicht möglich
         </small>

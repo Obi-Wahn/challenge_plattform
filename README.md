@@ -19,8 +19,16 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
 *   **Responsive Design**: für Desktop, Tablet und Smartphone optimiert.
 
 ### Für Administratoren
-*   **Admin-Dashboard**: Zentrale Verwaltung aller Challenges.
-*   **Challenge-Management**: Erstellen, Pausieren und Beenden von Challenges.
+*   **Steuerzentrale**: zeigt den aktuellen Wettbewerb mit Zustand, Teams, Aufgaben und
+    offenen Bewertungen; die Kacheln sind nach Vorbereitung, Während des Wettbewerbs
+    und Zum Abschluss sortiert.
+*   **Wettbewerbs-Seite**: alles zu einem Wettbewerb an einem Ort – Aufgaben, Teams,
+    Bewertungen, Countdown, Rangliste, Siegerehrung und Urkunden.
+*   **Wettbewerb beenden**: ein Knopf sperrt die Abgaben und macht den Weg frei für
+    Rangliste, Siegerehrung und Urkunden. „Wieder öffnen“ macht das rückgängig.
+*   **Challenge-Management**: Erstellen, Aktivieren, Pausieren und Beenden von Wettbewerben.
+*   **Teams gehören zu ihrem Wettbewerb**: derselbe Teamname darf in mehreren Wettbewerben
+    vorkommen; beim Anlegen eines neuen Wettbewerbs lassen sich die alten Teams übernehmen.
 *   **Aufgaben-Konfiguration**:
     *   Erstellen von Aufgaben mit detaillierten Beschreibungen.
     *   **Markdown Support**: Aufgabenbeschreibungen werden mit Markdown formatiert.
@@ -32,7 +40,8 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
     *   Download-Option für lokale Tests.
     *   Bewertung mit Punkten (automatisch auf 0–Max. begrenzt) und Feedback.
     *   **Abgabe löschen**: Möglichkeit, fehlerhafte Abgaben komplett zu entfernen, damit Teams neu einreichen können.
-*   **Team-Verwaltung**: Übersicht und Management registrierter Teams.
+*   **Team-Verwaltung**: Übersicht der Teams des aktuellen Wettbewerbs, inklusive
+    Passwort-Reset, falls ein Team sein Passwort vergisst.
 *   **Einstellungen**: Name und Beschreibung der Veranstaltung frei anpassbar, ohne Code zu ändern.
 
 ## 🛠 Technologien

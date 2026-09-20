@@ -113,8 +113,8 @@
   });
 </script>
 
-<a href="{{ url_for('admin.challenges_list') }}" class="text-secondary mt-4 d-block">
-  ← zurück zu Wettbewerben
+<a href="{{ url_for('admin.challenge_detail', cid=challenge.id) }}" class="text-secondary mt-4 d-block">
+  ← zurück zum Wettbewerb
 </a>
 
 {% endblock %}

@@ -94,3 +94,9 @@ input, textarea, select {
 input::placeholder, textarea::placeholder {
   color: #aaa;
 }
+
+/* ====== Abschnittsüberschriften im Admin-Bereich ====== */
+.section-label {
+  letter-spacing: 1px;
+  font-size: 0.85rem;
+}
