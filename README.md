@@ -155,6 +155,12 @@ Voraussetzung: Python 3.10 oder höher (fpdf2, das die Urkunden erzeugt, verlang
     *   Werden direkt zum aktiven Wettbewerb weitergeleitet.
     *   Können Lösungen im geforderten Format hochladen.
 
+## 🧭 Leitfaden für den Wettbewerbstag
+
+Wie ein Wettbewerb **abläuft** – was eine Woche vorher, am Vortag, während
+des Wettbewerbs und danach zu tun ist, und was zu tun ist, wenn etwas klemmt –
+steht in **[docs/ADMIN_GUIDE.md](docs/ADMIN_GUIDE.md)**.
+
 ## 🔄 Frontend-Bibliotheken aktualisieren
 
 Bootstrap, EasyMDE, Font Awesome und die Handschriften liegen als Dateien
@@ -219,6 +225,27 @@ im selben Ordner – geht die Festplatte kaputt oder wird das Verzeichnis
 gelöscht, ist sie mit weg. Vor einem echten Wettbewerb lohnt es sich, `data/`
 zusätzlich auf einen USB-Stick zu kopieren.
 
+## 📋 Protokolldatei
+
+Fehler und wichtige Ereignisse landen in `logs/anwendung.log` – mit
+Zeitstempel und der Adresse der Seite, auf der es passiert ist:
+
+```
+2026-09-20 14:32:07  ERROR    Exception on /scoreboard [GET]
+Traceback (most recent call last):
+  ...
+```
+
+Der Sinn: Ohne diese Datei stünde ein Traceback nur im Terminalfenster. Wer
+es schließt oder den Server als Dienst laufen lässt, hätte nach einer Störung
+nichts mehr in der Hand – und am Wettbewerbstag ist keine Zeit, den Fehler
+noch einmal herbeizuführen.
+
+Die Datei rotiert bei 1 MB und behält fünf ältere Stände; sie wächst also
+nicht unbegrenzt. Sie gehört nicht ins Repository und wird von `.gitignore`
+ausgeschlossen. Ein anderer Ort lässt sich über `LOG_DIR` in der `.env`
+einstellen.
+
 ## ✅ Tests
 
 Das Projekt bringt automatische Tests mit. Sie prüfen den ganzen Ablauf – vom
@@ -281,6 +308,7 @@ challenge_plattform/
 ├── scoring.py             # Rangliste und Podium
 ├── certificates.py        # Urkunden als PDF
 ├── task_exchange.py       # Aufgaben sichern und einlesen
+├── network.py             # Adresse, unter der die Teams beitreten
 ├── requirements.txt       # Abhängigkeiten
 ├── requirements-dev.txt   # zusätzlich zum Testen
 ├── pytest.ini             # Test-Einstellungen
@@ -301,8 +329,11 @@ challenge_plattform/
 ├── tests/                   # automatische Tests (pytest)
 ├── beispiele/               # fertige Aufgabensätze zum Einlesen
 ├── werkzeuge/               # Hilfsskripte (Bibliotheken aktualisieren)
-├── docs/bilder/             # Screenshots für diese README
+├── docs/
+│   ├── ADMIN_GUIDE.md       # Leitfaden für den Wettbewerbstag
+│   └── bilder/              # Screenshots für diese README
 ├── uploads/                 # Hochgeladene Abgaben (wird erstellt)
+├── logs/                    # Protokolldatei (wird erstellt)
 └── data/                    # SQLite Datenbank und ihre Sicherungen (werden erstellt)
 ```
 

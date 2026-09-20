@@ -47,6 +47,9 @@ data/*.sqlite3
 # Uploads
 uploads/
 
+# Protokolldateien
+logs/
+
 # Local debug artifacts
 cookies.txt
 

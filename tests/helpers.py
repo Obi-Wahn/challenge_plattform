@@ -23,6 +23,10 @@ ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
 TMP_DIR = tempfile.mkdtemp(prefix="challenge-tests-")
 os.environ["DATABASE_URL"] = "sqlite:///" + os.path.join(TMP_DIR, "test.db")
 
+# Auch die Protokolldatei gehört ins temporäre Verzeichnis: Die Tests
+# dürfen nicht in logs/ der laufenden Installation schreiben.
+os.environ["LOG_DIR"] = os.path.join(TMP_DIR, "logs")
+
 
 def csrf_token(client, path):
     """Holt ein CSRF-Token von einer Seite, die ein Formular enthält.

@@ -1,6 +1,21 @@
+import sys
+
+# fpdf2 (Urkunden) und Flask-Limiter setzen Python 3.10 voraus. Ohne diese
+# Prüfung endet ein Start unter einer älteren Fassung in einem ImportError,
+# der nicht verrät, woran es wirklich liegt.
+if sys.version_info < (3, 10):
+    raise SystemExit(
+        "Python 3.10 oder neuer wird gebraucht, gefunden: "
+        f"{sys.version_info.major}.{sys.version_info.minor}.\n"
+        "Die Urkunden (fpdf2) und die Anmeldebremse (Flask-Limiter) laufen "
+        "unter älteren Fassungen nicht."
+    )
+
+import logging
 import os
 import sqlite3
 from datetime import datetime
+from logging.handlers import RotatingFileHandler
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -14,9 +29,59 @@ from blueprints.public import public_bp
 from blueprints.challenge import challenge_bp
 from blueprints.admin import admin_bp
 
+# Name des Handlers, damit ein zweiter Aufruf von create_app() - in den
+# Tests kommt das vor - nicht ein zweites Mal in dieselbe Datei schreibt.
+LOG_HANDLER_NAME = "protokolldatei"
+
+
+def configure_logging(app):
+    """Schreibt Fehler und wichtige Ereignisse in eine Datei.
+
+    Ohne das stünde ein Traceback nur im Terminal: Wer das Fenster schließt
+    oder den Server als Dienst laufen lässt, hat nach einer Störung nichts
+    mehr in der Hand - und am Wettbewerbstag ist genau dann keine Zeit, den
+    Fehler noch einmal herbeizuführen.
+
+    Die Datei rotiert bei 1 MB und behält fünf ältere Stände, damit sie nicht
+    unbegrenzt wächst.
+    """
+    if any(h.name == LOG_HANDLER_NAME for h in app.logger.handlers):
+        return
+
+    log_dir = app.config["LOG_DIR"]
+    os.makedirs(log_dir, exist_ok=True)
+
+    handler = RotatingFileHandler(
+        os.path.join(log_dir, "anwendung.log"),
+        maxBytes=1_000_000,
+        backupCount=5,
+        encoding="utf-8",
+    )
+    handler.name = LOG_HANDLER_NAME
+    handler.setLevel(logging.INFO)
+    handler.setFormatter(
+        logging.Formatter(
+            "%(asctime)s  %(levelname)-8s %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+    )
+
+    app.logger.addHandler(handler)
+    app.logger.setLevel(logging.INFO)
+
+    # waitress meldet über einen eigenen Logger, was die Anwendung selbst
+    # nicht mehr abfangen konnte. Auch das gehört in dieselbe Datei.
+    waitress_log = logging.getLogger("waitress")
+    if not any(h.name == LOG_HANDLER_NAME for h in waitress_log.handlers):
+        waitress_log.addHandler(handler)
+        waitress_log.setLevel(logging.INFO)
+
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+
+    configure_logging(app)
 
     # Initialize Extensions
     db.init_app(app)
@@ -128,6 +193,7 @@ def backup_before_migration(reason):
 
     _backup_path = target
     print(f"Datenbank vor der Änderung gesichert: {target}")
+    app.logger.info("Datenbank vor der Änderung gesichert: %s", target)
     return target
 
 def ensure_team_challenge_binding():
@@ -231,10 +297,17 @@ if __name__ == "__main__":
         # Production WSGI server for real deployments (e.g. the school LAN).
         from waitress import serve
 
+        adresse = get_local_ip()
+
         print("Server läuft auf:")
         print(f"  http://localhost:{port}  (auf diesem Rechner)")
-        print(f"  http://{get_local_ip()}:{port}  (für andere Geräte im gleichen Netzwerk)")
+        print(f"  http://{adresse}:{port}  (für andere Geräte im gleichen Netzwerk)")
+        print(f"Protokoll: {os.path.join(app.config['LOG_DIR'], 'anwendung.log')}")
         print("Zum Beenden: STRG+C\n")
+
+        # Der Start gehört ins Protokoll: Danach lässt sich später zuordnen,
+        # welche Meldungen zu welchem Wettbewerbstag gehören.
+        app.logger.info("Server gestartet auf http://%s:%s", adresse, port)
 
         serve(app, host="0.0.0.0", port=port)
 
