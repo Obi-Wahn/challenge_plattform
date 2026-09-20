@@ -39,6 +39,14 @@ def safe_redirect_target(default):
         return target
     return default
 
+@admin_bp.route("/")
+def index():
+    """/admin ist die Adresse, die man eintippt - von dort geht es weiter.
+
+    Wer nicht angemeldet ist, landet über restrict_admin auf der Anmeldung.
+    """
+    return redirect(url_for('admin.dashboard'))
+
 @admin_bp.route("/dashboard")
 def dashboard():
     # The control centre is about one competition: the current one. Everything

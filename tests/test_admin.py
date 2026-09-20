@@ -344,3 +344,29 @@ class TestEinstellungen:
         assert settings.site_name == "Calliope-Wettbewerb"
         assert settings.tagline == "Wir programmieren den Calliope"
         assert "Calliope-Wettbewerb" in client.get("/").get_data(as_text=True)
+
+
+class TestAdminEinstieg:
+    """/admin ist die Adresse, die in der Anleitung steht."""
+
+    def test_ohne_anmeldung_fuehrt_admin_zur_anmeldung(self, client, database):
+        antwort = client.get("/admin", follow_redirects=True)
+
+        assert antwort.status_code == 200
+        assert "Admin" in antwort.get_data(as_text=True)
+        assert 'name="password"' in antwort.get_data(as_text=True)
+
+    def test_angemeldet_fuehrt_admin_zur_steuerzentrale(self, admin, make_challenge):
+        make_challenge(title="Scratch-Wettbewerb")
+
+        antwort = admin.get("/admin", follow_redirects=True)
+
+        assert antwort.status_code == 200
+        assert "Steuerzentrale" in antwort.get_data(as_text=True)
+
+    def test_auch_mit_schraegstrich(self, admin, make_challenge):
+        make_challenge()
+
+        antwort = admin.get("/admin/", follow_redirects=True)
+
+        assert "Steuerzentrale" in antwort.get_data(as_text=True)
