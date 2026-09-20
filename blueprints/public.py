@@ -2,23 +2,26 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from extensions import db, limiter
 from models import Team, Challenge
 from scoring import get_standings, get_podium
+from network import join_url
 import base64
 import io
 import qrcode
 
 public_bp = Blueprint('public', __name__)
 
-def generate_qr_code():
-    # QR code of the URL this request reached the server on, so students can
-    # scan it (e.g. off a projector) instead of typing the LAN address.
-    qr_img = qrcode.make(request.host_url)
+def generate_qr_code(adresse):
+    """QR-Code der Adresse, unter der die Teams beitreten."""
+    qr_img = qrcode.make(adresse)
     buffer = io.BytesIO()
     qr_img.save(buffer, format="PNG")
     return base64.b64encode(buffer.getvalue()).decode("ascii")
 
 @public_bp.route("/", methods=["GET", "POST"])
 def index():
-    qr_code_data = generate_qr_code()
+    # Dieselbe Adresse steckt im QR-Code und steht zum Abtippen darunter:
+    # An einem normalen PC nützt ein QR-Code nichts.
+    beitritt = join_url(request.host_url)
+    qr_code_data = generate_qr_code(beitritt)
 
     challenge = Challenge.current()
 
@@ -27,15 +30,15 @@ def index():
         password = request.form.get("password")
 
         if not challenge:
-            return render_template("index.html", error="Aktuell läuft kein Wettbewerb. Bitte wartet, bis die Lehrkraft einen gestartet hat.", qr_code_data=qr_code_data)
+            return render_template("index.html", error="Aktuell läuft kein Wettbewerb. Bitte wartet, bis die Lehrkraft einen gestartet hat.", qr_code_data=qr_code_data, beitritt=beitritt)
 
         if not team_name or not password:
-            return render_template("index.html", error="Bitte Teamname und Passwort angeben.", qr_code_data=qr_code_data)
+            return render_template("index.html", error="Bitte Teamname und Passwort angeben.", qr_code_data=qr_code_data, beitritt=beitritt)
 
         # A team name only has to be free within the current competition.
         existing_team = Team.query.filter_by(challenge_id=challenge.id, name=team_name).first()
         if existing_team:
-             return render_template("index.html", error="Teamname vergeben. Bitte einloggen oder anderen Namen wählen.", qr_code_data=qr_code_data)
+             return render_template("index.html", error="Teamname vergeben. Bitte einloggen oder anderen Namen wählen.", qr_code_data=qr_code_data, beitritt=beitritt)
 
         # Create new team for the current competition
         new_team = Team(name=team_name, challenge_id=challenge.id)
@@ -48,7 +51,7 @@ def index():
         session["team_name"] = new_team.name
         return redirect(url_for("challenge.view"))
 
-    return render_template("index.html", qr_code_data=qr_code_data)
+    return render_template("index.html", qr_code_data=qr_code_data, beitritt=beitritt)
 
 @public_bp.route("/login", methods=["GET", "POST"])
 # Only actual login attempts count towards the limit - merely opening or

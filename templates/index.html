@@ -13,11 +13,32 @@
       {{ site_settings.tagline }}
     </p>
 
+    <!-- Beitreten: erst der QR-Code fürs Handy, dann die Adresse zum
+         Abtippen - am PC oder Laptop nützt ein QR-Code nichts. -->
+    {% if beitritt %}
+    <div class="event-card mb-4">
+      {% if qr_code_data %}
+      <img src="data:image/png;base64,{{ qr_code_data }}" alt="QR-Code zu dieser Seite"
+        style="width: 170px; height: 170px; background: white; padding: 8px; border-radius: 8px;">
+      <p class="text-secondary small mt-2 mb-3">
+        📱 Mit dem Handy scannen
+      </p>
+      {% endif %}
+
+      <p class="text-secondary small mb-1">
+        💻 Am Computer diese Adresse eintippen:
+      </p>
+      <p class="beitritt-adresse mb-0">{{ beitritt }}</p>
+    </div>
+    {% endif %}
+
     {% if error %}
     <div class="alert alert-danger" role="alert">
       {{ error }}
     </div>
     {% endif %}
+
+    <h2 class="h5 text-secondary mb-3">Neues Team anmelden</h2>
 
     <form method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -35,17 +56,16 @@
       Bereits registriert? <a href="{{ url_for('public.login') }}">Hier einloggen</a>
     </p>
 
-    {% if qr_code_data %}
-    <div class="mt-5">
-      <img src="data:image/png;base64,{{ qr_code_data }}" alt="QR-Code zu dieser Seite"
-        style="width: 160px; height: 160px; background: white; padding: 8px; border-radius: 8px;">
-      <p class="text-secondary small mt-2">📱 Für Freunde: QR-Code scannen zum Beitreten</p>
-    </div>
-    {% endif %}
-
   </div>
+</div>
 
-</div>
-</div>
+<style>
+  .beitritt-adresse {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+    font-size: 1.35rem;
+    color: #fff;
+    word-break: break-all;
+  }
+</style>
 
 {% endblock %}
