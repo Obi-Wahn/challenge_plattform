@@ -129,6 +129,7 @@ ADDED_COLUMNS = {
     "settings": {
         "signature_name": "VARCHAR(100) NOT NULL DEFAULT ''",
         "signature_font": "VARCHAR(30) NOT NULL DEFAULT 'caveat'",
+        "certificate_orientation": "VARCHAR(10) NOT NULL DEFAULT 'landscape'",
     },
 }
 

@@ -19,6 +19,24 @@
   </div>
 
   <div class="event-card mb-4">
+    <h3 class="mb-3">Format der Urkunden</h3>
+    <p class="text-secondary">
+      Gilt für das PDF und für die Druckansicht.
+    </p>
+
+    <div class="orientation-choices">
+      {% for key, ausrichtung in certificate_orientations.items() %}
+      <label class="orientation-choice">
+        <input type="radio" name="certificate_orientation" value="{{ key }}"
+          {% if settings.certificate_orientation == key %}checked{% endif %}>
+        <span class="orientation-sheet orientation-{{ key }}"></span>
+        <span class="orientation-label">{{ ausrichtung.label }}</span>
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="event-card mb-4">
     <h3 class="mb-3">Unterschrift auf den Urkunden</h3>
     <p class="text-secondary">
       Der Name steht auf der Linie am Fuß jeder Urkunde. Bleibt das Feld leer,
@@ -103,6 +121,46 @@
     padding-top: 0.3rem;
     min-height: 1.2rem;
   }
+
+  /* Auswahl des Blattformats: zwei Blattumrisse im richtigen Seitenverhältnis,
+     damit die Wahl ohne Lesen erkennbar ist. */
+  .orientation-choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .orientation-choice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .orientation-choice:has(input:checked) {
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .orientation-sheet {
+    display: block;
+    background: #fff;
+    border-radius: 2px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  }
+
+  /* DIN A4: 210 zu 297. Das liegende Blatt bekommt oben und unten Luft,
+     damit beide Umrisse gleich viel Platz einnehmen und die Beschriftungen
+     auf einer Höhe stehen. */
+  .orientation-landscape { width: 74px; height: 52px; margin: 11px 0; }
+  .orientation-portrait { width: 52px; height: 74px; }
+
+  .orientation-label { font-size: 0.85rem; }
 </style>
 
 <script>

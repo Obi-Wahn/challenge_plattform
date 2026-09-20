@@ -4,7 +4,9 @@ from extensions import db
 from models import Team, Challenge, Task, Submission, Settings, TASK_FORMATS
 from scoring import get_standings
 from certificates import (build_certificates_for, certificate_entry, signature_font,
-                          SIGNATURE_FONTS, DEFAULT_SIGNATURE_FONT)
+                          SIGNATURE_FONTS, DEFAULT_SIGNATURE_FONT,
+                          certificate_orientation, CERTIFICATE_ORIENTATIONS,
+                          DEFAULT_ORIENTATION)
 from task_exchange import export_bytes, parse_tasks, ImportError_
 from datetime import datetime
 import io
@@ -507,7 +509,8 @@ def certificates_print():
         entries=standings,
         task_count=task_count,
         today=datetime.now().strftime("%d.%m.%Y"),
-        signature_css=signature_font(Settings.get().signature_font)["css"]
+        signature_css=signature_font(Settings.get().signature_font)["css"],
+        orientation=certificate_orientation(Settings.get().certificate_orientation)
     )
 
 @admin_bp.route("/urkunden.pdf")
@@ -557,6 +560,11 @@ def settings():
         font = request.form.get("signature_font", "")
         site_settings.signature_font = font if font in SIGNATURE_FONTS else DEFAULT_SIGNATURE_FONT
 
+        ausrichtung = request.form.get("certificate_orientation", "")
+        site_settings.certificate_orientation = (
+            ausrichtung if ausrichtung in CERTIFICATE_ORIENTATIONS else DEFAULT_ORIENTATION
+        )
+
         db.session.commit()
         flash("Einstellungen gespeichert.", "success")
         return redirect(url_for('admin.settings'))
@@ -564,5 +572,6 @@ def settings():
     return render_template(
         "admin/settings.html",
         settings=site_settings,
-        signature_fonts=SIGNATURE_FONTS
+        signature_fonts=SIGNATURE_FONTS,
+        certificate_orientations=CERTIFICATE_ORIENTATIONS
     )

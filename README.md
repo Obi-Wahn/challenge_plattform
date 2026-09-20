@@ -71,9 +71,11 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
 *   **Team-Verwaltung**: Übersicht der Teams des aktuellen Wettbewerbs, inklusive
     Passwort-Reset, falls ein Team sein Passwort vergisst.
 *   **Urkunden**: Druckansicht und PDF für alle Teams, dazu eine Urkunde einzeln.
-    Unter die Unterschriftslinie lässt sich ein Name eintragen – wahlweise in einer
-    von drei Handschriften (Caveat, Dancing Script, Great Vibes) oder in Druckschrift.
-    Ohne Eintrag steht dort wie bisher „Unterschrift“ zum Unterschreiben von Hand.
+    Wahlweise im **Quer- oder Hochformat** (A4), einstellbar für PDF und Druckansicht
+    gemeinsam. Unter die Unterschriftslinie lässt sich ein Name eintragen – wahlweise
+    in einer von drei Handschriften (Caveat, Dancing Script, Great Vibes) oder in
+    Druckschrift. Ohne Eintrag steht dort wie bisher „Unterschrift“ zum
+    Unterschreiben von Hand.
 *   **Einstellungen**: Name und Beschreibung der Veranstaltung frei anpassbar, ohne Code zu ändern.
 
 ## 🛠 Technologien
