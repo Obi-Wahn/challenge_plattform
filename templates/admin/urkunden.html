@@ -7,7 +7,7 @@
   {% if entries %}
   <p class="text-secondary">
     Eine Urkunde pro Team, je eine Seite. Zum Ausdrucken <strong>Strg + P</strong> drücken
-    (im Druckdialog Querformat wählen) oder die fertige PDF-Datei herunterladen.
+    (im Druckdialog {{ orientation.kurz }} wählen) oder die fertige PDF-Datei herunterladen.
   </p>
 
   <div class="d-flex flex-wrap gap-2 mb-4">
@@ -177,17 +177,17 @@
     }
 
     .certificate-inner {
-      /* A4 landscape (210mm high) minus the 1cm page margins, in absolute
-         units - vh is not reliable across print engines and made the frame
-         overflow onto a second sheet. */
-      height: 186mm;
+      /* Blatthöhe minus die 1 cm Seitenrand oben und unten, in absoluten
+         Einheiten - vh ist über die Druckprogramme hinweg nicht verlässlich
+         und ließ den Rahmen auf ein zweites Blatt überlaufen. */
+      height: {{ orientation.inner_height_mm }}mm;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       justify-content: center;
     }
 
-    @page { size: A4 landscape; margin: 1cm; }
+    @page { size: A4 {{ orientation.css }}; margin: 1cm; }
   }
 </style>
 

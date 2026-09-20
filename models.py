@@ -151,6 +151,9 @@ class Settings(db.Model):
     # "Unterschrift", as they did before this was configurable.
     signature_name = db.Column(db.String(100), nullable=False, default="")
     signature_font = db.Column(db.String(30), nullable=False, default="caveat")
+    # Quer- oder Hochformat der Urkunden. Quer ist die bisherige Fassung und
+    # bleibt die Voreinstellung, damit sich für niemanden etwas ändert.
+    certificate_orientation = db.Column(db.String(10), nullable=False, default="landscape")
 
     @classmethod
     def get(cls):

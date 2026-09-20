@@ -37,7 +37,11 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    lassen sich dort ebenso einzeln oder als Satz exportieren und wieder
    einlesen.
 
-5. **Pro Aufgabe festlegen:** Punkte, erlaubtes Dateiformat
+5. **Urkundenformat wählen** unter *Einstellungen*: Querformat oder Hochformat.
+   Am besten jetzt schon eine Probeurkunde ausdrucken – dann weißt du, ob
+   Drucker und Papier mitspielen.
+
+6. **Pro Aufgabe festlegen:** Punkte, erlaubtes Dateiformat
    (z. B. `.sb3` für Scratch, `.hex` für Calliope) und optional einen
    Hinweis. Der Hinweis bleibt verborgen, bis er freigeschaltet wird.
 
@@ -112,8 +116,8 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    sich einen Platz, niemand fällt durch eine willkürliche Reihung heraus.
 4. **Urkunden**: als Sammel-PDF über `/admin/urkunden.pdf` oder einzeln.
    Die Teams können ihre eigene Urkunde nach dem Beenden selbst
-   herunterladen. Den Namen unter der Unterschriftslinie und die Handschrift
-   stellst du unter *Einstellungen* ein.
+   herunterladen. Unter *Einstellungen* stellst du ein: Quer- oder Hochformat,
+   den Namen unter der Unterschriftslinie und die Handschrift.
 
 ---
 
