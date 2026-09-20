@@ -8,6 +8,16 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
 ![Flask](https://img.shields.io/badge/Flask-3.x-green.svg)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple.svg)
 
+## 📸 So sieht es aus
+
+| Steuerzentrale (Lehrkraft) | Teamansicht (Schülerinnen und Schüler) |
+| --- | --- |
+| ![Steuerzentrale](docs/bilder/steuerzentrale.png) | ![Teamansicht](docs/bilder/teamansicht.png) |
+
+| Rangliste | Urkunde |
+| --- | --- |
+| ![Rangliste](docs/bilder/rangliste.png) | ![Urkunde](docs/bilder/urkunde.png) |
+
 ## 🌟 Features
 
 ### Für Teilnehmer
@@ -124,6 +134,11 @@ Voraussetzung: Python 3.10 oder höher (fpdf2, das die Urkunden erzeugt, verlang
     *   Füge Aufgaben hinzu, wähle Punkte, erlaubtes Dateiformat und optional einen Hinweis.
     *   Aktiviere die Challenge.
 
+    *   **Schnellstart:** Unter `beispiele/` liegen fertige Aufgabensätze für
+        Scratch und Calliope. Auf der Aufgaben-Seite mit **⬆️ Datei einlesen**
+        laden – dann steht ein kompletter Wettbewerb, den man nach Belieben
+        anpassen kann.
+
 2.  **Teilnehmer**:
     *   Registrieren sich auf der Startseite (oder scannen den dort angezeigten QR-Code).
     *   Werden direkt zur aktiven Challenge weitergeleitet.
@@ -234,6 +249,8 @@ challenge_plattform/
 │   └── ...                  # eigenes CSS, Bilder
 ├── templates/               # HTML Templates
 ├── tests/                   # automatische Tests (pytest)
+├── beispiele/               # fertige Aufgabensätze zum Einlesen
+├── docs/bilder/             # Screenshots für diese README
 ├── uploads/                 # Hochgeladene Abgaben (wird erstellt)
 └── data/                    # SQLite Datenbank und ihre Sicherungen (werden erstellt)
 ```
