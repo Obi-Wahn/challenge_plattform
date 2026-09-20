@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
 from extensions import db, limiter
-from models import Team, Challenge, Task, Submission
+from models import Team, Challenge
 from scoring import get_standings, get_podium
 import base64
 import io

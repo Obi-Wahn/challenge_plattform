@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, abort, send_from_directory, send_file, current_app, flash
+from flask import (Blueprint, render_template, request, redirect, url_for, session,
+                   send_from_directory, send_file, flash)
 from extensions import db
 from models import Team, Challenge, Task, Submission, Settings, TASK_FORMATS
 from scoring import get_standings

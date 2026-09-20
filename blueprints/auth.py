@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, current_app
-from extensions import db, limiter
+from extensions import limiter
 
 auth_bp = Blueprint('auth', __name__)
 

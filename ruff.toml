@@ -1,0 +1,8 @@
+# Bewusst schmal gehalten: geprüft werden echte Fehler (unbenutzte Importe,
+# unbekannte Namen, Tippfehler in Variablen), nicht der Stil. Wer den Code
+# liest, soll sich nicht durch Formatierungsmeckern kämpfen müssen.
+exclude = ["venv", "static/vendor"]
+target-version = "py310"
+
+[lint]
+select = ["F"]
