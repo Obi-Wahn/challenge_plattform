@@ -1,5 +1,7 @@
 """Schutzmechanismen, die im Schul-LAN wirken sollen."""
 
+import pytest
+
 from tests.helpers import ADMIN_PASSWORD, csrf_token
 
 
@@ -197,3 +199,106 @@ class TestBetriebsmodus:
         quelltext = open(config.__file__, encoding="utf-8").read()
         assert '_require_env("SECRET_KEY")' in quelltext
         assert '_require_env("ADMIN_PASSWORD")' in quelltext
+
+
+class TestAufgabentext:
+    """Aufgabenbeschreibungen werden als HTML ausgegeben - aber nur das eigene.
+
+    Seit dem Aufgaben-Import kann der Text aus einer Datei stammen, die
+    jemand anderes geschrieben hat, und er wird unter anderem in der
+    Bewertungsansicht gerendert, also in der Sitzung des Admins.
+    """
+
+    def markdown(self, flask_app, text):
+        with flask_app.test_request_context():
+            return str(flask_app.jinja_env.filters["markdown"](text))
+
+    @pytest.mark.parametrize("angriff", [
+        "<script>alert(1)</script>",
+        "<img src=x onerror=alert(1)>",
+        "<iframe src='https://example.invalid'></iframe>",
+        "<a href='javascript:alert(1)'>klick</a>",
+        "<style>body{display:none}</style>",
+    ])
+    def test_rohes_html_wird_nicht_ausgefuehrt(self, flask_app, angriff):
+        html = self.markdown(flask_app, angriff)
+        assert "<script" not in html.lower()
+        assert "<img" not in html.lower()
+        assert "<iframe" not in html.lower()
+        assert "<style" not in html.lower()
+        assert "onerror" not in html.lower() or "&lt;" in html
+
+    @pytest.mark.parametrize("ziel", [
+        "javascript:alert(1)",
+        "JavaScript:alert(1)",
+        "data:text/html,<script>alert(1)</script>",
+        "vbscript:msgbox(1)",
+    ])
+    def test_verweise_ausserhalb_des_webs_werden_entschaerft(self, flask_app, ziel):
+        html = self.markdown(flask_app, f"[klick]({ziel})")
+        assert 'href="#"' in html
+        assert "javascript" not in html.lower()
+        assert "vbscript" not in html.lower()
+
+    @pytest.mark.parametrize("text,erwartet", [
+        ("**fett**", "<strong>fett</strong>"),
+        ("*kursiv*", "<em>kursiv</em>"),
+        ("`code()`", "<code>code()</code>"),
+        ("- eins", "<li>eins</li>"),
+        ("[Scratch](https://scratch.mit.edu)", 'href="https://scratch.mit.edu"'),
+        ("[Mail](mailto:lehrer@schule.de)", 'href="mailto:lehrer@schule.de"'),
+        ("[Sprung](#unten)", 'href="#unten"'),
+    ])
+    def test_markdown_funktioniert_weiterhin(self, flask_app, text, erwartet):
+        assert erwartet in self.markdown(flask_app, text)
+
+    def test_umlaute_bleiben_lesbar(self, flask_app):
+        assert "Prüfe größer" in self.markdown(flask_app, "Prüfe größer")
+
+    def test_leerer_text_bleibt_leer(self, flask_app):
+        assert self.markdown(flask_app, "") == ""
+        assert self.markdown(flask_app, None) == ""
+
+    def test_importierte_aufgabe_kann_kein_skript_einschleusen(
+            self, admin, make_challenge, database):
+        """Der ganze Weg: Aufgabe einlesen, dann die Bewertungsansicht ansehen."""
+        import io
+        import json
+
+        challenge = make_challenge()
+        datei = json.dumps({
+            "aufgaben": [{
+                "titel": "Harmlos",
+                "beschreibung": "<script>alert('uebernommen')</script>",
+                "punkte": 10,
+                "format": ".sb3",
+            }]
+        }).encode("utf-8")
+
+        admin.post(
+            f"/admin/challenges/{challenge.id}/tasks/import",
+            data={
+                "csrf_token": csrf_token(
+                    admin, f"/admin/challenges/{challenge.id}/tasks"),
+                "datei": (io.BytesIO(datei), "aufgaben.json"),
+            },
+            content_type="multipart/form-data",
+        )
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+        assert "<script>alert('uebernommen')</script>" not in html
+
+
+class TestSitzungsCookie:
+    def test_wird_nicht_an_fremde_seiten_geschickt(self, flask_app):
+        # Ohne SameSite schickt der Browser das Cookie auch mit, wenn eine
+        # fremde Seite eine Anfrage an den Server auslöst.
+        assert flask_app.config["SESSION_COOKIE_SAMESITE"] == "Lax"
+
+    def test_javascript_kommt_nicht_heran(self, flask_app):
+        assert flask_app.config["SESSION_COOKIE_HTTPONLY"] is True
+
+    def test_bleibt_ohne_https_nutzbar(self, flask_app):
+        # Im Schul-LAN läuft die Anwendung über http. Mit Secure=True würde
+        # der Browser das Cookie gar nicht erst schicken - niemand käme rein.
+        assert flask_app.config["SESSION_COOKIE_SECURE"] is False

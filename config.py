@@ -18,6 +18,12 @@ class Config:
     SECRET_KEY = _require_env("SECRET_KEY")
     ADMIN_PASSWORD = _require_env("ADMIN_PASSWORD")
     
+    # Das Sitzungs-Cookie geht nur mit, wenn die Anfrage von dieser Seite
+    # selbst ausgeht - nicht, wenn eine fremde Seite sie auslöst.
+    # SESSION_COOKIE_SECURE bleibt aus: Im Schul-LAN läuft die Anwendung über
+    # http, mit Secure=True käme niemand mehr hinein.
+    SESSION_COOKIE_SAMESITE = "Lax"
+
     # Database
     # The data/ directory only exists on disk because of this file (it holds
     # no other tracked files), so it must be created before SQLite can open

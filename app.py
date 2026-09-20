@@ -13,6 +13,7 @@ if sys.version_info < (3, 10):
 
 import logging
 import os
+import re
 import sqlite3
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
@@ -28,6 +29,16 @@ from blueprints.auth import auth_bp
 from blueprints.public import public_bp
 from blueprints.challenge import challenge_bp
 from blueprints.admin import admin_bp
+
+# Registriert die Haken, die hochgeladene Dateien mit ihrer Abgabe löschen.
+import uploads # noqa: F401
+
+# Verweise, die nicht ins Web zeigen. Markdown erzeugt aus [Text](ziel) ein
+# href, und "ziel" kommt aus dem Aufgabentext - javascript: gehoert da nicht
+# hinein. Erlaubt bleiben http, https, mailto, Sprungmarken und Pfade.
+UNSICHERE_ZIELE = re.compile(
+    r'(href|src)="(?!https?:|mailto:|#|/)[^"]*"', re.IGNORECASE
+)
 
 # Name des Handlers, damit ein zweiter Aufruf von create_app() - in den
 # Tests kommt das vor - nicht ein zweites Mal in dieselbe Datei schreibt.
@@ -97,11 +108,28 @@ def create_app():
     # Custom Filters
     @app.template_filter('markdown')
     def render_markdown(text):
-        from markupsafe import Markup
+        """Aufgabentext als Markdown, ohne rohes HTML durchzulassen.
+
+        Das Ergebnis wird als vertrauenswürdiges HTML ausgegeben, darf also
+        nichts enthalten, was der Aufgabentext eingeschleust hat. Solange die
+        Lehrkraft jede Aufgabe selbst tippt, wäre das unkritisch - seit dem
+        Aufgaben-Import kann der Text aber aus einer Datei stammen, die
+        jemand anderes geschrieben hat. Und gerendert wird er unter anderem
+        in der Bewertungsansicht, also in der Sitzung des Admins.
+
+        Zwei Dinge werden deshalb entschärft: rohes HTML im Text (es wird
+        vorher escaped und erscheint als Text, wie es dasteht) und Verweise
+        auf andere Ziele als das Web (javascript:, data: und Ähnliches).
+        Die Markdown-Auszeichnung selbst - Fettdruck, Listen, Code, Links
+        ins Web - funktioniert unverändert.
+        """
+        from markupsafe import Markup, escape
         import markdown
         if not text:
             return ""
-        return Markup(markdown.markdown(text))
+
+        html = markdown.markdown(str(escape(text)))
+        return Markup(UNSICHERE_ZIELE.sub(r'\1="#"', html))
 
     # Site branding (name, tagline) is admin-editable, stored in the DB,
     # and injected into every template instead of being hardcoded.

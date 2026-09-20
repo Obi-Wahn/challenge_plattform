@@ -32,6 +32,11 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
     ebenfalls zum Projizieren gedacht.
 *   **Siegerehrung**: Podium der besten drei, das sich Platz für Platz aufdecken lässt
     (Leertaste oder Knopf) – für den Abschluss vor der Klasse.
+*   **Gleichstand kostet keinen Platz**: Teams mit gleicher Punktzahl teilen sich
+    einen Platz, und der nächste Platz rückt nach – bei 10, 10, 8, 8, 7 Punkten gibt
+    es also einen ersten, einen zweiten und einen dritten Platz, jeweils doppelt
+    besetzt bis auf den dritten. So bleibt bei Gleichstand kein Platz auf dem Podium
+    leer, und keine Reihenfolge wird willkürlich entschieden.
 *   **Korrektur nach Freigabe**: Gibt die Lehrkraft eine Abgabe frei, darf das Team sie
     genau einmal ersetzen.
 *   **Eigene Urkunde als PDF**: Sobald der Wettbewerb beendet ist, kann jedes Team seine
@@ -311,6 +316,7 @@ challenge_plattform/
 ├── certificates.py        # Urkunden als PDF
 ├── task_exchange.py       # Aufgaben sichern und einlesen
 ├── network.py             # Adresse, unter der die Teams beitreten
+├── uploads.py             # löscht Dateien mit ihrer Abgabe
 ├── requirements.txt       # Abhängigkeiten
 ├── requirements-dev.txt   # zusätzlich zum Testen
 ├── pytest.ini             # Test-Einstellungen
