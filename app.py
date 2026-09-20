@@ -71,6 +71,10 @@ ADDED_COLUMNS = {
     "submissions": {
         "resubmit_allowed": "BOOLEAN DEFAULT 0",
     },
+    "settings": {
+        "signature_name": "VARCHAR(100) NOT NULL DEFAULT ''",
+        "signature_font": "VARCHAR(30) NOT NULL DEFAULT 'caveat'",
+    },
 }
 
 def ensure_team_challenge_binding():

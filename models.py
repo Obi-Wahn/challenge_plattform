@@ -132,6 +132,11 @@ class Settings(db.Model):
         nullable=False,
         default="Ein Wettbewerb für Code, Ideen und Kreativität."
     )
+    # Name under the signature line on the certificates, plus the handwriting
+    # font it is written in. Empty means the certificates keep saying
+    # "Unterschrift", as they did before this was configurable.
+    signature_name = db.Column(db.String(100), nullable=False, default="")
+    signature_font = db.Column(db.String(30), nullable=False, default="caveat")
 
     @classmethod
     def get(cls):

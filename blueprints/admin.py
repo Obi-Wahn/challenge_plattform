@@ -2,7 +2,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from extensions import db
 from models import Team, Challenge, Task, Submission, Settings
 from scoring import get_standings
-from certificates import build_certificates_pdf
+from certificates import (build_certificates_for, certificate_entry, signature_font,
+                          SIGNATURE_FONTS, DEFAULT_SIGNATURE_FONT)
 from datetime import datetime
 import io
 import os
@@ -431,7 +432,8 @@ def certificates_print():
         challenge=challenge,
         entries=standings,
         task_count=task_count,
-        today=datetime.now().strftime("%d.%m.%Y")
+        today=datetime.now().strftime("%d.%m.%Y"),
+        signature_css=signature_font(Settings.get().signature_font)["css"]
     )
 
 @admin_bp.route("/urkunden.pdf")
@@ -441,12 +443,7 @@ def certificates_pdf():
         flash("Es sind noch keine Teams registriert – es gibt nichts zu drucken.", "warning")
         return redirect(url_for('admin.certificates_print'))
 
-    pdf_bytes = build_certificates_pdf(
-        Settings.get().site_name,
-        challenge.title if challenge else "",
-        standings,
-        task_count
-    )
+    pdf_bytes = build_certificates_for(challenge, standings, task_count)
     return send_file(
         io.BytesIO(pdf_bytes),
         mimetype="application/pdf",
@@ -459,17 +456,8 @@ def certificate_pdf_single(team_id):
     team = Team.query.get_or_404(team_id)
     challenge, standings, task_count = _certificate_data()
 
-    entry = next((e for e in standings if e["team_id"] == team_id), None)
-    if entry is None:
-        # Team exists but has no place in the current challenge yet.
-        entry = {"team_id": team.id, "name": team.name, "total": 0, "solved": 0, "rank": 0}
-
-    pdf_bytes = build_certificates_pdf(
-        Settings.get().site_name,
-        challenge.title if challenge else "",
-        [entry],
-        task_count
-    )
+    entry = certificate_entry(team, standings)
+    pdf_bytes = build_certificates_for(challenge, [entry], task_count)
     return send_file(
         io.BytesIO(pdf_bytes),
         mimetype="application/pdf",
@@ -488,7 +476,19 @@ def settings():
             site_settings.site_name = site_name
         if tagline:
             site_settings.tagline = tagline
+
+        # The signature may deliberately be emptied again, so it is stored as
+        # given instead of only when something was typed.
+        site_settings.signature_name = request.form.get("signature_name", "").strip()[:100]
+        font = request.form.get("signature_font", "")
+        site_settings.signature_font = font if font in SIGNATURE_FONTS else DEFAULT_SIGNATURE_FONT
+
         db.session.commit()
+        flash("Einstellungen gespeichert.", "success")
         return redirect(url_for('admin.settings'))
 
-    return render_template("admin/settings.html", settings=site_settings)
+    return render_template(
+        "admin/settings.html",
+        settings=site_settings,
+        signature_fonts=SIGNATURE_FONTS
+    )

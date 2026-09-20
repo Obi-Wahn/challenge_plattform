@@ -3,10 +3,11 @@
 
 <h1 class="mb-4">⚙️ Einstellungen</h1>
 
-<div class="event-card">
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-  <form method="post">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="event-card mb-4">
+    <h3 class="mb-3">Veranstaltung</h3>
 
     <label class="form-label">Name der Veranstaltung</label>
     <input type="text" name="site_name" class="form-control form-control-lg mb-3"
@@ -15,16 +16,130 @@
     <label class="form-label">Untertitel</label>
     <input type="text" name="tagline" class="form-control form-control-lg"
       value="{{ settings.tagline }}" placeholder="Kurzer Beschreibungstext" required>
+  </div>
 
-    <button class="btn btn-primary mt-4">
-      💾 Speichern
-    </button>
-  </form>
+  <div class="event-card mb-4">
+    <h3 class="mb-3">Unterschrift auf den Urkunden</h3>
+    <p class="text-secondary">
+      Der Name steht auf der Linie am Fuß jeder Urkunde. Bleibt das Feld leer,
+      steht dort wie bisher nur das Wort „Unterschrift“ zum Unterschreiben von Hand.
+    </p>
 
-</div>
+    <label class="form-label">Name</label>
+    <input type="text" name="signature_name" id="signature-name" class="form-control form-control-lg mb-3"
+      value="{{ settings.signature_name }}" maxlength="100" placeholder="z. B. Vorname Nachname">
+
+    <label class="form-label">Schriftart</label>
+    <select name="signature_font" id="signature-font" class="form-select">
+      {% for key, font in signature_fonts.items() %}
+      <option value="{{ key }}" {% if settings.signature_font == key %}selected{% endif %}>
+        {{ font.label }}
+      </option>
+      {% endfor %}
+    </select>
+
+    <div class="signature-preview mt-4">
+      <div class="text-secondary small mb-2">So sieht es auf der Urkunde aus:</div>
+      <div class="signature-sheet">
+        <div id="signature-sample" class="signature-sample">Unterschrift</div>
+        <div class="signature-line"></div>
+        <div id="signature-caption" class="signature-caption">Unterschrift</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary">
+    💾 Speichern
+  </button>
+</form>
 
 <a href="{{ url_for('admin.dashboard') }}" class="text-secondary mt-4 d-block">
   ← zurück zur Steuerzentrale
 </a>
+
+<style>
+  /* Die gleichen Schriften, die auch im PDF landen - lokal im Repo. */
+  @font-face {
+    font-family: 'Caveat';
+    src: url("{{ url_for('static', filename='vendor/fonts/Caveat-Regular.ttf') }}") format('truetype');
+  }
+
+  @font-face {
+    font-family: 'Dancing Script';
+    src: url("{{ url_for('static', filename='vendor/fonts/DancingScript-Regular.ttf') }}") format('truetype');
+  }
+
+  @font-face {
+    font-family: 'Great Vibes';
+    src: url("{{ url_for('static', filename='vendor/fonts/GreatVibes-Regular.ttf') }}") format('truetype');
+  }
+
+  .signature-sheet {
+    background: #ffffff;
+    color: #28284a;
+    border-radius: 8px;
+    padding: 1.5rem 1rem 1rem;
+    text-align: center;
+  }
+
+  .signature-sample {
+    font-size: 2rem;
+    min-height: 2.6rem;
+    line-height: 1.3;
+    color: #28284a;
+  }
+
+  .signature-sample.is-print { font-size: 1.1rem; }
+
+  .signature-line {
+    border-top: 1px solid #8c8ca0;
+    width: 16rem;
+    margin: 0.3rem auto 0;
+  }
+
+  .signature-caption {
+    font-size: 0.8rem;
+    color: #82829a;
+    padding-top: 0.3rem;
+    min-height: 1.2rem;
+  }
+</style>
+
+<script>
+  // Vorschau, die dem PDF entspricht: Name auf der Linie, darunter der Name
+  // in Druckschrift, damit eine verschnörkelte Schrift lesbar bleibt.
+  (function () {
+    // tojson statt selbst zusammengebauter Strings: sonst escaped Jinja die
+    // Anführungszeichen und das Skript ist kaputt.
+    const FONTS = {{ signature_fonts | tojson }};
+
+    const nameField = document.getElementById("signature-name");
+    const fontField = document.getElementById("signature-font");
+    const sample = document.getElementById("signature-sample");
+    const caption = document.getElementById("signature-caption");
+
+    function update() {
+      const name = nameField.value.trim();
+      const family = (FONTS[fontField.value] || {}).css;
+
+      if (!name) {
+        sample.textContent = "";
+        sample.style.fontFamily = "";
+        sample.classList.add("is-print");
+        caption.textContent = "Unterschrift";
+        return;
+      }
+
+      sample.textContent = name;
+      sample.style.fontFamily = family ? ("'" + family + "', cursive") : "";
+      sample.classList.toggle("is-print", !family);
+      caption.textContent = family ? name : "";
+    }
+
+    nameField.addEventListener("input", update);
+    fontField.addEventListener("change", update);
+    update();
+  })();
+</script>
 
 {% endblock %}

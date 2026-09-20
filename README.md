@@ -15,6 +15,8 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
 *   **Datei-Uploads je nach Aufgabe**: Processing (`.pde`), Scratch (`.sb`/`.sb3`), Python (`.py`), Java (`.java`), MakeCode/Calliope (`.hex`/`.mkcd`).
 *   **Hinweise pro Aufgabe**: Admins können während des Events optionale Tipps freischalten, falls ein Team nicht weiterkommt.
 *   **Live Scoreboard**: Echtzeit-Ranking mit Punkten pro Aufgabe und Gesamtpunktzahl.
+*   **Eigene Urkunde als PDF**: Sobald der Wettbewerb beendet ist, kann jedes Team seine
+    Urkunde selbst herunterladen.
 *   **QR-Code auf der Startseite**: zum schnellen Beitreten per Smartphone, z. B. wenn die Seite beamt wird.
 *   **Responsive Design**: für Desktop, Tablet und Smartphone optimiert.
 
@@ -42,12 +44,19 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
     *   **Abgabe löschen**: Möglichkeit, fehlerhafte Abgaben komplett zu entfernen, damit Teams neu einreichen können.
 *   **Team-Verwaltung**: Übersicht der Teams des aktuellen Wettbewerbs, inklusive
     Passwort-Reset, falls ein Team sein Passwort vergisst.
+*   **Urkunden**: Druckansicht und PDF für alle Teams, dazu eine Urkunde einzeln.
+    Unter die Unterschriftslinie lässt sich ein Name eintragen – wahlweise in einer
+    von drei Handschriften (Caveat, Dancing Script, Great Vibes) oder in Druckschrift.
+    Ohne Eintrag steht dort wie bisher „Unterschrift“ zum Unterschreiben von Hand.
 *   **Einstellungen**: Name und Beschreibung der Veranstaltung frei anpassbar, ohne Code zu ändern.
 
 ## 🛠 Technologien
 
 *   **Backend**: Python, Flask, SQLAlchemy (SQLite), waitress (Produktiv-WSGI-Server).
 *   **Frontend**: HTML5, CSS3, Bootstrap 5, Markdown-Editor (EasyMDE) — alle Assets liegen lokal im Repo (`static/vendor/`), keine CDN-Abhängigkeit, funktioniert komplett offline.
+*   **PDF**: fpdf2 für die Urkunden. Die Handschriften unter `static/vendor/fonts/` stehen
+    unter der SIL Open Font License (Lizenztexte liegen daneben) und sind mit im Repo,
+    damit die Urkunden auch ohne Internet entstehen.
 *   **Sicherheit**:
     *   Passwort-Hashing (Werkzeug Security).
     *   CSRF Protection (Flask-WTF).
@@ -132,6 +141,7 @@ challenge_plattform/
 │   └── public.py
 ├── static/
 │   ├── vendor/              # Lokal eingebundene Frontend-Bibliotheken (Bootstrap, EasyMDE, Font Awesome)
+│   │   └── fonts/           # Handschriften für die Unterschrift auf den Urkunden (OFL)
 │   └── ...                  # eigenes CSS, Bilder
 ├── templates/               # HTML Templates
 ├── uploads/                 # Hochgeladene Abgaben (wird erstellt)

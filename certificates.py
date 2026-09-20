@@ -1,8 +1,50 @@
 """Generation of the printable certificates (Urkunden) as PDF."""
 
+import os
 from datetime import datetime
 
 from fpdf import FPDF
+
+FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "vendor", "fonts")
+
+# Fonts the admin can pick for the signature under a certificate. All three
+# handwriting faces are SIL Open Font License and ship with the repo, so this
+# works on a machine without internet. "file" is what fpdf2 embeds, "css" the
+# family name the print view uses, "size" the point size that makes the face
+# sit nicely on the signature line (they differ a lot in visual size).
+SIGNATURE_FONTS = {
+    "caveat": {
+        "label": "Caveat - locker geschrieben",
+        "file": "Caveat-Regular.ttf",
+        "css": "Caveat",
+        "size": 26,
+    },
+    "dancing": {
+        "label": "Dancing Script - schwungvoll",
+        "file": "DancingScript-Regular.ttf",
+        "css": "Dancing Script",
+        "size": 22,
+    },
+    "vibes": {
+        "label": "Great Vibes - verschnörkelt",
+        "file": "GreatVibes-Regular.ttf",
+        "css": "Great Vibes",
+        "size": 24,
+    },
+    "print": {
+        "label": "Druckschrift (keine Handschrift)",
+        "file": None,
+        "css": None,
+        "size": 14,
+    },
+}
+
+DEFAULT_SIGNATURE_FONT = "caveat"
+
+
+def signature_font(key):
+    """The font definition for a stored key, falling back to the default."""
+    return SIGNATURE_FONTS.get(key) or SIGNATURE_FONTS[DEFAULT_SIGNATURE_FONT]
 
 # The PDF uses the built-in Helvetica font, which covers latin-1 - enough for
 # German text, but not for typographic punctuation or the emoji students like
@@ -29,6 +71,19 @@ PLACE_LABELS = {1: "1. Platz", 2: "2. Platz", 3: "3. Platz"}
 
 
 class CertificatePDF(FPDF):
+    def __init__(self, *args, signature_name="", signature_font_key=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.signature_name = " ".join(str(signature_name or "").split())
+
+        font = signature_font(signature_font_key)
+        self.signature_font_size = font["size"]
+        self.signature_font_family = None
+        if self.signature_name and font["file"]:
+            path = os.path.join(FONT_DIR, font["file"])
+            if os.path.exists(path):
+                self.signature_font_family = font["css"]
+                self.add_font(self.signature_font_family, "", path)
+
     def certificate(self, site_name, challenge_title, entry, task_count, date_text):
         self.add_page()
 
@@ -97,10 +152,25 @@ class CertificatePDF(FPDF):
         self.set_text_color(90, 90, 110)
         self.cell(0, 6, pdf_safe(date_text), align="C", new_x="LMARGIN", new_y="NEXT")
 
-        self.ln(2)
+        # The signature sits on the line, so it is drawn before the line is.
+        signature_y = self.get_y()
+        if self.signature_name:
+            self.set_text_color(40, 40, 70)
+            if self.signature_font_family:
+                # An embedded TrueType font handles the full name as it is -
+                # no need to strip characters the way the built-in font needs.
+                self.set_font(self.signature_font_family, "", self.signature_font_size)
+                self.cell(0, 10, self.signature_name, align="C", new_x="LMARGIN", new_y="NEXT")
+            else:
+                self.set_font("Helvetica", "", self.signature_font_size)
+                self.cell(0, 10, pdf_safe(self.signature_name), align="C",
+                          new_x="LMARGIN", new_y="NEXT")
+            line_y = signature_y + 11
+        else:
+            line_y = signature_y + 2
+
         line_width = 80
         line_x = (self.w - line_width) / 2
-        line_y = self.get_y()
         self.set_draw_color(140, 140, 160)
         self.set_line_width(0.3)
         self.line(line_x, line_y, line_x + line_width, line_y)
@@ -108,15 +178,29 @@ class CertificatePDF(FPDF):
         self.set_y(line_y + 2)
         self.set_font("Helvetica", "", 10)
         self.set_text_color(130, 130, 150)
-        self.cell(0, 5, "Unterschrift", align="C", new_x="LMARGIN", new_y="NEXT")
+        if not self.signature_name:
+            caption = "Unterschrift"
+        elif self.signature_font_family:
+            # A flourished script can be hard to read, so the name is repeated
+            # in plain type under the line.
+            caption = pdf_safe(self.signature_name)
+        else:
+            caption = ""
+        if caption:
+            self.cell(0, 5, caption, align="C", new_x="LMARGIN", new_y="NEXT")
 
 
-def build_certificates_pdf(site_name, challenge_title, entries, task_count, date_text=None):
+def build_certificates_pdf(site_name, challenge_title, entries, task_count, date_text=None,
+                           signature_name="", signature_font_key=None):
     """Builds one PDF holding a certificate page per entry."""
     if date_text is None:
         date_text = datetime.now().strftime("%d.%m.%Y")
 
-    pdf = CertificatePDF(orientation="L", unit="mm", format="A4")
+    pdf = CertificatePDF(
+        orientation="L", unit="mm", format="A4",
+        signature_name=signature_name,
+        signature_font_key=signature_font_key
+    )
     pdf.set_auto_page_break(False)
     pdf.set_title(pdf_safe(f"Urkunden - {site_name}"))
 
@@ -124,3 +208,26 @@ def build_certificates_pdf(site_name, challenge_title, entries, task_count, date
         pdf.certificate(site_name, challenge_title, entry, task_count, date_text)
 
     return bytes(pdf.output())
+
+
+def certificate_entry(team, standings):
+    """The standings row of a team, or an empty one if it has no result yet."""
+    for entry in standings:
+        if entry["team_id"] == team.id:
+            return entry
+    return {"team_id": team.id, "name": team.name, "total": 0, "solved": 0, "rank": 0}
+
+
+def build_certificates_for(challenge, entries, task_count):
+    """Certificates for a competition, using the configured signature."""
+    from models import Settings
+
+    settings = Settings.get()
+    return build_certificates_pdf(
+        settings.site_name,
+        challenge.title if challenge else "",
+        entries,
+        task_count,
+        signature_name=settings.signature_name,
+        signature_font_key=settings.signature_font
+    )
