@@ -1,0 +1,41 @@
+# Prüft bei jedem Push und jedem Pull Request, ob die Anwendung noch tut,
+# was sie soll. Dieselben Befehle laufen auch lokal:
+#   ruff check .
+#   pytest
+name: Tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.10 ist die älteste Version, mit der die Abhängigkeiten laufen
+        # (fpdf2 verlangt sie), 3.13 die aktuelle.
+        python-version: ["3.10", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Python ${{ matrix.python-version }} einrichten
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Abhängigkeiten installieren
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Auf echte Fehler prüfen
+        run: ruff check .
+
+      - name: Tests ausführen
+        run: pytest

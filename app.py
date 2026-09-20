@@ -164,7 +164,7 @@ if __name__ == "__main__":
         # Production WSGI server for real deployments (e.g. the school LAN).
         from waitress import serve
 
-        print(f"Server läuft auf:")
+        print("Server läuft auf:")
         print(f"  http://localhost:{port}  (auf diesem Rechner)")
         print(f"  http://{get_local_ip()}:{port}  (für andere Geräte im gleichen Netzwerk)")
         print("Zum Beenden: STRG+C\n")

@@ -3,7 +3,8 @@
 Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programmier-Wettbewerbe an Schulen — läuft komplett lokal im eigenen Netzwerk, **ganz ohne Internetzugriff**.
 
 ![Status](https://img.shields.io/badge/Status-Active-success)
-![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
+![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
+[![Tests](https://github.com/Obi-Wahn/challenge_plattform/actions/workflows/tests.yml/badge.svg)](https://github.com/Obi-Wahn/challenge_plattform/actions/workflows/tests.yml)
 ![Flask](https://img.shields.io/badge/Flask-3.x-green.svg)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple.svg)
 
@@ -71,7 +72,7 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
 
 ## 🚀 Installation & Setup
 
-Voraussetzung: Python 3.9 oder höher.
+Voraussetzung: Python 3.10 oder höher (fpdf2, das die Urkunden erzeugt, verlangt diese Version).
 
 1.  **Repository klonen**
     ```bash
@@ -144,6 +145,20 @@ Die Tests laufen gegen eine eigene Datenbank in einem temporären Verzeichnis.
 `data/challenge.db` wird dabei nie angefasst – ein Testlauf kann also keine
 echten Wettbewerbsdaten beschädigen.
 
+Zusätzlich prüft `ruff` den Code auf echte Fehler – unbenutzte Importe,
+unbekannte Namen, Tippfehler in Variablen. Stil und Formatierung bleiben
+absichtlich ungeprüft:
+
+```bash
+ruff check .
+```
+
+Beides läuft auch automatisch: Bei jedem Push und jedem Pull Request führt
+GitHub dieselben zwei Befehle aus, auf Python 3.10 und 3.13. Am Pull Request
+steht dann ein grünes Häkchen oder ein rotes Kreuz – man muss also nicht
+daran denken, selbst zu testen. Die Einstellungen dazu stehen in
+`.github/workflows/tests.yml`.
+
 Einzelne Bereiche lassen sich gezielt prüfen:
 
 ```bash
@@ -175,6 +190,8 @@ challenge_plattform/
 ├── requirements.txt       # Abhängigkeiten
 ├── requirements-dev.txt   # zusätzlich zum Testen
 ├── pytest.ini             # Test-Einstellungen
+├── ruff.toml              # Einstellungen der Fehlerprüfung
+├── .github/workflows/     # Tests laufen automatisch bei jedem Push
 ├── .env.example            # Vorlage für die eigene .env
 ├── blueprints/             # Modulare Routen
 │   ├── admin.py

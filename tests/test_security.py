@@ -1,7 +1,5 @@
 """Schutzmechanismen, die im Schul-LAN wirken sollen."""
 
-import pytest
-
 from tests.conftest import ADMIN_PASSWORD, csrf_token
 
 
