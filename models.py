@@ -97,6 +97,20 @@ class Challenge(db.Model):
         remaining = (self.end_time - now).total_seconds()
         return max(0, int(remaining))
 
+# File formats a task can ask for, as {extension: label}. Kept in one place so
+# the task forms and the import agree on what is allowed.
+TASK_FORMATS = {
+    ".pde": "Processing",
+    ".sb": "Scratch 1.4",
+    ".sb3": "Scratch 3.0",
+    ".java": "Java",
+    ".py": "Python",
+    ".hex": "MakeCode/Calliope",
+    ".mkcd": "MakeCode-Projekt",
+}
+
+DEFAULT_TASK_FORMAT = ".pde"
+
 class Task(db.Model):
     __tablename__ = 'tasks'
     id = db.Column(db.Integer, primary_key=True)

@@ -84,13 +84,9 @@
     <div class="mb-3">
       <label class="form-label">Erlaubtes Dateiformat</label>
       <select name="allowed_extension" class="form-select">
-        <option value=".pde" selected>.pde (Processing)</option>
-        <option value=".sb">.sb (Scratch 1.4)</option>
-        <option value=".sb3">.sb3 (Scratch 3.0)</option>
-        <option value=".java">.java (Java)</option>
-        <option value=".py">.py (Python)</option>
-        <option value=".hex">.hex (MakeCode/Calliope)</option>
-        <option value=".mkcd">.mkcd (MakeCode-Projekt)</option>
+        {% for extension, label in task_formats.items() %}
+        <option value="{{ extension }}">{{ extension }} ({{ label }})</option>
+        {% endfor %}
       </select>
     </div>
 
@@ -105,6 +101,45 @@
     </button>
   </form>
 
+
+</div>
+
+<div class="event-card mt-4">
+
+  <h3 class="mb-3">Aufgaben sichern und wiederverwenden</h3>
+  <p class="text-secondary">
+    Aufgaben, die gut funktioniert haben, kannst du als Datei sichern und beim
+    nächsten Wettbewerb wieder einlesen. Die Datei enthält nur die Aufgaben –
+    keine Abgaben, keine Punkte. Hinweise sind nach dem Einlesen zunächst verborgen.
+  </p>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <h5>⬇️ Sichern</h5>
+      <p class="text-secondary small">
+        Lädt die {{ tasks|length }} Aufgabe(n) dieses Wettbewerbs als JSON-Datei herunter.
+      </p>
+      <a href="{{ url_for('admin.tasks_export', cid=challenge.id) }}"
+        class="btn btn-outline-light {% if not tasks %}disabled{% endif %}">
+        ⬇️ Aufgaben als Datei sichern
+      </a>
+    </div>
+
+    <div class="col-lg-6">
+      <h5>⬆️ Einlesen</h5>
+      <p class="text-secondary small">
+        Fügt die Aufgaben aus einer gesicherten Datei hinzu. Vorhandene Aufgaben
+        bleiben erhalten.
+      </p>
+      <form method="post" action="{{ url_for('admin.tasks_import', cid=challenge.id) }}"
+        enctype="multipart/form-data" class="d-flex flex-wrap gap-2">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="file" name="file" accept=".json,application/json" class="form-control"
+          style="max-width: 20rem;" required>
+        <button class="btn btn-outline-light">⬆️ Datei einlesen</button>
+      </form>
+    </div>
+  </div>
 
 </div>
 
