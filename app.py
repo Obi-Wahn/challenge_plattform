@@ -1,5 +1,4 @@
 import os
-import socket
 import sqlite3
 from datetime import datetime
 
@@ -9,6 +8,7 @@ load_dotenv()
 from flask import Flask
 from config import Config
 from extensions import db, csrf, limiter
+from network import get_local_ip
 from blueprints.auth import auth_bp
 from blueprints.public import public_bp
 from blueprints.challenge import challenge_bp
@@ -48,18 +48,6 @@ def create_app():
     return app
 
 app = create_app()
-
-def get_local_ip():
-    # Determines the IP this machine would use to reach the network, without
-    # actually sending anything - used to show students which address to open.
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        s.connect(("8.8.8.8", 80))
-        return s.getsockname()[0]
-    except OSError:
-        return "127.0.0.1"
-    finally:
-        s.close()
 
 # Columns added after the initial schema, as {table: {column: definition}}.
 # db.create_all() only creates missing tables, not missing columns on a table
