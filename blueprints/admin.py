@@ -62,7 +62,7 @@ def challenges_list():
 @admin_bp.route("/wettbewerb/<int:cid>")
 def challenge_detail(cid):
     """Everything about one competition on a single page."""
-    challenge = Challenge.query.get_or_404(cid)
+    challenge = db.get_or_404(Challenge, cid)
 
     tasks = Task.query.filter_by(challenge_id=cid).order_by(Task.id).all()
     teams = Team.query.filter_by(challenge_id=cid).order_by(Team.name).all()
@@ -135,7 +135,7 @@ def challenge_new():
 
 @admin_bp.route("/challenges/<int:cid>/edit", methods=["GET", "POST"])
 def challenge_edit(cid):
-    challenge = Challenge.query.get_or_404(cid)
+    challenge = db.get_or_404(Challenge, cid)
 
     if request.method == "POST":
         title = request.form.get("title", "").strip()
@@ -153,7 +153,7 @@ def challenge_edit(cid):
 # with a CSRF token rather than a plain link.
 @admin_bp.route("/challenge/<int:cid>/activate", methods=["POST"])
 def challenge_activate(cid):
-    challenge = Challenge.query.get_or_404(cid)
+    challenge = db.get_or_404(Challenge, cid)
     Challenge.query.update({Challenge.active: False})
     challenge.active = True
     db.session.commit()
@@ -166,7 +166,7 @@ def challenge_activate(cid):
 
 @admin_bp.route("/challenges/<int:cid>/tasks", methods=["GET", "POST"])
 def challenge_tasks(cid):
-    challenge = Challenge.query.get_or_404(cid)
+    challenge = db.get_or_404(Challenge, cid)
 
     if request.method == "POST":
         title = request.form["title"]
@@ -198,7 +198,7 @@ def challenge_tasks(cid):
 @admin_bp.route("/challenges/<int:cid>/tasks/export")
 def tasks_export(cid):
     """Downloads the tasks of this competition as a reusable JSON file."""
-    challenge = Challenge.query.get_or_404(cid)
+    challenge = db.get_or_404(Challenge, cid)
     tasks = Task.query.filter_by(challenge_id=cid).order_by(Task.id).all()
 
     if not tasks:
@@ -215,7 +215,7 @@ def tasks_export(cid):
 @admin_bp.route("/tasks/<int:tid>/export")
 def task_export(tid):
     """Downloads a single task, in the same format as a whole set."""
-    task = Task.query.get_or_404(tid)
+    task = db.get_or_404(Task, tid)
 
     return send_file(
         io.BytesIO(export_bytes(task.challenge, [task])),
@@ -227,7 +227,7 @@ def task_export(tid):
 @admin_bp.route("/challenges/<int:cid>/tasks/import", methods=["POST"])
 def tasks_import(cid):
     """Adds the tasks from an export file to this competition."""
-    challenge = Challenge.query.get_or_404(cid)
+    challenge = db.get_or_404(Challenge, cid)
     upload = request.files.get("file")
 
     if not upload or not upload.filename:
@@ -256,7 +256,7 @@ def tasks_import(cid):
 
 @admin_bp.route("/challenges/<int:cid>/pause", methods=["POST"])
 def challenge_pause(cid):
-    challenge = Challenge.query.get_or_404(cid)
+    challenge = db.get_or_404(Challenge, cid)
     challenge.paused = True
     db.session.commit()
     flash(f"„{challenge.title}“ ist pausiert – Abgaben sind vorübergehend gesperrt.", "warning")
@@ -264,7 +264,7 @@ def challenge_pause(cid):
 
 @admin_bp.route("/challenges/<int:cid>/resume", methods=["POST"])
 def challenge_resume(cid):
-    challenge = Challenge.query.get_or_404(cid)
+    challenge = db.get_or_404(Challenge, cid)
     challenge.paused = False
     db.session.commit()
     flash(f"„{challenge.title}“ läuft weiter – Abgaben sind wieder möglich.", "success")
@@ -273,7 +273,7 @@ def challenge_resume(cid):
 @admin_bp.route("/challenges/<int:cid>/finish", methods=["POST"])
 def challenge_finish(cid):
     """Ends the competition now: no more submissions, ready for the ceremony."""
-    challenge = Challenge.query.get_or_404(cid)
+    challenge = db.get_or_404(Challenge, cid)
     # The end time is what makes a competition finished, so setting it to now
     # is the whole action - nothing is deleted and the pause flag is untouched.
     challenge.end_time = datetime.now()
@@ -288,7 +288,7 @@ def challenge_finish(cid):
 @admin_bp.route("/challenges/<int:cid>/reopen", methods=["POST"])
 def challenge_reopen(cid):
     """Undoes "beenden", e.g. when a team still needs to hand something in."""
-    challenge = Challenge.query.get_or_404(cid)
+    challenge = db.get_or_404(Challenge, cid)
     challenge.end_time = None
     challenge.paused = False
     db.session.commit()
@@ -301,14 +301,14 @@ def challenge_reopen(cid):
 
 @admin_bp.route("/challenges/<int:cid>/delete", methods=["POST"])
 def challenge_delete(cid):
-    challenge = Challenge.query.get_or_404(cid)
+    challenge = db.get_or_404(Challenge, cid)
     db.session.delete(challenge)
     db.session.commit()
     return redirect(url_for('admin.challenges_list'))
 
 @admin_bp.route("/tasks/<int:tid>/delete", methods=["POST"])
 def task_delete(tid):
-    task = Task.query.get_or_404(tid)
+    task = db.get_or_404(Task, tid)
     cid = task.challenge_id
     db.session.delete(task)
     db.session.commit()
@@ -317,7 +317,7 @@ def task_delete(tid):
 
 @admin_bp.route("/tasks/<int:tid>/edit", methods=["GET", "POST"])
 def task_edit(tid):
-    task = Task.query.get_or_404(tid)
+    task = db.get_or_404(Task, tid)
     cid = task.challenge_id
     
     if request.method == "POST":
@@ -333,7 +333,7 @@ def task_edit(tid):
 
 @admin_bp.route("/tasks/<int:tid>/toggle_hint", methods=["POST"])
 def task_toggle_hint(tid):
-    task = Task.query.get_or_404(tid)
+    task = db.get_or_404(Task, tid)
     task.hint_visible = not task.hint_visible
     db.session.commit()
     return redirect(url_for('admin.challenge_tasks', cid=task.challenge_id))
@@ -344,7 +344,7 @@ def submissions():
         submission_id = request.form.get("submission_id")
         
         if "soft_reset" in request.form:
-             submission = Submission.query.get(submission_id)
+             submission = db.session.get(Submission, submission_id)
              if submission:
                  submission.points = None
                  submission.feedback = None
@@ -352,7 +352,7 @@ def submissions():
         else:
              points = request.form.get("points")
              feedback = request.form.get("feedback", "")
-             submission = Submission.query.get(submission_id)
+             submission = db.session.get(Submission, submission_id)
              if submission and points: # Check if points is not empty string
                  submission.points = max(0, min(int(points), submission.task.max_points))
                  submission.feedback = feedback
@@ -400,7 +400,7 @@ def submissions():
 
 @admin_bp.route("/submissions/<int:submission_id>/allow_resubmit", methods=["POST"])
 def submission_allow_resubmit(submission_id):
-    submission = Submission.query.get_or_404(submission_id)
+    submission = db.get_or_404(Submission, submission_id)
     submission.resubmit_allowed = not submission.resubmit_allowed
     db.session.commit()
 
@@ -420,7 +420,7 @@ def submission_allow_resubmit(submission_id):
 
 @admin_bp.route("/reset/<int:submission_id>", methods=["POST"])
 def submission_reset(submission_id):
-    submission = Submission.query.get_or_404(submission_id)
+    submission = db.get_or_404(Submission, submission_id)
     db.session.delete(submission)
     db.session.commit()
     return redirect(url_for('admin.submissions'))
@@ -431,7 +431,7 @@ def safe_name(text):
 
 @admin_bp.route("/download/<int:submission_id>")
 def download_submission(submission_id):
-    submission = Submission.query.get_or_404(submission_id)
+    submission = db.get_or_404(Submission, submission_id)
     
     filepath = submission.filename
     directory = os.path.dirname(filepath)
@@ -459,7 +459,7 @@ def teams():
 
 @admin_bp.route("/team/<int:team_id>/reset_password", methods=["POST"])
 def team_reset_password(team_id):
-    team = Team.query.get_or_404(team_id)
+    team = db.get_or_404(Team, team_id)
     new_password = request.form.get("new_password", "").strip()
 
     if not new_password:
@@ -475,7 +475,7 @@ def team_reset_password(team_id):
 
 @admin_bp.route("/team/delete/<int:team_id>", methods=["POST"])
 def team_delete(team_id):
-    team = Team.query.get_or_404(team_id)
+    team = db.get_or_404(Team, team_id)
     db.session.delete(team)
     db.session.commit()
     return redirect(url_for('admin.teams'))
@@ -518,7 +518,7 @@ def certificates_pdf():
 
 @admin_bp.route("/urkunden/<int:team_id>.pdf")
 def certificate_pdf_single(team_id):
-    team = Team.query.get_or_404(team_id)
+    team = db.get_or_404(Team, team_id)
     challenge, standings, task_count = _certificate_data()
 
     entry = certificate_entry(team, standings)
