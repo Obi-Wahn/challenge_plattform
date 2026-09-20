@@ -1,7 +1,11 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, abort, current_app
+from flask import (Blueprint, render_template, request, redirect, url_for, session,
+                   abort, current_app, send_file)
 from extensions import db
 from models import Team, Challenge, Task, Submission
+from scoring import get_standings
+from certificates import build_certificates_for, certificate_entry
 from werkzeug.utils import secure_filename
+import io
 import os
 from datetime import datetime
 
@@ -136,3 +140,34 @@ def submit_task(task_id):
     db.session.commit()
 
     return redirect(url_for("challenge.view"))
+
+
+def certificate_filename(team_name):
+    """A file name that survives any team name, including emoji."""
+    allowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"
+    cleaned = "".join(c if c in allowed else "_" for c in team_name).strip("_")
+    return f"Urkunde_{cleaned or 'Team'}.pdf"
+
+@challenge_bp.route("/urkunde.pdf")
+def certificate():
+    """A team downloads its own certificate, once the competition is over."""
+    challenge = Challenge.current()
+    team = team_of_current_challenge(challenge)
+    if team is None:
+        return redirect(url_for("public.index"))
+
+    # Before the end the result is not final, so there is nothing to hand out.
+    if challenge.status() != "finished":
+        abort(403)
+
+    tasks, standings = get_standings(challenge)
+    pdf_bytes = build_certificates_for(
+        challenge, [certificate_entry(team, standings)], len(tasks)
+    )
+
+    return send_file(
+        io.BytesIO(pdf_bytes),
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name=certificate_filename(team.name)
+    )

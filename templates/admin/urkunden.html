@@ -61,7 +61,17 @@
 
     <div class="certificate-footer">
       <div>{{ today }}</div>
+      {% if site_settings.signature_name %}
+      <div class="certificate-signature-name {{ 'is-print' if not signature_css }}"
+        {% if signature_css %}style="font-family: '{{ signature_css }}', cursive;"{% endif %}>
+        {{ site_settings.signature_name }}
+      </div>
+      <div class="certificate-signature">
+        {% if signature_css %}{{ site_settings.signature_name }}{% endif %}
+      </div>
+      {% else %}
       <div class="certificate-signature">Unterschrift</div>
+      {% endif %}
     </div>
 
     <div class="no-print certificate-single-link">
@@ -96,12 +106,40 @@
   .certificate-points { font-size: 1.05rem; color: #3c3c50; }
 
   .certificate-footer { margin-top: 3rem; color: #6a6a80; font-size: 0.9rem; }
+
+  /* Die Unterschrift steht auf der Linie, der Name darunter noch einmal in
+     Druckschrift - eine verschnörkelte Schrift bleibt so lesbar. */
+  .certificate-signature-name {
+    font-size: 2rem;
+    line-height: 1.3;
+    color: #28284a;
+  }
+
+  .certificate-signature-name.is-print { font-size: 1.05rem; }
+
   .certificate-signature {
     border-top: 1px solid #8c8ca0;
     width: 16rem;
     margin: 0.3rem auto 0;
     padding-top: 0.3rem;
     font-size: 0.8rem;
+    min-height: 1.4rem;
+  }
+
+  /* Die gleichen Schriften, die auch im PDF landen - lokal im Repo. */
+  @font-face {
+    font-family: 'Caveat';
+    src: url("{{ url_for('static', filename='vendor/fonts/Caveat-Regular.ttf') }}") format('truetype');
+  }
+
+  @font-face {
+    font-family: 'Dancing Script';
+    src: url("{{ url_for('static', filename='vendor/fonts/DancingScript-Regular.ttf') }}") format('truetype');
+  }
+
+  @font-face {
+    font-family: 'Great Vibes';
+    src: url("{{ url_for('static', filename='vendor/fonts/GreatVibes-Regular.ttf') }}") format('truetype');
   }
 
   .certificate-single-link { margin-top: 1.5rem; font-size: 0.85rem; }
