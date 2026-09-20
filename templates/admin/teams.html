@@ -3,15 +3,23 @@
 
 <h2 class="mb-4">👥 Teams verwalten</h2>
 
+{% if challenge %}
 <p class="text-secondary">
+  Teams des Wettbewerbs <strong class="text-light">{{ challenge.title }}</strong>.
   Hat ein Team sein Passwort vergessen, kannst du hier ein neues setzen und es dem Team sagen –
   die bisherigen Abgaben und Punkte bleiben dabei erhalten.
 </p>
+{% else %}
+<p class="text-secondary">
+  Es gibt noch keinen Wettbewerb. Teams melden sich immer für einen Wettbewerb an –
+  lege zuerst einen an.
+</p>
+{% endif %}
 
 <div class="event-card">
 
   {% if teams|length == 0 %}
-  <p class="text-secondary mb-0">Noch keine Teams registriert.</p>
+  <p class="text-secondary mb-0">Für diesen Wettbewerb hat sich noch kein Team angemeldet.</p>
   {% endif %}
 
   <ul class="list-group list-group-flush">

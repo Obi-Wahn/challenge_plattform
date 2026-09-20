@@ -10,16 +10,35 @@ challenge_bp = Blueprint('challenge', __name__)
 def allowed_file(filename, allowed_ext):
     return "." in filename and filename.lower().endswith(allowed_ext.lower())
 
+def team_of_current_challenge(challenge):
+    """The logged-in team, but only if it belongs to this competition.
+
+    A session from an earlier competition must not carry over once another one
+    has been activated.
+    """
+    team_id = session.get("team_id")
+    if not team_id or not challenge:
+        return None
+
+    team = Team.query.get(team_id)
+    if team is None or team.challenge_id != challenge.id:
+        return None
+    return team
+
 @challenge_bp.route("/challenge")
 def view():
     if "team_id" not in session:
         return redirect(url_for("public.index"))
 
-    team_id = session["team_id"]
-    team = Team.query.get(team_id) # Ensure team exists
+    # Teams always see the currently active competition.
+    challenge = Challenge.current()
+    team = team_of_current_challenge(challenge)
 
-    # Teams always see the most recently created challenge, regardless of its active flag.
-    challenge = Challenge.query.order_by(Challenge.id.desc()).first()
+    if challenge and team is None:
+        # Logged in for a competition that is no longer the current one.
+        session.pop("team_id", None)
+        session.pop("team_name", None)
+        return redirect(url_for("public.index"))
 
     if not challenge:
         return render_template(
@@ -27,9 +46,10 @@ def view():
             challenge=None,
             tasks=[],
             submission_map={},
-            team=team.name if team else session.get("team_name")
+            team=session.get("team_name")
         )
 
+    team_id = team.id
     tasks = Task.query.filter_by(challenge_id=challenge.id).all()
     
     submissions = Submission.query.filter_by(team_id=team_id).join(Task).filter(Task.challenge_id == challenge.id).all()
@@ -40,7 +60,7 @@ def view():
         challenge=challenge,
         tasks=tasks,
         submission_map=submission_map,
-        team=team.name if team else session.get("team_name")
+        team=team.name
     )
 
 @challenge_bp.route("/submit/<int:task_id>", methods=["POST"])
@@ -48,10 +68,15 @@ def submit_task(task_id):
     if "team_id" not in session:
         abort(403)
 
-    # Submissions are only accepted for the most recently created challenge,
+    # Submissions are only accepted for the active competition,
     # matching what teams see on the challenge page.
-    challenge = Challenge.query.order_by(Challenge.id.desc()).first()
+    challenge = Challenge.current()
     if not challenge:
+        abort(403)
+
+    # A team may only submit for its own competition.
+    team = team_of_current_challenge(challenge)
+    if team is None:
         abort(403)
 
     task = Task.query.get_or_404(task_id)
@@ -61,7 +86,7 @@ def submit_task(task_id):
     if challenge.paused:
         abort(403)
 
-    team_id = session["team_id"]
+    team_id = team.id
 
     # A team may only submit once per task, unless an admin explicitly
     # released this submission for a correction.

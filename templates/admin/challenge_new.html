@@ -27,6 +27,20 @@
       Die Zeiten lassen sich später jederzeit ändern.
     </p>
 
+    {% if previous %}
+    <div class="form-check mt-4">
+      <input class="form-check-input" type="checkbox" name="copy_teams" value="1" id="copy_teams">
+      <label class="form-check-label" for="copy_teams">
+        Teams aus „{{ previous.title }}“ übernehmen
+        <span class="text-secondary">({{ previous.teams | length }} Team(s))</span>
+      </label>
+      <p class="text-secondary small mt-1 mb-0">
+        Die Teams behalten ihre Passwörter und können sich sofort wieder anmelden.
+        Ohne Häkchen startet der Wettbewerb ohne Teams – alle melden sich neu an.
+      </p>
+    </div>
+    {% endif %}
+
     <button class="btn btn-primary mt-4">
       💾 Wettbewerb anlegen
     </button>

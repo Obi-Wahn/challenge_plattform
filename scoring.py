@@ -6,13 +6,14 @@ from models import Task, Team, Submission
 def get_standings(challenge):
     """Returns (tasks, standings) for a challenge, best team first.
 
-    Every registered team is included, even without a submission. Teams on the
+    Only teams registered for this competition are included, each of them even
+    without a submission. Teams on the
     same total share a rank and the next team moves up rather than the rank
     being skipped (1, 2, 2, 3), so a tie never leaves a place on the podium
     empty and a tie is never resolved arbitrarily.
     """
     tasks = Task.query.filter_by(challenge_id=challenge.id).order_by(Task.id).all()
-    teams = Team.query.order_by(Team.name).all()
+    teams = Team.query.filter_by(challenge_id=challenge.id).order_by(Team.name).all()
     submissions = Submission.query.join(Task).filter(Task.challenge_id == challenge.id).all()
 
     standings = {

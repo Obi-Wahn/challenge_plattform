@@ -20,20 +20,25 @@ def generate_qr_code():
 def index():
     qr_code_data = generate_qr_code()
 
+    challenge = Challenge.current()
+
     if request.method == "POST":
         team_name = request.form.get("team")
         password = request.form.get("password")
 
+        if not challenge:
+            return render_template("index.html", error="Aktuell läuft kein Wettbewerb. Bitte wartet, bis die Lehrkraft einen gestartet hat.", qr_code_data=qr_code_data)
+
         if not team_name or not password:
             return render_template("index.html", error="Bitte Teamname und Passwort angeben.", qr_code_data=qr_code_data)
 
-        # Check if team exists
-        existing_team = Team.query.filter_by(name=team_name).first()
+        # A team name only has to be free within the current competition.
+        existing_team = Team.query.filter_by(challenge_id=challenge.id, name=team_name).first()
         if existing_team:
              return render_template("index.html", error="Teamname vergeben. Bitte einloggen oder anderen Namen wählen.", qr_code_data=qr_code_data)
 
-        # Create new team
-        new_team = Team(name=team_name)
+        # Create new team for the current competition
+        new_team = Team(name=team_name, challenge_id=challenge.id)
         new_team.set_password(password)
         db.session.add(new_team)
         db.session.commit()
@@ -54,7 +59,11 @@ def login():
         team_name = request.form.get("team")
         password = request.form.get("password")
         
-        team = Team.query.filter_by(name=team_name).first()
+        # Teams are looked up in the current competition, since the same name
+        # may exist in several competitions.
+        challenge = Challenge.current()
+        team = (Team.query.filter_by(challenge_id=challenge.id, name=team_name).first()
+                if challenge else None)
         if team and team.check_password(password):
             session["team_id"] = team.id
             session["team_name"] = team.name
@@ -72,8 +81,7 @@ def logout():
 
 @public_bp.route("/scoreboard")
 def scoreboard():
-    # Use LATEST challenge to match other views
-    challenge = Challenge.query.order_by(Challenge.id.desc()).first()
+    challenge = Challenge.current()
 
     if not challenge:
         return render_template("scoreboard.html", challenge=None)
@@ -89,7 +97,7 @@ def scoreboard():
 
 @public_bp.route("/siegerehrung")
 def siegerehrung():
-    challenge = Challenge.query.order_by(Challenge.id.desc()).first()
+    challenge = Challenge.current()
 
     if not challenge:
         return render_template("siegerehrung.html", challenge=None, podium=[])
@@ -105,8 +113,8 @@ def siegerehrung():
 
 @public_bp.route("/start")
 def start():
-    # Same challenge the teams see on their own page.
-    challenge = Challenge.query.order_by(Challenge.id.desc()).first()
+    # Same competition the teams see on their own page.
+    challenge = Challenge.current()
 
     status = "not_scheduled"
     seconds = 0
