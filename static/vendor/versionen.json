@@ -1,0 +1,67 @@
+{
+  "_hinweis": "Welche Fassungen der Frontend-Bibliotheken hier liegen. Aktualisiert wird mit: python werkzeuge/vendor_aktualisieren.py",
+  "pakete": [
+    {
+      "name": "Bootstrap",
+      "npm": "bootstrap",
+      "version": "5.3.8",
+      "lizenz": "MIT",
+      "dateien": {
+        "dist/css/bootstrap.min.css": "bootstrap/css/bootstrap.min.css",
+        "dist/js/bootstrap.bundle.min.js": "bootstrap/js/bootstrap.bundle.min.js"
+      }
+    },
+    {
+      "name": "EasyMDE",
+      "npm": "easymde",
+      "version": "2.21.0",
+      "lizenz": "MIT",
+      "dateien": {
+        "dist/easymde.min.css": "easymde/easymde.min.css",
+        "dist/easymde.min.js": "easymde/easymde.min.js"
+      }
+    },
+    {
+      "name": "Font Awesome Free",
+      "npm": "@fortawesome/fontawesome-free",
+      "version": "6.7.2",
+      "lizenz": "Icons CC BY 4.0, Schriften SIL OFL 1.1, Code MIT",
+      "_hinweis": "Nur die Solid-Schrift wird gebraucht, die übrigen Varianten bleiben absichtlich draußen.",
+      "dateien": {
+        "css/all.min.css": "fontawesome/css/all.min.css",
+        "webfonts/fa-solid-900.woff2": "fontawesome/webfonts/fa-solid-900.woff2"
+      }
+    },
+    {
+      "name": "Caveat",
+      "npm": "@expo-google-fonts/caveat",
+      "version": "0.4.2",
+      "lizenz": "SIL OFL 1.1",
+      "_hinweis": "Handschrift für die Unterschrift auf den Urkunden.",
+      "dateien": {
+        "400Regular/Caveat_400Regular.ttf": "fonts/Caveat-Regular.ttf",
+        "LICENSE_FONT": "fonts/OFL-Caveat.txt"
+      }
+    },
+    {
+      "name": "Dancing Script",
+      "npm": "@expo-google-fonts/dancing-script",
+      "version": "0.4.2",
+      "lizenz": "SIL OFL 1.1",
+      "dateien": {
+        "400Regular/DancingScript_400Regular.ttf": "fonts/DancingScript-Regular.ttf",
+        "LICENSE_FONT": "fonts/OFL-DancingScript.txt"
+      }
+    },
+    {
+      "name": "Great Vibes",
+      "npm": "@expo-google-fonts/great-vibes",
+      "version": "0.4.1",
+      "lizenz": "SIL OFL 1.1",
+      "dateien": {
+        "400Regular/GreatVibes_400Regular.ttf": "fonts/GreatVibes-Regular.ttf",
+        "LICENSE_FONT": "fonts/OFL-GreatVibes.txt"
+      }
+    }
+  ]
+}

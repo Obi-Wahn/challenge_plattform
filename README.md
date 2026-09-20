@@ -144,6 +144,39 @@ Voraussetzung: Python 3.10 oder höher (fpdf2, das die Urkunden erzeugt, verlang
     *   Werden direkt zur aktiven Challenge weitergeleitet.
     *   Können Lösungen im geforderten Format hochladen.
 
+## 🔄 Frontend-Bibliotheken aktualisieren
+
+Bootstrap, EasyMDE, Font Awesome und die Handschriften liegen als Dateien
+unter `static/vendor/` im Repo – nur so funktioniert die Anwendung ohne
+Internet. Der Preis dafür: Sie aktualisieren sich nicht von selbst. Welche
+Fassungen dort liegen, steht in `static/vendor/versionen.json`.
+
+Nachsehen, ob es neuere gibt (ändert nichts):
+
+```bash
+python werkzeuge/vendor_aktualisieren.py --pruefen
+```
+
+```
+Bootstrap               5.3.2  ->  5.3.8     (neuere Fassung)
+EasyMDE                2.18.0      aktuell
+Font Awesome Free       6.7.2  ->  7.3.1     (neue Hauptversion - Darstellung vorher prüfen)
+```
+
+Eine neue Fassung übernehmen:
+
+```bash
+python werkzeuge/vendor_aktualisieren.py --setzen bootstrap=5.3.8
+pytest
+python app.py     # und die Seiten einmal ansehen
+```
+
+Das Skript holt die Dateien aus der npm-Registry, prüft die Prüfsumme und
+ersetzt nur das, was sich geändert hat. Es braucht Internet – also am
+heimischen Rechner ausführen, nicht während eines Wettbewerbs. Bei einer
+**neuen Hauptversion** (der ersten Zahl) lohnt der Blick in die Oberfläche
+besonders: Dort ändern sich schon mal Klassennamen oder Symbole.
+
 ## 💾 Datenbank und Sicherungen
 
 Alle Daten liegen in `data/challenge.db`. Diese Datei ist der Wettbewerb –
@@ -223,6 +256,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_task_exchange.py` | Aufgaben sichern und wiederverwenden |
 | `test_migrations.py` | Datenbank aus einer älteren Version weiterbenutzen |
 | `test_security.py` | CSRF, Passwörter, Uploads, Rate-Limit |
+| `test_vendor.py` | Versionsliste und `static/vendor/` bleiben deckungsgleich |
 
 ## 📂 Projektstruktur
 
@@ -245,11 +279,13 @@ challenge_plattform/
 │   └── public.py
 ├── static/
 │   ├── vendor/              # Lokal eingebundene Frontend-Bibliotheken (Bootstrap, EasyMDE, Font Awesome)
-│   │   └── fonts/           # Handschriften für die Unterschrift auf den Urkunden (OFL)
+│   │   ├── fonts/           # Handschriften für die Unterschrift auf den Urkunden (OFL)
+│   │   └── versionen.json   # welche Fassungen hier liegen
 │   └── ...                  # eigenes CSS, Bilder
 ├── templates/               # HTML Templates
 ├── tests/                   # automatische Tests (pytest)
 ├── beispiele/               # fertige Aufgabensätze zum Einlesen
+├── werkzeuge/               # Hilfsskripte (Bibliotheken aktualisieren)
 ├── docs/bilder/             # Screenshots für diese README
 ├── uploads/                 # Hochgeladene Abgaben (wird erstellt)
 └── data/                    # SQLite Datenbank und ihre Sicherungen (werden erstellt)
