@@ -110,8 +110,7 @@ def siegerehrung():
     return render_template(
         "siegerehrung.html",
         challenge=challenge,
-        podium=get_podium(standings),
-        team_count=len([e for e in standings if e["total"] > 0])
+        podium=get_podium(standings)
     )
 
 @public_bp.route("/start")
