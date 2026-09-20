@@ -22,10 +22,18 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
 
 ### Für Teilnehmer
 *   **Team-Registrierung & Login**: Sichere Anmeldung mit Teamnamen und Passwort.
-*   **Dashboard**: Übersicht über aktive Challenges und Aufgaben mit Fortschrittsanzeige.
+*   **Wettbewerbsseite**: alle Aufgaben des laufenden Wettbewerbs mit Fortschrittsanzeige,
+    eigenen Punkten und dem Feedback der Lehrkraft.
 *   **Datei-Uploads je nach Aufgabe**: Processing (`.pde`), Scratch (`.sb`/`.sb3`), Python (`.py`), Java (`.java`), MakeCode/Calliope (`.hex`/`.mkcd`).
 *   **Hinweise pro Aufgabe**: Admins können während des Events optionale Tipps freischalten, falls ein Team nicht weiterkommt.
-*   **Live Scoreboard**: Echtzeit-Ranking mit Punkten pro Aufgabe und Gesamtpunktzahl.
+*   **Rangliste**: Punkte pro Aufgabe und Gesamtstand, lädt sich alle 30 Sekunden selbst neu –
+    so kann sie während des Wettbewerbs am Beamer stehen bleiben.
+*   **Countdown-Seite**: zeigt, wann es losgeht oder wie viel Zeit noch bleibt –
+    ebenfalls zum Projizieren gedacht.
+*   **Siegerehrung**: Podium der besten drei, das sich Platz für Platz aufdecken lässt
+    (Leertaste oder Knopf) – für den Abschluss vor der Klasse.
+*   **Korrektur nach Freigabe**: Gibt die Lehrkraft eine Abgabe frei, darf das Team sie
+    genau einmal ersetzen.
 *   **Eigene Urkunde als PDF**: Sobald der Wettbewerb beendet ist, kann jedes Team seine
     Urkunde selbst herunterladen.
 *   **QR-Code auf der Startseite**: zum schnellen Beitreten per Smartphone, z. B. wenn die Seite beamt wird.
@@ -39,7 +47,7 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
     Bewertungen, Countdown, Rangliste, Siegerehrung und Urkunden.
 *   **Wettbewerb beenden**: ein Knopf sperrt die Abgaben und macht den Weg frei für
     Rangliste, Siegerehrung und Urkunden. „Wieder öffnen“ macht das rückgängig.
-*   **Challenge-Management**: Erstellen, Aktivieren, Pausieren und Beenden von Wettbewerben.
+*   **Wettbewerbs-Verwaltung**: Erstellen, Aktivieren, Pausieren und Beenden.
 *   **Teams gehören zu ihrem Wettbewerb**: derselbe Teamname darf in mehreren Wettbewerben
     vorkommen; beim Anlegen eines neuen Wettbewerbs lassen sich die alten Teams übernehmen.
 *   **Aufgaben-Konfiguration**:
@@ -56,6 +64,9 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
     *   **In-Browser Code Preview**: Code direkt im Browser lesen.
     *   Download-Option für lokale Tests.
     *   Bewertung mit Punkten (automatisch auf 0–Max. begrenzt) und Feedback.
+    *   **Korrektur freigeben**: Eine Abgabe für das Team wieder öffnen; es darf dann genau
+        einmal neu hochladen. Die bisherige Bewertung wird dabei zurückgesetzt, die Abgabe
+        landet wieder in der Warteschlange.
     *   **Abgabe löschen**: Möglichkeit, fehlerhafte Abgaben komplett zu entfernen, damit Teams neu einreichen können.
 *   **Team-Verwaltung**: Übersicht der Teams des aktuellen Wettbewerbs, inklusive
     Passwort-Reset, falls ein Team sein Passwort vergisst.
@@ -130,9 +141,9 @@ Voraussetzung: Python 3.10 oder höher (fpdf2, das die Urkunden erzeugt, verlang
     *   Rufe `/admin` auf (Link auch im Footer der Seite).
     *   Login mit dem in der `.env` definierten Passwort (`ADMIN_PASSWORD`).
     *   Passe unter **Einstellungen** bei Bedarf Name und Beschreibung der Veranstaltung an.
-    *   Erstelle eine neue Challenge.
+    *   Lege einen neuen Wettbewerb an.
     *   Füge Aufgaben hinzu, wähle Punkte, erlaubtes Dateiformat und optional einen Hinweis.
-    *   Aktiviere die Challenge.
+    *   Aktiviere den Wettbewerb.
 
     *   **Schnellstart:** Unter `beispiele/` liegen fertige Aufgabensätze für
         Scratch und Calliope. Auf der Aufgaben-Seite mit **⬆️ Datei einlesen**
@@ -141,7 +152,7 @@ Voraussetzung: Python 3.10 oder höher (fpdf2, das die Urkunden erzeugt, verlang
 
 2.  **Teilnehmer**:
     *   Registrieren sich auf der Startseite (oder scannen den dort angezeigten QR-Code).
-    *   Werden direkt zur aktiven Challenge weitergeleitet.
+    *   Werden direkt zum aktiven Wettbewerb weitergeleitet.
     *   Können Lösungen im geforderten Format hochladen.
 
 ## 🔄 Frontend-Bibliotheken aktualisieren
@@ -158,9 +169,10 @@ python werkzeuge/vendor_aktualisieren.py --pruefen
 ```
 
 ```
-Bootstrap               5.3.2  ->  5.3.8     (neuere Fassung)
-EasyMDE                2.18.0      aktuell
+Bootstrap               5.3.8      aktuell
+EasyMDE                2.21.0      aktuell
 Font Awesome Free       6.7.2  ->  7.3.1     (neue Hauptversion - Darstellung vorher prüfen)
+Caveat                  0.4.2      aktuell
 ```
 
 Eine neue Fassung übernehmen:
@@ -266,6 +278,9 @@ challenge_plattform/
 ├── config.py              # Konfiguration
 ├── extensions.py          # Datenbank & Extensions
 ├── models.py               # Datenbankmodelle
+├── scoring.py             # Rangliste und Podium
+├── certificates.py        # Urkunden als PDF
+├── task_exchange.py       # Aufgaben sichern und einlesen
 ├── requirements.txt       # Abhängigkeiten
 ├── requirements-dev.txt   # zusätzlich zum Testen
 ├── pytest.ini             # Test-Einstellungen
