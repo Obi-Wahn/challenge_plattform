@@ -4,11 +4,10 @@ Die Tests laufen gegen eine eigene Datenbank in einem temporären Verzeichnis.
 Die echte data/challenge.db wird dabei nie angefasst.
 """
 
+import glob
 import os
-import re
 import shutil
 import sys
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -16,20 +15,11 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-# Muss vor dem Import von app/config gesetzt sein: config.py verlangt diese
-# Werte beim Laden. load_dotenv() überschreibt vorhandene Variablen nicht,
-# eine .env der Entwicklerin kann also nicht dazwischenfunken.
-os.environ.setdefault("SECRET_KEY", "test-secret")
-os.environ.setdefault("ADMIN_PASSWORD", "test-admin")
-
-_TMP = tempfile.mkdtemp(prefix="challenge-tests-")
-os.environ["DATABASE_URL"] = "sqlite:///" + os.path.join(_TMP, "test.db")
-
-ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
+from tests.helpers import ADMIN_PASSWORD, TMP_DIR, csrf_token # noqa: E402
 
 
 def pytest_sessionfinish(session, exitstatus):
-    shutil.rmtree(_TMP, ignore_errors=True)
+    shutil.rmtree(TMP_DIR, ignore_errors=True)
 
 
 @pytest.fixture(scope="session")
@@ -39,7 +29,7 @@ def flask_app():
 
     application.config.update(
         TESTING=True,
-        UPLOAD_FOLDER=os.path.join(_TMP, "uploads"),
+        UPLOAD_FOLDER=os.path.join(TMP_DIR, "uploads"),
     )
 
     # Das Login-Limit würde nach fünf Anmeldungen zuschlagen und alle
@@ -63,27 +53,13 @@ def database(flask_app):
 
     shutil.rmtree(flask_app.config["UPLOAD_FOLDER"], ignore_errors=True)
 
+    # Sicherungen, die eine Migration angelegt hat, dürfen nicht in den
+    # nächsten Test hineinragen.
+    import app as anwendung
 
-# ---------------------------------------------------------------- Hilfsmittel
-
-def csrf_token(client, path):
-    """Holt ein CSRF-Token von einer Seite, die ein Formular enthält.
-
-    Ohne Token weist Flask-WTF jedes POST mit 400 ab - dann testet man nicht
-    die Anwendung, sondern den Schutzmechanismus.
-
-    Das g.csrf_token muss vorher weg: Flask-WTF merkt sich das Token im
-    App-Kontext, und die Tests halten einen offen. Sonst bekäme ein zweiter
-    Testclient im selben Test kein eigenes Session-Cookie. Im echten Betrieb
-    gibt es diesen Fall nicht - dort lebt der Kontext nur für eine Anfrage.
-    """
-    from flask import g
-
-    g.pop("csrf_token", None)
-    html = client.get(path).get_data(as_text=True)
-    match = re.search(r'name="csrf_token" value="([^"]+)"', html)
-    assert match, f"Auf {path} steht kein CSRF-Token - falsche Seite gewählt?"
-    return match.group(1)
+    anwendung._backup_path = None
+    for kopie in glob.glob(os.path.join(TMP_DIR, "*-vor-*.db")):
+        os.remove(kopie)
 
 
 @pytest.fixture

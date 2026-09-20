@@ -7,7 +7,7 @@ import pypdf
 import pytest
 
 from certificates import build_certificates_pdf, pdf_safe
-from tests.conftest import csrf_token
+from tests.helpers import csrf_token
 
 
 def pdf_text(daten):

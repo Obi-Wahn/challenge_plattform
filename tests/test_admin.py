@@ -2,7 +2,7 @@
 
 from datetime import datetime, timedelta
 
-from tests.conftest import csrf_token
+from tests.helpers import csrf_token
 
 
 def aktion(admin, pfad, quelle="/admin/dashboard", **felder):

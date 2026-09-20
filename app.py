@@ -1,5 +1,7 @@
 import os
 import socket
+import sqlite3
+from datetime import datetime
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -77,6 +79,69 @@ ADDED_COLUMNS = {
     },
 }
 
+# Pfad der Sicherung, die in diesem Start angelegt wurde. Eine pro Start
+# genügt: Sie entsteht vor der ersten Änderung und zeigt damit den Stand,
+# wie er vor allen Umbauten dieses Starts war.
+_backup_path = None
+
+def database_file():
+    """Der Pfad der SQLite-Datei, oder None bei einer anderen Datenbank."""
+    uri = app.config["SQLALCHEMY_DATABASE_URI"]
+    if not uri.startswith("sqlite:///"):
+        return None
+    return uri[len("sqlite:///"):]
+
+def backup_before_migration(reason):
+    """Legt eine Kopie der Datenbank an, bevor an ihrer Struktur etwas geändert wird.
+
+    Die Migrationen laufen in einer Transaktion, ein Absturz mittendrin kann
+    also nichts zerreißen. Die Kopie ist für den anderen Fall da: Der Umbau
+    läuft sauber durch, macht aber nicht das Gewünschte - dann kommt man an
+    den Stand davor heran.
+
+    Schlägt das Anlegen fehl, bricht der Start ab. Lieber gar nicht starten
+    als ohne Netz umbauen.
+    """
+    global _backup_path
+
+    if _backup_path:
+        return _backup_path
+
+    path = database_file()
+    if not path or not os.path.exists(path):
+        return None # frische Installation, es gibt noch nichts zu sichern
+
+    stamp = datetime.now().strftime("%Y-%m-%d-%H%M")
+    target = os.path.join(
+        os.path.dirname(path),
+        f"{os.path.splitext(os.path.basename(path))[0]}-vor-{reason}-{stamp}.db"
+    )
+
+    try:
+        # Die Sicherungs-Schnittstelle von SQLite statt einer einfachen
+        # Dateikopie: Sie liefert auch dann einen sauberen Stand, wenn die
+        # Anwendung die Datei gerade geöffnet hat.
+        source = sqlite3.connect(path)
+        try:
+            copy = sqlite3.connect(target)
+            try:
+                with copy:
+                    source.backup(copy)
+            finally:
+                copy.close()
+        finally:
+            source.close()
+    except (sqlite3.Error, OSError) as error:
+        raise RuntimeError(
+            f"Die Datenbank konnte vor der Änderung nicht gesichert werden: {error}\n"
+            f"Gewünschte Kopie: {target}\n"
+            "Der Start wurde abgebrochen, damit nichts ungesichert umgebaut wird."
+        ) from error
+
+    _backup_path = target
+    print(f"Datenbank vor der Änderung gesichert: {target}")
+    return target
+
 def ensure_team_challenge_binding():
     """Binds existing teams to a competition.
 
@@ -91,14 +156,17 @@ def ensure_team_challenge_binding():
     if "teams" not in inspector.get_table_names():
         return
 
-    with db.engine.begin() as conn:
+    with db.engine.connect() as conn:
         definition = conn.execute(text(
             "SELECT sql FROM sqlite_master WHERE type='table' AND name='teams'"
         )).scalar() or ""
 
-        if "_challenge_team_uc" in definition:
-            return # already migrated
+    if "_challenge_team_uc" in definition:
+        return # already migrated
 
+    backup_before_migration("teams")
+
+    with db.engine.begin() as conn:
         columns = {c["name"] for c in inspector.get_columns("teams")}
         if "challenge_id" in columns:
             source_challenge = "challenge_id"
@@ -132,14 +200,25 @@ def ensure_added_columns():
     inspector = inspect(db.engine)
     existing_tables = set(inspector.get_table_names())
 
+    # Erst sammeln, was fehlt: Nur wenn wirklich etwas ergänzt wird, lohnt
+    # sich eine Sicherung. Sonst entstünde bei jedem Start eine Kopie.
+    missing = []
+    for table, columns in ADDED_COLUMNS.items():
+        if table not in existing_tables:
+            continue
+        present = {c["name"] for c in inspector.get_columns(table)}
+        for column, definition in columns.items():
+            if column not in present:
+                missing.append((table, column, definition))
+
+    if not missing:
+        return
+
+    backup_before_migration("spalten")
+
     with db.engine.begin() as conn:
-        for table, columns in ADDED_COLUMNS.items():
-            if table not in existing_tables:
-                continue
-            present = {c["name"] for c in inspector.get_columns(table)}
-            for column, definition in columns.items():
-                if column not in present:
-                    conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {definition}"))
+        for table, column, definition in missing:
+            conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {definition}"))
 
 if __name__ == "__main__":
     with app.app_context():
