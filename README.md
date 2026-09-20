@@ -128,6 +128,42 @@ Voraussetzung: Python 3.9 oder höher.
     *   Werden direkt zur aktiven Challenge weitergeleitet.
     *   Können Lösungen im geforderten Format hochladen.
 
+## ✅ Tests
+
+Das Projekt bringt automatische Tests mit. Sie prüfen den ganzen Ablauf – vom
+Anmelden eines Teams über Abgabe, Bewertung und Rangliste bis zu Urkunden,
+Aufgaben-Export und den Datenbank-Änderungen beim Start. Nach jeder Änderung am
+Code lohnt sich ein Durchlauf, besonders vor einem echten Wettbewerb.
+
+```bash
+pip install -r requirements.txt -r requirements-dev.txt
+pytest
+```
+
+Die Tests laufen gegen eine eigene Datenbank in einem temporären Verzeichnis.
+`data/challenge.db` wird dabei nie angefasst – ein Testlauf kann also keine
+echten Wettbewerbsdaten beschädigen.
+
+Einzelne Bereiche lassen sich gezielt prüfen:
+
+```bash
+pytest tests/test_submissions.py       # nur die Abgaben
+pytest -k "urkunde"                    # alles rund um Urkunden
+pytest -v                              # mit Namen jedes einzelnen Tests
+```
+
+| Datei | prüft |
+| --- | --- |
+| `test_challenge_status.py` | geplant / läuft / pausiert / beendet, Countdown-Zeiten |
+| `test_teams.py` | Registrierung, Anmeldung, Bindung ans Wettbewerb, Team-Verwaltung |
+| `test_submissions.py` | Abgabe, Korrektur nach Freigabe, Bewertung |
+| `test_scoring.py` | Rangliste und Podium, auch bei Gleichstand |
+| `test_admin.py` | Steuerzentrale, Wettbewerbs-Seite, Beenden, Aktivieren |
+| `test_certificates.py` | Urkunden-PDF, Unterschrift, Download durch die Teams |
+| `test_task_exchange.py` | Aufgaben sichern und wiederverwenden |
+| `test_migrations.py` | Datenbank aus einer älteren Version weiterbenutzen |
+| `test_security.py` | CSRF, Passwörter, Uploads, Rate-Limit |
+
 ## 📂 Projektstruktur
 
 ```
@@ -137,6 +173,8 @@ challenge_plattform/
 ├── extensions.py          # Datenbank & Extensions
 ├── models.py               # Datenbankmodelle
 ├── requirements.txt       # Abhängigkeiten
+├── requirements-dev.txt   # zusätzlich zum Testen
+├── pytest.ini             # Test-Einstellungen
 ├── .env.example            # Vorlage für die eigene .env
 ├── blueprints/             # Modulare Routen
 │   ├── admin.py
@@ -148,6 +186,7 @@ challenge_plattform/
 │   │   └── fonts/           # Handschriften für die Unterschrift auf den Urkunden (OFL)
 │   └── ...                  # eigenes CSS, Bilder
 ├── templates/               # HTML Templates
+├── tests/                   # automatische Tests (pytest)
 ├── uploads/                 # Hochgeladene Abgaben (wird erstellt)
 └── data/                    # SQLite Datenbank (wird erstellt)
 ```
