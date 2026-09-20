@@ -18,6 +18,9 @@ class Team(db.Model):
     # verschiedene Teams. Das ist eine bewusste Entscheidung - ein Team soll
     # seinen Namen genau so bekommen, wie es ihn geschrieben hat, und die
     # Anwendung soll nicht entscheiden, welche zwei Namen „dasselbe“ sind.
+    #
+    # Beim Anmelden ist das anders: Dort verzeiht team_zur_anmeldung() eine
+    # abweichende Schreibweise, solange sie eindeutig bleibt. Siehe dort.
     __table_args__ = (db.UniqueConstraint('challenge_id', 'name', name='_challenge_team_uc'),)
 
     def set_password(self, password):

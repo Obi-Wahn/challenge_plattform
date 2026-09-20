@@ -29,6 +29,36 @@ def bereinigter_teamname(wert):
     return " ".join(str(wert or "").split())
 
 
+def team_zur_anmeldung(challenge, name):
+    """Das Team zu einem eingetippten Namen - oder None.
+
+    Zuerst wird genau so gesucht, wie es dasteht. Wer die Schreibweise
+    trifft, bekommt sein Team; damit ist die Sache entschieden, auch wenn
+    das Passwort danach nicht passt. Es wird also nie weitergesucht, nachdem
+    ein Team gefunden wurde.
+
+    Findet sich kein Team mit dieser Schreibweise, wird sie ignoriert - aber
+    nur, wenn dann genau ein Team passt. Gibt es „Die Hacker“ und
+    „die hacker“ nebeneinander, bleibt es beim leeren Ergebnis, statt dass
+    die Anwendung rät.
+
+    Der Grund: Ein Team, das sich als „Die Pixelpiraten“ angemeldet hat und
+    später „die pixelpiraten“ tippt, kam bisher nicht mehr hinein, obwohl
+    Name und Passwort stimmten.
+    """
+    genau = Team.query.filter_by(challenge_id=challenge.id, name=name).first()
+    if genau:
+        return genau
+
+    # lower() statt casefold(): Es geht um Groß- und Kleinschreibung, nicht
+    # um Schreibvarianten - „Straße“ und „STRASSE“ sollen verschieden bleiben.
+    gesucht = name.lower()
+    passende = [team for team in Team.query.filter_by(challenge_id=challenge.id).all()
+                if team.name.lower() == gesucht]
+
+    return passende[0] if len(passende) == 1 else None
+
+
 def generate_qr_code(adresse):
     """QR-Code der Adresse, unter der die Teams beitreten."""
     qr_img = qrcode.make(adresse)
@@ -108,8 +138,7 @@ def login():
         # Teams are looked up in the current competition, since the same name
         # may exist in several competitions.
         challenge = Challenge.current()
-        team = (Team.query.filter_by(challenge_id=challenge.id, name=team_name).first()
-                if challenge else None)
+        team = team_zur_anmeldung(challenge, team_name) if challenge else None
         if team and team.check_password(password):
             session["team_id"] = team.id
             session["team_name"] = team.name

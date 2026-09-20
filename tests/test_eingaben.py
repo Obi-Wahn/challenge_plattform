@@ -301,3 +301,154 @@ class TestGleichzeitigeRegistrierung:
 
         assert antwort.status_code == 200, "die zweite Anmeldung endete im Serverfehler"
         assert "vergeben" in antwort.get_data(as_text=True)
+
+
+class TestAnmeldungSchreibweise:
+    """Großzügig, solange es eindeutig bleibt - Regelung C.
+
+    Die Registrierung trennt weiter nach Schreibweise. Nur die Anmeldung
+    verzeiht eine andere Schreibweise, und auch das nur, wenn genau ein
+    Team passt.
+    """
+
+    def anlegen(self, flask_app, name, passwort="geheim"):
+        client = flask_app.test_client()
+        client.post("/", data={
+            "csrf_token": csrf_token(client, "/"),
+            "team": name,
+            "password": passwort,
+        })
+
+    def anmelden(self, flask_app, name, passwort="geheim"):
+        client = flask_app.test_client()
+        antwort = client.post("/login", data={
+            "csrf_token": csrf_token(client, "/login"),
+            "team": name,
+            "password": passwort,
+        }, follow_redirects=True)
+        return client, antwort
+
+    def ist_drin(self, antwort):
+        return "Ungültiger Teamname oder Passwort" not in antwort.get_data(as_text=True)
+
+    def test_exakte_schreibweise_geht_wie_bisher(self, flask_app, make_challenge,
+                                                 database):
+        make_challenge()
+        self.anlegen(flask_app, "Die Pixelpiraten")
+
+        _client, antwort = self.anmelden(flask_app, "Die Pixelpiraten")
+        assert self.ist_drin(antwort)
+
+    def test_andere_schreibweise_kommt_hinein(self, flask_app, make_challenge,
+                                              database):
+        """Der Fall, für den die Regelung da ist."""
+        make_challenge()
+        self.anlegen(flask_app, "Die Pixelpiraten")
+
+        _client, antwort = self.anmelden(flask_app, "die pixelpiraten")
+        assert self.ist_drin(antwort)
+
+    def test_der_gespeicherte_name_bleibt_der_angezeigte(self, flask_app,
+                                                         make_challenge, database):
+        make_challenge()
+        self.anlegen(flask_app, "Die Pixelpiraten")
+
+        client, _antwort = self.anmelden(flask_app, "DIE PIXELPIRATEN")
+
+        with client.session_transaction() as sitzung:
+            assert sitzung["team_name"] == "Die Pixelpiraten"
+
+    def test_falsches_passwort_bleibt_falsch(self, flask_app, make_challenge,
+                                             database):
+        make_challenge()
+        self.anlegen(flask_app, "Die Pixelpiraten")
+
+        _client, antwort = self.anmelden(flask_app, "die pixelpiraten", "falsch")
+        assert not self.ist_drin(antwort)
+
+    def test_unbekannter_name_bleibt_unbekannt(self, flask_app, make_challenge,
+                                               database):
+        make_challenge()
+        self.anlegen(flask_app, "Die Pixelpiraten")
+
+        _client, antwort = self.anmelden(flask_app, "Die Codeknacker")
+        assert not self.ist_drin(antwort)
+
+
+class TestAnmeldungBeiZweiSchreibweisen:
+    """Existieren beide Schreibweisen, wird nicht geraten."""
+
+    def vorbereiten(self, flask_app, make_challenge, database):
+        """„Die Hacker“ mit Passwort eins, „die hacker“ mit Passwort zwei."""
+        make_challenge()
+        for name, passwort in (("Die Hacker", "passwort-eins"),
+                               ("die hacker", "passwort-zwei")):
+            client = flask_app.test_client()
+            client.post("/", data={
+                "csrf_token": csrf_token(client, "/"),
+                "team": name,
+                "password": passwort,
+            })
+
+        from models import Team
+        assert Team.query.count() == 2
+
+    def anmelden(self, flask_app, name, passwort):
+        client = flask_app.test_client()
+        antwort = client.post("/login", data={
+            "csrf_token": csrf_token(client, "/login"),
+            "team": name,
+            "password": passwort,
+        }, follow_redirects=True)
+        return client, antwort
+
+    def ist_drin(self, antwort):
+        return "Ungültiger Teamname oder Passwort" not in antwort.get_data(as_text=True)
+
+    def test_jedes_team_kommt_mit_seiner_schreibweise_hinein(
+            self, flask_app, make_challenge, database):
+        self.vorbereiten(flask_app, make_challenge, database)
+
+        client, antwort = self.anmelden(flask_app, "Die Hacker", "passwort-eins")
+        assert self.ist_drin(antwort)
+        with client.session_transaction() as sitzung:
+            assert sitzung["team_name"] == "Die Hacker"
+
+        client, antwort = self.anmelden(flask_app, "die hacker", "passwort-zwei")
+        assert self.ist_drin(antwort)
+        with client.session_transaction() as sitzung:
+            assert sitzung["team_name"] == "die hacker"
+
+    def test_exakter_name_mit_fremdem_passwort_wird_abgewiesen(
+            self, flask_app, make_challenge, database):
+        """„Die Hacker“ mit dem Passwort von „die hacker“.
+
+        Der exakt passende Name entscheidet, und zwar endgültig: Nach einem
+        falschen Passwort wird nicht weitergesucht. Sonst käme man mit dem
+        Passwort des einen Teams unter dem Namen des anderen hinein.
+        """
+        self.vorbereiten(flask_app, make_challenge, database)
+
+        client, antwort = self.anmelden(flask_app, "Die Hacker", "passwort-zwei")
+
+        assert not self.ist_drin(antwort)
+        with client.session_transaction() as sitzung:
+            assert "team_id" not in sitzung
+
+    def test_dritte_schreibweise_bleibt_draussen(self, flask_app, make_challenge,
+                                                 database):
+        """„DIE HACKER“ passt auf beide - da wird nicht geraten."""
+        self.vorbereiten(flask_app, make_challenge, database)
+
+        for passwort in ("passwort-eins", "passwort-zwei"):
+            _client, antwort = self.anmelden(flask_app, "DIE HACKER", passwort)
+            assert not self.ist_drin(antwort), \
+                f"„DIE HACKER“ mit {passwort} kam hinein - das ist mehrdeutig"
+
+    def test_registrierung_trennt_weiterhin(self, flask_app, make_challenge,
+                                            database):
+        """Die Anmeldung ist großzügig, die Registrierung bleibt strikt."""
+        from models import Team
+
+        self.vorbereiten(flask_app, make_challenge, database)
+        assert {t.name for t in Team.query.all()} == {"Die Hacker", "die hacker"}
