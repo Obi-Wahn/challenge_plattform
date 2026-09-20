@@ -34,20 +34,11 @@
                 <div class="mb-3">
                     <label class="form-label">Erlaubtes Dateiformat</label>
                     <select name="allowed_extension" class="form-select">
-                        <option value=".pde" {% if task.allowed_extension=='.pde' %}selected{% endif %}>.pde
-                            (Processing)</option>
-                        <option value=".sb" {% if task.allowed_extension=='.sb' %}selected{% endif %}>.sb (Scratch 1.4)
+                        {% for extension, label in task_formats.items() %}
+                        <option value="{{ extension }}" {% if task.allowed_extension==extension %}selected{% endif %}>
+                            {{ extension }} ({{ label }})
                         </option>
-                        <option value=".sb3" {% if task.allowed_extension=='.sb3' %}selected{% endif %}>.sb3 (Scratch
-                            3.0)</option>
-                        <option value=".java" {% if task.allowed_extension=='.java' %}selected{% endif %}>.java (Java)
-                        </option>
-                        <option value=".py" {% if task.allowed_extension=='.py' %}selected{% endif %}>.py (Python)
-                        </option>
-                        <option value=".hex" {% if task.allowed_extension=='.hex' %}selected{% endif %}>.hex
-                            (MakeCode/Calliope)</option>
-                        <option value=".mkcd" {% if task.allowed_extension=='.mkcd' %}selected{% endif %}>.mkcd
-                            (MakeCode-Projekt)</option>
+                        {% endfor %}
                     </select>
                 </div>
 

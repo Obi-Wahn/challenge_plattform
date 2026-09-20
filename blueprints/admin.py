@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, abort, send_from_directory, send_file, current_app, flash
 from extensions import db
-from models import Team, Challenge, Task, Submission, Settings
+from models import Team, Challenge, Task, Submission, Settings, TASK_FORMATS
 from scoring import get_standings
 from certificates import (build_certificates_for, certificate_entry, signature_font,
                           SIGNATURE_FONTS, DEFAULT_SIGNATURE_FONT)
+from task_exchange import export_bytes, parse_tasks, ImportError_
 from datetime import datetime
 import io
 import os
@@ -186,8 +187,60 @@ def challenge_tasks(cid):
         db.session.commit()
         return redirect(url_for('admin.challenge_tasks', cid=cid))
 
-    tasks = Task.query.filter_by(challenge_id=cid).all()
-    return render_template("admin/challenge_tasks.html", challenge=challenge, tasks=tasks)
+    tasks = Task.query.filter_by(challenge_id=cid).order_by(Task.id).all()
+    return render_template(
+        "admin/challenge_tasks.html",
+        challenge=challenge,
+        tasks=tasks,
+        task_formats=TASK_FORMATS
+    )
+
+@admin_bp.route("/challenges/<int:cid>/tasks/export")
+def tasks_export(cid):
+    """Downloads the tasks of this competition as a reusable JSON file."""
+    challenge = Challenge.query.get_or_404(cid)
+    tasks = Task.query.filter_by(challenge_id=cid).order_by(Task.id).all()
+
+    if not tasks:
+        flash("Dieser Wettbewerb hat noch keine Aufgaben zum Sichern.", "warning")
+        return redirect(url_for('admin.challenge_tasks', cid=cid))
+
+    return send_file(
+        io.BytesIO(export_bytes(challenge, tasks)),
+        mimetype="application/json",
+        as_attachment=True,
+        download_name=f"Aufgaben_{safe_name(challenge.title)}.json"
+    )
+
+@admin_bp.route("/challenges/<int:cid>/tasks/import", methods=["POST"])
+def tasks_import(cid):
+    """Adds the tasks from an export file to this competition."""
+    challenge = Challenge.query.get_or_404(cid)
+    upload = request.files.get("file")
+
+    if not upload or not upload.filename:
+        flash("Es wurde keine Datei ausgewählt.", "warning")
+        return redirect(url_for('admin.challenge_tasks', cid=cid))
+
+    try:
+        tasks, skipped = parse_tasks(upload.read())
+    except ImportError_ as error:
+        flash(f"Import nicht möglich: {error}", "danger")
+        return redirect(url_for('admin.challenge_tasks', cid=cid))
+
+    for values in tasks:
+        # Hints always start hidden, whatever the source competition did.
+        db.session.add(Task(challenge_id=cid, **values))
+    db.session.commit()
+
+    message = f"{len(tasks)} Aufgabe(n) zu „{challenge.title}“ hinzugefügt."
+    if skipped:
+        message += " Übersprungen bzw. angepasst: " + " · ".join(skipped[:5])
+        if len(skipped) > 5:
+            message += f" (und {len(skipped) - 5} weitere)"
+    flash(message, "warning" if skipped else "success")
+
+    return redirect(url_for('admin.challenge_tasks', cid=cid))
 
 @admin_bp.route("/challenges/<int:cid>/pause", methods=["POST"])
 def challenge_pause(cid):
@@ -264,7 +317,7 @@ def task_edit(tid):
         db.session.commit()
         return redirect(url_for('admin.challenge_tasks', cid=cid))
 
-    return render_template("admin/task_edit.html", task=task)
+    return render_template("admin/task_edit.html", task=task, task_formats=TASK_FORMATS)
 
 @admin_bp.route("/tasks/<int:tid>/toggle_hint", methods=["POST"])
 def task_toggle_hint(tid):
