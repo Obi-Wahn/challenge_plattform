@@ -83,7 +83,8 @@ def submit_task(task_id):
     if task.challenge_id != challenge.id:
         abort(403) # Task not part of the current challenge
 
-    if challenge.paused:
+    # Closed means closed: paused, or past the end time.
+    if not challenge.accepts_submissions:
         abort(403)
 
     team_id = team.id

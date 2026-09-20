@@ -49,14 +49,38 @@ class Challenge(db.Model):
     def status(self):
         # end_time is optional: a challenge can have a start countdown without
         # a fixed end, in which case it just keeps running once it has started.
+        # A passed end time always means finished, also when no start time was
+        # ever set - that is what the "Wettbewerb beenden" button relies on.
         now = datetime.now()
+        if self.end_time and now > self.end_time:
+            return "finished"
         if not self.start_time:
             return "not_scheduled"
         if now < self.start_time:
             return "upcoming"
-        if not self.end_time or now <= self.end_time:
-            return "running"
-        return "finished"
+        return "running"
+
+    @property
+    def accepts_submissions(self):
+        """Whether teams may hand something in right now.
+
+        A paused or finished competition is closed. A competition whose start
+        time has not come yet stays open on purpose: the start time drives the
+        countdown page, and a teacher testing beforehand should not be locked
+        out by it.
+        """
+        return not self.paused and self.status() != "finished"
+
+    @property
+    def state_label(self):
+        """Short German label for the current state, used across the admin."""
+        if self.status() == "finished":
+            return "beendet"
+        if self.paused:
+            return "pausiert"
+        if self.status() == "upcoming":
+            return "geplant"
+        return "läuft"
 
     @property
     def seconds_until_start(self):

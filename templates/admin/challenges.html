@@ -1,7 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2 class="mb-4">🎛 Admin · Wettbewerbe</h2>
+<h2 class="mb-2">🏁 Wettbewerbe</h2>
+<p class="text-secondary mb-4">
+  Jeder Wettbewerb hat seine eigenen Aufgaben, Teams, Abgaben und Urkunden.
+  Klicke einen an, um ihn zu öffnen.
+</p>
 
 <div class="mb-4">
   <a href="{{ url_for('admin.challenge_new') }}" class="btn btn-primary">
@@ -11,7 +15,7 @@
 
 {% if challenges|length == 0 %}
 <div class="event-card">
-  <p class="text-secondary">
+  <p class="text-secondary mb-0">
     Es wurden noch keine Wettbewerbe angelegt.
   </p>
 </div>
@@ -23,66 +27,49 @@
   <div class="col-12">
     <div class="event-card d-flex flex-wrap justify-content-between align-items-center gap-3">
 
-      <!-- LINKER BEREICH -->
       <div>
-        <h5 class="mb-1">{{ c.title }}</h5>
+        <h5 class="mb-1">
+          <a href="{{ url_for('admin.challenge_detail', cid=c.id) }}" class="text-light text-decoration-none">
+            {{ c.title }}
+          </a>
+        </h5>
 
-        {% if c.paused %}
-        <span class="badge bg-warning text-dark">
-          ⏸ pausiert
-        </span>
+        {% if current and c.id == current.id %}
+        <span class="badge bg-primary">aktiver Wettbewerb</span>
+        {% endif %}
+
+        {% if c.status() == "finished" %}
+        <span class="badge bg-secondary">🏁 beendet</span>
+        {% elif c.paused %}
+        <span class="badge bg-warning text-dark">⏸ pausiert</span>
+        {% elif c.status() == "upcoming" %}
+        <span class="badge bg-info text-dark">🕒 geplant</span>
         {% else %}
-        <span class="badge bg-success">
-          aktiv
-        </span>
+        <span class="badge bg-success">🟢 läuft</span>
         {% endif %}
 
-        {% if c.start_time %}
         <div class="text-secondary small mt-2">
-          🕒 Start: {{ c.start_time.strftime('%d.%m.%Y, %H:%M') }} Uhr
-          {% if c.end_time %}· Ende: {{ c.end_time.strftime('%d.%m.%Y, %H:%M') }} Uhr{% endif %}
+          👥 {{ c.teams | length }} Teams · 📋 {{ c.tasks | length }} Aufgaben
+          {% if c.start_time %}
+          · 🕒 {{ c.start_time.strftime('%d.%m.%Y, %H:%M') }} Uhr
+          {% if c.end_time %}– {{ c.end_time.strftime('%H:%M') }} Uhr{% endif %}
+          {% endif %}
         </div>
-        {% endif %}
       </div>
 
-      <!-- RECHTER BEREICH: ACTIONS -->
       <div class="d-flex gap-2 flex-wrap">
 
-        <!-- Aufgaben -->
-        <a href="{{ url_for('admin.challenge_tasks', cid=c.id) }}" class="btn btn-outline-light btn-sm">
-          📋 Aufgaben
-        </a>
-
-        <!-- Bearbeiten (Titel & Zeiten) -->
-        <a href="{{ url_for('admin.challenge_edit', cid=c.id) }}" class="btn btn-outline-info btn-sm">
-          ✏️ Bearbeiten
-        </a>
-
-        <!-- Pause / Fortsetzen -->
-        {% if c.paused %}
-        <form method="post" action="{{ url_for('admin.challenge_resume', cid=c.id) }}">
+        {% if not current or c.id != current.id %}
+        <form method="post" action="{{ url_for('admin.challenge_activate', cid=c.id) }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button class="btn btn-success btn-sm">
-            ▶ Fortsetzen
-          </button>
-        </form>
-        {% else %}
-        <form method="post" action="{{ url_for('admin.challenge_pause', cid=c.id) }}">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button class="btn btn-warning btn-sm">
-            ⏸ Pause
-          </button>
+          <input type="hidden" name="next" value="{{ url_for('admin.challenges_list') }}">
+          <button class="btn btn-outline-primary btn-sm">✅ Aktivieren</button>
         </form>
         {% endif %}
 
-        <!-- Löschen -->
-        <form method="post" action="{{ url_for('admin.challenge_delete', cid=c.id) }}"
-          onsubmit="return confirm('Wettbewerb wirklich löschen? Alle Aufgaben und Abgaben gehen verloren!');">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button class="btn btn-danger btn-sm">
-            🗑 Löschen
-          </button>
-        </form>
+        <a href="{{ url_for('admin.challenge_detail', cid=c.id) }}" class="btn btn-outline-light btn-sm">
+          Öffnen →
+        </a>
 
       </div>
     </div>
@@ -92,7 +79,7 @@
 </div>
 
 <a href="{{ url_for('admin.dashboard') }}" class="text-secondary d-block mt-4">
-  ← zurück zum Admin-Dashboard
+  ← zurück zur Steuerzentrale
 </a>
 
 {% endblock %}

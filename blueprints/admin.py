@@ -16,15 +16,67 @@ def restrict_admin():
     if not session.get("is_admin"):
         return redirect(url_for('auth.admin_login'))
 
+def challenge_overview(challenge):
+    """The numbers both the control centre and the competition page show."""
+    if not challenge:
+        return {"teams": 0, "tasks": 0, "submissions": 0, "open_reviews": 0}
+
+    submissions = Submission.query.join(Task).filter(Task.challenge_id == challenge.id)
+    return {
+        "teams": Team.query.filter_by(challenge_id=challenge.id).count(),
+        "tasks": Task.query.filter_by(challenge_id=challenge.id).count(),
+        "submissions": submissions.count(),
+        "open_reviews": submissions.filter(Submission.points.is_(None)).count(),
+    }
+
+def safe_redirect_target(default):
+    """A "next" value from a form, but only if it stays on this site."""
+    target = (request.form.get("next") or "").strip()
+    if target.startswith("/") and not target.startswith("//"):
+        return target
+    return default
+
 @admin_bp.route("/dashboard")
 def dashboard():
-    challenges = Challenge.query.order_by(Challenge.id.desc()).all()
-    return render_template("admin/dashboard.html", challenges=challenges)
+    # The control centre is about one competition: the current one. Everything
+    # else (older competitions) lives on the competition list.
+    challenge = Challenge.current()
+    return render_template(
+        "admin/dashboard.html",
+        challenge=challenge,
+        overview=challenge_overview(challenge),
+        challenge_count=Challenge.query.count()
+    )
 
 @admin_bp.route("/challenges")
 def challenges_list():
     challenges = Challenge.query.order_by(Challenge.id.desc()).all()
-    return render_template("admin/challenges.html", challenges=challenges)
+    return render_template(
+        "admin/challenges.html",
+        challenges=challenges,
+        current=Challenge.current()
+    )
+
+@admin_bp.route("/wettbewerb/<int:cid>")
+def challenge_detail(cid):
+    """Everything about one competition on a single page."""
+    challenge = Challenge.query.get_or_404(cid)
+
+    tasks = Task.query.filter_by(challenge_id=cid).order_by(Task.id).all()
+    teams = Team.query.filter_by(challenge_id=cid).order_by(Team.name).all()
+
+    # The public pages (scoreboard, award ceremony, certificates) always show
+    # the current competition, so they are only offered for that one.
+    is_current = Challenge.current() is not None and Challenge.current().id == cid
+
+    return render_template(
+        "admin/challenge_detail.html",
+        challenge=challenge,
+        tasks=tasks,
+        teams=teams,
+        overview=challenge_overview(challenge),
+        is_current=is_current
+    )
 
 def parse_datetime_local(value):
     # Parses the value of an <input type="datetime-local">, e.g. "2026-09-19T14:30".
@@ -75,7 +127,7 @@ def challenge_new():
                 "success"
             )
 
-        return redirect(url_for('admin.challenges_list'))
+        return redirect(url_for('admin.challenge_detail', cid=challenge.id))
 
     return render_template("admin/challenge_new.html", previous=previous)
 
@@ -90,17 +142,25 @@ def challenge_edit(cid):
         challenge.start_time = parse_datetime_local(request.form.get("start_time"))
         challenge.end_time = parse_datetime_local(request.form.get("end_time"))
         db.session.commit()
-        return redirect(url_for('admin.challenges_list'))
+        flash("Titel und Zeiten gespeichert.", "success")
+        return redirect(url_for('admin.challenge_detail', cid=cid))
 
     return render_template("admin/challenge_edit.html", challenge=challenge)
 
-@admin_bp.route("/challenge/<int:cid>/activate")
+# Activating changes which competition everything refers to, so it is a POST
+# with a CSRF token rather than a plain link.
+@admin_bp.route("/challenge/<int:cid>/activate", methods=["POST"])
 def challenge_activate(cid):
     challenge = Challenge.query.get_or_404(cid)
     Challenge.query.update({Challenge.active: False})
     challenge.active = True
     db.session.commit()
-    return redirect(url_for('admin.dashboard'))
+    flash(
+        f"„{challenge.title}“ ist jetzt der aktive Wettbewerb. Teams melden sich "
+        "ab sofort für ihn an.",
+        "success"
+    )
+    return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))
 
 @admin_bp.route("/challenges/<int:cid>/tasks", methods=["GET", "POST"])
 def challenge_tasks(cid):
@@ -133,14 +193,45 @@ def challenge_pause(cid):
     challenge = Challenge.query.get_or_404(cid)
     challenge.paused = True
     db.session.commit()
-    return redirect(url_for('admin.challenges_list'))
+    flash(f"„{challenge.title}“ ist pausiert – Abgaben sind vorübergehend gesperrt.", "warning")
+    return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))
 
 @admin_bp.route("/challenges/<int:cid>/resume", methods=["POST"])
 def challenge_resume(cid):
     challenge = Challenge.query.get_or_404(cid)
     challenge.paused = False
     db.session.commit()
-    return redirect(url_for('admin.challenges_list'))
+    flash(f"„{challenge.title}“ läuft weiter – Abgaben sind wieder möglich.", "success")
+    return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))
+
+@admin_bp.route("/challenges/<int:cid>/finish", methods=["POST"])
+def challenge_finish(cid):
+    """Ends the competition now: no more submissions, ready for the ceremony."""
+    challenge = Challenge.query.get_or_404(cid)
+    # The end time is what makes a competition finished, so setting it to now
+    # is the whole action - nothing is deleted and the pause flag is untouched.
+    challenge.end_time = datetime.now()
+    db.session.commit()
+    flash(
+        f"„{challenge.title}“ ist beendet. Abgaben sind gesperrt – "
+        "jetzt könnt ihr Rangliste, Siegerehrung und Urkunden zeigen.",
+        "success"
+    )
+    return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))
+
+@admin_bp.route("/challenges/<int:cid>/reopen", methods=["POST"])
+def challenge_reopen(cid):
+    """Undoes "beenden", e.g. when a team still needs to hand something in."""
+    challenge = Challenge.query.get_or_404(cid)
+    challenge.end_time = None
+    challenge.paused = False
+    db.session.commit()
+    flash(
+        f"„{challenge.title}“ ist wieder geöffnet. Es gibt jetzt keine Endzeit – "
+        "die lässt sich unter „Zeiten“ wieder setzen.",
+        "success"
+    )
+    return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))
 
 @admin_bp.route("/challenges/<int:cid>/delete", methods=["POST"])
 def challenge_delete(cid):
