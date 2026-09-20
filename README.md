@@ -36,8 +36,8 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
     *   **Markdown Support**: Aufgabenbeschreibungen werden mit Markdown formatiert.
     *   **Dateiformat-Wahl**: Festlegen des erlaubten Dateityps pro Aufgabe.
     *   Optionale Hinweise, die während des Events sichtbar/unsichtbar geschaltet werden können.
-    *   **Sichern und Wiederverwenden**: Aufgaben lassen sich als JSON-Datei herunterladen
-        und in einen anderen Wettbewerb einlesen. Die Datei enthält nur die Aufgaben –
+    *   **Sichern und Wiederverwenden**: Aufgaben lassen sich als JSON-Datei herunterladen –
+        einzeln oder alle zusammen – und in einen anderen Wettbewerb einlesen. Die Datei enthält nur die Aufgaben –
         keine Abgaben und keine Punkte – und lässt sich in jedem Texteditor bearbeiten
         oder an Kolleginnen und Kollegen weitergeben.
 *   **Review-System**:

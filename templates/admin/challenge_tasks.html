@@ -31,8 +31,14 @@
       </div>
 
       <div class="d-flex flex-wrap gap-2">
-        <a href="{{ url_for('admin.task_edit', tid=t.id) }}" class="btn btn-outline-info btn-sm">
+        <a href="{{ url_for('admin.task_edit', tid=t.id) }}" class="btn btn-outline-info btn-sm"
+          title="Aufgabe bearbeiten">
           ✏️
+        </a>
+
+        <a href="{{ url_for('admin.task_export', tid=t.id) }}" class="btn btn-outline-light btn-sm"
+          title="Diese Aufgabe als Datei sichern">
+          ⬇️
         </a>
 
         {% if t.hint %}
@@ -117,18 +123,20 @@
     <div class="col-lg-6">
       <h5>⬇️ Sichern</h5>
       <p class="text-secondary small">
-        Lädt die {{ tasks|length }} Aufgabe(n) dieses Wettbewerbs als JSON-Datei herunter.
+        Lädt alle {{ tasks|length }} Aufgabe(n) dieses Wettbewerbs in eine JSON-Datei.
+        Für eine einzelne Aufgabe gibt es oben in der Liste das ⬇️ neben der Aufgabe.
       </p>
       <a href="{{ url_for('admin.tasks_export', cid=challenge.id) }}"
         class="btn btn-outline-light {% if not tasks %}disabled{% endif %}">
-        ⬇️ Aufgaben als Datei sichern
+        ⬇️ Alle Aufgaben sichern
       </a>
     </div>
 
     <div class="col-lg-6">
       <h5>⬆️ Einlesen</h5>
       <p class="text-secondary small">
-        Fügt die Aufgaben aus einer gesicherten Datei hinzu. Vorhandene Aufgaben
+        Fügt die Aufgaben aus einer gesicherten Datei hinzu – egal ob sie eine
+        einzelne Aufgabe oder einen ganzen Satz enthält. Vorhandene Aufgaben
         bleiben erhalten.
       </p>
       <form method="post" action="{{ url_for('admin.tasks_import', cid=challenge.id) }}"

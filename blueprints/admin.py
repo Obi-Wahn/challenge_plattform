@@ -212,6 +212,18 @@ def tasks_export(cid):
         download_name=f"Aufgaben_{safe_name(challenge.title)}.json"
     )
 
+@admin_bp.route("/tasks/<int:tid>/export")
+def task_export(tid):
+    """Downloads a single task, in the same format as a whole set."""
+    task = Task.query.get_or_404(tid)
+
+    return send_file(
+        io.BytesIO(export_bytes(task.challenge, [task])),
+        mimetype="application/json",
+        as_attachment=True,
+        download_name=f"Aufgabe_{safe_name(task.title)}.json"
+    )
+
 @admin_bp.route("/challenges/<int:cid>/tasks/import", methods=["POST"])
 def tasks_import(cid):
     """Adds the tasks from an export file to this competition."""
