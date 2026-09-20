@@ -24,17 +24,25 @@ from models import Submission
 VORGEMERKT = "abgaben_dateien_zum_loeschen"
 
 
+def zum_loeschen_vormerken(session, pfad):
+    """Löscht die Datei, sobald die laufende Änderung abgeschlossen ist.
+
+    Gedacht für die Korrekturabgabe: Dort wird eine vorhandene Abgabe auf
+    eine neue Datei umgestellt, und die alte soll erst dann verschwinden,
+    wenn die Umstellung auch wirklich gespeichert ist.
+    """
+    if pfad:
+        session.info.setdefault(VORGEMERKT, []).append(pfad)
+
+
 @event.listens_for(Submission, "after_delete")
 def _datei_vormerken(mapper, connection, submission):
     """Merkt sich den Pfad, solange das Objekt noch da ist."""
-    if not submission.filename:
-        return
-
     session = object_session(submission)
     if session is None:
         return
 
-    session.info.setdefault(VORGEMERKT, []).append(submission.filename)
+    zum_loeschen_vormerken(session, submission.filename)
 
 
 @event.listens_for(db.session, "after_commit")

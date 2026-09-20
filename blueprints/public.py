@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
 from extensions import db, limiter
+from sqlalchemy.exc import IntegrityError
 from models import Team, Challenge
 from scoring import get_standings, get_podium
 from network import join_url
@@ -8,6 +9,25 @@ import io
 import qrcode
 
 public_bp = Blueprint('public', __name__)
+
+# Grenzen für das, was von außen ankommt. Die Registrierung ist die einzige
+# Seite, die ohne Anmeldung schreibend auf die Datenbank zugreift - und im
+# Klassenraum wird erfahrungsgemäß ausprobiert, was durchgeht. SQLite setzt
+# die Länge aus String(100) nicht selbst durch: Ohne diese Prüfung landen
+# auch 5000 Zeichen in der Spalte.
+MAX_TEAMNAME = 100
+MAX_PASSWORT = 128
+
+
+def bereinigter_teamname(wert):
+    """Der Teamname ohne umgebende Leerzeichen.
+
+    Ohne das Trimmen wäre ein Name aus lauter Leerzeichen gültig - in Python
+    ist " " wahr, die Prüfung auf "nicht leer" ginge also durch. Das Team
+    stünde dann namenlos in der Rangliste und auf seiner Urkunde.
+    """
+    return " ".join(str(wert or "").split())
+
 
 def generate_qr_code(adresse):
     """QR-Code der Adresse, unter der die Teams beitreten."""
@@ -26,25 +46,45 @@ def index():
     challenge = Challenge.current()
 
     if request.method == "POST":
-        team_name = request.form.get("team")
-        password = request.form.get("password")
+        team_name = bereinigter_teamname(request.form.get("team"))
+        password = request.form.get("password") or ""
+
+        def mit_fehler(text):
+            return render_template("index.html", error=text,
+                                   qr_code_data=qr_code_data, beitritt=beitritt)
 
         if not challenge:
-            return render_template("index.html", error="Aktuell läuft kein Wettbewerb. Bitte wartet, bis die Lehrkraft einen gestartet hat.", qr_code_data=qr_code_data, beitritt=beitritt)
+            return mit_fehler("Aktuell läuft kein Wettbewerb. Bitte wartet, "
+                              "bis die Lehrkraft einen gestartet hat.")
 
         if not team_name or not password:
-            return render_template("index.html", error="Bitte Teamname und Passwort angeben.", qr_code_data=qr_code_data, beitritt=beitritt)
+            return mit_fehler("Bitte Teamname und Passwort angeben.")
+
+        if len(team_name) > MAX_TEAMNAME:
+            return mit_fehler(f"Der Teamname darf höchstens {MAX_TEAMNAME} Zeichen lang sein.")
+
+        if len(password) > MAX_PASSWORT:
+            return mit_fehler(f"Das Passwort darf höchstens {MAX_PASSWORT} Zeichen lang sein.")
 
         # A team name only has to be free within the current competition.
         existing_team = Team.query.filter_by(challenge_id=challenge.id, name=team_name).first()
         if existing_team:
-             return render_template("index.html", error="Teamname vergeben. Bitte einloggen oder anderen Namen wählen.", qr_code_data=qr_code_data, beitritt=beitritt)
+            return mit_fehler("Teamname vergeben. Bitte einloggen oder anderen Namen wählen.")
 
         # Create new team for the current competition
         new_team = Team(name=team_name, challenge_id=challenge.id)
         new_team.set_password(password)
         db.session.add(new_team)
-        db.session.commit()
+
+        try:
+            db.session.commit()
+        except IntegrityError:
+            # Zwei Teams haben im selben Moment denselben Namen abgeschickt:
+            # Die Prüfung oben sah beide Male "noch frei", die Datenbank lässt
+            # aber nur eines durch. Das zweite bekommt dieselbe Auskunft wie
+            # bei einem schon vergebenen Namen.
+            db.session.rollback()
+            return mit_fehler("Teamname vergeben. Bitte einloggen oder anderen Namen wählen.")
 
         # Auto-login
         session["team_id"] = new_team.id
@@ -59,9 +99,12 @@ def index():
 @limiter.limit("5 per minute", methods=["POST"])
 def login():
     if request.method == "POST":
-        team_name = request.form.get("team")
+        # Genauso bereinigt wie bei der Registrierung - sonst käme ein Team,
+        # das sich mit einem versehentlichen Leerzeichen angemeldet hat, nie
+        # wieder hinein.
+        team_name = bereinigter_teamname(request.form.get("team"))
         password = request.form.get("password")
-        
+
         # Teams are looked up in the current competition, since the same name
         # may exist in several competitions.
         challenge = Challenge.current()

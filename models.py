@@ -13,6 +13,11 @@ class Team(db.Model):
 
     # Team names only need to be unique within their own competition, so the
     # same team can take part in several competitions.
+    #
+    # Die Schreibweise zählt mit: „Die Hacker“ und „die hacker“ sind zwei
+    # verschiedene Teams. Das ist eine bewusste Entscheidung - ein Team soll
+    # seinen Namen genau so bekommen, wie es ihn geschrieben hat, und die
+    # Anwendung soll nicht entscheiden, welche zwei Namen „dasselbe“ sind.
     __table_args__ = (db.UniqueConstraint('challenge_id', 'name', name='_challenge_team_uc'),)
 
     def set_password(self, password):

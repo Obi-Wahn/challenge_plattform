@@ -9,15 +9,15 @@ revealed during an event.
 import json
 from datetime import datetime
 
-from models import TASK_FORMATS, DEFAULT_TASK_FORMAT
+from models import DEFAULT_TASK_FORMAT
+from task_rules import KEIN_TITEL, PUNKTE_KEINE_ZAHL, clean_task_values
 
 FORMAT_NAME = "coding-wettbewerb-aufgaben"
 FORMAT_VERSION = 1
 
-# Guard rails for a file that was edited by hand or does not come from here.
+# Wie viele Aufgaben eine Datei höchstens mitbringen darf. Was für eine
+# einzelne Aufgabe gilt - Titel, Punkte, Dateiformat - steht in task_rules.
 MAX_TASKS = 200
-MAX_TITLE = 200
-MAX_POINTS = 1000
 
 
 def export_tasks(challenge, tasks):
@@ -94,40 +94,25 @@ def parse_tasks(raw):
             skipped.append(f"Eintrag {number}: kein Aufgaben-Eintrag")
             continue
 
-        title = str(entry.get("titel") or entry.get("title") or "").strip()
-        if not title:
+        # Dieselben Regeln, die auch für das Formular gelten.
+        werte, hinweise, problem = clean_task_values(
+            entry.get("titel") or entry.get("title"),
+            entry.get("beschreibung") or entry.get("description"),
+            entry.get("punkte", entry.get("max_points", 0)),
+            entry.get("dateiformat") or entry.get("allowed_extension"),
+            entry.get("hinweis") or entry.get("hint"),
+        )
+
+        if problem == KEIN_TITEL:
             skipped.append(f"Eintrag {number}: ohne Titel")
             continue
-
-        raw_points = entry.get("punkte", entry.get("max_points", 0))
-        try:
-            points = int(raw_points)
-        except (TypeError, ValueError):
-            skipped.append(f"„{title[:40]}“: Punktzahl ist keine Zahl")
+        if problem == PUNKTE_KEINE_ZAHL:
+            titel = str(entry.get("titel") or entry.get("title") or "")[:40]
+            skipped.append(f"„{titel}“: Punktzahl ist keine Zahl")
             continue
-        points = max(0, min(points, MAX_POINTS))
 
-        extension = str(entry.get("dateiformat") or entry.get("allowed_extension") or "").strip()
-        if extension not in TASK_FORMATS:
-            # An unknown format would let no team upload anything, so it falls
-            # back to the default and is mentioned instead of silently kept.
-            if extension:
-                skipped.append(
-                    f"„{title[:40]}“: Dateiformat {extension} ist unbekannt, "
-                    f"{DEFAULT_TASK_FORMAT} eingetragen"
-                )
-            extension = DEFAULT_TASK_FORMAT
-
-        description = str(entry.get("beschreibung") or entry.get("description") or "")
-        hint = str(entry.get("hinweis") or entry.get("hint") or "").strip()
-
-        tasks.append({
-            "title": title[:MAX_TITLE],
-            "description": description or None,
-            "max_points": points,
-            "allowed_extension": extension,
-            "hint": hint or None,
-        })
+        skipped.extend(hinweise)
+        tasks.append(werte)
 
     if not tasks:
         raise ImportError_("In der Datei steht keine verwendbare Aufgabe." +
