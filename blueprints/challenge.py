@@ -24,7 +24,7 @@ def team_of_current_challenge(challenge):
     if not team_id or not challenge:
         return None
 
-    team = Team.query.get(team_id)
+    team = db.session.get(Team, team_id)
     if team is None or team.challenge_id != challenge.id:
         return None
     return team
@@ -83,7 +83,7 @@ def submit_task(task_id):
     if team is None:
         abort(403)
 
-    task = Task.query.get_or_404(task_id)
+    task = db.get_or_404(Task, task_id)
     if task.challenge_id != challenge.id:
         abort(403) # Task not part of the current challenge
 
