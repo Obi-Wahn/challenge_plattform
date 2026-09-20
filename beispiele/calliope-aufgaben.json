@@ -1,0 +1,36 @@
+{
+  "format": "coding-wettbewerb-aufgaben",
+  "version": 1,
+  "exportiert_am": "20.09.2026",
+  "wettbewerb": "Beispiel: Calliope-Wettbewerb",
+  "aufgaben": [
+    {
+      "titel": "Ein Herz zum Blinken bringen",
+      "beschreibung": "Auf dem Display soll ein Herz blinken.\n\n**Das soll passieren:**\n\n* Beim Start erscheint ein Herz.\n* Es geht an und wieder aus, immer wieder.\n* Das Blinken ist gut zu erkennen – nicht zu schnell.\n\nLadet die fertige `.hex`-Datei aus MakeCode herunter.",
+      "punkte": 10,
+      "dateiformat": ".hex",
+      "hinweis": "Zwischen „zeige Symbol“ und „lösche Bildschirm“ gehört jeweils ein „pausiere“-Block, sonst sieht man nichts."
+    },
+    {
+      "titel": "Würfel",
+      "beschreibung": "Der Calliope wird zum Würfel.\n\n**Das soll passieren:**\n\n* Beim Schütteln erscheint eine Zahl von 1 bis 6.\n* Jede Zahl kann vorkommen – auch die 1 und die 6.\n* Danach ist der Calliope bereit für den nächsten Wurf.",
+      "punkte": 10,
+      "dateiformat": ".hex",
+      "hinweis": "Der Block „wähle zufällige Zahl von 0 bis 5“ zählt ab 0. Rechnet 1 dazu, sonst würfelt ihr eine 0."
+    },
+    {
+      "titel": "Temperatur anzeigen",
+      "beschreibung": "Der Calliope misst die Temperatur und zeigt sie an.\n\n**Das soll passieren:**\n\n* Auf Knopfdruck erscheint die aktuelle Temperatur.\n* Man kann die Zahl ablesen.\n* Wird es wärmer oder kälter, ändert sich die Anzeige.\n\n**Zusatz für Schnelle:** Lasst die LED grün leuchten, wenn es unter 25 Grad ist, und rot darüber.",
+      "punkte": 15,
+      "dateiformat": ".hex",
+      "hinweis": "„zeige Zahl“ schiebt längere Zahlen über das Display. Zum Ablesen reicht das."
+    },
+    {
+      "titel": "Freie Idee",
+      "beschreibung": "Baut etwas Eigenes mit dem Calliope – ein Spiel, ein Messgerät, eine Alarmanlage, ein Musikinstrument.\n\n**Bewertet wird:**\n\n* Die Idee: Was habt ihr euch ausgedacht?\n* Die Umsetzung: Funktioniert es?\n* Der Code: Ist er nachvollziehbar aufgebaut?\n\nNutzt ruhig die Sensoren: Lage, Licht, Temperatur, Knöpfe, Pins.",
+      "punkte": 20,
+      "dateiformat": ".hex",
+      "hinweis": ""
+    }
+  ]
+}

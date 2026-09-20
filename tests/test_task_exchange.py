@@ -302,3 +302,47 @@ class TestAufgabenSeite:
         html = admin.get(f"/admin/challenges/{challenge.id}/tasks").get_data(as_text=True)
 
         assert html.index("Vorhandene Aufgaben") < html.index("Neue Aufgabe anlegen")
+
+
+class TestBeispieldateien:
+    """Die mitgelieferten Aufgabensätze müssen sich einlesen lassen.
+
+    Sonst stolpert jemand beim ersten Ausprobieren über eine Datei, die
+    nicht mehr zum Format passt.
+    """
+
+    def beispiele(self):
+        from pathlib import Path
+
+        ordner = Path(__file__).resolve().parent.parent / "beispiele"
+        dateien = sorted(ordner.glob("*.json"))
+        assert dateien, "Im Ordner beispiele/ liegt keine Datei"
+        return dateien
+
+    def test_alle_beispiele_sind_lesbar(self):
+        for datei in self.beispiele():
+            tasks, uebersprungen = parse_tasks(datei.read_bytes())
+            assert tasks, datei.name
+            assert uebersprungen == [], f"{datei.name}: {uebersprungen}"
+
+    def test_beispiele_haben_titel_punkte_und_format(self):
+        from models import TASK_FORMATS
+
+        for datei in self.beispiele():
+            tasks, _ = parse_tasks(datei.read_bytes())
+            for task in tasks:
+                assert task["title"], datei.name
+                assert task["max_points"] > 0, f"{datei.name}: {task['title']}"
+                assert task["allowed_extension"] in TASK_FORMATS, datei.name
+
+    def test_beispiel_laesst_sich_einlesen(self, admin, make_challenge, database):
+        from models import Task
+
+        challenge = make_challenge()
+        datei = self.beispiele()[0]
+
+        antwort = einlesen(admin, challenge, datei.read_bytes())
+
+        assert "hinzugefügt" in antwort.get_data(as_text=True)
+        assert "Übersprungen" not in antwort.get_data(as_text=True)
+        assert Task.query.filter_by(challenge_id=challenge.id).count() > 0

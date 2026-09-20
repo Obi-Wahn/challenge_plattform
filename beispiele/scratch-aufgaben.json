@@ -1,0 +1,43 @@
+{
+  "format": "coding-wettbewerb-aufgaben",
+  "version": 1,
+  "exportiert_am": "20.09.2026",
+  "wettbewerb": "Beispiel: Scratch-Wettbewerb",
+  "aufgaben": [
+    {
+      "titel": "Die Katze läuft im Kreis",
+      "beschreibung": "Lasst die Katze im Kreis laufen.\n\n**Das soll passieren:**\n\n* Beim Klick auf die grüne Flagge geht es los.\n* Die Katze läuft eine vollständige Runde.\n* Sie bleibt dabei auf der Bühne sichtbar.\n\nSpeichert euer Projekt über *Datei → Auf deinen Computer herunterladen*.",
+      "punkte": 10,
+      "dateiformat": ".sb3",
+      "hinweis": "Ein Kreis hat 360 Grad. Mit „wiederhole 36 mal“ und „drehe dich um 10 Grad“ kommt ihr hin."
+    },
+    {
+      "titel": "Ein Gespräch zwischen zwei Figuren",
+      "beschreibung": "Zwei Figuren unterhalten sich – abwechselnd, nicht gleichzeitig.\n\n**Das soll passieren:**\n\n* Es gibt zwei Figuren auf der Bühne.\n* Sie sagen nacheinander mindestens je zwei Sätze.\n* Man kann mitlesen, ohne dass sich die Sprechblasen überlagern.",
+      "punkte": 10,
+      "dateiformat": ".sb3",
+      "hinweis": "Mit „warte … Sekunden“ wartet die eine Figur, während die andere spricht. Eleganter geht es mit „sende Nachricht an alle“."
+    },
+    {
+      "titel": "Punkte sammeln",
+      "beschreibung": "Baut ein kleines Spiel, in dem man Punkte sammelt.\n\n**Das soll passieren:**\n\n* Es gibt eine Variable für den Punktestand.\n* Der Punktestand ist auf der Bühne zu sehen.\n* Beim Berühren eines Gegenstands steigt er.\n* Zu Beginn eines neuen Spiels startet er wieder bei 0.",
+      "punkte": 15,
+      "dateiformat": ".sb3",
+      "hinweis": "„Setze Punkte auf 0“ gehört ganz an den Anfang, direkt unter die grüne Flagge – sonst zählt das Spiel beim zweiten Start einfach weiter."
+    },
+    {
+      "titel": "Eine Figur steuern",
+      "beschreibung": "Eine Figur lässt sich mit der Tastatur bewegen.\n\n**Das soll passieren:**\n\n* Die Figur geht auf die Pfeiltasten nach oben, unten, links und rechts.\n* Sie verlässt die Bühne nicht.\n* Die Bewegung wirkt flüssig, nicht ruckartig.",
+      "punkte": 15,
+      "dateiformat": ".sb3",
+      "hinweis": "„Wenn Taste gedrückt“ in einer „wiederhole fortlaufend“-Schleife reagiert flüssiger als der Block „Wenn Taste … gedrückt wird“."
+    },
+    {
+      "titel": "Freie Idee",
+      "beschreibung": "Baut etwas Eigenes – ein Spiel, eine Geschichte, ein Kunstwerk, eine Musikmaschine.\n\n**Bewertet wird:**\n\n* Die Idee: Was habt ihr euch ausgedacht?\n* Die Umsetzung: Funktioniert es so, wie ihr es gemeint habt?\n* Der Code: Ist er nachvollziehbar aufgebaut?\n\nTraut euch etwas zu. Lieber eine kleine Idee, die sauber funktioniert, als eine große, die halb fertig ist.",
+      "punkte": 20,
+      "dateiformat": ".sb3",
+      "hinweis": ""
+    }
+  ]
+}
