@@ -2,7 +2,7 @@
 
 from datetime import datetime, timedelta
 
-from tests.conftest import csrf_token
+from tests.helpers import csrf_token
 
 
 def abgeben(client, task, dateiname="loesung.sb3", inhalt=b"projekt"):

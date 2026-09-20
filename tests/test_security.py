@@ -1,6 +1,6 @@
 """Schutzmechanismen, die im Schul-LAN wirken sollen."""
 
-from tests.conftest import ADMIN_PASSWORD, csrf_token
+from tests.helpers import ADMIN_PASSWORD, csrf_token
 
 
 class TestCsrf:

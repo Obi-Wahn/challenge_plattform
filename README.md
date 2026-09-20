@@ -129,6 +129,36 @@ Voraussetzung: Python 3.10 oder höher (fpdf2, das die Urkunden erzeugt, verlang
     *   Werden direkt zur aktiven Challenge weitergeleitet.
     *   Können Lösungen im geforderten Format hochladen.
 
+## 💾 Datenbank und Sicherungen
+
+Alle Daten liegen in `data/challenge.db`. Diese Datei ist der Wettbewerb –
+Teams, Aufgaben, Abgaben und Punkte. Sie gehört **nicht** ins Repository und
+wird von `.gitignore` ausgeschlossen.
+
+Bringt eine neue Version der Anwendung eine Änderung an der Datenbankstruktur
+mit, wird diese beim Start automatisch ergänzt. **Vor der ersten solchen
+Änderung legt die Anwendung eine Kopie an**, zum Beispiel:
+
+```
+data/challenge-vor-teams-2026-09-20-1430.db
+```
+
+Beim Start steht dann eine Zeile wie „Datenbank vor der Änderung gesichert: …"
+im Fenster. Die Kopie entsteht nur, wenn wirklich etwas geändert wird – bei
+allen folgenden Starts passiert nichts mehr. Geht das Sichern schief (etwa
+weil die Festplatte voll ist), bricht der Start ab, statt ungesichert
+umzubauen.
+
+**Wofür die Kopie gut ist:** Falls ein Umbau zwar durchläuft, aber nicht das
+Gewünschte tut, kommt man damit an den Stand davor heran. Zum Rückgängigmachen
+die aktuelle Datei zur Seite legen und die Kopie nach `data/challenge.db`
+umbenennen. Alte Kopien kann man löschen, sobald klar ist, dass alles passt.
+
+**Wofür sie nicht gut ist:** Sie ersetzt keine regelmäßige Sicherung. Sie liegt
+im selben Ordner – geht die Festplatte kaputt oder wird das Verzeichnis
+gelöscht, ist sie mit weg. Vor einem echten Wettbewerb lohnt es sich, `data/`
+zusätzlich auf einen USB-Stick zu kopieren.
+
 ## ✅ Tests
 
 Das Projekt bringt automatische Tests mit. Sie prüfen den ganzen Ablauf – vom
@@ -205,7 +235,7 @@ challenge_plattform/
 ├── templates/               # HTML Templates
 ├── tests/                   # automatische Tests (pytest)
 ├── uploads/                 # Hochgeladene Abgaben (wird erstellt)
-└── data/                    # SQLite Datenbank (wird erstellt)
+└── data/                    # SQLite Datenbank und ihre Sicherungen (werden erstellt)
 ```
 
 ## 🙏 Herkunft & Mitwirkende

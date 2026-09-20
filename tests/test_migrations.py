@@ -202,3 +202,108 @@ def test_startmigrationen_laufen_auch_auf_einer_leeren_datenbank(database):
     """Auf einer frischen Installation darf nichts schiefgehen."""
     ensure_added_columns()
     ensure_team_challenge_binding()
+
+
+class TestSicherungVorDerAenderung:
+    """Vor einem Umbau der Struktur entsteht eine Kopie der Datenbank."""
+
+    @pytest.fixture(autouse=True)
+    def _ohne_vorherige_sicherung(self):
+        """Der Merker gilt je Start - im Test je Test."""
+        import app as anwendung
+
+        anwendung._backup_path = None
+        yield
+        anwendung._backup_path = None
+
+    def sicherungen(self, pfad):
+        import glob
+        import os
+
+        ordner = os.path.dirname(pfad)
+        return sorted(glob.glob(os.path.join(ordner, "*-vor-*.db")))
+
+    def test_umbau_der_teams_legt_eine_kopie_an(self, alte_datenbank):
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
+        assert self.sicherungen(pfad) == []
+
+        ensure_team_challenge_binding()
+
+        kopien = self.sicherungen(pfad)
+        assert len(kopien) == 1
+        assert "-vor-teams-" in kopien[0]
+
+    def test_die_kopie_enthaelt_den_stand_von_vorher(self, alte_datenbank):
+        """Der eigentliche Zweck: an den Zustand vor dem Umbau herankommen."""
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
+
+        ensure_team_challenge_binding()
+
+        kopie = self.sicherungen(pfad)[0]
+        schema = lies(kopie, "SELECT sql FROM sqlite_master WHERE name='teams'")[0][0]
+        assert "_challenge_team_uc" not in schema, "Kopie zeigt schon das neue Schema"
+        assert lies(kopie, "SELECT name FROM teams ORDER BY id") == [("Alpha",), ("Beta",)]
+
+    def test_ergaenzte_spalten_legen_eine_kopie_an(self, alte_datenbank):
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
+
+        ensure_added_columns()
+
+        kopien = self.sicherungen(pfad)
+        assert len(kopien) == 1, kopien
+        assert "-vor-spalten-" in kopien[0]
+
+    def test_ohne_aenderung_entsteht_keine_kopie(self, alte_datenbank):
+        """Sonst läge nach zwanzig Starts zwanzigmal dasselbe im Ordner."""
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
+
+        ensure_added_columns()
+        ensure_team_challenge_binding()
+        vorher = self.sicherungen(pfad)
+
+        import app as anwendung
+        anwendung._backup_path = None
+        ensure_added_columns()
+        ensure_team_challenge_binding()
+
+        assert self.sicherungen(pfad) == vorher
+
+    def test_ein_start_legt_hoechstens_eine_kopie_an(self, alte_datenbank):
+        """Sie entsteht vor der ersten Änderung und deckt damit beide ab."""
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
+
+        ensure_added_columns()
+        ensure_team_challenge_binding()
+
+        assert len(self.sicherungen(pfad)) == 1
+
+    def test_auf_einer_frischen_installation_wird_nichts_gesichert(self, database):
+        import app as anwendung
+
+        ensure_added_columns()
+        ensure_team_challenge_binding()
+
+        assert anwendung._backup_path is None
+
+    def test_scheitert_die_sicherung_wird_nicht_umgebaut(self, alte_datenbank, monkeypatch):
+        """Lieber gar nicht starten als ungesichert umbauen."""
+        import app as anwendung
+
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
+
+        def geht_schief(*args, **kwargs):
+            raise OSError("kein Platz auf dem Gerät")
+
+        monkeypatch.setattr(anwendung.sqlite3, "connect", geht_schief)
+
+        with pytest.raises(RuntimeError) as fehler:
+            ensure_team_challenge_binding()
+
+        assert "nicht gesichert werden" in str(fehler.value)
+
+        # Der Patch muss weg, bevor wir selbst in die Datenbank schauen.
+        monkeypatch.undo()
+
+        # Die Tabelle steht noch im alten Zustand.
+        schema = lies(pfad, "SELECT sql FROM sqlite_master WHERE name='teams'")[0][0]
+        assert "_challenge_team_uc" not in schema

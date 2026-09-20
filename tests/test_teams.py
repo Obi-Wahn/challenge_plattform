@@ -1,6 +1,6 @@
 """Teams gehören zu dem Wettbewerb, für den sie angelegt wurden."""
 
-from tests.conftest import csrf_token
+from tests.helpers import csrf_token
 
 
 def registrieren(client, name, passwort="geheim"):

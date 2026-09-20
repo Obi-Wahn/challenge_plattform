@@ -6,7 +6,7 @@ import json
 import pytest
 
 from task_exchange import ImportError_, parse_tasks
-from tests.conftest import csrf_token
+from tests.helpers import csrf_token
 
 
 def datei(inhalt, name="Aufgaben.json"):
