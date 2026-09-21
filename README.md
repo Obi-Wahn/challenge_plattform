@@ -91,14 +91,15 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
     Druckschrift. Ohne Eintrag steht dort wie bisher „Unterschrift“ zum
     Unterschreiben von Hand. Sind für ein Team Namen freigegeben, stehen sie als
     Aufzählung direkt unter dem Teamnamen.
-*   **Einstellungen**: Name und Beschreibung der Veranstaltung frei anpassbar, ohne Code
+*   **Einstellungen**: Name und Beschreibung der Anwendung frei anpassbar, ohne Code
     zu ändern; dort wird auch freigeschaltet, ob die Teams ihre Namen eintragen dürfen.
-*   **Eigener Name je Wettbewerb**: Ein Wettbewerb darf Name und Untertitel der
-    Veranstaltung überschreiben – etwa „Scratch-Wettbewerb“ in der einen und
-    „Calliope-Wettbewerb“ in der nächsten Runde. Leer gelassen gilt, was unter
-    Einstellungen steht. Der Name steht auf Startseite, Countdown-Seite, Teamseite und
-    auf den Urkunden dieses Wettbewerbs und bleibt dort auch, wenn später ein anderer
-    Wettbewerb läuft.
+*   **Jeder Wettbewerb heißt, wie er heißt**: Sein Name steht auf Startseite,
+    Countdown-Seite, Teamseite und auf seinen Urkunden – einmal „Scratch-Wettbewerb“,
+    in der nächsten Runde „Calliope-Wettbewerb“ – und bleibt dort auch, wenn längst
+    ein anderer läuft. Einen eigenen Untertitel darf ein Wettbewerb dazu tragen; lässt
+    er ihn leer, gilt der aus den Einstellungen. Der Name aus den Einstellungen benennt
+    die Anwendung selbst: Browsertitel, Leiste oben und Fußzeile, auch auf Seiten ohne
+    Wettbewerb.
 
 ## 🛠 Technologien
 

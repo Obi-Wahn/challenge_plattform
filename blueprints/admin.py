@@ -138,8 +138,7 @@ def challenge_new():
         title = request.form["title"]
         challenge = Challenge(
             title=title,
-            event_name=request.form.get("event_name", "").strip()[:100],
-            event_tagline=request.form.get("event_tagline", "").strip()[:300],
+            tagline=request.form.get("tagline", "").strip()[:300],
             start_time=parse_datetime_local(request.form.get("start_time")),
             end_time=parse_datetime_local(request.form.get("end_time"))
         )
@@ -175,14 +174,13 @@ def challenge_edit(cid):
         title = request.form.get("title", "").strip()
         if title:
             challenge.title = title
-        # Anders als der Titel dürfen diese beiden leer bleiben: Leer ist die
-        # Antwort "nimm den Namen aus den Einstellungen", nicht ein Versehen.
-        challenge.event_name = request.form.get("event_name", "").strip()[:100]
-        challenge.event_tagline = request.form.get("event_tagline", "").strip()[:300]
+        # Anders als der Name darf der Untertitel leer bleiben: Leer ist die
+        # Antwort "nimm den aus den Einstellungen", nicht ein Versehen.
+        challenge.tagline = request.form.get("tagline", "").strip()[:300]
         challenge.start_time = parse_datetime_local(request.form.get("start_time"))
         challenge.end_time = parse_datetime_local(request.form.get("end_time"))
         db.session.commit()
-        flash("Titel, Name und Zeiten gespeichert.", "success")
+        flash("Name, Untertitel und Zeiten gespeichert.", "success")
         return redirect(url_for('admin.challenge_detail', cid=cid))
 
     return render_template("admin/challenge_edit.html", challenge=challenge)

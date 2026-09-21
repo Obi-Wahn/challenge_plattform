@@ -31,13 +31,13 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    dem Wettbewerb **nicht** mehr einspielen – und wenn doch etwas
    aktualisiert wird, dann eines nach dem anderen und danach `pytest`.
 
-3. **Wettbewerb anlegen** unter `/admin` → *Neuer Wettbewerb*: Titel,
-   Startzeit, Endzeit. Soll dieser Wettbewerb anders heißen als die übrigen –
-   etwa „Scratch-Wettbewerb“ statt „Coding-Wettbewerb“ –, trägst du Name und
-   Untertitel der Veranstaltung gleich hier ein. Leer gelassen gilt, was unter
-   *Einstellungen* steht. Der Name bleibt bei diesem Wettbewerb, auch wenn
-   später ein anderer läuft; seine Urkunden tragen ihn also auch nächstes Jahr
-   noch.
+3. **Wettbewerb anlegen** unter `/admin` → *Neuer Wettbewerb*: Name,
+   Startzeit, Endzeit. Der Name ist der, unter dem die Teams den Wettbewerb
+   sehen – „Scratch-Wettbewerb der Klasse 6b“ etwa. Er steht auf der
+   Startseite, der Countdown-Seite und auf den Urkunden, und er bleibt bei
+   diesem Wettbewerb, auch wenn später ein anderer läuft; seine Urkunden
+   tragen ihn also auch nächstes Jahr noch. Einen eigenen Untertitel kannst
+   du dazuschreiben; leer gelassen gilt der aus *Einstellungen*.
 
 4. **Aufgaben anlegen oder einlesen.** Fertige Sätze liegen unter
    `beispiele/` (Scratch, Calliope) und werden auf der Aufgaben-Seite mit

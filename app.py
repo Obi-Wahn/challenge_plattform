@@ -159,8 +159,7 @@ app = create_app()
 # migrated in explicitly on startup.
 ADDED_COLUMNS = {
     "challenges": {
-        "event_name": "VARCHAR(100) NOT NULL DEFAULT ''",
-        "event_tagline": "VARCHAR(300) NOT NULL DEFAULT ''",
+        "tagline": "VARCHAR(300) NOT NULL DEFAULT ''",
     },
     "teams": {
         "member_names": "TEXT",

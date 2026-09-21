@@ -1,8 +1,9 @@
-"""Name und Untertitel der Veranstaltung, wenn ein Wettbewerb eigene führt.
+"""Der Name eines Wettbewerbs ist sein Titel, und er gilt dort, wo er gemeint ist.
 
-Die Einstellungen bleiben die Voreinstellung für die ganze Anwendung; ein
-einzelner Wettbewerb darf beides überschreiben. Was er leer lässt, kommt
-weiter aus den Einstellungen.
+Die Einstellungen benennen die Anwendung: Browsertitel, Leiste oben, Fußzeile.
+Wo ein Wettbewerb gemeint ist - Startseite, Countdown-Seite, Teamseite,
+Urkunden -, steht sein eigener Name. Den Untertitel darf ein Wettbewerb
+überschreiben; lässt er ihn leer, gilt der aus den Einstellungen.
 """
 
 import io
@@ -33,7 +34,7 @@ def pdf_zeilen(daten):
 
 @pytest.fixture
 def einstellungen(database):
-    """Die globalen Werte, auf die ohne eigenen Namen zurückgefallen wird."""
+    """Die globalen Werte, auf die ohne Wettbewerb zurückgefallen wird."""
     from models import Settings
 
     settings = Settings.get()
@@ -44,46 +45,44 @@ def einstellungen(database):
 
 
 class TestAuflösung:
-    def test_ohne_eigenen_namen_gelten_die_einstellungen(self, einstellungen, make_challenge):
+    def test_der_titel_ist_der_name(self, einstellungen, make_challenge):
         from models import event_branding
 
-        marke = event_branding(make_challenge())
+        challenge = make_challenge(title="Scratch-Wettbewerb")
+
+        assert event_branding(challenge)["name"] == "Scratch-Wettbewerb"
+
+    def test_ohne_eigenen_untertitel_gilt_der_aus_den_einstellungen(self, einstellungen,
+                                                                    make_challenge):
+        from models import event_branding
+
+        marke = event_branding(make_challenge(title="Scratch-Wettbewerb"))
+
+        assert marke["tagline"] == "Ein Wettbewerb für Code, Ideen und Kreativität."
+
+    def test_eigener_untertitel_gewinnt(self, einstellungen, make_challenge):
+        from models import event_branding
+
+        challenge = make_challenge(title="Scratch-Wettbewerb",
+                                   tagline="Klasse 6b programmiert Spiele")
+
+        assert event_branding(challenge)["tagline"] == "Klasse 6b programmiert Spiele"
+
+    def test_ohne_wettbewerb_gelten_die_einstellungen(self, einstellungen):
+        """Auf einer frischen Installation gibt es noch keinen Wettbewerb."""
+        from models import event_branding
+
+        marke = event_branding(None)
 
         assert marke["name"] == "Coding-Wettbewerb"
         assert marke["tagline"] == "Ein Wettbewerb für Code, Ideen und Kreativität."
-
-    def test_eigener_name_gewinnt(self, einstellungen, make_challenge):
-        from models import event_branding
-
-        challenge = make_challenge(event_name="Scratch-Wettbewerb",
-                                   event_tagline="Klasse 6b programmiert Spiele")
-
-        marke = event_branding(challenge)
-
-        assert marke["name"] == "Scratch-Wettbewerb"
-        assert marke["tagline"] == "Klasse 6b programmiert Spiele"
-
-    def test_nur_der_name_gesetzt_laesst_den_untertitel_stehen(self, einstellungen,
-                                                               make_challenge):
-        """Beide Felder sind einzeln zu haben, nicht nur im Paket."""
-        from models import event_branding
-
-        marke = event_branding(make_challenge(event_name="Calliope-Wettbewerb"))
-
-        assert marke["name"] == "Calliope-Wettbewerb"
-        assert marke["tagline"] == "Ein Wettbewerb für Code, Ideen und Kreativität."
-
-    def test_ohne_wettbewerb_gelten_die_einstellungen(self, einstellungen):
-        from models import event_branding
-
-        assert event_branding(None)["name"] == "Coding-Wettbewerb"
 
 
 class TestSeiten:
     def test_startseite_zeigt_den_namen_des_wettbewerbs(self, einstellungen, client,
                                                         make_challenge):
-        make_challenge(event_name="Scratch-Wettbewerb",
-                       event_tagline="Klasse 6b programmiert Spiele")
+        make_challenge(title="Scratch-Wettbewerb",
+                       tagline="Klasse 6b programmiert Spiele")
 
         seite = client.get("/").get_data(as_text=True)
 
@@ -92,26 +91,22 @@ class TestSeiten:
 
     def test_countdown_seite_zeigt_den_namen_des_wettbewerbs(self, einstellungen, client,
                                                              make_challenge):
-        make_challenge(event_name="Calliope-Wettbewerb")
+        make_challenge(title="Calliope-Wettbewerb")
 
-        seite = client.get("/start").get_data(as_text=True)
+        assert "Calliope-Wettbewerb" in client.get("/start").get_data(as_text=True)
 
-        assert "Calliope-Wettbewerb" in seite
-
-    def test_navigationsleiste_behaelt_den_namen_der_anwendung(self, einstellungen, client,
-                                                               make_challenge):
+    def test_leiste_oben_behaelt_den_namen_der_anwendung(self, einstellungen, client,
+                                                         make_challenge):
         """Sonst hieße auch die Anmeldeseite plötzlich nach einem Wettbewerb."""
-        make_challenge(event_name="Scratch-Wettbewerb")
+        make_challenge(title="Scratch-Wettbewerb")
 
         seite = client.get("/login").get_data(as_text=True)
 
         assert 'class="navbar-brand"' in seite
         assert "Coding-Wettbewerb" in seite
 
-    def test_ohne_eigenen_namen_steht_ueberall_der_alte(self, einstellungen, client,
-                                                        make_challenge):
-        make_challenge()
-
+    def test_ohne_wettbewerb_steht_der_name_aus_den_einstellungen_da(self, einstellungen,
+                                                                     client):
         seite = client.get("/").get_data(as_text=True)
 
         assert "Coding-Wettbewerb" in seite
@@ -123,43 +118,39 @@ class TestUrkunde:
                                                       make_team):
         from certificates import build_certificates_for, certificate_entry
 
-        challenge = make_challenge(event_name="Scratch-Wettbewerb", title="Runde 1")
-        team = make_team(challenge, name="Die Pixelpiraten")
-
-        daten = build_certificates_for(challenge, [certificate_entry(team, [])], 0)
-
-        text = pdf_text(daten)
-        assert "Scratch-Wettbewerb" in text
-        assert "Coding-Wettbewerb" not in text
-
-    def test_ohne_eigenen_namen_steht_der_aus_den_einstellungen_drauf(self, einstellungen,
-                                                                      make_challenge,
-                                                                      make_team):
-        from certificates import build_certificates_for, certificate_entry
-
-        challenge = make_challenge(title="Runde 1")
-        team = make_team(challenge, name="Die Pixelpiraten")
-
-        daten = build_certificates_for(challenge, [certificate_entry(team, [])], 0)
-
-        assert "Coding-Wettbewerb" in pdf_text(daten)
-
-    def test_veranstaltung_und_titel_stehen_beide_drauf(self, einstellungen, make_challenge,
-                                                        make_team):
-        """Der Veranstaltungsname oben, die Runde in der Zeile darunter."""
-        from certificates import build_certificates_for, certificate_entry
-
-        challenge = make_challenge(event_name="Scratch-Wettbewerb", title="Runde 1")
+        challenge = make_challenge(title="Scratch-Wettbewerb")
         team = make_team(challenge, name="Die Pixelpiraten")
 
         text = pdf_text(build_certificates_for(challenge, [certificate_entry(team, [])], 0))
 
         assert "Scratch-Wettbewerb" in text
-        assert "Runde 1" in text
+        assert "Coding-Wettbewerb" not in text
+
+    def test_der_name_steht_nur_einmal_auf_dem_blatt(self, einstellungen, make_challenge,
+                                                     make_team):
+        """Kopfzeile und Teilnahme-Zeile nannten ihn vorher beide."""
+        from certificates import build_certificates_for, certificate_entry
+
+        challenge = make_challenge(title="Scratch-Wettbewerb")
+        team = make_team(challenge, name="Die Pixelpiraten")
+
+        text = pdf_text(build_certificates_for(challenge, [certificate_entry(team, [])], 0))
+
+        assert text.count("Scratch-Wettbewerb") == 1
+        assert "für die Teilnahme am Wettbewerb" in text
+
+    def test_ohne_wettbewerb_steht_der_name_aus_den_einstellungen_drauf(self,
+                                                                        einstellungen):
+        from certificates import build_certificates_for
+
+        eintrag = {"team_id": 1, "name": "Die Pixelpiraten",
+                   "total": 0, "solved": 0, "rank": 0}
+
+        assert "Coding-Wettbewerb" in pdf_text(build_certificates_for(None, [eintrag], 0))
 
 
-class TestLangerVeranstaltungsname:
-    """Ein eigener Name pro Wettbewerb wird länger als "Coding-Wettbewerb".
+class TestLangerName:
+    """Ein Wettbewerbsname wird länger als "Coding-Wettbewerb".
 
     Er darf deshalb auf zwei Zeilen umbrechen, statt unter die Größe des
     Fließtextes zu schrumpfen - dieselbe Regel wie beim Teamnamen. Geprüft
@@ -173,24 +164,22 @@ class TestLangerVeranstaltungsname:
 
         eintrag = {"team_id": 1, "name": "Die Pixelpiraten",
                    "total": 38, "solved": 3, "rank": 1}
-        return pdf_zeilen(build_certificates_pdf(name, "Runde 1", [eintrag], 4,
+        return pdf_zeilen(build_certificates_pdf(name, [eintrag], 4,
                                                  orientation_key=ausrichtung))
 
     @pytest.mark.parametrize("ausrichtung", ["landscape", "portrait"])
-    def test_langer_name_wird_nicht_kleiner_als_der_fließtext(self, ausrichtung):
+    def test_langer_name_wird_nicht_kleiner_als_der_fliesstext(self, ausrichtung):
         zeilen = self.urkunde(self.LANG, ausrichtung)
-        fließtext = next(g for g, t in zeilen if t == "verliehen an das Team")
+        fliesstext = next(g for g, t in zeilen if t == "verliehen an das Team")
 
-        kopf = [g for g, t in zeilen if t in self.LANG or self.LANG.startswith(t)]
+        kopf = [g for g, t in zeilen if t and t in self.LANG]
 
-        assert kopf, "Der Veranstaltungsname steht nicht auf der Urkunde"
-        assert min(kopf) >= fließtext
+        assert kopf, "Der Name des Wettbewerbs steht nicht auf der Urkunde"
+        assert min(kopf) >= fliesstext
 
     def test_im_hochformat_bricht_er_um_statt_zu_schrumpfen(self):
         zeilen = self.urkunde(self.LANG, "portrait")
-
-        kurz = self.urkunde("Coding-Wettbewerb", "portrait")
-        volle_groesse = kurz[0][0]
+        volle_groesse = self.urkunde("Coding-Wettbewerb", "portrait")[0][0]
 
         # Zwei Zeilen, beide in voller Größe - vorher war es eine bei 13,6 pt.
         assert zeilen[0][0] == volle_groesse
@@ -211,12 +200,10 @@ class TestUrkundenFuerAeltereWettbewerbe:
 
     @pytest.fixture
     def zwei_wettbewerbe(self, einstellungen, database, make_challenge, make_team):
-        alt = make_challenge(title="Runde 1", active=False,
-                             event_name="Scratch-Wettbewerb")
+        alt = make_challenge(title="Scratch-Wettbewerb", active=False)
         make_team(alt, name="Die Pixelpiraten")
 
-        neu = make_challenge(title="Runde 2", active=True,
-                             event_name="Calliope-Wettbewerb")
+        neu = make_challenge(title="Calliope-Wettbewerb", active=True)
         make_team(neu, name="Die Bitjaeger")
 
         return alt, neu
@@ -252,15 +239,12 @@ class TestUrkundenFuerAeltereWettbewerbe:
         """Früher nahm sie immer den aktiven - mit falschem Namen und ohne Punkte."""
         from models import Team
 
-        alt, _ = zwei_wettbewerbe
         team = Team.query.filter_by(name="Die Pixelpiraten").one()
 
         antwort = admin.get(f"/admin/urkunden/{team.id}.pdf")
 
         assert antwort.status_code == 200
-        text = pdf_text(antwort.data)
-        assert "Scratch-Wettbewerb" in text
-        assert "Runde 1" in text
+        assert "Scratch-Wettbewerb" in pdf_text(antwort.data)
 
     def test_unbekannter_wettbewerb_gibt_404(self, admin, zwei_wettbewerbe):
         assert admin.get("/admin/urkunden?wettbewerb=9999").status_code == 404
@@ -274,83 +258,73 @@ class TestUrkundenFuerAeltereWettbewerbe:
 
 
 class TestFormular:
-    def test_neuer_wettbewerb_speichert_den_namen(self, einstellungen, admin, database):
+    def test_neuer_wettbewerb_speichert_den_untertitel(self, einstellungen, admin, database):
         from models import Challenge
 
         admin.post("/admin/challenges/new", data={
             "csrf_token": csrf_token(admin, "/admin/challenges/new"),
-            "title": "Runde 1",
-            "event_name": "Scratch-Wettbewerb",
-            "event_tagline": "Klasse 6b programmiert Spiele",
+            "title": "Scratch-Wettbewerb",
+            "tagline": "Klasse 6b programmiert Spiele",
         })
 
-        challenge = Challenge.query.filter_by(title="Runde 1").one()
-        assert challenge.event_name == "Scratch-Wettbewerb"
-        assert challenge.event_tagline == "Klasse 6b programmiert Spiele"
+        challenge = Challenge.query.filter_by(title="Scratch-Wettbewerb").one()
+        assert challenge.tagline == "Klasse 6b programmiert Spiele"
 
-    def test_neuer_wettbewerb_ohne_angabe_bleibt_leer(self, einstellungen, admin, database):
+    def test_neuer_wettbewerb_ohne_untertitel_bleibt_leer(self, einstellungen, admin,
+                                                          database):
         from models import Challenge
 
         admin.post("/admin/challenges/new", data={
             "csrf_token": csrf_token(admin, "/admin/challenges/new"),
-            "title": "Runde 1",
+            "title": "Scratch-Wettbewerb",
         })
 
-        challenge = Challenge.query.filter_by(title="Runde 1").one()
-        assert challenge.event_name == ""
-        assert challenge.event_tagline == ""
+        assert Challenge.query.filter_by(title="Scratch-Wettbewerb").one().tagline == ""
 
-    def test_bearbeiten_speichert_den_namen(self, einstellungen, admin, database,
-                                            make_challenge):
-        challenge = make_challenge(title="Runde 1")
+    def test_bearbeiten_speichert_den_untertitel(self, einstellungen, admin, database,
+                                                 make_challenge):
+        challenge = make_challenge(title="Scratch-Wettbewerb")
         pfad = f"/admin/challenges/{challenge.id}/edit"
 
         admin.post(pfad, data={
             "csrf_token": csrf_token(admin, pfad),
-            "title": "Runde 1",
-            "event_name": "Scratch-Wettbewerb",
-            "event_tagline": "Klasse 6b programmiert Spiele",
+            "title": "Scratch-Wettbewerb",
+            "tagline": "Klasse 6b programmiert Spiele",
         })
 
         database.session.refresh(challenge)
-        assert challenge.event_name == "Scratch-Wettbewerb"
+        assert challenge.tagline == "Klasse 6b programmiert Spiele"
 
-    def test_leeres_feld_nimmt_den_eigenen_namen_wieder_weg(self, einstellungen, admin,
-                                                            database, make_challenge):
-        """Anders als der Titel darf er geleert werden - leer heißt "wie eingestellt"."""
-        challenge = make_challenge(title="Runde 1", event_name="Scratch-Wettbewerb")
+    def test_leeres_feld_nimmt_den_eigenen_untertitel_wieder_weg(self, einstellungen, admin,
+                                                                 database, make_challenge):
+        """Anders als der Name darf er geleert werden - leer heißt "wie eingestellt"."""
+        challenge = make_challenge(title="Scratch-Wettbewerb", tagline="Eigener Text")
         pfad = f"/admin/challenges/{challenge.id}/edit"
 
         admin.post(pfad, data={
             "csrf_token": csrf_token(admin, pfad),
-            "title": "Runde 1",
-            "event_name": "",
-            "event_tagline": "",
+            "title": "Scratch-Wettbewerb",
+            "tagline": "",
         })
 
         database.session.refresh(challenge)
-        assert challenge.event_name == ""
+        assert challenge.tagline == ""
 
         from models import event_branding
-        assert event_branding(challenge)["name"] == "Coding-Wettbewerb"
+        assert event_branding(challenge)["tagline"] == \
+            "Ein Wettbewerb für Code, Ideen und Kreativität."
 
-    def test_zu_langer_name_wird_gekuerzt_statt_abgelehnt(self, einstellungen, admin,
-                                                          database, make_challenge):
-        """Die Spalte fasst 100 Zeichen; mehr soll die Datenbank nicht sehen."""
-        challenge = make_challenge(title="Runde 1")
+    def test_zu_langer_untertitel_wird_gekuerzt(self, einstellungen, admin, database,
+                                                make_challenge):
+        """Die Spalte fasst 300 Zeichen; mehr soll die Datenbank nicht sehen."""
+        challenge = make_challenge(title="Scratch-Wettbewerb")
         pfad = f"/admin/challenges/{challenge.id}/edit"
 
         admin.post(pfad, data={
             "csrf_token": csrf_token(admin, pfad),
-            "title": "Runde 1",
-            "event_name": "N" * 200,
+            "title": "Scratch-Wettbewerb",
+            "tagline": "U" * 400,
         })
 
         database.session.refresh(challenge)
-        assert len(challenge.event_name) == 100
-
-
-def test_anmeldung_ohne_wettbewerb_funktioniert(einstellungen, client):
-    """Auf einer frischen Installation gibt es noch keinen Wettbewerb."""
-    assert client.get("/").status_code == 200
-    assert "Coding-Wettbewerb" in client.get("/").get_data(as_text=True)
+        assert len(challenge.tagline) == 300

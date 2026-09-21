@@ -185,18 +185,16 @@ class TestNachtraeglicheSpalten:
         zeilen = lies(pfad, "SELECT site_name, signature_name, signature_font FROM settings")
         assert zeilen == [("Alter Name", "", "caveat")]
 
-    def test_spalten_fuer_den_veranstaltungsnamen_werden_ergaenzt(self, alte_datenbank):
-        """Alte Wettbewerbe bekommen leere Felder - also weiter den Namen aus
-        den Einstellungen, genau wie bisher."""
+    def test_spalte_fuer_den_untertitel_wird_ergaenzt(self, alte_datenbank):
+        """Alte Wettbewerbe bekommen ein leeres Feld - also weiter den
+        Untertitel aus den Einstellungen, genau wie bisher."""
         pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
 
         ensure_added_columns()
 
         spalten = {zeile[1] for zeile in lies(pfad, "PRAGMA table_info(challenges)")}
-        assert {"event_name", "event_tagline"} <= spalten
-        assert lies(pfad, "SELECT event_name, event_tagline FROM challenges") == [
-            ("", ""), ("", "")
-        ]
+        assert "tagline" in spalten
+        assert lies(pfad, "SELECT tagline FROM challenges") == [("",), ("",)]
 
     def test_spalten_fuer_die_namen_werden_ergaenzt(self, alte_datenbank):
         pfad = alte_datenbank(ALTES_TEAM_SCHEMA)

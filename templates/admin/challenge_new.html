@@ -7,30 +7,21 @@
 
   <form method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <label class="form-label">Titel des Wettbewerbs</label>
+    <label class="form-label">Name des Wettbewerbs</label>
     <input type="text" name="title" class="form-control form-control-lg"
-      placeholder="z. B. {{ site_settings.site_name }} – Runde 1" required>
-
-
-    <label class="form-label mt-4">
-      Name der Veranstaltung <span class="text-secondary">(optional)</span>
-    </label>
-    <input type="text" name="event_name" class="form-control"
-      placeholder="{{ site_settings.site_name }}">
+      placeholder="z. B. Scratch-Wettbewerb der Klasse 6b" required>
 
     <label class="form-label mt-3">
       Untertitel <span class="text-secondary">(optional)</span>
     </label>
-    <input type="text" name="event_tagline" class="form-control"
+    <input type="text" name="tagline" class="form-control"
       placeholder="{{ site_settings.tagline }}">
 
     <p class="text-secondary small mt-2 mb-0">
-      Leer lassen heißt: Es gilt, was unter <strong>Einstellungen</strong> steht.
-      Trag hier etwas ein, wenn dieser Wettbewerb anders heißen soll als die
-      übrigen – etwa „Scratch-Wettbewerb“ statt „Coding-Wettbewerb“. Der Name
-      steht dann auf der Startseite, der Countdown-Seite, der Teamseite und auf
-      den Urkunden dieses Wettbewerbs, und er bleibt dort auch, wenn später ein
-      anderer Wettbewerb läuft.
+      Der Name steht auf der Startseite, der Countdown-Seite, der Teamseite und
+      auf den Urkunden dieses Wettbewerbs – und er bleibt dort auch, wenn
+      später ein anderer Wettbewerb läuft. Den Untertitel leer zu lassen heißt:
+      Es gilt der aus den <strong>Einstellungen</strong>.
     </p>
 
     <div class="row g-3 mt-1">
