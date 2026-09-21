@@ -470,3 +470,112 @@ class TestAusrichtungEinstellen:
         antwort = client.get("/urkunde.pdf")
         assert antwort.status_code == 200
         assert seitenmasse(antwort.data) == (210, 297)
+
+
+class TestHochformatFuelltDasBlatt:
+    """Ein A4-Hochblatt ist 87 mm höher - das soll Schrift füllen, nicht Leerraum.
+
+    Mit den Größen des Querformats stand der Text als kleiner Block in der
+    Mitte. Im Hochformat wird deshalb alles größer gesetzt: Schrift,
+    Zeilenhöhen und Abstände gleichermaßen, damit die Anordnung dieselbe
+    bleibt.
+    """
+
+    def textbereich(self, daten):
+        """Von der obersten bis zur untersten Textzeile, in Millimetern."""
+        seite = pypdf.PdfReader(io.BytesIO(daten)).pages[0]
+        hoehen = []
+
+        def besucher(text, cm, tm, schrift, groesse):
+            if text.strip():
+                hoehen.append(tm[5])
+
+        seite.extract_text(visitor_text=besucher)
+        assert hoehen, "kein Text gefunden"
+        return (min(hoehen) / 72 * 25.4, max(hoehen) / 72 * 25.4)
+
+    def schriftgroessen(self, daten):
+        seite = pypdf.PdfReader(io.BytesIO(daten)).pages[0]
+        groessen = []
+
+        def besucher(text, cm, tm, schrift, groesse):
+            if text.strip():
+                # tm[0] ist die waagerechte Skalierung der Textmatrix.
+                groessen.append(round(groesse * tm[0], 1))
+
+        seite.extract_text(visitor_text=besucher)
+        return groessen
+
+    def urkunde(self, ausrichtung):
+        return build_certificates_pdf(
+            "Coding-Wettbewerb", "Scratch!",
+            [{"team_id": 1, "name": "Test1", "total": 10, "solved": 1, "rank": 1}],
+            4, date_text="21.09.2026", signature_name="Tobias Henze",
+            orientation_key=ausrichtung)
+
+    def test_hochformat_setzt_groesser_als_querformat(self):
+        quer = max(self.schriftgroessen(self.urkunde("landscape")))
+        hoch = max(self.schriftgroessen(self.urkunde("portrait")))
+
+        assert hoch > quer, "im Hochformat muss größer gesetzt werden"
+
+    def test_der_text_nutzt_mehr_als_die_haelfte_der_hoehe(self):
+        """Sonst steht er wieder als Block in der Mitte."""
+        oben, unten = self.textbereich(self.urkunde("portrait"))
+        # In PDF-Koordinaten wächst y nach oben, deshalb ist "unten" der
+        # größere Wert.
+        genutzt = unten - oben
+        innen = 297 - 2 * 14   # Blatt minus Zierrahmen
+
+        assert genutzt > innen / 2, \
+            f"der Text nutzt nur {genutzt:.0f} von {innen} mm"
+
+    def zeilen_von_oben(self, daten):
+        """Die Höhe jeder Textzeile, von der Blattoberkante aus in Millimetern."""
+        seite = pypdf.PdfReader(io.BytesIO(daten)).pages[0]
+        hoehen = []
+
+        def besucher(text, cm, tm, schrift, groesse):
+            if text.strip():
+                hoehen.append(297 - tm[5] / 72 * 25.4)
+
+        seite.extract_text(visitor_text=besucher)
+        return sorted(hoehen)
+
+    def test_der_hauptblock_steht_mittig_ueber_der_unterschrift(self):
+        """Nicht die äußersten Zeilen zählen, sondern der Textblock.
+
+        Der Unterschriftsblock sitzt absichtlich unten am Blatt. Gemessen
+        werden muss deshalb der Abstand vom Rahmen zum Hauptblock und der
+        vom Hauptblock zum Unterschriftsblock - dazwischen soll es
+        ausgewogen aussehen.
+        """
+        from certificates import certificate_orientation
+
+        hoch = certificate_orientation("portrait")
+        beginn_unterschrift = 297 - hoch["signature_offset"]
+
+        hauptblock = [y for y in self.zeilen_von_oben(self.urkunde("portrait"))
+                      if y < beginn_unterschrift]
+        assert hauptblock, "kein Text über dem Unterschriftsblock"
+
+        luft_oben = min(hauptblock) - 14
+        luft_unten = beginn_unterschrift - max(hauptblock)
+
+        assert abs(luft_oben - luft_unten) < 15, \
+            f"oben {luft_oben:.0f} mm, unten {luft_unten:.0f} mm - schief"
+
+    def test_der_text_bleibt_im_zierrahmen(self):
+        oben, unten = self.textbereich(self.urkunde("portrait"))
+
+        assert oben > 14, f"der Text beginnt bei {oben:.0f} mm, im Rahmen"
+        assert unten < 297 - 14, f"der Text endet bei {unten:.0f} mm, im Rahmen"
+
+    def test_querformat_bleibt_unveraendert(self):
+        """Die Größen des Querformats dürfen sich nicht mitverschieben."""
+        from certificates import CERTIFICATE_ORIENTATIONS
+
+        assert CERTIFICATE_ORIENTATIONS["landscape"]["scale"] == 1.0
+        assert CERTIFICATE_ORIENTATIONS["landscape"]["signature_offset"] == 52
+        # Die Überschrift steht im Querformat weiterhin in 40 Punkt.
+        assert 40 in [round(g) for g in self.schriftgroessen(self.urkunde("landscape"))]
