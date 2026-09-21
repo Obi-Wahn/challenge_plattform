@@ -41,6 +41,10 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
     genau einmal ersetzen.
 *   **Eigene Urkunde als PDF**: Sobald der Wettbewerb beendet ist, kann jedes Team seine
     Urkunde selbst herunterladen.
+*   **Namen für die Urkunde**: Hat die Lehrkraft es freigeschaltet, tragen die Schüler
+    ihre Namen selbst ein – einen pro Zeile. Auf die Urkunde kommen sie erst, wenn die
+    Lehrkraft sie kontrolliert und freigegeben hat; ändert das Team danach noch etwas,
+    muss sie erneut freigeben.
 *   **QR-Code auf der Startseite**: zum schnellen Beitreten per Smartphone, z. B. wenn die Seite beamt wird.
 *   **Responsive Design**: für Desktop, Tablet und Smartphone optimiert.
 
@@ -74,14 +78,19 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
         landet wieder in der Warteschlange.
     *   **Abgabe löschen**: Möglichkeit, fehlerhafte Abgaben komplett zu entfernen, damit Teams neu einreichen können.
 *   **Team-Verwaltung**: Übersicht der Teams des aktuellen Wettbewerbs, inklusive
-    Passwort-Reset, falls ein Team sein Passwort vergisst.
+    Passwort-Reset, falls ein Team sein Passwort vergisst. Hier werden auch die
+    **Namen der Teammitglieder kontrolliert**: berichtigen, freigeben oder die Freigabe
+    wieder zurücknehmen. Eine Zeile oben zeigt, wie viele Teams noch auf die Kontrolle
+    warten.
 *   **Urkunden**: Druckansicht und PDF für alle Teams, dazu eine Urkunde einzeln.
     Wahlweise im **Quer- oder Hochformat** (A4), einstellbar für PDF und Druckansicht
     gemeinsam. Unter die Unterschriftslinie lässt sich ein Name eintragen – wahlweise
     in einer von drei Handschriften (Caveat, Dancing Script, Great Vibes) oder in
     Druckschrift. Ohne Eintrag steht dort wie bisher „Unterschrift“ zum
-    Unterschreiben von Hand.
-*   **Einstellungen**: Name und Beschreibung der Veranstaltung frei anpassbar, ohne Code zu ändern.
+    Unterschreiben von Hand. Sind für ein Team Namen freigegeben, stehen sie als
+    Aufzählung direkt unter dem Teamnamen.
+*   **Einstellungen**: Name und Beschreibung der Veranstaltung frei anpassbar, ohne Code
+    zu ändern; dort wird auch freigeschaltet, ob die Teams ihre Namen eintragen dürfen.
 
 ## 🛠 Technologien
 
@@ -352,7 +361,8 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_submissions.py` | Abgabe, Korrektur nach Freigabe, Bewertung |
 | `test_scoring.py` | Rangliste und Podium, auch bei Gleichstand |
 | `test_admin.py` | Steuerzentrale, Wettbewerbs-Seite, Beenden, Aktivieren |
-| `test_certificates.py` | Urkunden-PDF, Unterschrift, Download durch die Teams |
+| `test_certificates.py` | Urkunden-PDF, Unterschrift, Namen der Teammitglieder, Download durch die Teams |
+| `test_mitgliedernamen.py` | Namen eintragen, kontrollieren, freigeben |
 | `test_task_exchange.py` | Aufgaben sichern und wiederverwenden |
 | `test_migrations.py` | Datenbank aus einer älteren Version weiterbenutzen |
 | `test_security.py` | CSRF, Passwörter, Uploads, Rate-Limit |

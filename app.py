@@ -147,6 +147,10 @@ app = create_app()
 # that already exists (e.g. on an existing school-PC database), so these are
 # migrated in explicitly on startup.
 ADDED_COLUMNS = {
+    "teams": {
+        "member_names": "TEXT",
+        "members_approved": "BOOLEAN DEFAULT 0",
+    },
     "tasks": {
         "hint": "TEXT",
         "hint_visible": "BOOLEAN DEFAULT 0",
@@ -158,6 +162,7 @@ ADDED_COLUMNS = {
         "signature_name": "VARCHAR(100) NOT NULL DEFAULT ''",
         "signature_font": "VARCHAR(30) NOT NULL DEFAULT 'caveat'",
         "certificate_orientation": "VARCHAR(10) NOT NULL DEFAULT 'landscape'",
+        "member_names_enabled": "BOOLEAN NOT NULL DEFAULT 0",
     },
 }
 
@@ -303,11 +308,21 @@ def ensure_added_columns():
         for table, column, definition in missing:
             conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {definition}"))
 
+def run_startup_migrations():
+    """Alle Änderungen am Bestand, in der Reihenfolge, in der sie laufen müssen.
+
+    Erst der Umbau der teams-Tabelle, dann die ergänzten Spalten: Der Umbau
+    schreibt die Tabelle neu und kennt dabei nur die Spalten, die es zu seiner
+    Zeit gab. Liefe er hinterher, fielen alle später ergänzten Spalten - die
+    Namen der Teammitglieder etwa - stillschweigend wieder heraus.
+    """
+    ensure_team_challenge_binding()
+    ensure_added_columns()
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all() # Auto-create tables for dev
-        ensure_added_columns()
-        ensure_team_challenge_binding()
+        run_startup_migrations()
 
     # Debug mode is off by default: the built-in Werkzeug debugger allows
     # arbitrary code execution and this app is bound to 0.0.0.0 for LAN access,

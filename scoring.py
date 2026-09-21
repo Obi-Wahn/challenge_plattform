@@ -20,6 +20,9 @@ def get_standings(challenge):
         team.id: {
             "team_id": team.id,
             "name": team.name,
+            # Nur die vom Admin freigegebenen Namen - die Urkunde ist die
+            # einzige Stelle, die sie zeigt.
+            "members": team.certificate_names,
             "task_points": {task.id: 0 for task in tasks},
             "solved": 0,
             "total": 0,

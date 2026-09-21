@@ -19,6 +19,25 @@
   </div>
 
   <div class="event-card mb-4">
+    <h3 class="mb-3">Namen der Teammitglieder</h3>
+    <p class="text-secondary">
+      Ist das eingeschaltet, sehen die Teams auf ihrer Seite ein Feld, in das sie ihre
+      Namen eintragen können. Auf die Urkunde kommen die Namen aber erst, wenn du sie
+      unter <a href="{{ url_for('admin.teams') }}">Teams verwalten</a> freigegeben hast.
+      Ändert ein Team danach noch etwas, musst du erneut freigeben.
+    </p>
+
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" role="switch"
+        id="member-names-enabled" name="member_names_enabled" value="1"
+        {% if settings.member_names_enabled %}checked{% endif %}>
+      <label class="form-check-label" for="member-names-enabled">
+        Teams dürfen ihre Namen für die Urkunde eintragen
+      </label>
+    </div>
+  </div>
+
+  <div class="event-card mb-4">
     <h3 class="mb-3">Format der Urkunden</h3>
     <p class="text-secondary">
       Gilt für das PDF und für die Druckansicht.

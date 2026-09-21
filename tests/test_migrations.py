@@ -9,7 +9,8 @@ import sqlite3
 
 import pytest
 
-from app import ensure_added_columns, ensure_team_challenge_binding
+from app import (ensure_added_columns, ensure_team_challenge_binding,
+                 run_startup_migrations)
 
 
 @pytest.fixture
@@ -184,6 +185,14 @@ class TestNachtraeglicheSpalten:
         zeilen = lies(pfad, "SELECT site_name, signature_name, signature_font FROM settings")
         assert zeilen == [("Alter Name", "", "caveat")]
 
+    def test_spalten_fuer_die_namen_werden_ergaenzt(self, alte_datenbank):
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
+
+        ensure_added_columns()
+
+        spalten = {zeile[1] for zeile in lies(pfad, "PRAGMA table_info(teams)")}
+        assert {"member_names", "members_approved"} <= spalten
+
     def test_zweiter_aufruf_tut_nichts(self, alte_datenbank):
         alte_datenbank(ALTES_TEAM_SCHEMA)
 
@@ -200,8 +209,23 @@ class TestNachtraeglicheSpalten:
 
 def test_startmigrationen_laufen_auch_auf_einer_leeren_datenbank(database):
     """Auf einer frischen Installation darf nichts schiefgehen."""
-    ensure_added_columns()
-    ensure_team_challenge_binding()
+    run_startup_migrations()
+
+
+def test_der_umbau_der_teams_verliert_die_spalten_der_namen_nicht(alte_datenbank):
+    """Die Reihenfolge der Migrationen zählt.
+
+    Der Umbau schreibt die teams-Tabelle neu und kennt dabei nur die Spalten
+    von damals. Liefe er nach dem Ergänzen, fielen die Namen wieder heraus -
+    und ein Schul-Rechner mit einer alten Datenbank stünde ohne sie da.
+    """
+    pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
+
+    run_startup_migrations()
+
+    spalten = {zeile[1] for zeile in lies(pfad, "PRAGMA table_info(teams)")}
+    assert {"challenge_id", "member_names", "members_approved"} <= spalten
+    assert lies(pfad, "SELECT name FROM teams ORDER BY id") == [("Alpha",), ("Beta",)]
 
 
 class TestSicherungVorDerAenderung:

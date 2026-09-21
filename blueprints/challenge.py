@@ -1,10 +1,11 @@
 from flask import (Blueprint, render_template, request, redirect, url_for, session,
-                   abort, current_app, send_file)
+                   abort, current_app, send_file, flash)
 from extensions import db
-from models import Team, Challenge, Task, Submission
+from models import (Team, Challenge, Task, Submission, Settings, MAX_MEMBERS,
+                    MAX_MEMBER_TEXT_LENGTH, format_member_names, parse_member_names)
 from uploads import zum_loeschen_vormerken
 from scoring import get_standings
-from certificates import build_certificates_for, certificate_entry
+from certificates import build_certificates_for, certificate_entry, names_line
 from werkzeug.utils import secure_filename
 import io
 import os
@@ -51,7 +52,8 @@ def view():
             challenge=None,
             tasks=[],
             submission_map={},
-            team=session.get("team_name")
+            team=session.get("team_name"),
+            member_names_enabled=False
         )
 
     team_id = team.id
@@ -65,8 +67,74 @@ def view():
         challenge=challenge,
         tasks=tasks,
         submission_map=submission_map,
-        team=team.name
+        team=team.name,
+        member_names_enabled=Settings.get().member_names_enabled,
+        member_names_text=team.member_names or "",
+        member_list=team.member_list,
+        members_approved=team.members_approved,
+        max_members=MAX_MEMBERS
     )
+
+
+@challenge_bp.route("/team/namen", methods=["POST"])
+def team_members():
+    """Das Team trägt die Namen ein, die auf seine Urkunde sollen.
+
+    Eintragen geht auch noch, wenn der Wettbewerb schon beendet ist: Die
+    Urkunde gibt es ja erst danach, und bis dahin soll ein vergessener Name
+    noch nachgetragen werden können.
+    """
+    challenge = Challenge.current()
+    team = team_of_current_challenge(challenge)
+    if team is None:
+        return redirect(url_for("public.index"))
+
+    # Ohne Freigabe der Lehrkraft gibt es das Feld gar nicht - dann ist auch
+    # ein von Hand abgeschicktes Formular nichts, was hier ankommen soll.
+    if not Settings.get().member_names_enabled:
+        abort(403)
+
+    namen = parse_member_names(request.form.get("member_names"))
+    zu_viele = len(namen) - MAX_MEMBERS
+    namen = namen[:MAX_MEMBERS]
+
+    # Zu lang heißt: nichts speichern. Die Namen von hinten abzuschneiden wäre
+    # schlimmer als die Nachfrage - es fehlte dann jemand auf der Urkunde.
+    if len(names_line(namen)) > MAX_MEMBER_TEXT_LENGTH:
+        flash(
+            "So viele Zeichen passen nicht auf eine Urkunde. Schreibt die Namen "
+            "kürzer, zum Beispiel nur den Vornamen und den ersten Buchstaben des "
+            "Nachnamens - gespeichert wurde nichts.",
+            "warning"
+        )
+        return redirect(url_for("challenge.view"))
+
+    neu = format_member_names(namen)
+
+    if neu != (team.member_names or ""):
+        team.member_names = neu
+        # Geändert heißt wieder ungeprüft: Was kontrolliert wurde, darf sich
+        # danach nicht mehr unbemerkt ändern.
+        team.members_approved = False
+        db.session.commit()
+
+        if neu:
+            flash(
+                "Namen gespeichert. Sie kommen auf die Urkunde, sobald die "
+                "Lehrkraft sie kontrolliert hat.",
+                "success"
+            )
+        else:
+            flash("Die Namen wurden gelöscht - auf der Urkunde steht jetzt keiner.", "warning")
+
+    if zu_viele > 0:
+        flash(
+            f"Es passen höchstens {MAX_MEMBERS} Namen auf eine Urkunde - "
+            f"die letzten {zu_viele} wurden nicht übernommen.",
+            "warning"
+        )
+
+    return redirect(url_for("challenge.view"))
 
 @challenge_bp.route("/submit/<int:task_id>", methods=["POST"])
 def submit_task(task_id):
