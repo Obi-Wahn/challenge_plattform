@@ -100,3 +100,30 @@ input::placeholder, textarea::placeholder {
   letter-spacing: 1px;
   font-size: 0.85rem;
 }
+
+/* ====== Startseite ====== */
+.willkommen {
+  /* Auf dem Handy wie bisher, am Beamer darf der Gruß mitwachsen. */
+  font-size: clamp(2.2rem, 3.4vw, 3rem);
+}
+
+.qr-code {
+  /* Am Beamer darf der Code größer sein, auf dem Handy nicht breiter
+     als die Karte. */
+  width: clamp(170px, 15vw, 240px);
+  height: auto;
+  aspect-ratio: 1;
+  background: white;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.beitritt-adresse {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+  /* Die Adresse bleibt auf einer Zeile: ein Umbruch mitten in der
+     Portnummer lädt dazu ein, "800" statt "8000" abzutippen. Statt zu
+     brechen, wird die Schrift auf schmalen Displays kleiner. */
+  font-size: clamp(0.85rem, 4.4vw, 1.35rem);
+  white-space: nowrap;
+  color: #fff;
+}
