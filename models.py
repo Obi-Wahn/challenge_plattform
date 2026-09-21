@@ -1,4 +1,5 @@
 import re
+import secrets
 from datetime import datetime
 
 from extensions import db
@@ -46,6 +47,14 @@ class Team(db.Model):
     challenge_id = db.Column(db.Integer, db.ForeignKey('challenges.id'), nullable=True)
     name = db.Column(db.String(100), nullable=False)
     password_hash = db.Column(db.String(200), nullable=True)
+    # Ein Kennzeichen, das genau dieses eine Team meint - und nur dann in
+    # einer Sitzung steht, wenn sich dieses Team angemeldet hat. Die Nummer
+    # allein taugt dafür nicht: SQLite vergibt die Nummer eines gelöschten
+    # Teams wieder, und das Cookie eines gelöschten Teams passte damit auf
+    # das nächste, das dieselbe Nummer bekam. Nullable, weil Teams aus der
+    # Zeit davor die Spalte erst beim Start nachgetragen bekommen.
+    uid = db.Column(db.String(32), nullable=True,
+                    default=lambda: secrets.token_hex(16))
     # Die Namen der Teammitglieder für die Urkunde, einer pro Zeile, so wie
     # die Schüler sie selbst eingetragen haben.
     member_names = db.Column(db.Text, nullable=True)

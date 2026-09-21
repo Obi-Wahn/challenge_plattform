@@ -14,6 +14,7 @@ if sys.version_info < (3, 10):
 import logging
 import os
 import re
+import secrets
 import sqlite3
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
@@ -153,16 +154,26 @@ def create_app():
     def inject_navigation():
         """Was die obere Leiste über den Wettbewerb wissen muss.
 
-        Die Leiste steht in base.html und kennt den Wettbewerb sonst nicht.
-        Sie wächst um höchstens einen Eintrag: die Urkunde, sobald der
-        Wettbewerb beendet ist. Vorher war hier auch ein Countdown-Eintrag;
-        die Restzeit steht inzwischen auf der Wettbewerbsseite selbst.
+        Die Leiste steht in base.html und kennt von sich aus weder den
+        Wettbewerb noch das angemeldete Team. Sie wächst um höchstens einen
+        Eintrag: die Urkunde, sobald der Wettbewerb beendet ist. Vorher war
+        hier auch ein Countdown-Eintrag; die Restzeit steht inzwischen auf
+        der Wettbewerbsseite selbst.
         """
         from models import Challenge
+        from sitzung import angemeldetes_team
+
         challenge = Challenge.current()
         status = challenge.status() if challenge else None
 
+        # Das Team kommt aus der Datenbank, nicht aus der Sitzung: Nach dem
+        # Löschen des Wettbewerbs steht der Name noch im Cookie, das Team
+        # gibt es aber nicht mehr. Die Leiste zeigte es sonst weiter als
+        # angemeldet an, samt "Abmelden".
+        team = angemeldetes_team(challenge)
+
         return {
+            "nav_team": team.name if team else None,
             "nav_urkunde": status == "finished",
         }
 
@@ -182,6 +193,7 @@ ADDED_COLUMNS = {
     "teams": {
         "member_names": "TEXT",
         "members_approved": "BOOLEAN DEFAULT 0",
+        "uid": "VARCHAR(32)",
     },
     "tasks": {
         "hint": "TEXT",
@@ -359,6 +371,30 @@ def ensure_pause_timestamp():
             "WHERE paused = 1 AND paused_at IS NULL"
         ), {"jetzt": datetime.now()})
 
+def ensure_team_uids():
+    """Gibt Teams aus der Zeit vor der Spalte ihr Kennzeichen.
+
+    Ohne Kennzeichen käme ein Team nicht mehr auf seine Seite: Die Anmeldung
+    vergleicht es mit dem, was in der Sitzung steht. Der Wert wird einmal
+    vergeben und bleibt dann, solange es das Team gibt.
+    """
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(db.engine)
+    if "teams" not in set(inspector.get_table_names()):
+        return
+
+    with db.engine.begin() as conn:
+        offene = conn.execute(text(
+            "SELECT id FROM teams WHERE uid IS NULL OR uid = ''"
+        )).scalars().all()
+
+        # Jedes Team bekommt einen eigenen Wert - ein gemeinsamer wäre kein
+        # Kennzeichen, sondern nur eine zweite Art, "irgendein Team" zu sagen.
+        for team_id in offene:
+            conn.execute(text("UPDATE teams SET uid = :uid WHERE id = :id"),
+                         {"uid": secrets.token_hex(16), "id": team_id})
+
 def run_startup_migrations():
     """Alle Änderungen am Bestand, in der Reihenfolge, in der sie laufen müssen.
 
@@ -367,12 +403,13 @@ def run_startup_migrations():
     Zeit gab. Liefe er hinterher, fielen alle später ergänzten Spalten - die
     Namen der Teammitglieder etwa - stillschweigend wieder heraus.
 
-    Der Zeitpunkt der Pause kommt zuletzt: Er füllt eine Spalte, die der
-    Schritt davor überhaupt erst anlegt.
+    Der Zeitpunkt der Pause und die Kennzeichen der Teams kommen zuletzt:
+    Sie füllen Spalten, die der Schritt davor überhaupt erst anlegt.
     """
     ensure_team_challenge_binding()
     ensure_added_columns()
     ensure_pause_timestamp()
+    ensure_team_uids()
 
 if __name__ == "__main__":
     with app.app_context():
