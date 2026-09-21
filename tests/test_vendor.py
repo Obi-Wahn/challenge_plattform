@@ -72,3 +72,73 @@ def test_die_templates_binden_nur_vorhandene_dateien_ein():
                 fehlend.append(f"{datei.name}: {treffer}")
 
     assert not fehlend, "Eingebunden, aber nicht vorhanden: " + ", ".join(fehlend)
+
+
+class TestNamenDieManEintippenKann:
+    """Was --pruefen anzeigt, muss --setzen auch annehmen.
+
+    Vorher zeigte --pruefen „Font Awesome Free“ an; --setzen nahm nur den
+    npm-Namen. Wer die Anzeige abtippte, scheiterte an den Leerzeichen -
+    in der PowerShell auch mit Anführungszeichen.
+    """
+
+    def werkzeug(self):
+        import sys
+
+        sys.path.insert(0, str(WURZEL / "werkzeuge"))
+        import vendor_aktualisieren
+
+        return vendor_aktualisieren
+
+    def test_angezeigter_name_enthaelt_keine_leerzeichen(self, liste):
+        w = self.werkzeug()
+        for paket in liste["pakete"]:
+            name = w.schluessel(paket)
+            assert " " not in name, f"{name!r} lässt sich nicht eintippen"
+            assert name, "leerer Name"
+
+    def test_jeder_angezeigte_name_wird_gefunden(self, liste):
+        """Der Kern: Anzeige und Eingabe müssen zusammenpassen."""
+        w = self.werkzeug()
+        for paket in liste["pakete"]:
+            gefunden = w.finde_paket(liste, w.schluessel(paket))
+            assert gefunden is paket, f"{w.schluessel(paket)!r} wird nicht gefunden"
+
+    @pytest.mark.parametrize("schreibweise", [
+        "fontawesome-free",
+        "@fortawesome/fontawesome-free",
+        "Font Awesome Free",
+        "FONTAWESOME-FREE",
+        "fontawesomefree",
+    ])
+    def test_alle_schreibweisen_finden_dasselbe_paket(self, liste, schreibweise):
+        w = self.werkzeug()
+        paket = w.finde_paket(liste, schreibweise)
+
+        assert paket is not None, f"{schreibweise!r} wurde nicht gefunden"
+        assert paket["name"] == "Font Awesome Free"
+
+    def test_unbekannter_name_wird_nicht_erraten(self, liste):
+        w = self.werkzeug()
+        assert w.finde_paket(liste, "gibtsnicht") is None
+
+    def test_fehlermeldung_nennt_die_moeglichen_namen(self, liste, capsys):
+        w = self.werkzeug()
+
+        assert w.setzen(liste, ["Font Awesome Free"]) is False
+        ausgabe = capsys.readouterr().out
+        assert "fontawesome-free" in ausgabe
+        assert "Leerzeichen" in ausgabe
+
+    def test_eintragen_veraendert_nur_das_gemeinte_paket(self, liste, monkeypatch):
+        w = self.werkzeug()
+        vorher = {p["name"]: p["version"] for p in liste["pakete"]}
+
+        # Nicht in die echte versionen.json schreiben.
+        monkeypatch.setattr(w, "schreibe_liste", lambda _liste: None)
+        assert w.setzen(liste, ["fontawesome-free=7.3.1"]) is True
+
+        nachher = {p["name"]: p["version"] for p in liste["pakete"]}
+        geaendert = {k for k in vorher if vorher[k] != nachher[k]}
+        assert geaendert == {"Font Awesome Free"}
+        assert nachher["Font Awesome Free"] == "7.3.1"

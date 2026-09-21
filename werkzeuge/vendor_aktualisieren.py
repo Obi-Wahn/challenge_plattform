@@ -12,8 +12,9 @@ Sie aktualisieren sich nicht von selbst. Dieses Skript nimmt die Handarbeit ab.
         Holt genau die Fassungen, die in static/vendor/versionen.json stehen,
         und ersetzt die Dateien.
 
-    python werkzeuge/vendor_aktualisieren.py --setzen bootstrap=5.3.8
-        Trägt eine neue Fassung in versionen.json ein und holt sie.
+    python werkzeuge/vendor_aktualisieren.py --setzen fontawesome-free=7.3.1
+        Trägt eine neue Fassung in versionen.json ein und holt sie. Der Name
+        ist der kurze aus --pruefen, ohne Leerzeichen.
 
 Nach einem Update lohnt sich ein Blick auf die Seiten und ein Durchlauf der
 Tests - eine neue Hauptversion kann Darstellung oder Bedienung ändern.
@@ -93,9 +94,23 @@ def version_teile(version):
     return tuple(teile)
 
 
+def schluessel(paket):
+    """Der Name, den --setzen annimmt.
+
+    Der Anzeigename taugt dafür nicht: „Font Awesome Free“ hat Leerzeichen,
+    und in der PowerShell bekommt man das kaum durch die Anführungszeichen.
+    """
+    return paket["npm"].split("/")[-1]
+
+
 def pruefen(liste):
-    """Sagt, für welche Pakete es eine neuere Fassung gibt."""
+    """Sagt, für welche Pakete es eine neuere Fassung gibt.
+
+    Angezeigt wird der Name, den --setzen auch annimmt - sonst liest man
+    hier „Font Awesome Free“ und kommt damit dort nicht weiter.
+    """
     neueres = False
+    vorschlag = None
     for paket in liste["pakete"]:
         try:
             daten = paketdaten(paket["npm"])
@@ -105,18 +120,21 @@ def pruefen(liste):
             continue
 
         hier = paket["version"]
+        name = schluessel(paket)
         if version_teile(neuste) > version_teile(hier):
             neueres = True
+            if vorschlag is None:
+                vorschlag = f"{name}={neuste}"
             hinweis = "neuere Fassung"
             if version_teile(neuste)[0] > version_teile(hier)[0]:
                 hinweis = "neue Hauptversion - Darstellung vorher prüfen"
-            print(f"  {paket['name']:<20} {hier:>8}  ->  {neuste:<8}  ({hinweis})")
+            print(f"  {name:<22} {hier:>8}  ->  {neuste:<8}  ({hinweis})")
         else:
-            print(f"  {paket['name']:<20} {hier:>8}      aktuell")
+            print(f"  {name:<22} {hier:>8}      aktuell")
 
     if neueres:
-        print("\nZum Übernehmen zum Beispiel:")
-        print("  python werkzeuge/vendor_aktualisieren.py --setzen bootstrap=5.3.8")
+        print("\nZum Übernehmen:")
+        print(f"  python werkzeuge/vendor_aktualisieren.py --setzen {vorschlag}")
         print("  python werkzeuge/vendor_aktualisieren.py")
     return neueres
 
@@ -168,21 +186,44 @@ def aktualisieren(liste):
     return True
 
 
+def vergleichsform(text):
+    """Klein geschrieben und ohne Leer- und Bindestriche, zum Nachschlagen."""
+    return "".join(str(text).lower().split()).replace("-", "")
+
+
+def finde_paket(liste, name):
+    """Sucht ein Paket am npm-Namen, an der Kurzform oder am Anzeigenamen."""
+    gesucht = vergleichsform(name)
+    for paket in liste["pakete"]:
+        moeglich = {paket["npm"], schluessel(paket), paket["name"]}
+        if any(vergleichsform(m) == gesucht for m in moeglich):
+            return paket
+    return None
+
+
 def setzen(liste, angaben):
     """Trägt neue Fassungen in versionen.json ein."""
-    bekannt = {p["npm"]: p for p in liste["pakete"]}
-    kurz = {p["npm"].split("/")[-1]: p for p in liste["pakete"]}
+    namen = ", ".join(schluessel(p) for p in liste["pakete"])
 
     for angabe in angaben:
         if "=" not in angabe:
             print(f"FEHLER: '{angabe}' sieht nicht aus wie paket=version")
+            # Der haeufigste Grund: der Anzeigename aus --pruefen wurde
+            # uebernommen, und die Leerzeichen darin haben die Eingabe
+            # zerlegt - in der PowerShell auch trotz Anfuehrungszeichen.
+            if " " in angabe:
+                print("        Namen mit Leerzeichen gehen schief. Nimm den")
+                print(f"        kurzen Namen, zum Beispiel: {namen.split(', ')[0]}=1.2.3")
+            print(f"        Möglich sind: {namen}")
             return False
+
         name, version = angabe.split("=", 1)
-        paket = bekannt.get(name) or kurz.get(name)
+        paket = finde_paket(liste, name)
         if paket is None:
             print(f"FEHLER: '{name}' steht nicht in versionen.json")
-            print("        bekannt sind: " + ", ".join(sorted(kurz)))
+            print(f"        Möglich sind: {namen}")
             return False
+
         print(f"  {paket['name']}: {paket['version']} -> {version}")
         paket["version"] = version
 

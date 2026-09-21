@@ -182,16 +182,20 @@ python werkzeuge/vendor_aktualisieren.py --pruefen
 ```
 
 ```
-Bootstrap               5.3.8      aktuell
-EasyMDE                2.21.0      aktuell
-Font Awesome Free       6.7.2  ->  7.3.1     (neue Hauptversion - Darstellung vorher prüfen)
-Caveat                  0.4.2      aktuell
+  bootstrap                 5.3.8      aktuell
+  easymde                  2.21.0      aktuell
+  fontawesome-free          6.7.2  ->  7.3.1     (neue Hauptversion - Darstellung vorher prüfen)
+  caveat                    0.4.2      aktuell
+
+Zum Übernehmen:
+  python werkzeuge/vendor_aktualisieren.py --setzen fontawesome-free=7.3.1
+  python werkzeuge/vendor_aktualisieren.py
 ```
 
-Eine neue Fassung übernehmen:
+Die Namen in der linken Spalte sind genau die, die `--setzen` annimmt – ohne
+Leerzeichen, damit sie sich auch in der PowerShell eintippen lassen. Danach:
 
 ```bash
-python werkzeuge/vendor_aktualisieren.py --setzen bootstrap=5.3.8
 pytest
 python app.py     # und die Seiten einmal ansehen
 ```
