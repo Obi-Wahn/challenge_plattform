@@ -154,21 +154,15 @@ def create_app():
         """Was die obere Leiste über den Wettbewerb wissen muss.
 
         Die Leiste steht in base.html und kennt den Wettbewerb sonst nicht.
-        Beide Einträge schließen sich zeitlich aus, die Leiste wächst also
-        um höchstens einen.
-
-        Der Countdown erscheint nur, wenn es auch etwas herunterzuzählen
-        gibt: vor dem Start bis zum Beginn, während des Laufs nur, wenn eine
-        Endzeit gesetzt ist. Ohne Endzeit zeigt /start keine Zeit an - ein
-        Link dorthin wäre ein leeres Versprechen.
+        Sie wächst um höchstens einen Eintrag: die Urkunde, sobald der
+        Wettbewerb beendet ist. Vorher war hier auch ein Countdown-Eintrag;
+        die Restzeit steht inzwischen auf der Wettbewerbsseite selbst.
         """
         from models import Challenge
         challenge = Challenge.current()
         status = challenge.status() if challenge else None
 
         return {
-            "nav_countdown": (status == "upcoming"
-                              or (status == "running" and bool(challenge.end_time))),
             "nav_urkunde": status == "finished",
         }
 

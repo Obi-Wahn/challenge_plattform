@@ -1,9 +1,9 @@
 """Die obere Leiste - das Einzige, was auf jeder Seite gleich bleibt.
 
-Zwei Einträge hängen am Stand des Wettbewerbs: der Countdown, solange es
-eine Zeit herunterzuzählen gibt, und die Urkunde, sobald der Wettbewerb
-beendet ist. Beide führen auf Seiten, die es vorher schon gab, zu denen
-aber kein einziger Link zeigte.
+Ein Eintrag hängt am Stand des Wettbewerbs: die Urkunde, sobald er beendet
+ist. Sie führt auf eine Seite, die es vorher schon gab, zu der aber kein
+einziger Link zeigte. Die Restzeit steht auf der Wettbewerbsseite selbst,
+siehe test_zeitleiste.py.
 """
 
 import re
@@ -37,27 +37,25 @@ class TestOhneAnmeldung:
         assert "Urkunde" not in nav
 
 
-class TestCountdown:
-    def test_waehrend_des_wettbewerbs_mit_endzeit(self, make_challenge, logged_in_team):
+class TestKeinCountdown:
+    """Die Restzeit steht auf der Wettbewerbsseite, nicht hinter einem Link.
+
+    Ein Eintrag in der Leiste würde die Teams von genau der Seite wegführen,
+    auf der die Zeit jetzt ohnehin steht.
+    """
+
+    def test_waehrend_des_wettbewerbs_keiner(self, make_challenge, logged_in_team):
         challenge = make_challenge(start_time=datetime.now() - timedelta(minutes=5),
                                    end_time=datetime.now() + timedelta(hours=1))
         client, _team = logged_in_team(challenge)
 
         nav = leiste(client)
 
-        assert "Countdown" in nav
-        assert "/start" in nav
-        assert "Urkunde" not in nav
+        assert "Countdown" not in nav
+        assert "/start" not in nav
 
-    def test_vor_dem_start(self, make_challenge, logged_in_team):
+    def test_vor_dem_start_auch_nicht(self, make_challenge, logged_in_team):
         challenge = make_challenge(start_time=datetime.now() + timedelta(hours=1))
-        client, _team = logged_in_team(challenge)
-
-        assert "Countdown" in leiste(client)
-
-    def test_ohne_endzeit_kein_countdown(self, make_challenge, logged_in_team):
-        """Ohne Endzeit zeigt /start keine Zeit an - der Link liefe ins Leere."""
-        challenge = make_challenge(start_time=datetime.now() - timedelta(minutes=5))
         client, _team = logged_in_team(challenge)
 
         assert "Countdown" not in leiste(client)
