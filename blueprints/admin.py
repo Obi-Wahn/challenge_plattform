@@ -11,11 +11,45 @@ from certificates import (build_certificates_for, certificate_entry, signature_f
                           certificate_orientation, CERTIFICATE_ORIENTATIONS,
                           DEFAULT_ORIENTATION, names_line)
 from task_exchange import export_bytes, parse_tasks, ImportError_
-from datetime import datetime
+from datetime import datetime, timedelta
 import io
 import os
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+
+# Eine Schulstunde dauert 45 Minuten, ein Doppelblock 90. Nach oben lässt die
+# Grenze Raum für einen ganzen Projekttag, ohne dass ein Vertipper wie "4500"
+# den Wettbewerb ins nächste Jahr schiebt.
+MAX_DAUER_MINUTEN = 24 * 60
+STANDARD_DAUER_MINUTEN = 45
+
+def gelesene_dauer(value):
+    """Die eingetippte Dauer in Minuten, als (Minuten, Fehlermeldung).
+
+    Leer heißt: keine Dauer angegeben, die Endzeit gilt unverändert. Beides
+    ist None-frei zu haben - (0, None) für "nichts angegeben".
+    """
+    value = (value or "").strip()
+    if not value:
+        return 0, None
+
+    try:
+        minuten = int(value)
+    except ValueError:
+        return 0, "Die Dauer muss eine Zahl in Minuten sein."
+
+    if minuten <= 0:
+        return 0, "Die Dauer muss größer als null sein."
+    if minuten > MAX_DAUER_MINUTEN:
+        return 0, f"Die Dauer darf höchstens {MAX_DAUER_MINUTEN} Minuten betragen."
+
+    return minuten, None
+
+def zeitpunkt_text(zeitpunkt, bezug):
+    """„14:35 Uhr", und mit dem Datum davor, wenn es ein anderer Tag ist."""
+    if zeitpunkt.date() == bezug.date():
+        return zeitpunkt.strftime("%H:%M") + " Uhr"
+    return zeitpunkt.strftime("%d.%m., %H:%M") + " Uhr"
 
 @admin_bp.before_request
 def restrict_admin():
@@ -109,7 +143,11 @@ def challenge_detail(cid):
         tasks=tasks,
         teams=teams,
         overview=challenge_overview(challenge),
-        is_current=is_current
+        is_current=is_current,
+        # Vorschlag für „Jetzt starten“: die Dauer, die zuletzt galt, sonst
+        # eine Schulstunde.
+        dauer_vorschlag=challenge.duration_minutes or STANDARD_DAUER_MINUTEN,
+        max_dauer=MAX_DAUER_MINUTEN
     )
 
 def parse_datetime_local(value):
@@ -177,13 +215,69 @@ def challenge_edit(cid):
         # Anders als der Name darf der Untertitel leer bleiben: Leer ist die
         # Antwort "nimm den aus den Einstellungen", nicht ein Versehen.
         challenge.tagline = request.form.get("tagline", "").strip()[:300]
+        # Erst prüfen, dann verstellen: Eine unbrauchbare Dauer soll die
+        # Eingabe abweisen, ohne unterwegs schon die Zeiten verstellt zu haben.
+        dauer, dauer_fehler = gelesene_dauer(request.form.get("duration_minutes"))
+        if dauer_fehler:
+            flash(dauer_fehler, "warning")
+            return redirect(url_for('admin.challenge_edit', cid=cid))
+
         challenge.start_time = parse_datetime_local(request.form.get("start_time"))
         challenge.end_time = parse_datetime_local(request.form.get("end_time"))
+
+        # Die Dauer ist nur eine andere Art, dieselbe Endzeit einzutragen:
+        # Sie rechnet sie aus und sticht dabei ein ausgefülltes Endzeit-Feld.
+        # Gespeichert wird weiterhin allein die Endzeit.
+        if dauer:
+            beginn = challenge.start_time or datetime.now()
+            challenge.start_time = beginn
+            challenge.end_time = beginn + timedelta(minutes=dauer)
+
         db.session.commit()
-        flash("Name, Untertitel und Zeiten gespeichert.", "success")
+
+        if dauer:
+            flash(
+                f"Gespeichert. {dauer} Minuten ab "
+                f"{zeitpunkt_text(challenge.start_time, datetime.now())}, also bis "
+                f"{zeitpunkt_text(challenge.end_time, challenge.start_time)}.",
+                "success"
+            )
+        else:
+            flash("Name, Untertitel und Zeiten gespeichert.", "success")
         return redirect(url_for('admin.challenge_detail', cid=cid))
 
-    return render_template("admin/challenge_edit.html", challenge=challenge)
+    return render_template("admin/challenge_edit.html", challenge=challenge,
+                           max_dauer=MAX_DAUER_MINUTEN)
+
+@admin_bp.route("/challenges/<int:cid>/jetzt-starten", methods=["POST"])
+def challenge_start_now(cid):
+    """Startet jetzt, für die angegebene Zahl von Minuten.
+
+    Der Weg für die Schulstunde: Man weiß, dass 45 Minuten zur Verfügung
+    stehen, nicht, wann genau es losgeht. Ein Klick setzt beides.
+    """
+    challenge = db.get_or_404(Challenge, cid)
+    dauer, dauer_fehler = gelesene_dauer(request.form.get("duration_minutes"))
+
+    if dauer_fehler or not dauer:
+        flash(dauer_fehler or "Bitte eine Dauer in Minuten angeben.", "warning")
+        return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))
+
+    jetzt = datetime.now()
+    challenge.start_time = jetzt
+    challenge.end_time = jetzt + timedelta(minutes=dauer)
+    # Ein frischer Start hebt eine Pause auf, auch eine aus dem letzten Lauf.
+    challenge.paused = False
+    challenge.paused_at = None
+    db.session.commit()
+
+    flash(
+        f"„{challenge.title}“ läuft – {dauer} Minuten, bis "
+        f"{zeitpunkt_text(challenge.end_time, jetzt)}. Die Teams sehen die "
+        "neue Zeit, sobald sie ihre Seite neu laden.",
+        "success"
+    )
+    return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))
 
 # Activating changes which competition everything refers to, so it is a POST
 # with a CSRF token rather than a plain link.
@@ -287,18 +381,45 @@ def tasks_import(cid):
 
 @admin_bp.route("/challenges/<int:cid>/pause", methods=["POST"])
 def challenge_pause(cid):
+    """Hält den Wettbewerb an - und mit ihm die Uhr.
+
+    Der Zeitpunkt ist das Entscheidende: Von ihm aus rechnet der Wettbewerb,
+    solange die Pause läuft, und um ihn herum rückt beim Fortsetzen die
+    Endzeit nach hinten.
+    """
     challenge = db.get_or_404(Challenge, cid)
     challenge.paused = True
+    challenge.paused_at = datetime.now()
     db.session.commit()
-    flash(f"„{challenge.title}“ ist pausiert – Abgaben sind vorübergehend gesperrt.", "warning")
+    flash(
+        f"„{challenge.title}“ ist pausiert – Abgaben sind vorübergehend gesperrt. "
+        "Die Restzeit steht still.",
+        "warning"
+    )
     return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))
 
 @admin_bp.route("/challenges/<int:cid>/resume", methods=["POST"])
 def challenge_resume(cid):
+    """Lässt weiterlaufen und schiebt die Endzeit um die Dauer der Pause."""
     challenge = db.get_or_404(Challenge, cid)
+    pause_sekunden = challenge.paused_seconds
+
+    if challenge.end_time and pause_sekunden:
+        challenge.end_time += timedelta(seconds=pause_sekunden)
+
     challenge.paused = False
+    challenge.paused_at = None
     db.session.commit()
-    flash(f"„{challenge.title}“ läuft weiter – Abgaben sind wieder möglich.", "success")
+
+    meldung = f"„{challenge.title}“ läuft weiter – Abgaben sind wieder möglich."
+    if challenge.end_time and pause_sekunden >= 60:
+        # Unter einer Minute bleibt es unerwähnt: Verschoben wird sekundengenau,
+        # aber die angezeigte Endzeit kennt nur Minuten. „1 Minute“ zu melden,
+        # wo sich in der Anzeige nichts tut, verwirrt mehr, als es erklärt.
+        minuten = round(pause_sekunden / 60)
+        meldung += (f" Die Endzeit ist um {minuten} Minute(n) nach hinten gerückt, "
+                    f"auf {zeitpunkt_text(challenge.end_time, datetime.now())}.")
+    flash(meldung, "success")
     return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))
 
 @admin_bp.route("/challenges/<int:cid>/finish", methods=["POST"])
@@ -306,8 +427,14 @@ def challenge_finish(cid):
     """Ends the competition now: no more submissions, ready for the ceremony."""
     challenge = db.get_or_404(Challenge, cid)
     # The end time is what makes a competition finished, so setting it to now
-    # is the whole action - nothing is deleted and the pause flag is untouched.
+    # is the whole action - nothing is deleted.
+    #
+    # Eine laufende Pause endet hier mit: Ihr Zeitpunkt würde sonst die
+    # Rechnung bestimmen und den Wettbewerb trotz gesetzter Endzeit
+    # weiterlaufen lassen. Beendet sticht pausiert.
     challenge.end_time = datetime.now()
+    challenge.paused = False
+    challenge.paused_at = None
     db.session.commit()
     flash(
         f"„{challenge.title}“ ist beendet. Abgaben sind gesperrt – "
@@ -322,6 +449,7 @@ def challenge_reopen(cid):
     challenge = db.get_or_404(Challenge, cid)
     challenge.end_time = None
     challenge.paused = False
+    challenge.paused_at = None
     db.session.commit()
     flash(
         f"„{challenge.title}“ ist wieder geöffnet. Es gibt jetzt keine Endzeit – "

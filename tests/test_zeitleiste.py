@@ -101,14 +101,53 @@ class TestPause:
     def test_die_pause_steht_in_der_leiste(self, make_challenge, logged_in_team):
         challenge = make_challenge(start_time=datetime.now() - timedelta(minutes=5),
                                    end_time=datetime.now() + timedelta(hours=1),
-                                   paused=True)
+                                   paused=True,
+                                   paused_at=datetime.now())
         client, _team = logged_in_team(challenge)
 
         leiste = zeitleiste(client)
 
         assert "Pausiert" in leiste
-        # Die Uhr läuft weiter: Das Ende rückt auch während einer Pause näher.
         assert 'id="restzeit"' in leiste
+        assert "die Uhr steht" in leiste
+
+    def test_die_uhr_steht_waehrend_der_pause_still(self, make_challenge, logged_in_team):
+        """Sonst liefe die Uhr im Browser dem Server davon.
+
+        Der Server rechnet ab dem Zeitpunkt der Pause. Zählte der Browser
+        weiter, zeigte er nach zehn Minuten Pause zehn Minuten zu wenig, und
+        nach dem Fortsetzen spränge die Zeit zurück.
+        """
+        challenge = make_challenge(start_time=datetime.now() - timedelta(minutes=5),
+                                   end_time=datetime.now() + timedelta(hours=1),
+                                   paused=True,
+                                   paused_at=datetime.now())
+        client, _team = logged_in_team(challenge)
+
+        html = seite(client)
+
+        assert "const laeuftDieUhr = false;" in html
+        # Der Takt läuft nur, wenn die Uhr laufen darf.
+        assert "if (laeuftDieUhr)" in html
+
+    def test_ohne_pause_laeuft_der_takt(self, make_challenge, logged_in_team):
+        challenge = make_challenge(start_time=datetime.now() - timedelta(minutes=5),
+                                   end_time=datetime.now() + timedelta(hours=1))
+        client, _team = logged_in_team(challenge)
+
+        assert "const laeuftDieUhr = true;" in seite(client)
+
+    def test_die_restzeit_der_pause_ist_die_eingefrorene(self, make_challenge,
+                                                         logged_in_team):
+        """Zehn Minuten Pause dürfen den Teams keine zehn Minuten kosten."""
+        challenge = make_challenge(start_time=datetime.now() - timedelta(minutes=20),
+                                   end_time=datetime.now() + timedelta(minutes=40),
+                                   paused=True,
+                                   paused_at=datetime.now() - timedelta(minutes=10))
+        client, _team = logged_in_team(challenge)
+
+        # Bei der Pause waren es 50 Minuten, und dabei bleibt es.
+        assert 2990 < sekunden_im_skript(client) <= 3000
 
 
 class TestKeinAutomatischesNeuladen:

@@ -9,8 +9,8 @@ import sqlite3
 
 import pytest
 
-from app import (ensure_added_columns, ensure_team_challenge_binding,
-                 run_startup_migrations)
+from app import (ensure_added_columns, ensure_pause_timestamp,
+                 ensure_team_challenge_binding, run_startup_migrations)
 
 
 @pytest.fixture
@@ -195,6 +195,31 @@ class TestNachtraeglicheSpalten:
         spalten = {zeile[1] for zeile in lies(pfad, "PRAGMA table_info(challenges)")}
         assert "tagline" in spalten
         assert lies(pfad, "SELECT tagline FROM challenges") == [("",), ("",)]
+
+    def test_spalte_fuer_den_zeitpunkt_der_pause_wird_ergaenzt(self, alte_datenbank):
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
+
+        ensure_added_columns()
+
+        spalten = {zeile[1] for zeile in lies(pfad, "PRAGMA table_info(challenges)")}
+        assert "paused_at" in spalten
+
+    def test_eine_laufende_pause_bekommt_einen_zeitpunkt(self, alte_datenbank):
+        """Wer beim Update gerade pausiert hat, soll die Uhr angehalten sehen.
+
+        Ohne Zeitpunkt liefe sie trotz Pause weiter, wie in der Fassung davor.
+        Der Start des Updates ist der genaueste Zeitpunkt, den es noch gibt.
+        """
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA + """
+            UPDATE challenges SET paused = 1 WHERE id = 2;
+        """)
+
+        ensure_added_columns()
+        ensure_pause_timestamp()
+
+        zeilen = lies(pfad, "SELECT id, paused_at FROM challenges ORDER BY id")
+        assert zeilen[0][1] is None, "Ein nicht pausierter Wettbewerb bleibt leer"
+        assert zeilen[1][1] is not None, "Die laufende Pause braucht einen Zeitpunkt"
 
     def test_spalten_fuer_die_namen_werden_ergaenzt(self, alte_datenbank):
         pfad = alte_datenbank(ALTES_TEAM_SCHEMA)

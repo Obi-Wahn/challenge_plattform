@@ -39,6 +39,7 @@
 
     <span class="zeitleiste-wort" id="zeitleiste-wort">
       {%- if status == "finished" %}Abgaben geschlossen
+      {%- elif challenge.paused and seconds %}verbleibend, die Uhr steht
       {%- elif challenge.paused %}Abgaben sind gerade nicht möglich
       {%- elif status == "running" and seconds %}verbleibend
       {%- elif status == "running" %}Abgaben sind möglich{% endif -%}
@@ -219,6 +220,11 @@
   // zweiten Fall ist bei null der Wettbewerb vorbei.
   const zaehltBisZumEnde = {{ "false" if status == "upcoming" else "true" }};
 
+  // In der Pause steht die Zeit still: Der Server rechnet ab dem Zeitpunkt der
+  // Pause, und die Uhr im Browser darf ihm nicht davonlaufen. Sie wird einmal
+  // gezeichnet und danach nicht mehr angefasst.
+  const laeuftDieUhr = {{ "false" if challenge.paused else "true" }};
+
   const leiste = document.querySelector(".zeitleiste");
   const stand = document.getElementById("zeitleiste-stand");
   const uhr = document.getElementById("restzeit");
@@ -262,7 +268,9 @@
   }
 
   zeichne();
-  takt = setInterval(zeichne, 1000);
+  if (laeuftDieUhr) {
+    takt = setInterval(zeichne, 1000);
+  }
 </script>
 {% endif %}
 

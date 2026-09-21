@@ -23,6 +23,22 @@
         </p>
       </div>
 
+    {% elif status == "running" and challenge.paused %}
+      <!-- Die Beamerseite muss dasselbe zeigen wie die Zeitleiste der Teams:
+           eine Pause, und darunter eine Uhr, die stillsteht. -->
+      <div class="event-card mb-4">
+        <h2 class="mb-3 text-warning">⏸ Kurze Pause</h2>
+        {% if seconds %}
+        <p class="text-secondary mb-2">Verbleibende Zeit – die Uhr steht</p>
+        <h1 style="font-size: 4rem;">
+          <span id="countdown"></span>
+        </h1>
+        {% endif %}
+        <p class="text-secondary mb-0">
+          Es geht gleich weiter.
+        </p>
+      </div>
+
     {% elif status == "running" %}
       <div class="event-card mb-4">
         <h2 class="mb-3 text-success">🟢 Es geht los!</h2>
@@ -87,7 +103,10 @@
   }
 
   updateCountdown();
-  setInterval(updateCountdown, 1000);
+  // In der Pause steht die Uhr still, wie auf der Wettbewerbsseite auch.
+  if ({{ "false" if challenge and challenge.paused else "true" }}) {
+    setInterval(updateCountdown, 1000);
+  }
 </script>
 {% endif %}
 

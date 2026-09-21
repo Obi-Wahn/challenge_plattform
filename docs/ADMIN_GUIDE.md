@@ -101,6 +101,29 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 4. Teams melden sich selbst auf der Startseite an: Teamname und ein
    Passwort, das sie sich ausdenken. Jedes Team merkt sich beides.
 
+### Die Zeit einstellen
+
+Drei Wege führen zur Endzeit, und gespeichert wird immer sie:
+
+- **Uhrzeiten**: unter *Name & Zeiten* Start- und Endzeit eintragen. Der Weg
+  für einen Wettbewerb, der zu einer festen Uhrzeit beginnt.
+- **Dauer in Minuten**: im selben Formular das Feld *Dauer in Minuten*
+  füllen. Die Endzeit wird daraus ausgerechnet – Startzeit plus Dauer, ohne
+  Startzeit ab jetzt. Eine eingetragene Endzeit wird dabei überschrieben.
+- **▶ Jetzt starten für … Minuten**: der Knopf auf der Wettbewerbsseite. Ein
+  Klick setzt Start auf jetzt und Ende auf jetzt plus Dauer. Der Weg für die
+  Schulstunde, in der es selten pünktlich losgeht.
+
+Alles davon geht auch **während** der Wettbewerb läuft. Die Teams sehen die
+neue Zeit, sobald sie ihre Seite neu laden – die Uhr im Browser zählt von
+sich aus weiter und weiß nichts von der Änderung. Sag also kurz Bescheid.
+
+**In der nächsten Woche weitermachen:** am Ende der Stunde **⏸ Pause**
+drücken, in der nächsten Woche **▶ Fortsetzen**. Bei einer so langen Pause
+ist es sauberer, die Endzeit beim Fortsetzen neu zu setzen, statt sie um eine
+Woche verschieben zu lassen: *Jetzt starten für … Minuten* macht genau das in
+einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
+
 ### Während des Wettbewerbs
 
 - **Abgaben bewerten** unter `/admin` → *Abgaben*. Punkte und ein kurzes
@@ -108,8 +131,11 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 - **Hinweis freischalten**, wenn eine Aufgabe zu schwer ist: auf der
   Aufgaben-Seite umschalten. Der Hinweis erscheint bei allen Teams sofort.
 - **Pausieren**, wenn etwas geklärt werden muss: **⏸ Pause** sperrt alle
-  Abgaben, **▶ Fortsetzen** gibt sie wieder frei. Die Uhr läuft dabei weiter – wenn
-  die Pause länger dauert, die Endzeit nachziehen.
+  Abgaben und hält die Uhr an, **▶ Fortsetzen** gibt sie wieder frei und
+  schiebt die Endzeit um die Dauer der Pause nach hinten. Den Teams geht also
+  keine Arbeitszeit verloren, und du musst nichts nachrechnen. In der Pause
+  zeigen die Zeitleiste der Teams und die Countdown-Seite dieselbe
+  stillstehende Zeit.
 - **Rangliste** `/scoreboard` aktualisiert sich alle 30 Sekunden von selbst.
 
 > **Aus der Praxis:** Ab wann die Rangliste zeigen? (Von Anfang an motiviert
@@ -146,6 +172,7 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 | „Abgabe nicht möglich" bei einem Team | Wettbewerb pausiert, Endzeit überschritten, oder das Team gehört zu einem anderen Wettbewerb. |
 | Falsches Dateiformat wird abgewiesen | Das erlaubte Format steht pro Aufgabe. Prüfen, ob es zu dem passt, was die Umgebung tatsächlich exportiert (Scratch: `.sb3`, MakeCode-Calliope: `.hex`). |
 | Versehentlich beendet | **🔓 Wieder öffnen** auf der Wettbewerbsseite. Die Endzeit wird gelöscht und muss neu gesetzt werden. |
+| Teams sehen die geänderte Zeit nicht | Sie müssen die Seite einmal neu laden. Die Uhr zählt im Browser weiter und merkt von sich aus nichts. |
 | Ein Gerät erreicht den Server nicht | Zuerst die Adresse auf der Startseite mit der im Terminal vergleichen. Dann Firewall. Dann, ob das Gerät im selben Netz hängt (nicht im Gast-WLAN). |
 | Etwas ist abgestürzt | In `logs/anwendung.log` steht der Fehler mit Zeitstempel und Adresse der Seite. Diese Datei ist auch nach dem Schließen des Terminals noch da. |
 | Die Anwendung startet nicht | Meldung lesen: Fehlt `SECRET_KEY` oder `ADMIN_PASSWORD` in der `.env`, sagt sie das. Bricht sie beim Sichern der Datenbank ab, ist meist die Platte voll. |

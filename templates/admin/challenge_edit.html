@@ -43,6 +43,27 @@
       Ohne Endzeit läuft der Wettbewerb nach dem Start einfach weiter. Felder leeren entfernt die jeweilige Zeit wieder.
     </p>
 
+    <div class="row g-3 mt-1">
+      <div class="col-md-6">
+        <label class="form-label">
+          Dauer in Minuten <span class="text-secondary">(statt einer Endzeit)</span>
+        </label>
+        <input type="number" name="duration_minutes" class="form-control"
+          min="1" max="{{ max_dauer }}" step="1" placeholder="z. B. 45">
+      </div>
+    </div>
+
+    <p class="text-secondary small mt-2 mb-0">
+      Trägst du hier etwas ein, wird die Endzeit daraus ausgerechnet: Startzeit
+      plus Dauer. Ohne Startzeit zählt sie ab jetzt. Das Feld bleibt leer, weil
+      gespeichert immer die Endzeit wird.
+      {% if challenge.duration_minutes %}
+      Zurzeit sind es <strong>{{ challenge.duration_minutes }} Minuten</strong>
+      ({{ challenge.start_time.strftime('%H:%M') }} bis
+      {{ challenge.end_time.strftime('%H:%M') }} Uhr).
+      {% endif %}
+    </p>
+
     <button class="btn btn-primary mt-4">
       💾 Speichern
     </button>
