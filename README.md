@@ -202,6 +202,45 @@ heimischen Rechner ausführen, nicht während eines Wettbewerbs. Bei einer
 **neuen Hauptversion** (der ersten Zahl) lohnt der Blick in die Oberfläche
 besonders: Dort ändern sich schon mal Klassennamen oder Symbole.
 
+## 🐍 Python-Pakete aktuell halten
+
+Die Pakete in `requirements.txt` sind auf feste Fassungen genagelt – so läuft
+auf dem Schul-PC genau das, was hier getestet wurde. Der Preis: Sie
+aktualisieren sich nicht von selbst, und niemand sagt einem, wenn eine
+Sicherheitskorrektur erschienen ist.
+
+Nachsehen, ob es Neueres gibt (ändert nichts):
+
+```bash
+python werkzeuge/pakete_pruefen.py
+```
+
+```
+  requirements.txt
+    Flask                       3.0.0  ->  3.1.3
+    Flask-SQLAlchemy            3.1.1      aktuell
+    Flask-Limiter                3.12  ->  4.1.1  (neue Hauptversion - Änderungsliste lesen)
+```
+
+Eine Fassung übernehmen:
+
+```bash
+python werkzeuge/pakete_pruefen.py --setzen Flask=3.1.3
+pip install -r requirements.txt -r requirements-dev.txt
+pytest
+```
+
+**Eines nach dem anderen**, nicht alle auf einmal: Sonst lässt sich bei einem
+fehlgeschlagenen Test nicht sagen, welches Paket ihn verursacht hat.
+
+Gemeldet wird auch, wenn eine neue Fassung ein neueres Python verlangt als die
+Anwendung voraussetzt – dann bringt das Aktualisieren nichts, solange der
+Schul-PC nicht mitzieht. Vorabfassungen (alpha, beta, rc) werden gar nicht erst
+vorgeschlagen.
+
+Das Skript braucht Internet – also am heimischen Rechner ausführen, nicht
+während eines Wettbewerbs.
+
 ## 💾 Daten und Sicherungen
 
 Ein Wettbewerb steckt in **zwei** Verzeichnissen, und für eine Sicherung
@@ -348,7 +387,7 @@ challenge_plattform/
 ├── templates/               # HTML Templates
 ├── tests/                   # automatische Tests (pytest)
 ├── beispiele/               # fertige Aufgabensätze zum Einlesen
-├── werkzeuge/               # Hilfsskripte (Bibliotheken aktualisieren)
+├── werkzeuge/               # Hilfsskripte (Bibliotheken und Pakete prüfen)
 ├── docs/
 │   ├── ADMIN_GUIDE.md       # Leitfaden für den Wettbewerbstag
 │   └── bilder/              # Screenshots für diese README
