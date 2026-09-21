@@ -82,15 +82,24 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
     **Namen der Teammitglieder kontrolliert**: berichtigen, freigeben oder die Freigabe
     wieder zurücknehmen. Eine Zeile oben zeigt, wie viele Teams noch auf die Kontrolle
     warten.
-*   **Urkunden**: Druckansicht und PDF für alle Teams, dazu eine Urkunde einzeln.
+*   **Urkunden**: Druckansicht und PDF für alle Teams, dazu eine Urkunde einzeln – auch
+    für einen längst beendeten Wettbewerb, mit den Punkten und dem Namen von damals.
+    Wer bei der Siegerehrung gefehlt hat, bekommt seine Urkunde so später noch.
     Wahlweise im **Quer- oder Hochformat** (A4), einstellbar für PDF und Druckansicht
     gemeinsam. Unter die Unterschriftslinie lässt sich ein Name eintragen – wahlweise
     in einer von drei Handschriften (Caveat, Dancing Script, Great Vibes) oder in
     Druckschrift. Ohne Eintrag steht dort wie bisher „Unterschrift“ zum
     Unterschreiben von Hand. Sind für ein Team Namen freigegeben, stehen sie als
     Aufzählung direkt unter dem Teamnamen.
-*   **Einstellungen**: Name und Beschreibung der Veranstaltung frei anpassbar, ohne Code
+*   **Einstellungen**: Name und Beschreibung der Anwendung frei anpassbar, ohne Code
     zu ändern; dort wird auch freigeschaltet, ob die Teams ihre Namen eintragen dürfen.
+*   **Jeder Wettbewerb heißt, wie er heißt**: Sein Name steht auf Startseite,
+    Countdown-Seite, Teamseite und auf seinen Urkunden – einmal „Scratch-Wettbewerb“,
+    in der nächsten Runde „Calliope-Wettbewerb“ – und bleibt dort auch, wenn längst
+    ein anderer läuft. Einen eigenen Untertitel darf ein Wettbewerb dazu tragen; lässt
+    er ihn leer, gilt der aus den Einstellungen. Der Name aus den Einstellungen benennt
+    die Anwendung selbst: Browsertitel, Leiste oben und Fußzeile, auch auf Seiten ohne
+    Wettbewerb.
 
 ## 🛠 Technologien
 
@@ -363,6 +372,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_admin.py` | Steuerzentrale, Wettbewerbs-Seite, Beenden, Aktivieren |
 | `test_certificates.py` | Urkunden-PDF, Unterschrift, Namen der Teammitglieder, Download durch die Teams |
 | `test_mitgliedernamen.py` | Namen eintragen, kontrollieren, freigeben |
+| `test_veranstaltungsname.py` | Eigener Veranstaltungsname je Wettbewerb, Urkunden für ältere Wettbewerbe |
 | `test_task_exchange.py` | Aufgaben sichern und wiederverwenden |
 | `test_migrations.py` | Datenbank aus einer älteren Version weiterbenutzen |
 | `test_security.py` | CSRF, Passwörter, Uploads, Rate-Limit |

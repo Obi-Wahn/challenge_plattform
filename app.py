@@ -133,10 +133,21 @@ def create_app():
 
     # Site branding (name, tagline) is admin-editable, stored in the DB,
     # and injected into every template instead of being hardcoded.
+    #
+    # "site_settings" ist dabei der Name der Installation: Er steht im
+    # Browsertitel, in der Navigationsleiste und in der Fußzeile, also auch
+    # auf Seiten, die zu keinem Wettbewerb gehören. "event" ist der Name der
+    # Veranstaltung, den der aktive Wettbewerb überschreiben darf - ihn
+    # zeigen die Seiten, die einen Wettbewerb meinen. Eine Seite, die einen
+    # anderen als den aktiven Wettbewerb zeigt, reicht ihr eigenes "event" an
+    # render_template weiter; das gewinnt gegen den Wert von hier.
     @app.context_processor
     def inject_site_settings():
-        from models import Settings
-        return {"site_settings": Settings.get()}
+        from models import Challenge, Settings, event_branding
+        return {
+            "site_settings": Settings.get(),
+            "event": event_branding(Challenge.current()),
+        }
 
     @app.context_processor
     def inject_navigation():
@@ -170,6 +181,9 @@ app = create_app()
 # that already exists (e.g. on an existing school-PC database), so these are
 # migrated in explicitly on startup.
 ADDED_COLUMNS = {
+    "challenges": {
+        "tagline": "VARCHAR(300) NOT NULL DEFAULT ''",
+    },
     "teams": {
         "member_names": "TEXT",
         "members_approved": "BOOLEAN DEFAULT 0",

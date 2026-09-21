@@ -4,6 +4,17 @@
 <div class="no-print">
   <h2 class="mb-3">📜 Urkunden</h2>
 
+  {% if challenge %}
+  <p class="text-secondary mb-3"><strong>{{ event.name }}</strong></p>
+  {% endif %}
+
+  {% if challenge and not is_current %}
+  <div class="alert alert-secondary">
+    Das ist nicht der aktive Wettbewerb. Alles hier – Punkte, Namen, die
+    Urkunden – ist der Stand von damals, genau richtig zum Nachreichen.
+  </div>
+  {% endif %}
+
   {% if entries %}
   <p class="text-secondary">
     Eine Urkunde pro Team, je eine Seite. Zum Ausdrucken <strong>Strg + P</strong> drücken
@@ -14,12 +25,19 @@
     <button class="btn btn-primary" onclick="window.print();">
       🖨️ Drucken
     </button>
-    <a href="{{ url_for('admin.certificates_pdf') }}" class="btn btn-outline-light">
+    <a href="{% if challenge %}{{ url_for('admin.certificates_pdf', wettbewerb=challenge.id) }}{% else %}{{ url_for('admin.certificates_pdf') }}{% endif %}"
+      class="btn btn-outline-light">
       ⬇️ Alle als PDF herunterladen
     </a>
+    {% if challenge %}
+    <a href="{{ url_for('admin.challenge_detail', cid=challenge.id) }}" class="btn btn-outline-secondary">
+      ← zurück zum Wettbewerb
+    </a>
+    {% else %}
     <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
       ← zurück zur Steuerzentrale
     </a>
+    {% endif %}
   </div>
   {% else %}
   <div class="event-card">
@@ -34,7 +52,7 @@
 {% for entry in entries %}
 <div class="certificate">
   <div class="certificate-inner">
-    <div class="certificate-event">{{ site_settings.site_name }}</div>
+    <div class="certificate-event">{{ event.name }}</div>
     <div class="certificate-title">Urkunde</div>
     <div class="certificate-label">verliehen an das Team</div>
     <div class="certificate-team">{{ entry.name }}</div>
@@ -43,13 +61,7 @@
     <div class="certificate-members">{{ names_line(entry.members) }}</div>
     {% endif %}
 
-    <div class="certificate-label">
-      {% if challenge %}
-      für die Teilnahme am Wettbewerb „{{ challenge.title }}“
-      {% else %}
-      für die Teilnahme am Wettbewerb
-      {% endif %}
-    </div>
+    <div class="certificate-label">für die Teilnahme am Wettbewerb</div>
 
     {% if entry.rank in [1, 2, 3] %}
     <div class="certificate-place">
