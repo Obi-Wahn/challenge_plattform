@@ -45,17 +45,19 @@ DEFAULT_SIGNATURE_FONT = "caveat"
 # voreingestellte Fassung; Hochformat gibt es, weil sich so ein Stapel besser
 # abheften lässt und manche Drucker damit weniger Zicken machen.
 #
-# "start_y" ist die Höhe, auf der der Text beginnt: Der Unterschriftsblock
-# sitzt in beiden Fällen unten am Blattrand, und dazwischen soll der Text
-# weder kleben noch verloren wirken.
+# Wo der Text steht, rechnet die Urkunde selbst aus: Sie misst, wie hoch der
+# Block wird, und verteilt den Rest auf die Abstände. "gap_stretch" ist die
+# Grenze, bis zu der die Abstände dabei aufgehen dürfen.
 CERTIFICATE_ORIENTATIONS = {
     "landscape": {
         "label": "Querformat (quer liegendes Blatt)",
         "kurz": "Querformat",
         "fpdf": "L",
         "css": "landscape",
-        "start_y": 38,
         "scale": 1.0,
+        # Das Querformat ist die gewachsene Fassung und füllt sein Blatt schon
+        # gut aus - die Abstände bleiben hier so, wie sie gesetzt sind.
+        "gap_stretch": 1.0,
         "signature_offset": 52,
         # A4 quer, 210 mm hoch, minus 1 cm Seitenrand oben und unten.
         "inner_height_mm": 186,
@@ -65,13 +67,16 @@ CERTIFICATE_ORIENTATIONS = {
         "kurz": "Hochformat",
         "fpdf": "P",
         "css": "portrait",
-        "start_y": 55,
         # Ein A4-Hochblatt ist 87 mm hoeher als ein quer liegendes. Mit den
         # Groessen des Querformats stuende der Text als kleiner Block in der
         # Mitte und der Rest bliebe leer. Deshalb wird im Hochformat alles
         # groesser gesetzt - Schrift, Zeilenhoehen und Abstaende gleichermassen,
         # damit die Anordnung dieselbe bleibt.
         "scale": 1.35,
+        # Das Blatt ist hoeher, als die groessere Schrift allein fuellt. Ohne
+        # gedehnte Abstaende blieb ueber dem Unterschriftsblock ein leeres
+        # Band von rund 4 cm stehen.
+        "gap_stretch": 2.0,
         "signature_offset": 62,
         # A4 hoch, 297 mm, minus 1 cm Seitenrand oben und unten.
         "inner_height_mm": 277,
@@ -119,18 +124,18 @@ INNER_PADDING = 6
 
 class CertificatePDF(FPDF):
     def __init__(self, *args, signature_name="", signature_font_key=None,
-                 start_y=None, scale=1.0, signature_offset=52, **kwargs):
+                 scale=1.0, gap_stretch=1.0, signature_offset=52, **kwargs):
         super().__init__(*args, **kwargs)
         self.signature_name = " ".join(str(signature_name or "").split())
-
-        # Wo der Text beginnt. Im Hochformat ist das Blatt höher, der Text
-        # müsste sonst oben kleben und der Rest der Seite bliebe leer.
-        self.start_y = start_y if start_y is not None else 38
 
         # Alles auf der Urkunde wird mit diesem Faktor gesetzt: Schriftgrößen,
         # Zeilenhöhen und Abstände. So bleibt die Anordnung dieselbe, und ein
         # höheres Blatt wird nicht mit Leerraum gefüllt, sondern mit Schrift.
         self.scale = scale
+
+        # Wie weit die Abstände zwischen den Zeilen aufgehen dürfen, wenn auf
+        # dem Blatt Platz übrig ist.
+        self.gap_stretch = gap_stretch
         self.signature_offset = signature_offset
 
         font = signature_font(signature_font_key)
@@ -154,14 +159,17 @@ class CertificatePDF(FPDF):
         """
         return self.w - 2 * (14 + INNER_PADDING)
 
-    def fitted_size(self, text, family, style, size):
+    def fitted_size(self, text, family, style, size, max_width=None):
         """Verkleinert die Schrift, bis der Text in den Zierrahmen passt.
 
         Im Hochformat ist das Blatt 87 mm schmaler als im Querformat. Ein
         langer Teamname oder Wettbewerbstitel liefe sonst in den Rahmen
         hinein, statt kleiner gesetzt zu werden.
+
+        "max_width" ist für Zeilen da, die enger stehen müssen als der
+        Zierrahmen - die Unterschrift etwa gehört über ihre Linie.
         """
-        verfuegbar = self.text_width()
+        verfuegbar = self.text_width() if max_width is None else max_width
         while size > 8:
             self.set_font(family, style, size)
             if self.get_string_width(text) <= verfuegbar:
@@ -170,14 +178,121 @@ class CertificatePDF(FPDF):
         self.set_font(family, style, size)
         return size
 
-    def centered_line(self, text, family, style, size, height, color):
+    def fitted_lines(self, text, family, style, size, max_lines, min_size=0):
+        """Bricht den Text um und verkleinert ihn erst, wenn das nicht reicht.
+
+        Ein langer Teamname wurde vorher nur verkleinert, bis er in eine
+        einzige Zeile passte. Im Hochformat landete er dadurch unter der
+        Größe des Fließtexts darunter - ausgerechnet der Name, um den es auf
+        der Urkunde geht, war die kleinste Zeile.
+
+        Eine Zeile bleibt die schönere Lösung, solange die Schrift dabei
+        nicht unter "min_size" rutscht. Erst darunter sind zwei Zeilen das
+        kleinere Übel.
+        """
+        einzeilig = self.fitted_size(text, family, style, size)
+        if max_lines <= 1 or einzeilig >= min_size:
+            return [text], einzeilig
+
+        breite = self.text_width()
+        while True:
+            self.set_font(family, style, size)
+            zeilen = self.multi_cell(breite, dry_run=True, output="LINES", text=text)
+            if len(zeilen) <= max_lines or size <= 8:
+                return list(zeilen), size
+            size -= 1
+
+    def centered_line(self, text, family, style, size, height, color, max_width=None):
         """Eine mittige Zeile innerhalb des Zierrahmens, notfalls kleiner gesetzt."""
         self.set_text_color(*color)
-        self.fitted_size(text, family, style, size)
+        self.fitted_size(text, family, style, size, max_width)
+        self.centered_text(text, height)
 
+    def centered_text(self, text, height):
+        """Setzt eine Zeile mittig, in der bereits gewählten Schrift."""
         breite = self.text_width()
         self.set_x((self.w - breite) / 2)
         self.cell(breite, height, text, align="C", new_x="LMARGIN", new_y="NEXT")
+
+    def certificate_blocks(self, site_name, challenge_title, entry, task_count):
+        """Die Zeilen der Urkunde von oben nach unten, noch ohne Position.
+
+        "abstand" ist die Luft über einer Zeile, "zeilen" die Zahl der Zeilen,
+        auf die sie notfalls umbrechen darf.
+        """
+        if challenge_title:
+            teilnahme = pdf_safe(f"für die Teilnahme am Wettbewerb \"{challenge_title}\"")
+        else:
+            teilnahme = "für die Teilnahme am Wettbewerb"
+
+        points = entry["total"]
+        summary = f"{points} " + ("Punkt" if points == 1 else "Punkte")
+        if task_count:
+            summary += f" - {entry['solved']} von {task_count} Aufgaben bearbeitet"
+
+        bloecke = [
+            {"text": pdf_safe(site_name), "style": "", "size": 16, "hoehe": 8,
+             "farbe": (90, 90, 120), "abstand": 0},
+            {"text": "Urkunde", "style": "B", "size": 40, "hoehe": 18,
+             "farbe": (30, 30, 60), "abstand": 4},
+            {"text": "verliehen an das Team", "style": "", "size": 14, "hoehe": 8,
+             "farbe": (60, 60, 80), "abstand": 6},
+            # "Team" fällt ein, wenn der Name nur aus Zeichen besteht, die die
+            # Schrift nicht zeigen kann - leer bleibt die Zeile nie. Auf zwei
+            # Zeilen darf er, sobald er einzeilig kleiner würde als die
+            # Zeilen um ihn herum.
+            {"text": pdf_safe(entry["name"]) or "Team", "style": "B", "size": 30,
+             "hoehe": 16, "farbe": (20, 20, 40), "abstand": 2,
+             "zeilen": 2, "mindestens": 16},
+            {"text": teilnahme, "style": "", "size": 14, "hoehe": 8,
+             "farbe": (60, 60, 80), "abstand": 4},
+        ]
+
+        place_label = PLACE_LABELS.get(entry["rank"])
+        if place_label:
+            bloecke.append(
+                {"text": pdf_safe(place_label), "style": "B", "size": 22, "hoehe": 12,
+                 "farbe": (150, 110, 20), "abstand": 6})
+
+        bloecke.append(
+            {"text": pdf_safe(summary), "style": "", "size": 14, "hoehe": 8,
+             "farbe": (60, 60, 80), "abstand": 4})
+        return bloecke
+
+    def layout_blocks(self, bloecke):
+        """Misst die Zeilen aus und verteilt den übrigen Platz auf die Abstände.
+
+        Zwischen Zierrahmen und Unterschriftsblock ist mehr Platz, als die
+        Zeilen brauchen. Vorher stand dieser Rest als ein leeres Band über
+        der Unterschrift; jetzt geht er in die Abstände, bis zu der Grenze,
+        die die Ausrichtung vorgibt.
+        """
+        for block in bloecke:
+            gewuenscht = self.mass(block["size"])
+            zeilen, gesetzt = self.fitted_lines(
+                block["text"], "Helvetica", block["style"], gewuenscht,
+                block.get("zeilen", 1), self.mass(block.get("mindestens", 0)))
+            block["zeilen_text"] = zeilen
+            block["gesetzt"] = gesetzt
+            # Die Zeilenhöhe folgt der Schrift, die wirklich gesetzt wurde.
+            # Sonst schwebte ein verkleinerter Name in einer viel zu hohen Zeile.
+            block["zeilenhoehe"] = self.mass(block["hoehe"]) * gesetzt / gewuenscht
+
+        text_hoehe = sum(b["zeilenhoehe"] * len(b["zeilen_text"]) for b in bloecke)
+        abstaende = sum(self.mass(b["abstand"]) for b in bloecke)
+
+        oben = 14 + INNER_PADDING
+        platz = (self.h - self.signature_offset) - oben
+
+        uebrig = platz - text_hoehe - abstaende
+        faktor = 1.0
+        if uebrig > 0 and abstaende > 0:
+            faktor = min(self.gap_stretch, 1 + uebrig / abstaende)
+        for block in bloecke:
+            block["luft"] = self.mass(block["abstand"]) * faktor
+
+        hoehe = text_hoehe + abstaende * faktor
+        return oben + max(0, (platz - hoehe) / 2)
 
     def certificate(self, site_name, challenge_title, entry, task_count, date_text):
         self.add_page()
@@ -189,74 +304,48 @@ class CertificatePDF(FPDF):
         self.set_line_width(0.3)
         self.rect(14, 14, self.w - 28, self.h - 28)
 
-        self.set_y(self.start_y)
-        self.centered_line(pdf_safe(site_name), "Helvetica", "",
-                           self.mass(16), self.mass(8), (90, 90, 120))
+        bloecke = self.certificate_blocks(site_name, challenge_title, entry, task_count)
+        self.set_y(self.layout_blocks(bloecke))
 
-        self.ln(self.mass(4))
-        self.centered_line("Urkunde", "Helvetica", "B",
-                           self.mass(40), self.mass(18), (30, 30, 60))
-
-        self.ln(self.mass(6))
-        self.centered_line("verliehen an das Team", "Helvetica", "",
-                           self.mass(14), self.mass(8), (60, 60, 80))
-
-        self.ln(self.mass(2))
-        # Falls back when a name consists only of characters the font cannot
-        # show, so the certificate never carries a blank name.
-        self.centered_line(pdf_safe(entry["name"]) or "Team", "Helvetica", "B",
-                           self.mass(30), self.mass(16), (20, 20, 40))
-
-        self.ln(self.mass(4))
-        if challenge_title:
-            zeile = pdf_safe(f"für die Teilnahme am Wettbewerb \"{challenge_title}\"")
-        else:
-            zeile = "für die Teilnahme am Wettbewerb"
-        self.centered_line(zeile, "Helvetica", "",
-                           self.mass(14), self.mass(8), (60, 60, 80))
-
-        place_label = PLACE_LABELS.get(entry["rank"])
-        if place_label:
-            self.ln(self.mass(6))
-            self.centered_line(pdf_safe(place_label), "Helvetica", "B",
-                               self.mass(22), self.mass(12), (150, 110, 20))
-
-        self.ln(self.mass(4))
-        points = entry["total"]
-        summary = f"{points} " + ("Punkt" if points == 1 else "Punkte")
-        if task_count:
-            solved = entry["solved"]
-            summary += f" - {solved} von {task_count} Aufgaben bearbeitet"
-        self.centered_line(pdf_safe(summary), "Helvetica", "",
-                           self.mass(14), self.mass(8), (60, 60, 80))
+        for block in bloecke:
+            if block["luft"]:
+                self.ln(block["luft"])
+            self.set_text_color(*block["farbe"])
+            self.set_font("Helvetica", block["style"], block["gesetzt"])
+            for zeile in block["zeilen_text"]:
+                self.centered_text(zeile, block["zeilenhoehe"])
 
         # Signature block at the bottom
         self.set_y(-self.signature_offset)
         self.centered_line(pdf_safe(date_text), "Helvetica", "",
                            self.mass(12), self.mass(6), (90, 90, 110))
 
+        # Die Linie bleibt innerhalb des Zierrahmens - im Hochformat ist das
+        # Blatt schmaler als die 80 mm, die im Querformat gut aussehen.
+        line_width = min(self.mass(80), self.w - 60)
+        line_x = (self.w - line_width) / 2
+
         # The signature sits on the line, so it is drawn before the line is.
         signature_y = self.get_y()
         if self.signature_name:
             self.set_text_color(40, 40, 70)
+            # Ein langer Name wurde vorher nur auf die Breite des Zierrahmens
+            # verkleinert und stand dadurch weit über beide Enden seiner
+            # eigenen Linie hinaus. Die Linie ist die Grenze, nicht der Rahmen.
             if self.signature_font_family:
                 # An embedded TrueType font handles the full name as it is -
                 # no need to strip characters the way the built-in font needs.
                 self.centered_line(self.signature_name, self.signature_font_family, "",
                                    self.mass(self.signature_font_size),
-                                   self.mass(10), (40, 40, 70))
+                                   self.mass(10), (40, 40, 70), line_width)
             else:
                 self.centered_line(pdf_safe(self.signature_name), "Helvetica", "",
                                    self.mass(self.signature_font_size),
-                                   self.mass(10), (40, 40, 70))
+                                   self.mass(10), (40, 40, 70), line_width)
             line_y = signature_y + self.mass(11)
         else:
             line_y = signature_y + self.mass(2)
 
-        # Die Linie bleibt innerhalb des Zierrahmens - im Hochformat ist das
-        # Blatt schmaler als die 80 mm, die im Querformat gut aussehen.
-        line_width = min(self.mass(80), self.w - 60)
-        line_x = (self.w - line_width) / 2
         self.set_draw_color(140, 140, 160)
         self.set_line_width(0.3)
         self.line(line_x, line_y, line_x + line_width, line_y)
@@ -288,8 +377,8 @@ def build_certificates_pdf(site_name, challenge_title, entries, task_count, date
         orientation=orientation["fpdf"], unit="mm", format="A4",
         signature_name=signature_name,
         signature_font_key=signature_font_key,
-        start_y=orientation["start_y"],
         scale=orientation.get("scale", 1.0),
+        gap_stretch=orientation.get("gap_stretch", 1.0),
         signature_offset=orientation.get("signature_offset", 52)
     )
     pdf.set_auto_page_break(False)
