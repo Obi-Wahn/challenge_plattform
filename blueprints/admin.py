@@ -189,6 +189,12 @@ def challenge_new():
             for source in sorted(previous.teams, key=lambda t: t.name.lower()):
                 copy = Team(name=source.name, challenge_id=challenge.id)
                 copy.password_hash = source.password_hash
+                # Die Namen für die Urkunde kommen mit, ihre Freigabe nicht:
+                # Wer mitmacht, kann sich zwischen zwei Wettbewerben ändern,
+                # und die Kontrolle gehört vor die neue Urkunde, nicht hinter
+                # die alte. Das Team ändert die Namen wie gewohnt selbst.
+                copy.member_names = source.member_names
+                copy.members_approved = False
                 db.session.add(copy)
 
         db.session.commit()
