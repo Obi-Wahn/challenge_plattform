@@ -103,6 +103,11 @@ class Challenge(db.Model):
     end_time = db.Column(db.DateTime, nullable=True)
     active = db.Column(db.Boolean, default=False)
     paused = db.Column(db.Boolean, default=False)
+    # Wann die Pause gedrückt wurde. Solange der Wert steht, rechnet der
+    # Wettbewerb mit diesem Zeitpunkt statt mit der echten Uhr - die Restzeit
+    # steht still, und die Endzeit rückt beim Fortsetzen um die Dauer der
+    # Pause nach hinten. Leer heißt: keine Pause im Gang.
+    paused_at = db.Column(db.DateTime, nullable=True)
     tasks = db.relationship('Task', backref='challenge', lazy=True, cascade="all, delete-orphan")
     teams = db.relationship('Team', backref='challenge', lazy=True, cascade="all, delete-orphan")
 
@@ -116,12 +121,35 @@ class Challenge(db.Model):
         return (cls.query.filter_by(active=True).first()
                 or cls.query.order_by(cls.id.desc()).first())
 
+    @property
+    def reference_time(self):
+        """Die Zeit, nach der sich alles richtet.
+
+        Im Normalfall die echte Uhr. Während einer Pause der Zeitpunkt, an
+        dem pausiert wurde: Dann steht die Restzeit still, und eine Endzeit,
+        die während der Pause verstreicht, beendet den Wettbewerb nicht.
+
+        Eine Pause ohne Zeitstempel stammt noch aus der Zeit vor dieser
+        Spalte. Sie sperrt die Abgaben wie bisher, hält die Uhr aber nicht
+        an - besser, als mit einem geratenen Zeitpunkt zu rechnen.
+        """
+        if self.paused and self.paused_at:
+            return self.paused_at
+        return datetime.now()
+
+    @property
+    def paused_seconds(self):
+        """Wie lange die laufende Pause bisher dauert, in Sekunden."""
+        if not (self.paused and self.paused_at):
+            return 0
+        return max(0, int((datetime.now() - self.paused_at).total_seconds()))
+
     def status(self):
         # end_time is optional: a challenge can have a start countdown without
         # a fixed end, in which case it just keeps running once it has started.
         # A passed end time always means finished, also when no start time was
         # ever set - that is what the "Wettbewerb beenden" button relies on.
-        now = datetime.now()
+        now = self.reference_time
         if self.end_time and now > self.end_time:
             return "finished"
         if not self.start_time:
@@ -156,16 +184,28 @@ class Challenge(db.Model):
     def seconds_until_start(self):
         if not self.start_time:
             return 0
-        remaining = (self.start_time - datetime.now()).total_seconds()
+        remaining = (self.start_time - self.reference_time).total_seconds()
         return max(0, int(remaining))
 
     @property
     def remaining_seconds(self):
         if not self.end_time:
             return 0
-        now = datetime.now()
-        remaining = (self.end_time - now).total_seconds()
+        remaining = (self.end_time - self.reference_time).total_seconds()
         return max(0, int(remaining))
+
+    @property
+    def duration_minutes(self):
+        """Die eingestellte Dauer in Minuten, oder None.
+
+        Nur eine andere Sicht auf Start- und Endzeit: Gespeichert wird immer
+        die Endzeit. Das Formular zeigt die Dauer damit an, ohne sie doppelt
+        zu fuehren.
+        """
+        if not (self.start_time and self.end_time):
+            return None
+        minutes = int((self.end_time - self.start_time).total_seconds() // 60)
+        return minutes if minutes > 0 else None
 
 # File formats a task can ask for, as {extension: label}. Kept in one place so
 # the task forms and the import agree on what is allowed.

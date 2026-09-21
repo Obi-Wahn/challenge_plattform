@@ -177,6 +177,7 @@ app = create_app()
 ADDED_COLUMNS = {
     "challenges": {
         "tagline": "VARCHAR(300) NOT NULL DEFAULT ''",
+        "paused_at": "DATETIME",
     },
     "teams": {
         "member_names": "TEXT",
@@ -339,6 +340,25 @@ def ensure_added_columns():
         for table, column, definition in missing:
             conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {definition}"))
 
+def ensure_pause_timestamp():
+    """Gibt einer laufenden Pause aus der Zeit davor einen Zeitpunkt.
+
+    Wird während eines Updates gerade pausiert, steht in paused_at nichts,
+    und die Uhr liefe trotz Pause weiter. Der Start des Updates ist der
+    genaueste Zeitpunkt, den es hier noch gibt.
+    """
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(db.engine)
+    if "challenges" not in set(inspector.get_table_names()):
+        return
+
+    with db.engine.begin() as conn:
+        conn.execute(text(
+            "UPDATE challenges SET paused_at = :jetzt "
+            "WHERE paused = 1 AND paused_at IS NULL"
+        ), {"jetzt": datetime.now()})
+
 def run_startup_migrations():
     """Alle Änderungen am Bestand, in der Reihenfolge, in der sie laufen müssen.
 
@@ -346,9 +366,13 @@ def run_startup_migrations():
     schreibt die Tabelle neu und kennt dabei nur die Spalten, die es zu seiner
     Zeit gab. Liefe er hinterher, fielen alle später ergänzten Spalten - die
     Namen der Teammitglieder etwa - stillschweigend wieder heraus.
+
+    Der Zeitpunkt der Pause kommt zuletzt: Er füllt eine Spalte, die der
+    Schritt davor überhaupt erst anlegt.
     """
     ensure_team_challenge_binding()
     ensure_added_columns()
+    ensure_pause_timestamp()
 
 if __name__ == "__main__":
     with app.app_context():
