@@ -55,6 +55,8 @@ CERTIFICATE_ORIENTATIONS = {
         "fpdf": "L",
         "css": "landscape",
         "start_y": 38,
+        "scale": 1.0,
+        "signature_offset": 52,
         # A4 quer, 210 mm hoch, minus 1 cm Seitenrand oben und unten.
         "inner_height_mm": 186,
     },
@@ -63,7 +65,14 @@ CERTIFICATE_ORIENTATIONS = {
         "kurz": "Hochformat",
         "fpdf": "P",
         "css": "portrait",
-        "start_y": 78,
+        "start_y": 55,
+        # Ein A4-Hochblatt ist 87 mm hoeher als ein quer liegendes. Mit den
+        # Groessen des Querformats stuende der Text als kleiner Block in der
+        # Mitte und der Rest bliebe leer. Deshalb wird im Hochformat alles
+        # groesser gesetzt - Schrift, Zeilenhoehen und Abstaende gleichermassen,
+        # damit die Anordnung dieselbe bleibt.
+        "scale": 1.35,
+        "signature_offset": 62,
         # A4 hoch, 297 mm, minus 1 cm Seitenrand oben und unten.
         "inner_height_mm": 277,
     },
@@ -110,13 +119,19 @@ INNER_PADDING = 6
 
 class CertificatePDF(FPDF):
     def __init__(self, *args, signature_name="", signature_font_key=None,
-                 start_y=None, **kwargs):
+                 start_y=None, scale=1.0, signature_offset=52, **kwargs):
         super().__init__(*args, **kwargs)
         self.signature_name = " ".join(str(signature_name or "").split())
 
         # Wo der Text beginnt. Im Hochformat ist das Blatt höher, der Text
         # müsste sonst oben kleben und der Rest der Seite bliebe leer.
         self.start_y = start_y if start_y is not None else 38
+
+        # Alles auf der Urkunde wird mit diesem Faktor gesetzt: Schriftgrößen,
+        # Zeilenhöhen und Abstände. So bleibt die Anordnung dieselbe, und ein
+        # höheres Blatt wird nicht mit Leerraum gefüllt, sondern mit Schrift.
+        self.scale = scale
+        self.signature_offset = signature_offset
 
         font = signature_font(signature_font_key)
         self.signature_font_size = font["size"]
@@ -126,6 +141,10 @@ class CertificatePDF(FPDF):
             if os.path.exists(path):
                 self.signature_font_family = font["css"]
                 self.add_font(self.signature_font_family, "", path)
+
+    def mass(self, wert):
+        """Ein Maß in der Größe dieser Ausrichtung."""
+        return wert * self.scale
 
     def text_width(self):
         """Die Breite, die dem Text zur Verfügung steht.
@@ -171,44 +190,50 @@ class CertificatePDF(FPDF):
         self.rect(14, 14, self.w - 28, self.h - 28)
 
         self.set_y(self.start_y)
-        self.centered_line(pdf_safe(site_name), "Helvetica", "", 16, 8, (90, 90, 120))
+        self.centered_line(pdf_safe(site_name), "Helvetica", "",
+                           self.mass(16), self.mass(8), (90, 90, 120))
 
-        self.ln(4)
-        self.centered_line("Urkunde", "Helvetica", "B", 40, 18, (30, 30, 60))
+        self.ln(self.mass(4))
+        self.centered_line("Urkunde", "Helvetica", "B",
+                           self.mass(40), self.mass(18), (30, 30, 60))
 
-        self.ln(6)
-        self.centered_line("verliehen an das Team", "Helvetica", "", 14, 8, (60, 60, 80))
+        self.ln(self.mass(6))
+        self.centered_line("verliehen an das Team", "Helvetica", "",
+                           self.mass(14), self.mass(8), (60, 60, 80))
 
-        self.ln(2)
+        self.ln(self.mass(2))
         # Falls back when a name consists only of characters the font cannot
         # show, so the certificate never carries a blank name.
-        self.centered_line(pdf_safe(entry["name"]) or "Team",
-                           "Helvetica", "B", 30, 16, (20, 20, 40))
+        self.centered_line(pdf_safe(entry["name"]) or "Team", "Helvetica", "B",
+                           self.mass(30), self.mass(16), (20, 20, 40))
 
-        self.ln(4)
+        self.ln(self.mass(4))
         if challenge_title:
             zeile = pdf_safe(f"für die Teilnahme am Wettbewerb \"{challenge_title}\"")
         else:
             zeile = "für die Teilnahme am Wettbewerb"
-        self.centered_line(zeile, "Helvetica", "", 14, 8, (60, 60, 80))
+        self.centered_line(zeile, "Helvetica", "",
+                           self.mass(14), self.mass(8), (60, 60, 80))
 
         place_label = PLACE_LABELS.get(entry["rank"])
         if place_label:
-            self.ln(6)
-            self.centered_line(pdf_safe(place_label), "Helvetica", "B", 22, 12,
-                               (150, 110, 20))
+            self.ln(self.mass(6))
+            self.centered_line(pdf_safe(place_label), "Helvetica", "B",
+                               self.mass(22), self.mass(12), (150, 110, 20))
 
-        self.ln(4)
+        self.ln(self.mass(4))
         points = entry["total"]
         summary = f"{points} " + ("Punkt" if points == 1 else "Punkte")
         if task_count:
             solved = entry["solved"]
             summary += f" - {solved} von {task_count} Aufgaben bearbeitet"
-        self.centered_line(pdf_safe(summary), "Helvetica", "", 14, 8, (60, 60, 80))
+        self.centered_line(pdf_safe(summary), "Helvetica", "",
+                           self.mass(14), self.mass(8), (60, 60, 80))
 
         # Signature block at the bottom
-        self.set_y(-52)
-        self.centered_line(pdf_safe(date_text), "Helvetica", "", 12, 6, (90, 90, 110))
+        self.set_y(-self.signature_offset)
+        self.centered_line(pdf_safe(date_text), "Helvetica", "",
+                           self.mass(12), self.mass(6), (90, 90, 110))
 
         # The signature sits on the line, so it is drawn before the line is.
         signature_y = self.get_y()
@@ -218,25 +243,25 @@ class CertificatePDF(FPDF):
                 # An embedded TrueType font handles the full name as it is -
                 # no need to strip characters the way the built-in font needs.
                 self.centered_line(self.signature_name, self.signature_font_family, "",
-                                   self.signature_font_size, 10, (40, 40, 70))
+                                   self.mass(self.signature_font_size),
+                                   self.mass(10), (40, 40, 70))
             else:
                 self.centered_line(pdf_safe(self.signature_name), "Helvetica", "",
-                                   self.signature_font_size, 10, (40, 40, 70))
-            line_y = signature_y + 11
+                                   self.mass(self.signature_font_size),
+                                   self.mass(10), (40, 40, 70))
+            line_y = signature_y + self.mass(11)
         else:
-            line_y = signature_y + 2
+            line_y = signature_y + self.mass(2)
 
         # Die Linie bleibt innerhalb des Zierrahmens - im Hochformat ist das
         # Blatt schmaler als die 80 mm, die im Querformat gut aussehen.
-        line_width = min(80, self.w - 60)
+        line_width = min(self.mass(80), self.w - 60)
         line_x = (self.w - line_width) / 2
         self.set_draw_color(140, 140, 160)
         self.set_line_width(0.3)
         self.line(line_x, line_y, line_x + line_width, line_y)
 
-        self.set_y(line_y + 2)
-        self.set_font("Helvetica", "", 10)
-        self.set_text_color(130, 130, 150)
+        self.set_y(line_y + self.mass(2))
         if not self.signature_name:
             caption = "Unterschrift"
         elif self.signature_font_family:
@@ -246,7 +271,8 @@ class CertificatePDF(FPDF):
         else:
             caption = ""
         if caption:
-            self.centered_line(caption, "Helvetica", "", 10, 5, (130, 130, 150))
+            self.centered_line(caption, "Helvetica", "",
+                               self.mass(10), self.mass(5), (130, 130, 150))
 
 
 def build_certificates_pdf(site_name, challenge_title, entries, task_count, date_text=None,
@@ -262,7 +288,9 @@ def build_certificates_pdf(site_name, challenge_title, entries, task_count, date
         orientation=orientation["fpdf"], unit="mm", format="A4",
         signature_name=signature_name,
         signature_font_key=signature_font_key,
-        start_y=orientation["start_y"]
+        start_y=orientation["start_y"],
+        scale=orientation.get("scale", 1.0),
+        signature_offset=orientation.get("signature_offset", 52)
     )
     pdf.set_auto_page_break(False)
     pdf.set_title(pdf_safe(f"Urkunden - {site_name}"))
