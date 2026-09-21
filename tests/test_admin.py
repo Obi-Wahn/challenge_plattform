@@ -262,6 +262,49 @@ class TestWettbewerbAnlegen:
         assert uebernommen[0].check_password("geheim"), "Passwort ging verloren"
         assert uebernommen[0].id != Team.query.filter_by(challenge_id=alt.id).one().id
 
+    def test_die_namen_fuer_die_urkunde_kommen_mit(
+            self, admin, make_challenge, make_team, database):
+        """Die Teams sollen sie nicht jedes Mal neu eintippen müssen."""
+        from models import Challenge, Team
+
+        alt = make_challenge(title="Alt")
+        team = make_team(alt, name="Die Pixelpiraten")
+        team.member_names = "Anna Beispiel\nBen Beispiel"
+        team.members_approved = True
+        database.session.commit()
+
+        admin.post("/admin/challenges/new", data={
+            "csrf_token": csrf_token(admin, "/admin/challenges/new"),
+            "title": "Neu",
+            "copy_teams": "1",
+        })
+
+        neu = Challenge.query.filter_by(title="Neu").one()
+        uebernommen = Team.query.filter_by(challenge_id=neu.id).one()
+        assert uebernommen.member_list == ["Anna Beispiel", "Ben Beispiel"]
+
+    def test_die_freigabe_der_namen_kommt_nicht_mit(
+            self, admin, make_challenge, make_team, database):
+        """Wer mitmacht, kann sich geändert haben - also noch einmal ansehen."""
+        from models import Challenge, Team
+
+        alt = make_challenge(title="Alt")
+        team = make_team(alt, name="Die Pixelpiraten")
+        team.member_names = "Anna Beispiel"
+        team.members_approved = True
+        database.session.commit()
+
+        admin.post("/admin/challenges/new", data={
+            "csrf_token": csrf_token(admin, "/admin/challenges/new"),
+            "title": "Neu",
+            "copy_teams": "1",
+        })
+
+        neu = Challenge.query.filter_by(title="Neu").one()
+        assert Team.query.filter_by(challenge_id=neu.id).one().members_approved is False
+        assert Team.query.filter_by(challenge_id=alt.id).one().members_approved is True, \
+            "Am alten Wettbewerb ändert die Übernahme nichts"
+
     def test_ohne_haekchen_bleibt_der_wettbewerb_leer(
             self, admin, make_challenge, make_team, database):
         from models import Challenge, Team

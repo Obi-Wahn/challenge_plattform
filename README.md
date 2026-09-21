@@ -58,7 +58,8 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
     Rangliste, Siegerehrung und Urkunden. „Wieder öffnen“ macht das rückgängig.
 *   **Wettbewerbs-Verwaltung**: Erstellen, Aktivieren, Pausieren und Beenden.
 *   **Teams gehören zu ihrem Wettbewerb**: derselbe Teamname darf in mehreren Wettbewerben
-    vorkommen; beim Anlegen eines neuen Wettbewerbs lassen sich die alten Teams übernehmen.
+    vorkommen; beim Anlegen eines neuen Wettbewerbs lassen sich die alten Teams übernehmen,
+    mit Passwort und den Namen für die Urkunde. Die Freigabe der Namen kommt nicht mit.
 *   **Aufgaben-Konfiguration**:
     *   Erstellen von Aufgaben mit detaillierten Beschreibungen.
     *   **Markdown Support**: Aufgabenbeschreibungen werden mit Markdown formatiert.
