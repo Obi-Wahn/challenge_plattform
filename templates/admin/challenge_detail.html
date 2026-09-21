@@ -101,9 +101,10 @@
 
 {% if not is_current %}
 <div class="alert alert-secondary">
-  Dies ist nicht der aktive Wettbewerb. Rangliste, Siegerehrung, Urkunden, Countdown
-  und die Bewertungsseite zeigen immer den aktiven Wettbewerb – aktiviere diesen hier,
-  wenn du sie für ihn brauchst.
+  Dies ist nicht der aktive Wettbewerb. Rangliste, Siegerehrung, Countdown und die
+  Bewertungsseite zeigen immer den aktiven Wettbewerb – aktiviere diesen hier, wenn du
+  sie für ihn brauchst. Die Urkunden gibt es auch so, mit den Punkten und dem Namen
+  von damals.
 </div>
 {% endif %}
 
@@ -203,15 +204,13 @@
     {% endif %}
   </div>
   <div class="col-md-3 col-6">
-    {% if is_current %}
-    <a href="{{ url_for('admin.certificates_print') }}" class="btn btn-outline-light w-100 h-100 py-4">
+    <!-- Urkunden gibt es auch für einen längst beendeten Wettbewerb: Wer bei
+         der Siegerehrung gefehlt hat, soll seine später noch bekommen. -->
+    <a href="{{ url_for('admin.certificates_print', wettbewerb=challenge.id) }}"
+      class="btn btn-outline-light w-100 h-100 py-4">
       📜<br><strong>Urkunden</strong>
       <div class="small text-secondary">für alle Teams</div>
     </a>
-    {% else %}
-    <span class="btn btn-outline-secondary w-100 h-100 py-4 disabled">📜<br><strong>Urkunden</strong>
-      <div class="small">für alle Teams</div></span>
-    {% endif %}
   </div>
 </div>
 

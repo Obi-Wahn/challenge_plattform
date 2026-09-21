@@ -247,8 +247,15 @@ class CertificatePDF(FPDF):
             summary += f" - {entry['solved']} von {task_count} Aufgaben bearbeitet"
 
         bloecke = [
+            # Der Veranstaltungsname darf auf zwei Zeilen, bevor er kleiner
+            # wird als der Fließtext unter ihm. Seit ein Wettbewerb einen
+            # eigenen Namen tragen darf, steht hier nicht mehr nur
+            # "Coding-Wettbewerb", sondern auch "Calliope-Wettbewerb der
+            # Klassen 5 und 6" - einzeilig rutschte das im Hochformat auf
+            # unter 14 pt.
             {"text": pdf_safe(site_name), "style": "", "size": 16, "hoehe": 8,
-             "farbe": (90, 90, 120), "abstand": 0},
+             "farbe": (90, 90, 120), "abstand": 0,
+             "zeilen": 2, "mindestens": 14},
             {"text": "Urkunde", "style": "B", "size": 40, "hoehe": 18,
              "farbe": (30, 30, 60), "abstand": 4},
             {"text": "verliehen an das Team", "style": "", "size": 14, "hoehe": 8,
@@ -432,11 +439,15 @@ def certificate_entry(team, standings):
 
 def build_certificates_for(challenge, entries, task_count):
     """Certificates for a competition, using the configured signature."""
-    from models import Settings
+    from models import Settings, event_branding
 
     settings = Settings.get()
+    # Der Veranstaltungsname kommt vom Wettbewerb, nicht aus den
+    # Einstellungen: Eine nachgereichte Urkunde soll den Namen tragen, unter
+    # dem der Wettbewerb damals lief, auch wenn inzwischen ein anderer aktiv
+    # ist. Hat der Wettbewerb keinen eigenen, gelten die Einstellungen.
     return build_certificates_pdf(
-        settings.site_name,
+        event_branding(challenge)["name"],
         challenge.title if challenge else "",
         entries,
         task_count,

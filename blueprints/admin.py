@@ -3,7 +3,7 @@ from flask import (Blueprint, render_template, request, redirect, url_for, sessi
 from extensions import db
 from models import (Team, Challenge, Task, Submission, Settings, TASK_FORMATS,
                     MAX_MEMBERS, MAX_MEMBER_TEXT_LENGTH, format_member_names,
-                    parse_member_names)
+                    parse_member_names, event_branding)
 from scoring import get_standings
 from task_rules import KEIN_TITEL, PUNKTE_KEINE_ZAHL, clean_task_values
 from certificates import (build_certificates_for, certificate_entry, signature_font,
@@ -138,6 +138,8 @@ def challenge_new():
         title = request.form["title"]
         challenge = Challenge(
             title=title,
+            event_name=request.form.get("event_name", "").strip()[:100],
+            event_tagline=request.form.get("event_tagline", "").strip()[:300],
             start_time=parse_datetime_local(request.form.get("start_time")),
             end_time=parse_datetime_local(request.form.get("end_time"))
         )
@@ -173,10 +175,14 @@ def challenge_edit(cid):
         title = request.form.get("title", "").strip()
         if title:
             challenge.title = title
+        # Anders als der Titel dürfen diese beiden leer bleiben: Leer ist die
+        # Antwort "nimm den Namen aus den Einstellungen", nicht ein Versehen.
+        challenge.event_name = request.form.get("event_name", "").strip()[:100]
+        challenge.event_tagline = request.form.get("event_tagline", "").strip()[:300]
         challenge.start_time = parse_datetime_local(request.form.get("start_time"))
         challenge.end_time = parse_datetime_local(request.form.get("end_time"))
         db.session.commit()
-        flash("Titel und Zeiten gespeichert.", "success")
+        flash("Titel, Name und Zeiten gespeichert.", "success")
         return redirect(url_for('admin.challenge_detail', cid=cid))
 
     return render_template("admin/challenge_edit.html", challenge=challenge)
@@ -577,9 +583,21 @@ def team_delete(team_id):
     db.session.commit()
     return redirect(url_for('admin.teams'))
 
-def _certificate_data():
-    """Collects everything the certificates need, for the latest challenge."""
-    challenge = Challenge.current()
+def _certificate_challenge():
+    """Der Wettbewerb, dessen Urkunden gemeint sind.
+
+    Ohne Angabe der aktive, mit "?wettbewerb=<id>" ein bestimmter. Letzteres
+    gibt es, damit eine Urkunde auch dann noch nachgereicht werden kann, wenn
+    längst der nächste Wettbewerb läuft - etwa für ein Team, das am Tag der
+    Siegerehrung gefehlt hat.
+    """
+    cid = request.args.get("wettbewerb", type=int)
+    if cid:
+        return db.get_or_404(Challenge, cid)
+    return Challenge.current()
+
+def _certificate_data(challenge):
+    """Collects everything the certificates need, for one competition."""
     if not challenge:
         return None, [], 0
 
@@ -588,7 +606,7 @@ def _certificate_data():
 
 @admin_bp.route("/urkunden")
 def certificates_print():
-    challenge, standings, task_count = _certificate_data()
+    challenge, standings, task_count = _certificate_data(_certificate_challenge())
     return render_template(
         "admin/urkunden.html",
         challenge=challenge,
@@ -597,6 +615,13 @@ def certificates_print():
         today=datetime.now().strftime("%d.%m.%Y"),
         signature_css=signature_font(Settings.get().signature_font)["css"],
         orientation=certificate_orientation(Settings.get().certificate_orientation),
+        # Der Veranstaltungsname dieses Wettbewerbs, nicht der des aktiven -
+        # sonst trüge die Vorschau eines alten Wettbewerbs den heutigen Namen
+        # und das PDF daneben den richtigen.
+        event=event_branding(challenge),
+        is_current=bool(challenge) and challenge.id == (
+            Challenge.current().id if Challenge.current() else None
+        ),
         # Dieselbe Aufzählung wie im PDF, damit Druckansicht und Datei
         # nicht auseinanderlaufen.
         names_line=names_line
@@ -604,7 +629,7 @@ def certificates_print():
 
 @admin_bp.route("/urkunden.pdf")
 def certificates_pdf():
-    challenge, standings, task_count = _certificate_data()
+    challenge, standings, task_count = _certificate_data(_certificate_challenge())
     if not standings:
         flash("Es sind noch keine Teams registriert – es gibt nichts zu drucken.", "warning")
         return redirect(url_for('admin.certificates_print'))
@@ -620,7 +645,11 @@ def certificates_pdf():
 @admin_bp.route("/urkunden/<int:team_id>.pdf")
 def certificate_pdf_single(team_id):
     team = db.get_or_404(Team, team_id)
-    challenge, standings, task_count = _certificate_data()
+    # Die Urkunde eines Teams gehört zu dem Wettbewerb, für den es angetreten
+    # ist. Früher war hier immer der aktive gemeint; ein Team von damals kam
+    # in dessen Rangliste nicht vor und bekam eine Urkunde über null Punkte
+    # mit dem falschen Wettbewerbstitel.
+    challenge, standings, task_count = _certificate_data(team.challenge or Challenge.current())
 
     entry = certificate_entry(team, standings)
     pdf_bytes = build_certificates_for(challenge, [entry], task_count)

@@ -4,6 +4,19 @@
 <div class="no-print">
   <h2 class="mb-3">📜 Urkunden</h2>
 
+  {% if challenge %}
+  <p class="text-secondary mb-3">
+    {{ event.name }} – <strong>{{ challenge.title }}</strong>
+  </p>
+  {% endif %}
+
+  {% if challenge and not is_current %}
+  <div class="alert alert-secondary">
+    Das ist nicht der aktive Wettbewerb. Punkte, Namen und Veranstaltungsname
+    sind die von damals – genau richtig, um eine Urkunde nachzureichen.
+  </div>
+  {% endif %}
+
   {% if entries %}
   <p class="text-secondary">
     Eine Urkunde pro Team, je eine Seite. Zum Ausdrucken <strong>Strg + P</strong> drücken
@@ -14,12 +27,19 @@
     <button class="btn btn-primary" onclick="window.print();">
       🖨️ Drucken
     </button>
-    <a href="{{ url_for('admin.certificates_pdf') }}" class="btn btn-outline-light">
+    <a href="{% if challenge %}{{ url_for('admin.certificates_pdf', wettbewerb=challenge.id) }}{% else %}{{ url_for('admin.certificates_pdf') }}{% endif %}"
+      class="btn btn-outline-light">
       ⬇️ Alle als PDF herunterladen
     </a>
+    {% if challenge %}
+    <a href="{{ url_for('admin.challenge_detail', cid=challenge.id) }}" class="btn btn-outline-secondary">
+      ← zurück zum Wettbewerb
+    </a>
+    {% else %}
     <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
       ← zurück zur Steuerzentrale
     </a>
+    {% endif %}
   </div>
   {% else %}
   <div class="event-card">
@@ -34,7 +54,7 @@
 {% for entry in entries %}
 <div class="certificate">
   <div class="certificate-inner">
-    <div class="certificate-event">{{ site_settings.site_name }}</div>
+    <div class="certificate-event">{{ event.name }}</div>
     <div class="certificate-title">Urkunde</div>
     <div class="certificate-label">verliehen an das Team</div>
     <div class="certificate-team">{{ entry.name }}</div>

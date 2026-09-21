@@ -82,7 +82,9 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
     **Namen der Teammitglieder kontrolliert**: berichtigen, freigeben oder die Freigabe
     wieder zurücknehmen. Eine Zeile oben zeigt, wie viele Teams noch auf die Kontrolle
     warten.
-*   **Urkunden**: Druckansicht und PDF für alle Teams, dazu eine Urkunde einzeln.
+*   **Urkunden**: Druckansicht und PDF für alle Teams, dazu eine Urkunde einzeln – auch
+    für einen längst beendeten Wettbewerb, mit den Punkten und dem Namen von damals.
+    Wer bei der Siegerehrung gefehlt hat, bekommt seine Urkunde so später noch.
     Wahlweise im **Quer- oder Hochformat** (A4), einstellbar für PDF und Druckansicht
     gemeinsam. Unter die Unterschriftslinie lässt sich ein Name eintragen – wahlweise
     in einer von drei Handschriften (Caveat, Dancing Script, Great Vibes) oder in
@@ -91,6 +93,12 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
     Aufzählung direkt unter dem Teamnamen.
 *   **Einstellungen**: Name und Beschreibung der Veranstaltung frei anpassbar, ohne Code
     zu ändern; dort wird auch freigeschaltet, ob die Teams ihre Namen eintragen dürfen.
+*   **Eigener Name je Wettbewerb**: Ein Wettbewerb darf Name und Untertitel der
+    Veranstaltung überschreiben – etwa „Scratch-Wettbewerb“ in der einen und
+    „Calliope-Wettbewerb“ in der nächsten Runde. Leer gelassen gilt, was unter
+    Einstellungen steht. Der Name steht auf Startseite, Countdown-Seite, Teamseite und
+    auf den Urkunden dieses Wettbewerbs und bleibt dort auch, wenn später ein anderer
+    Wettbewerb läuft.
 
 ## 🛠 Technologien
 
@@ -363,6 +371,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_admin.py` | Steuerzentrale, Wettbewerbs-Seite, Beenden, Aktivieren |
 | `test_certificates.py` | Urkunden-PDF, Unterschrift, Namen der Teammitglieder, Download durch die Teams |
 | `test_mitgliedernamen.py` | Namen eintragen, kontrollieren, freigeben |
+| `test_veranstaltungsname.py` | Eigener Veranstaltungsname je Wettbewerb, Urkunden für ältere Wettbewerbe |
 | `test_task_exchange.py` | Aufgaben sichern und wiederverwenden |
 | `test_migrations.py` | Datenbank aus einer älteren Version weiterbenutzen |
 | `test_security.py` | CSRF, Passwörter, Uploads, Rate-Limit |

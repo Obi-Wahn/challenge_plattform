@@ -32,7 +32,12 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    aktualisiert wird, dann eines nach dem anderen und danach `pytest`.
 
 3. **Wettbewerb anlegen** unter `/admin` → *Neuer Wettbewerb*: Titel,
-   Startzeit, Endzeit.
+   Startzeit, Endzeit. Soll dieser Wettbewerb anders heißen als die übrigen –
+   etwa „Scratch-Wettbewerb“ statt „Coding-Wettbewerb“ –, trägst du Name und
+   Untertitel der Veranstaltung gleich hier ein. Leer gelassen gilt, was unter
+   *Einstellungen* steht. Der Name bleibt bei diesem Wettbewerb, auch wenn
+   später ein anderer läuft; seine Urkunden tragen ihn also auch nächstes Jahr
+   noch.
 
 4. **Aufgaben anlegen oder einlesen.** Fertige Sätze liegen unter
    `beispiele/` (Scratch, Calliope) und werden auf der Aufgaben-Seite mit
@@ -123,6 +128,10 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    Die Teams können ihre eigene Urkunde nach dem Beenden selbst
    herunterladen. Unter *Einstellungen* stellst du ein: Quer- oder Hochformat,
    den Namen unter der Unterschriftslinie und die Handschrift.
+5. **Eine Urkunde nachreichen**, wenn jemand gefehlt hat: Die Urkunden-Kachel
+   auf der Seite des betreffenden Wettbewerbs führt auch dann noch zu seinen
+   Urkunden, wenn längst ein anderer aktiv ist. Punkte, Namen und
+   Veranstaltungsname sind die von damals.
 
 ---
 

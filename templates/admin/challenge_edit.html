@@ -11,6 +11,28 @@
     <label class="form-label">Titel des Wettbewerbs</label>
     <input type="text" name="title" class="form-control form-control-lg" value="{{ challenge.title }}" required>
 
+
+    <label class="form-label mt-4">
+      Name der Veranstaltung <span class="text-secondary">(optional)</span>
+    </label>
+    <input type="text" name="event_name" class="form-control"
+      value="{{ challenge.event_name }}" placeholder="{{ site_settings.site_name }}">
+
+    <label class="form-label mt-3">
+      Untertitel <span class="text-secondary">(optional)</span>
+    </label>
+    <input type="text" name="event_tagline" class="form-control"
+      value="{{ challenge.event_tagline }}" placeholder="{{ site_settings.tagline }}">
+
+    <p class="text-secondary small mt-2 mb-0">
+      Leer lassen heißt: Es gilt, was unter <strong>Einstellungen</strong> steht.
+      Trag hier etwas ein, wenn dieser Wettbewerb anders heißen soll als die
+      übrigen – etwa „Scratch-Wettbewerb“ statt „Coding-Wettbewerb“. Der Name
+      steht dann auf der Startseite, der Countdown-Seite, der Teamseite und auf
+      den Urkunden dieses Wettbewerbs, und er bleibt dort auch, wenn später ein
+      anderer Wettbewerb läuft.
+    </p>
+
     <div class="row g-3 mt-1">
       <div class="col-md-6">
         <label class="form-label">Startzeit <span class="text-secondary">(optional)</span></label>
