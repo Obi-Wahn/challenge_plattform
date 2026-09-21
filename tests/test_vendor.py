@@ -134,11 +134,16 @@ class TestNamenDieManEintippenKann:
         w = self.werkzeug()
         vorher = {p["name"]: p["version"] for p in liste["pakete"]}
 
+        # Eine Fassung, die dort garantiert nicht schon steht - sonst haengt
+        # der Test daran, welche Fassung gerade im Repo liegt.
+        ziel = "99.9.9"
+        assert vorher["Font Awesome Free"] != ziel
+
         # Nicht in die echte versionen.json schreiben.
         monkeypatch.setattr(w, "schreibe_liste", lambda _liste: None)
-        assert w.setzen(liste, ["fontawesome-free=7.3.1"]) is True
+        assert w.setzen(liste, [f"fontawesome-free={ziel}"]) is True
 
         nachher = {p["name"]: p["version"] for p in liste["pakete"]}
         geaendert = {k for k in vorher if vorher[k] != nachher[k]}
         assert geaendert == {"Font Awesome Free"}
-        assert nachher["Font Awesome Free"] == "7.3.1"
+        assert nachher["Font Awesome Free"] == ziel
