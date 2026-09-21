@@ -327,7 +327,7 @@ class TestLangeTexteImHochformat:
         ausricht = certificate_orientation(ausrichtung)
 
         pdf = CertificatePDF(orientation=ausricht["fpdf"], unit="mm", format="A4",
-                             start_y=ausricht["start_y"])
+                             scale=ausricht["scale"])
         pdf.set_auto_page_break(False)
         pdf.certificate("Site", "Runde 1", eintrag, 3, "01.01.2026")
 
@@ -382,9 +382,120 @@ class TestLangeTexteImHochformat:
     def test_kurzer_name_wird_nicht_verkleinert(self):
         from certificates import CertificatePDF
 
-        pdf = CertificatePDF(orientation="P", unit="mm", format="A4", start_y=78)
+        pdf = CertificatePDF(orientation="P", unit="mm", format="A4")
         pdf.add_page()
         assert pdf.fitted_size("Team A", "Helvetica", "B", 30) == 30
+
+
+def textzeilen(daten, seite=0):
+    """Die Zeilen einer Seite mit Position und Schriftgröße.
+
+    x und y sind Millimeter, y von der Blattoberkante aus gemessen.
+    """
+    hoehe = float(pypdf.PdfReader(io.BytesIO(daten)).pages[seite].mediabox.height)
+    gefunden = []
+
+    def besucher(text, cm, tm, schrift, groesse):
+        if text.strip():
+            gefunden.append({
+                "text": text.strip(),
+                "x": tm[4] / 72 * 25.4,
+                "y": (hoehe - tm[5]) / 72 * 25.4,
+                "groesse": groesse,
+            })
+
+    pypdf.PdfReader(io.BytesIO(daten)).pages[seite].extract_text(
+        visitor_text=besucher)
+    return gefunden
+
+
+def zeile_mit(zeilen, text):
+    for zeile in zeilen:
+        if text in zeile["text"]:
+            return zeile
+    raise AssertionError(f"{text!r} steht nicht auf der Urkunde")
+
+
+class TestTeamnameBleibtLesbar:
+    """Der Name ist die Hauptzeile - er darf nicht der kleinste Text sein."""
+
+    LANG = "Die unglaublich schnellen Schildkroeten aus Klasse 8b"
+
+    @pytest.mark.parametrize("ausrichtung", ["landscape", "portrait"])
+    def test_langer_name_bleibt_groesser_als_der_fliesstext(self, ausrichtung):
+        """Vorher schrumpfte er im Hochformat unter die Zeile darunter."""
+        daten = build_certificates_pdf(
+            "Robotik-Wettbewerb der Gesamtschule Musterstadt", "Sumo-Roboter 2026",
+            [dict(EINTRAG, name=self.LANG)], 8, orientation_key=ausrichtung)
+
+        zeilen = textzeilen(daten)
+        name = zeile_mit(zeilen, "Die unglaublich")
+        fliesstext = zeile_mit(zeilen, "für die Teilnahme")
+
+        assert name["groesse"] > fliesstext["groesse"], (
+            f"der Teamname ({name['groesse']:.1f}pt) ist kleiner gesetzt als "
+            f"der Fliesstext ({fliesstext['groesse']:.1f}pt)")
+
+    def test_im_hochformat_darf_der_name_umbrechen(self):
+        daten = build_certificates_pdf("Site", "Runde 1",
+                                       [dict(EINTRAG, name=self.LANG)], 3,
+                                       orientation_key="portrait")
+
+        teile = [z["text"] for z in textzeilen(daten) if "Schildkroeten" in z["text"]
+                 or "Die unglaublich" in z["text"]]
+        assert len(teile) == 2, f"erwartet wurden zwei Zeilen, gefunden: {teile}"
+        assert " ".join(teile) == self.LANG
+
+    def test_im_querformat_bleibt_er_einzeilig(self):
+        """Dort reicht die Breite - ein Umbruch waere nur unruhig."""
+        daten = build_certificates_pdf("Site", "Runde 1",
+                                       [dict(EINTRAG, name=self.LANG)], 3,
+                                       orientation_key="landscape")
+
+        assert zeile_mit(textzeilen(daten), "Schildkroeten")["text"] == self.LANG
+
+    def test_ein_name_bricht_nicht_auf_mehr_als_zwei_zeilen(self):
+        name = ("Arbeitsgemeinschaft Robotik und Technik der Gesamtschule "
+                "Musterstadt Nord und Umgebung")
+        daten = build_certificates_pdf("Site", "Runde 1",
+                                       [dict(EINTRAG, name=name)], 3,
+                                       orientation_key="portrait")
+
+        gesucht = name.split()[0]
+        zeilen = textzeilen(daten)
+        start = [i for i, z in enumerate(zeilen) if gesucht in z["text"]][0]
+        # Zwischen Name und "für die Teilnahme" darf hoechstens eine weitere
+        # Zeile stehen.
+        bis = [i for i, z in enumerate(zeilen) if "für die Teilnahme" in z["text"]][0]
+        assert bis - start <= 2
+
+
+class TestUnterschriftBleibtAufDerLinie:
+    """Die Linie ist die Grenze, nicht der Zierrahmen."""
+
+    NAME = "Dr. Tobias Mustermann-Schildkroetenhausen"
+
+    @pytest.mark.parametrize("ausrichtung", ["landscape", "portrait"])
+    def test_langer_name_laeuft_nicht_ueber_die_linie(self, ausrichtung):
+        from certificates import certificate_orientation
+
+        ausricht = certificate_orientation(ausrichtung)
+        daten = build_certificates_pdf("Site", "Runde 1", [EINTRAG], 3,
+                                       signature_name=self.NAME,
+                                       signature_font_key="caveat",
+                                       orientation_key=ausrichtung)
+
+        breite_mm, _ = seitenmasse(daten)
+        linie = min(80 * ausricht["scale"], breite_mm - 60)
+
+        # Alle Zeilen stehen mittig, also genügt der linke Rand: Was links
+        # innerhalb der Linie beginnt, endet rechts auch dort.
+        for zeile in textzeilen(daten):
+            if self.NAME.split()[-1] in zeile["text"]:
+                text_breite = breite_mm - 2 * zeile["x"]
+                assert text_breite <= linie + 0.5, (
+                    f"die Unterschrift ist {text_breite:.1f} mm breit, "
+                    f"die Linie nur {linie:.1f} mm")
 
 
 class TestAusrichtungEinstellen:
@@ -564,6 +675,22 @@ class TestHochformatFuelltDasBlatt:
 
         assert abs(luft_oben - luft_unten) < 15, \
             f"oben {luft_oben:.0f} mm, unten {luft_unten:.0f} mm - schief"
+
+    def test_ueber_der_unterschrift_bleibt_kein_leeres_band(self):
+        """Der Rest der Höhe geht in die Abstände, nicht in ein leeres Band.
+
+        Der Textblock stand zwar mittig, füllte das Hochblatt aber nicht:
+        zwischen der letzten Zeile und dem Unterschriftsblock klaffte ein
+        leeres Band von gut 4 cm.
+        """
+        from certificates import certificate_orientation
+
+        beginn_unterschrift = 297 - certificate_orientation("portrait")["signature_offset"]
+        hauptblock = [y for y in self.zeilen_von_oben(self.urkunde("portrait"))
+                      if y < beginn_unterschrift]
+
+        band = beginn_unterschrift - max(hauptblock)
+        assert band < 30, f"über der Unterschrift stehen {band:.0f} mm leer"
 
     def test_der_text_bleibt_im_zierrahmen(self):
         oben, unten = self.textbereich(self.urkunde("portrait"))
