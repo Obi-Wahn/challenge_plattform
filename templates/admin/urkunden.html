@@ -39,6 +39,10 @@
     <div class="certificate-label">verliehen an das Team</div>
     <div class="certificate-team">{{ entry.name }}</div>
 
+    {% if entry.members %}
+    <div class="certificate-members">{{ names_line(entry.members) }}</div>
+    {% endif %}
+
     <div class="certificate-label">
       {% if challenge %}
       für die Teilnahme am Wettbewerb „{{ challenge.title }}“
@@ -102,6 +106,9 @@
   .certificate-title { font-size: 3rem; font-weight: 700; margin: 0.5rem 0 1rem; }
   .certificate-label { font-size: 1rem; color: #3c3c50; margin: 0.4rem 0; }
   .certificate-team { font-size: 2.2rem; font-weight: 700; margin: 0.5rem 0; }
+  /* Die Namen der Teammitglieder gehören zum Teamnamen darüber: kleiner
+     gesetzt als er, aber größer als die Zeilen darunter. */
+  .certificate-members { font-size: 1.15rem; color: #46465f; margin-bottom: 0.3rem; }
   .certificate-place { font-size: 1.5rem; font-weight: 700; color: #966e14; margin: 1rem 0 0.5rem; }
   .certificate-points { font-size: 1.05rem; color: #3c3c50; }
 

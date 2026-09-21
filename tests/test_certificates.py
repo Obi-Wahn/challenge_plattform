@@ -706,3 +706,104 @@ class TestHochformatFuelltDasBlatt:
         assert CERTIFICATE_ORIENTATIONS["landscape"]["signature_offset"] == 52
         # Die Überschrift steht im Querformat weiterhin in 40 Punkt.
         assert 40 in [round(g) for g in self.schriftgroessen(self.urkunde("landscape"))]
+
+
+class TestNamenDerTeammitglieder:
+    """Die Namen der Schüler unter dem Teamnamen."""
+
+    MIT_NAMEN = dict(EINTRAG, members=["Anna Beispiel", "Ben Muster", "Carla Test"])
+
+    def zeilen(self, daten):
+        """Jede Zeile als (Text, Höhe von unten, gesetzte Schriftgröße)."""
+        gefunden = []
+
+        def besucher(text, cm, tm, schrift, groesse):
+            if text.strip():
+                gefunden.append((text.strip(), round(tm[5], 2), round(groesse * tm[3], 2)))
+
+        for seite in pypdf.PdfReader(io.BytesIO(daten)).pages:
+            seite.extract_text(visitor_text=besucher)
+        return gefunden
+
+    def urkunde(self, eintrag, ausrichtung="landscape"):
+        return build_certificates_pdf(
+            "Coding-Wettbewerb", "Scratch-Cup", [eintrag], 4,
+            date_text="21.09.2026", signature_name="Tobias Händler",
+            orientation_key=ausrichtung)
+
+    @pytest.mark.parametrize("ausrichtung", ["landscape", "portrait"])
+    def test_die_namen_stehen_unter_dem_teamnamen(self, ausrichtung):
+        zeilen = self.zeilen(self.urkunde(self.MIT_NAMEN, ausrichtung))
+        texte = [text for text, _, _ in zeilen]
+
+        assert "Anna Beispiel, Ben Muster und Carla Test" in texte
+        assert texte.index("Die Pixelpiraten") + 1 == texte.index(
+            "Anna Beispiel, Ben Muster und Carla Test")
+
+    @pytest.mark.parametrize("ausrichtung", ["landscape", "portrait"])
+    def test_die_namen_stehen_kleiner_als_der_teamname(self, ausrichtung):
+        """Der Teamname bleibt die größte Zeile - es ist seine Urkunde."""
+        zeilen = self.zeilen(self.urkunde(self.MIT_NAMEN, ausrichtung))
+        groessen = {text: groesse for text, _, groesse in zeilen}
+
+        assert (groessen["Anna Beispiel, Ben Muster und Carla Test"]
+                < groessen["Die Pixelpiraten"])
+
+    @pytest.mark.parametrize("ausrichtung", ["landscape", "portrait"])
+    def test_die_namen_stehen_nicht_kleiner_als_der_fliesstext(self, ausrichtung):
+        """Wessen Urkunde das ist, soll nicht das Kleingedruckte sein."""
+        zeilen = self.zeilen(self.urkunde(self.MIT_NAMEN, ausrichtung))
+        groessen = {text: groesse for text, _, groesse in zeilen}
+
+        fliesstext = groessen['für die Teilnahme am Wettbewerb "Scratch-Cup"']
+        assert groessen["Anna Beispiel, Ben Muster und Carla Test"] >= fliesstext
+
+    def test_ohne_namen_steht_keine_zusaetzliche_zeile_da(self):
+        zeilen = self.zeilen(self.urkunde(EINTRAG))
+        texte = [text for text, _, _ in zeilen]
+
+        assert texte.index("Die Pixelpiraten") + 1 == texte.index(
+            'für die Teilnahme am Wettbewerb "Scratch-Cup"')
+
+    # Das Layout ohne Namen, wie es vor dieser Änderung war: Höhe über dem
+    # unteren Blattrand und gesetzte Schriftgröße je Zeile. Das Querformat ist
+    # die eingefrorene Referenz und darf sich durch nichts verschieben.
+    REFERENZ = {
+        "landscape": [
+            (474.26, 16.0), (418.87, 40.0), (372.81, 14.0), (328.33, 30.0),
+            (287.77, 14.0), (240.02, 22.0), (202.73, 14.0),
+            (135.3, 12.0), (108.42, 26.0), (83.46, 10.0),
+        ],
+        "portrait": [
+            (707.43, 21.6), (617.34, 54.0), (532.2, 18.9), (464.5, 40.5),
+            (394.44, 18.9), (307.01, 29.7), (241.37, 18.9),
+            (159.41, 16.2), (123.12, 35.1), (89.42, 13.5),
+        ],
+    }
+
+    @pytest.mark.parametrize("ausrichtung", ["landscape", "portrait"])
+    def test_ohne_namen_steht_alles_wie_vorher(self, ausrichtung):
+        """Ein Team ohne freigegebene Namen bekommt genau die alte Urkunde."""
+        gemessen = [(y, groesse)
+                    for _, y, groesse in self.zeilen(self.urkunde(EINTRAG, ausrichtung))]
+
+        assert gemessen == self.REFERENZ[ausrichtung]
+
+    @pytest.mark.parametrize("ausrichtung", ["landscape", "portrait"])
+    def test_die_laengste_erlaubte_liste_laeuft_nicht_in_die_unterschrift(self,
+                                                                          ausrichtung):
+        """Viele lange Namen sind der Normalfall, nicht der Sonderfall."""
+        from certificates import names_line
+        from models import MAX_MEMBERS, MAX_MEMBER_TEXT_LENGTH
+
+        namen = ["Anna-Lena Schmidt-Hohenzollern"] * MAX_MEMBERS
+        while len(names_line(namen)) > MAX_MEMBER_TEXT_LENGTH:
+            namen.pop()
+
+        zeilen = self.zeilen(self.urkunde(dict(EINTRAG, members=namen), ausrichtung))
+        # Die letzten drei Zeilen sind Datum und Unterschrift, ganz unten am Blatt.
+        text_unten = min(y for _, y, _ in zeilen[:-3])
+        block_oben = max(y for _, y, _ in zeilen[-3:])
+        luft = (text_unten - block_oben) / 72 * 25.4
+
+        assert luft > 7, f"nur {luft:.1f} mm über dem Unterschriftsblock"

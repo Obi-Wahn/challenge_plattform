@@ -118,6 +118,22 @@ def pdf_safe(text):
 
 PLACE_LABELS = {1: "1. Platz", 2: "2. Platz", 3: "3. Platz"}
 
+
+def names_line(namen):
+    """Die Namen der Teammitglieder als ein Satz: „Anna, Ben und Carla“.
+
+    Auf einer Urkunde liest sich eine Aufzählung besser als eine Liste
+    untereinander - und sie braucht weniger Platz, was bei acht Namen zählt.
+    """
+    namen = [" ".join(str(name).split()) for name in (namen or [])]
+    namen = [name for name in namen if name]
+
+    if not namen:
+        return ""
+    if len(namen) == 1:
+        return namen[0]
+    return ", ".join(namen[:-1]) + " und " + namen[-1]
+
 # Luft zwischen Text und innerem Zierrahmen, in Millimetern.
 INNER_PADDING = 6
 
@@ -244,9 +260,24 @@ class CertificatePDF(FPDF):
             {"text": pdf_safe(entry["name"]) or "Team", "style": "B", "size": 30,
              "hoehe": 16, "farbe": (20, 20, 40), "abstand": 2,
              "zeilen": 2, "mindestens": 16},
-            {"text": teilnahme, "style": "", "size": 14, "hoehe": 8,
-             "farbe": (60, 60, 80), "abstand": 4},
         ]
+
+        # Die Namen der Teammitglieder stehen direkt unter dem Teamnamen -
+        # sie gehören zu ihm. In der Größe des Fließtexts: kleiner als der
+        # Teamname, aber nicht kleiner als die Zeilen darunter. Reicht eine
+        # Zeile nicht, bricht die Aufzählung um, statt zu schrumpfen; vier
+        # Zeilen sind die Grenze. Hat ein Team keine freigegebenen Namen,
+        # fehlt die Zeile ganz und die Urkunde sieht aus wie bisher.
+        namen = names_line(entry.get("members"))
+        if namen:
+            bloecke.append(
+                {"text": pdf_safe(namen), "style": "", "size": 14, "hoehe": 8,
+                 "farbe": (70, 70, 95), "abstand": 1,
+                 "zeilen": 4, "mindestens": 12})
+
+        bloecke.append(
+            {"text": teilnahme, "style": "", "size": 14, "hoehe": 8,
+             "farbe": (60, 60, 80), "abstand": 4})
 
         place_label = PLACE_LABELS.get(entry["rank"])
         if place_label:
@@ -395,7 +426,8 @@ def certificate_entry(team, standings):
     for entry in standings:
         if entry["team_id"] == team.id:
             return entry
-    return {"team_id": team.id, "name": team.name, "total": 0, "solved": 0, "rank": 0}
+    return {"team_id": team.id, "name": team.name, "members": team.certificate_names,
+            "total": 0, "solved": 0, "rank": 0}
 
 
 def build_certificates_for(challenge, entries, task_count):

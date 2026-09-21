@@ -43,6 +43,50 @@
 </div>
 {% endif %}
 
+<!-- Namen für die Urkunde -->
+{% if member_names_enabled %}
+<div class="event-card mb-3">
+  <h5 class="mb-2">📝 Eure Namen für die Urkunde</h5>
+
+  {% if members_approved %}
+  <div class="mb-3 p-2 rounded bg-dark border border-success text-light small">
+    ✔ <strong>Kontrolliert und freigegeben.</strong> So stehen eure Namen auf der Urkunde:
+    {{ member_list | join(", ") }}
+  </div>
+  {% elif member_list %}
+  <div class="mb-3 p-2 rounded bg-dark border border-info text-light small">
+    ⏳ <strong>Eingetragen.</strong> Sobald die Lehrkraft sie kontrolliert hat,
+    kommen sie auf eure Urkunde.
+  </div>
+  {% else %}
+  <p class="text-secondary small">
+    Schreibt hier eure Namen hin, einen pro Zeile. Sie kommen auf eure Urkunde,
+    sobald die Lehrkraft sie kontrolliert hat.
+  </p>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('challenge.team_members') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <label for="member-names" class="form-label text-secondary small">
+      Ein Name pro Zeile, höchstens {{ max_members }}.
+    </label>
+    <textarea name="member_names" id="member-names" rows="4" class="form-control mb-2"
+      placeholder="Anna Beispiel&#10;Ben Muster">{{ member_names_text }}</textarea>
+
+    <button class="btn btn-outline-light">
+      💾 Namen speichern
+    </button>
+
+    {% if members_approved %}
+    <small class="text-secondary d-block mt-2">
+      Wenn ihr jetzt noch etwas ändert, muss die Lehrkraft die Namen noch einmal freigeben.
+    </small>
+    {% endif %}
+  </form>
+</div>
+{% endif %}
+
 <!-- Fortschrittsanzeige -->
 {% if tasks %}
 <div class="mb-4">

@@ -1,5 +1,42 @@
+import re
 from datetime import datetime
+
 from extensions import db
+
+# Wie viele Namen ein Team für seine Urkunde einträgt und wie lang einer sein
+# darf. Beides ist großzügig bemessen und nur dafür da, dass aus dem Feld kein
+# Aufsatz wird - eine Urkunde hat für einen Roman keinen Platz.
+MAX_MEMBERS = 12
+MAX_MEMBER_NAME_LENGTH = 60
+
+# Wie lang die fertige Aufzählung auf der Urkunde höchstens werden darf, in
+# Zeichen. Zwölf übliche Vor- und Nachnamen kommen auf rund 200 Zeichen und
+# passen damit; darüber hinaus wird das Blatt so voll, dass der Text an den
+# Unterschriftsblock stößt. Dann lieber nachfragen als eine Urkunde drucken,
+# auf der es klemmt.
+MAX_MEMBER_TEXT_LENGTH = 220
+
+
+def parse_member_names(text):
+    """Die Namen aus dem Eingabefeld, in der Reihenfolge der Eingabe.
+
+    Gedacht ist ein Name pro Zeile. Komma und Semikolon trennen aber genauso,
+    weil Schüler ihre Namen erfahrungsgemäß in einer Zeile aneinanderreihen.
+    Leere Zeilen und doppelte Leerzeichen fallen weg; die Zahl der Namen
+    begrenzt hier niemand, das entscheidet die Stelle, die sie entgegennimmt.
+    """
+    namen = []
+    for teil in re.split(r"[\n,;]", str(text or "")):
+        name = " ".join(teil.split())
+        if name:
+            namen.append(name[:MAX_MEMBER_NAME_LENGTH])
+    return namen
+
+
+def format_member_names(namen):
+    """Die Namen so, wie sie in der Datenbank stehen: einer pro Zeile."""
+    return "\n".join(namen)
+
 
 class Team(db.Model):
     __tablename__ = 'teams'
@@ -9,6 +46,13 @@ class Team(db.Model):
     challenge_id = db.Column(db.Integer, db.ForeignKey('challenges.id'), nullable=True)
     name = db.Column(db.String(100), nullable=False)
     password_hash = db.Column(db.String(200), nullable=True)
+    # Die Namen der Teammitglieder für die Urkunde, einer pro Zeile, so wie
+    # die Schüler sie selbst eingetragen haben.
+    member_names = db.Column(db.Text, nullable=True)
+    # Ob der Admin diese Namen gesehen und freigegeben hat. Nur dann stehen
+    # sie auf der Urkunde. Ändert das Team etwas, fällt die Freigabe wieder
+    # weg - sonst könnte nach der Kontrolle noch etwas anderes hineinrutschen.
+    members_approved = db.Column(db.Boolean, default=False)
     submissions = db.relationship('Submission', backref='team', lazy=True, cascade="all, delete-orphan")
 
     # Team names only need to be unique within their own competition, so the
@@ -32,6 +76,16 @@ class Team(db.Model):
         if not self.password_hash:
             return False
         return check_password_hash(self.password_hash, password)
+
+    @property
+    def member_list(self):
+        """Die eingetragenen Namen, ob freigegeben oder nicht."""
+        return parse_member_names(self.member_names)
+
+    @property
+    def certificate_names(self):
+        """Die Namen, die auf die Urkunde dürfen - ohne Freigabe keine."""
+        return self.member_list if self.members_approved else []
 
 class Challenge(db.Model):
     __tablename__ = 'challenges'
@@ -162,6 +216,10 @@ class Settings(db.Model):
     # Quer- oder Hochformat der Urkunden. Quer ist die bisherige Fassung und
     # bleibt die Voreinstellung, damit sich für niemanden etwas ändert.
     certificate_orientation = db.Column(db.String(10), nullable=False, default="landscape")
+    # Ob die Teams ihre Namen für die Urkunde überhaupt eintragen dürfen.
+    # Aus, bis die Lehrkraft es freischaltet: Vorher soll auf der Team-Seite
+    # kein Feld stehen, das noch niemand ausfüllen soll.
+    member_names_enabled = db.Column(db.Boolean, nullable=False, default=False)
 
     @classmethod
     def get(cls):

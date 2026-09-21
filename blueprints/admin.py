@@ -1,13 +1,15 @@
 from flask import (Blueprint, render_template, request, redirect, url_for, session,
                    send_from_directory, send_file, flash)
 from extensions import db
-from models import Team, Challenge, Task, Submission, Settings, TASK_FORMATS
+from models import (Team, Challenge, Task, Submission, Settings, TASK_FORMATS,
+                    MAX_MEMBERS, MAX_MEMBER_TEXT_LENGTH, format_member_names,
+                    parse_member_names)
 from scoring import get_standings
 from task_rules import KEIN_TITEL, PUNKTE_KEINE_ZAHL, clean_task_values
 from certificates import (build_certificates_for, certificate_entry, signature_font,
                           SIGNATURE_FONTS, DEFAULT_SIGNATURE_FONT,
                           certificate_orientation, CERTIFICATE_ORIENTATIONS,
-                          DEFAULT_ORIENTATION)
+                          DEFAULT_ORIENTATION, names_line)
 from task_exchange import export_bytes, parse_tasks, ImportError_
 from datetime import datetime
 import io
@@ -486,7 +488,71 @@ def teams():
     challenge = Challenge.current()
     teams = (Team.query.filter_by(challenge_id=challenge.id).order_by(Team.name).all()
              if challenge else [])
-    return render_template("admin/teams.html", teams=teams, challenge=challenge)
+
+    # Wie viele Teams auf die Kontrolle ihrer Namen warten - das ist die
+    # Arbeit, die auf dieser Seite liegen bleibt.
+    offen = sum(1 for team in teams if team.member_list and not team.members_approved)
+
+    return render_template(
+        "admin/teams.html",
+        teams=teams,
+        challenge=challenge,
+        member_names_enabled=Settings.get().member_names_enabled,
+        offene_namen=offen,
+        max_members=MAX_MEMBERS
+    )
+
+@admin_bp.route("/team/<int:team_id>/namen", methods=["POST"])
+def team_members(team_id):
+    """Die Kontrolle der Namen: ändern, freigeben, Freigabe zurücknehmen.
+
+    Der Admin darf die Namen dabei auch berichtigen - ein Tippfehler im
+    eigenen Namen soll nicht bedeuten, dass das Team noch einmal antreten
+    muss. Das Speichern allein gibt aber nichts frei; dafür gibt es den
+    eigenen Knopf.
+    """
+    team = db.get_or_404(Team, team_id)
+
+    namen = parse_member_names(request.form.get("member_names"))[:MAX_MEMBERS]
+
+    # Dieselbe Grenze wie für die Teams: Was nicht auf die Urkunde passt, wird
+    # auch hier nicht gespeichert.
+    if len(names_line(namen)) > MAX_MEMBER_TEXT_LENGTH:
+        flash(
+            f"So viele Zeichen passen nicht auf eine Urkunde - bei Team "
+            f"„{team.name}“ wurde nichts geändert.",
+            "warning"
+        )
+        return redirect(url_for('admin.teams'))
+
+    team.member_names = format_member_names(namen)
+
+    if "freigeben" in request.form:
+        if namen:
+            team.members_approved = True
+            flash(
+                f"Die Namen von Team „{team.name}“ stehen jetzt auf der Urkunde: "
+                f"{names_line(namen)}.",
+                "success"
+            )
+        else:
+            # Nichts freizugeben - und ein gesetztes Häkchen ohne Namen würde
+            # später nur verwirren.
+            team.members_approved = False
+            flash(f"Team „{team.name}“ hat keine Namen eingetragen.", "warning")
+    elif "sperren" in request.form:
+        team.members_approved = False
+        flash(
+            f"Die Namen von Team „{team.name}“ stehen nicht mehr auf der Urkunde.",
+            "warning"
+        )
+    else:
+        # Geändert heißt wieder ungeprüft - dieselbe Regel wie beim Team.
+        team.members_approved = False
+        flash(f"Namen von Team „{team.name}“ gespeichert, noch nicht freigegeben.", "success")
+
+    db.session.commit()
+    return redirect(url_for('admin.teams'))
 
 @admin_bp.route("/team/<int:team_id>/reset_password", methods=["POST"])
 def team_reset_password(team_id):
@@ -530,7 +596,10 @@ def certificates_print():
         task_count=task_count,
         today=datetime.now().strftime("%d.%m.%Y"),
         signature_css=signature_font(Settings.get().signature_font)["css"],
-        orientation=certificate_orientation(Settings.get().certificate_orientation)
+        orientation=certificate_orientation(Settings.get().certificate_orientation),
+        # Dieselbe Aufzählung wie im PDF, damit Druckansicht und Datei
+        # nicht auseinanderlaufen.
+        names_line=names_line
     )
 
 @admin_bp.route("/urkunden.pdf")
@@ -579,6 +648,10 @@ def settings():
         site_settings.signature_name = request.form.get("signature_name", "").strip()[:100]
         font = request.form.get("signature_font", "")
         site_settings.signature_font = font if font in SIGNATURE_FONTS else DEFAULT_SIGNATURE_FONT
+
+        # Ein Häkchen schickt nichts mit, wenn es nicht gesetzt ist - das
+        # Fehlen des Feldes ist also die Antwort "nein".
+        site_settings.member_names_enabled = bool(request.form.get("member_names_enabled"))
 
         ausrichtung = request.form.get("certificate_orientation", "")
         site_settings.certificate_orientation = (
