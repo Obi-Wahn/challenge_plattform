@@ -22,11 +22,14 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    Wettbewerbstag. Wenn `pytest` durchläuft, funktionieren Anmeldung,
    Abgabe, Bewertung, Rangliste und Urkunden.
 
-2. **Frontend-Bibliotheken prüfen** (ebenfalls nur mit Internet):
+2. **Auf Updates sehen** (ebenfalls nur mit Internet):
    ```bash
-   python werkzeuge/vendor_aktualisieren.py --pruefen
+   python werkzeuge/vendor_aktualisieren.py --pruefen   # Frontend
+   python werkzeuge/pakete_pruefen.py                   # Python-Pakete
    ```
-   Eine neue Hauptversion kurz vor dem Wettbewerb **nicht** mehr einspielen.
+   Beide ändern nichts, sie zeigen nur an. Eine neue Hauptversion kurz vor
+   dem Wettbewerb **nicht** mehr einspielen – und wenn doch etwas
+   aktualisiert wird, dann eines nach dem anderen und danach `pytest`.
 
 3. **Wettbewerb anlegen** unter `/admin` → *Neuer Wettbewerb*: Titel,
    Startzeit, Endzeit.
