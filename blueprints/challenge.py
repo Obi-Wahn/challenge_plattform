@@ -52,6 +52,8 @@ def view():
             challenge=None,
             tasks=[],
             submission_map={},
+            status="not_scheduled",
+            seconds=0,
             team=session.get("team_name"),
             member_names_enabled=False
         )
@@ -62,11 +64,24 @@ def view():
     submissions = Submission.query.filter_by(team_id=team_id).join(Task).filter(Task.challenge_id == challenge.id).all()
     submission_map = {s.task_id: s for s in submissions}
 
+    # Dieselbe Rechnung wie auf der Countdown-Seite: vor dem Start bis zum
+    # Beginn, danach bis zum Ende. Ohne gesetzte Zeit bleibt es bei 0, dann
+    # zeigt die Leiste nur den Stand und keine Uhr.
+    status = challenge.status()
+    if status == "upcoming":
+        seconds = challenge.seconds_until_start
+    elif status == "running":
+        seconds = challenge.remaining_seconds
+    else:
+        seconds = 0
+
     return render_template(
         "challenge.html",
         challenge=challenge,
         tasks=tasks,
         submission_map=submission_map,
+        status=status,
+        seconds=seconds,
         team=team.name,
         member_names_enabled=Settings.get().member_names_enabled,
         member_names_text=team.member_names or "",

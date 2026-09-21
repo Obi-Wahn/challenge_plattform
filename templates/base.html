@@ -32,14 +32,10 @@
             <a class="nav-link" href="{{ url_for('public.scoreboard') }}">🏆 Rangliste</a>
           </li>
           {% if session.get('team_id') %}
-          <!-- Countdown und Urkunde schließen sich aus: Während des
-               Wettbewerbs zählt die Zeit, danach gibt es die Urkunde.
-               Beide waren bisher nur über Umwege zu erreichen. -->
-          {% if nav_countdown %}
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('public.start') }}">⏳ Countdown</a>
-          </li>
-          {% elif nav_urkunde %}
+          <!-- Die Restzeit steht seit der Zeitleiste auf der Wettbewerbsseite
+               selbst, ein Eintrag dorthin führte nur von der Arbeitsseite weg.
+               Die Urkunde bleibt: Sie war sonst nur über Umwege zu erreichen. -->
+          {% if nav_urkunde %}
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('challenge.certificate') }}">📜 Urkunde</a>
           </li>

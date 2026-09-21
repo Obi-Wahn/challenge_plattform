@@ -15,32 +15,54 @@
   Team <strong>{{ team }}</strong> · {{ challenge.title }}
 </div>
 
-<!-- Statusanzeige -->
+<!-- Stand und Restzeit -->
+<!-- Die Leiste bleibt beim Scrollen durch die Aufgaben oben stehen: Die Zeit
+     soll im Blick sein, ohne dass ein Team dafür die Seite wechselt. Sie
+     ersetzt die frühere Statuskarte, die Seite wird dadurch nicht länger. -->
 {% set offen = challenge.accepts_submissions %}
-{% if challenge.status() == "finished" %}
-<div class="event-card mb-3 text-light">
-  🏁 <strong>Der Wettbewerb ist beendet</strong><br>
-  <span class="text-secondary">
-    Abgaben sind nicht mehr möglich. Schaut euch die
-    <a href="{{ url_for('public.scoreboard') }}">Rangliste</a> an.
-  </span>
+<div class="zeitleiste mb-3 {% if status == 'finished' %}zeitleiste-ende{% elif challenge.paused %}zeitleiste-pause{% else %}zeitleiste-laeuft{% endif %}"
+  data-ende-stand="{% if status == 'upcoming' %}🟢 Läuft{% else %}🏁 Beendet{% endif %}"
+  data-ende-wort="{% if status == 'upcoming' %}Es geht los{% else %}Zeit ist um{% endif %}">
+  <div class="zeitleiste-zeile">
 
-  <div class="mt-3">
-    <a href="{{ url_for('challenge.certificate') }}" class="btn btn-primary">
-      📜 Eure Urkunde herunterladen
+    <span class="zeitleiste-stand" id="zeitleiste-stand">
+      {%- if status == "finished" %}🏁 Beendet
+      {%- elif challenge.paused %}⏸ Pausiert
+      {%- elif status == "upcoming" %}⏳ Startet in
+      {%- else %}🟢 Läuft{% endif -%}
+    </span>
+
+    {% if seconds %}
+    <!-- Bis das Skript zum ersten Mal zeichnet, steht hier keine falsche Zeit. -->
+    <span class="zeitleiste-uhr" id="restzeit">--:--</span>
+    {% endif %}
+
+    <span class="zeitleiste-wort" id="zeitleiste-wort">
+      {%- if status == "finished" %}Abgaben geschlossen
+      {%- elif challenge.paused %}Abgaben sind gerade nicht möglich
+      {%- elif status == "running" and seconds %}verbleibend
+      {%- elif status == "running" %}Abgaben sind möglich{% endif -%}
+    </span>
+
+    <!-- Erscheint erst, wenn die Uhr bei null steht. -->
+    <a href="{{ url_for('challenge.view') }}" class="zeitleiste-neu" id="zeitleiste-neu" hidden>
+      ↻ Seite neu laden
     </a>
+
+    {% if status == "finished" %}
+    <a href="{{ url_for('challenge.certificate') }}" class="btn btn-primary btn-sm zeitleiste-knopf">
+      📜 Urkunde
+    </a>
+    {% endif %}
+
   </div>
 </div>
-{% elif challenge.paused %}
-<div class="event-card mb-3 text-warning">
-  ⏸ <strong>Wettbewerb pausiert</strong><br>
-  Abgaben sind aktuell deaktiviert.
-</div>
-{% else %}
-<div class="event-card mb-3 text-success">
-  🟢 <strong>Wettbewerb läuft</strong><br>
-  Abgaben sind möglich.
-</div>
+
+{% if status == "finished" %}
+<p class="text-secondary mb-3">
+  Abgaben sind nicht mehr möglich. Schaut euch die
+  <a href="{{ url_for('public.scoreboard') }}">Rangliste</a> an.
+</p>
 {% endif %}
 
 <!-- Namen für die Urkunde -->
@@ -184,6 +206,64 @@
   {% endfor %}
 
 </div>
+{% endif %}
+
+{% if seconds %}
+<script>
+  // Der Server schickt die verbleibenden Sekunden, damit eine falsch gestellte
+  // Uhr auf einem Gerät die Zeit nicht verschiebt.
+  let rest = {{ seconds }};
+  let takt = null;
+
+  // Vor dem Start zählt die Uhr bis zum Beginn, danach bis zum Ende. Nur im
+  // zweiten Fall ist bei null der Wettbewerb vorbei.
+  const zaehltBisZumEnde = {{ "false" if status == "upcoming" else "true" }};
+
+  const leiste = document.querySelector(".zeitleiste");
+  const stand = document.getElementById("zeitleiste-stand");
+  const uhr = document.getElementById("restzeit");
+  const wort = document.getElementById("zeitleiste-wort");
+  const neuLaden = document.getElementById("zeitleiste-neu");
+
+  function zeichne() {
+    if (rest <= 0) {
+      // Bewusst kein automatisches Neuladen: Es würde eine laufende Abgabe
+      // abbrechen. Deshalb steht hier nur, dass es so weit ist, und daneben
+      // ein Link, den das Team selbst antippt.
+      uhr.innerText = "00:00";
+      stand.innerText = leiste.dataset.endeStand;
+      wort.innerText = leiste.dataset.endeWort;
+      if (zaehltBisZumEnde) {
+        leiste.classList.remove("zeitleiste-laeuft");
+        leiste.classList.add("zeitleiste-ende", "zeitleiste-gleich");
+      }
+      neuLaden.hidden = false;
+      if (takt) {
+        clearInterval(takt);
+      }
+      return;
+    }
+
+    const stunden = Math.floor(rest / 3600);
+    const minuten = Math.floor((rest % 3600) / 60);
+    const sekunden = rest % 60;
+
+    const teile = [minuten, sekunden].map(v => String(v).padStart(2, "0"));
+    if (stunden > 0) {
+      teile.unshift(String(stunden));
+    }
+
+    uhr.innerText = teile.join(":");
+    // Die letzten fünf Minuten färben die Uhr, die letzte Minute macht sie
+    // rot - aber nur vor dem Ende. Vor dem Start ist Warten kein Alarm.
+    leiste.classList.toggle("zeitleiste-knapp", zaehltBisZumEnde && rest <= 300);
+    leiste.classList.toggle("zeitleiste-gleich", zaehltBisZumEnde && rest <= 60);
+    rest -= 1;
+  }
+
+  zeichne();
+  takt = setInterval(zeichne, 1000);
+</script>
 {% endif %}
 
 <!-- Auto-Refresh alle 15 Sekunden -->

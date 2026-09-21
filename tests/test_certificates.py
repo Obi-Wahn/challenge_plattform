@@ -216,7 +216,7 @@ class TestTeamDownload:
         challenge = make_challenge()
         client, _team = logged_in_team(challenge)
 
-        assert "Urkunde herunterladen" not in client.get("/challenge").get_data(as_text=True)
+        assert "/urkunde.pdf" not in client.get("/challenge").get_data(as_text=True)
 
     def test_nach_dem_ende_laedt_das_team_seine_urkunde(
             self, make_challenge, logged_in_team, database):
@@ -226,7 +226,8 @@ class TestTeamDownload:
         challenge.end_time = datetime.now() - timedelta(minutes=1)
         database.session.commit()
 
-        assert "Urkunde herunterladen" in client.get("/challenge").get_data(as_text=True)
+        # Der Knopf steht seit der Zeitleiste in ihr, beschriftet mit „Urkunde".
+        assert "/urkunde.pdf" in client.get("/challenge").get_data(as_text=True)
 
         antwort = client.get("/urkunde.pdf")
         assert antwort.mimetype == "application/pdf"

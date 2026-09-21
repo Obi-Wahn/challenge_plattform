@@ -127,3 +127,68 @@ input::placeholder, textarea::placeholder {
   white-space: nowrap;
   color: #fff;
 }
+
+/* ====== Zeitleiste auf der Wettbewerbsseite ====== */
+.zeitleiste {
+  /* Sie bleibt beim Scrollen durch die Aufgaben oben stehen: Die Restzeit
+     soll im Blick sein, ohne dass ein Team die Seite wechselt. */
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  /* Fast deckend, damit die Aufgabenkarten sauber darunter durchlaufen. */
+  background: rgba(16, 20, 42, 0.97);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+.zeitleiste-zeile {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 0.75rem;
+  row-gap: 0.2rem;
+}
+
+.zeitleiste-stand {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.zeitleiste-uhr {
+  /* Die Zeit muss aus zwei Metern Abstand lesbar sein und darf beim Ticken
+     nicht springen - deshalb Tabellenziffern in fester Breite. */
+  font-family: ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+  color: #fff;
+}
+
+.zeitleiste-wort {
+  color: #9aa2c0;
+  font-size: 0.9rem;
+}
+
+.zeitleiste-neu {
+  color: #9fa6ff;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.zeitleiste-knopf {
+  /* Rechts an den Rand, damit die Urkunde nicht mit dem Stand verschwimmt. */
+  margin-left: auto;
+}
+
+.zeitleiste-laeuft .zeitleiste-stand { color: #4ade80; }
+.zeitleiste-pause .zeitleiste-stand { color: #fbbf24; }
+.zeitleiste-ende .zeitleiste-stand { color: #cfd3ff; }
+
+/* Die letzten fünf Minuten färben die Uhr, die letzte Minute macht sie rot. */
+.zeitleiste-knapp .zeitleiste-uhr { color: #fbbf24; }
+.zeitleiste-gleich .zeitleiste-uhr { color: #f87171; }
