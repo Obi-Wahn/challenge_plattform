@@ -42,12 +42,12 @@ class TestPdfAufbau:
     def test_eine_seite_je_team(self):
         eintraege = [dict(EINTRAG, team_id=i, name=f"Team {i}") for i in range(4)]
 
-        daten = build_certificates_pdf("Wettbewerb", "Titel", eintraege, 4)
+        daten = build_certificates_pdf("Wettbewerb", eintraege, 4)
 
         assert seitenzahl(daten) == 4
 
     def test_urkunde_nennt_team_platz_und_punkte(self):
-        daten = build_certificates_pdf("Coding-Wettbewerb", "Scratch-Wettbewerb",
+        daten = build_certificates_pdf("Coding-Wettbewerb",
                                        [EINTRAG], 4)
 
         text = pdf_text(daten)
@@ -59,14 +59,14 @@ class TestPdfAufbau:
     def test_ohne_platzierung_kein_platz_aufdruck(self):
         eintrag = dict(EINTRAG, rank=0, total=0, solved=0)
 
-        text = pdf_text(build_certificates_pdf("W", "T", [eintrag], 4))
+        text = pdf_text(build_certificates_pdf("W", [eintrag], 4))
 
         assert "Platz" not in text
 
     def test_emoji_im_teamnamen_bricht_nichts(self):
         eintrag = dict(EINTRAG, name="Team 🚀 Rakete")
 
-        text = pdf_text(build_certificates_pdf("W", "T", [eintrag], 4))
+        text = pdf_text(build_certificates_pdf("W", [eintrag], 4))
 
         assert "Team" in text
 
@@ -74,19 +74,19 @@ class TestPdfAufbau:
         """Sonst stünde auf der Urkunde gar kein Name."""
         eintrag = dict(EINTRAG, name="🚀")
 
-        assert "Team" in pdf_text(build_certificates_pdf("W", "T", [eintrag], 4))
+        assert "Team" in pdf_text(build_certificates_pdf("W", [eintrag], 4))
 
 
 class TestUnterschrift:
     def test_ohne_namen_steht_unterschrift_dort(self):
-        text = pdf_text(build_certificates_pdf("W", "T", [EINTRAG], 4))
+        text = pdf_text(build_certificates_pdf("W", [EINTRAG], 4))
 
         assert "Unterschrift" in text
 
     @pytest.mark.parametrize("schrift", ["caveat", "dancing", "vibes"])
     def test_handschrift_setzt_den_namen_zweimal(self, schrift):
         """Einmal geschrieben auf der Linie, einmal lesbar darunter."""
-        daten = build_certificates_pdf("W", "T", [EINTRAG], 4,
+        daten = build_certificates_pdf("W", [EINTRAG], 4,
                                        signature_name="Tobias Händler",
                                        signature_font_key=schrift)
 
@@ -95,14 +95,14 @@ class TestUnterschrift:
         assert "Unterschrift" not in text
 
     def test_druckschrift_setzt_den_namen_einmal(self):
-        daten = build_certificates_pdf("W", "T", [EINTRAG], 4,
+        daten = build_certificates_pdf("W", [EINTRAG], 4,
                                        signature_name="Tobias Händler",
                                        signature_font_key="print")
 
         assert pdf_text(daten).count("Tobias Händler") == 1
 
     def test_unbekannte_schrift_faellt_auf_die_standardschrift_zurueck(self):
-        daten = build_certificates_pdf("W", "T", [EINTRAG], 4,
+        daten = build_certificates_pdf("W", [EINTRAG], 4,
                                        signature_name="Tobias Händler",
                                        signature_font_key="gibtsnicht")
 
@@ -110,7 +110,7 @@ class TestUnterschrift:
 
     def test_eingebettete_schrift_kann_alle_zeichen(self):
         """Anders als die eingebaute Schrift braucht sie keine Säuberung."""
-        daten = build_certificates_pdf("W", "T", [EINTRAG], 4,
+        daten = build_certificates_pdf("W", [EINTRAG], 4,
                                        signature_name="Zoë Groß–Müller",
                                        signature_font_key="caveat")
 
@@ -280,36 +280,37 @@ class TestAusrichtung:
     """Quer- und Hochformat der Urkunden."""
 
     def test_querformat_ist_die_voreinstellung(self):
-        daten = build_certificates_pdf("Site", "Runde 1", [EINTRAG], 3)
+        daten = build_certificates_pdf("Site", [EINTRAG], 3)
         breite, hoehe = seitenmasse(daten)
         assert (breite, hoehe) == (297, 210)
 
     def test_hochformat_dreht_das_blatt(self):
-        daten = build_certificates_pdf("Site", "Runde 1", [EINTRAG], 3,
+        daten = build_certificates_pdf("Site", [EINTRAG], 3,
                                        orientation_key="portrait")
         breite, hoehe = seitenmasse(daten)
         assert (breite, hoehe) == (210, 297)
 
     def test_unbekannte_ausrichtung_faellt_auf_quer_zurueck(self):
-        daten = build_certificates_pdf("Site", "Runde 1", [EINTRAG], 3,
+        daten = build_certificates_pdf("Site", [EINTRAG], 3,
                                        orientation_key="diagonal")
         assert seitenmasse(daten) == (297, 210)
 
     @pytest.mark.parametrize("ausrichtung", ["landscape", "portrait"])
     def test_inhalt_steht_in_beiden_formaten_vollstaendig_drin(self, ausrichtung):
-        daten = build_certificates_pdf("Coding-Wettbewerb", "Runde 1", [EINTRAG], 3,
+        daten = build_certificates_pdf("Coding-Wettbewerb", [EINTRAG], 3,
                                        signature_name="Tobias Händler",
                                        orientation_key=ausrichtung)
         text = pdf_text(daten)
-        for erwartet in ["Urkunde", "Die Pixelpiraten", "Runde 1", "1. Platz",
-                         "38 Punkte", "Coding-Wettbewerb"]:
+        for erwartet in ["Urkunde", "Die Pixelpiraten", "1. Platz",
+                         "38 Punkte", "Coding-Wettbewerb",
+                         "für die Teilnahme am Wettbewerb"]:
             assert erwartet in text, f"{erwartet!r} fehlt im {ausrichtung}"
 
     @pytest.mark.parametrize("ausrichtung", ["landscape", "portrait"])
     def test_jede_seite_hat_dieselbe_ausrichtung(self, ausrichtung):
         eintraege = [dict(EINTRAG, team_id=i, name=f"Team {i}", rank=i)
                      for i in range(1, 4)]
-        daten = build_certificates_pdf("Site", "Runde 1", eintraege, 3,
+        daten = build_certificates_pdf("Site", eintraege, 3,
                                        orientation_key=ausrichtung)
         assert seitenzahl(daten) == 3
         masse = {seitenmasse(daten, s) for s in range(3)}
@@ -330,7 +331,7 @@ class TestLangeTexteImHochformat:
         pdf = CertificatePDF(orientation=ausricht["fpdf"], unit="mm", format="A4",
                              scale=ausricht["scale"])
         pdf.set_auto_page_break(False)
-        pdf.certificate("Site", "Runde 1", eintrag, 3, "01.01.2026")
+        pdf.certificate("Site", eintrag, 3, "01.01.2026")
 
         # Der Seitenrand ist nicht die Grenze: Der Zierrahmen liegt weiter
         # innen, und genau dort lief der Name vorher hinein.
@@ -352,7 +353,6 @@ class TestLangeTexteImHochformat:
         """
         daten = build_certificates_pdf(
             "Coding-Wettbewerb der Realschule",
-            "Der große Scratch- und Calliope-Wettbewerb der Jahrgangsstufe 8",
             [dict(EINTRAG, name="Die unglaublich langen Pixelpiraten aus der 8b")],
             4,
             signature_name="Tobias Henze",
@@ -373,12 +373,13 @@ class TestLangeTexteImHochformat:
         for text, x in gefunden:
             assert x >= rahmen, f"{text!r} beginnt im Rahmen (x={x:.1f}, Rahmen={rahmen:.1f})"
 
-    def test_langer_wettbewerbstitel_passt_ebenfalls(self):
-        titel = "Der große Scratch- und Calliope-Wettbewerb der Jahrgangsstufe 8"
-        daten = build_certificates_pdf("Site", titel, [EINTRAG], 3,
+    def test_langer_wettbewerbsname_passt_ebenfalls(self):
+        name = "Der große Scratch- und Calliope-Wettbewerb der Jahrgangsstufe 8"
+        daten = build_certificates_pdf(name, [EINTRAG], 3,
                                        orientation_key="portrait")
-        # Vollständig lesbar heißt: der Titel steht ungekürzt im PDF.
-        assert titel in pdf_text(daten)
+        # Vollständig lesbar heißt: der Name steht ungekürzt im PDF - im
+        # Hochformat notfalls auf zwei Zeilen.
+        assert name in pdf_text(daten).replace("\n", " ")
 
     def test_kurzer_name_wird_nicht_verkleinert(self):
         from certificates import CertificatePDF
@@ -426,7 +427,7 @@ class TestTeamnameBleibtLesbar:
     def test_langer_name_bleibt_groesser_als_der_fliesstext(self, ausrichtung):
         """Vorher schrumpfte er im Hochformat unter die Zeile darunter."""
         daten = build_certificates_pdf(
-            "Robotik-Wettbewerb der Gesamtschule Musterstadt", "Sumo-Roboter 2026",
+            "Robotik-Wettbewerb der Gesamtschule Musterstadt",
             [dict(EINTRAG, name=self.LANG)], 8, orientation_key=ausrichtung)
 
         zeilen = textzeilen(daten)
@@ -438,7 +439,7 @@ class TestTeamnameBleibtLesbar:
             f"der Fliesstext ({fliesstext['groesse']:.1f}pt)")
 
     def test_im_hochformat_darf_der_name_umbrechen(self):
-        daten = build_certificates_pdf("Site", "Runde 1",
+        daten = build_certificates_pdf("Site",
                                        [dict(EINTRAG, name=self.LANG)], 3,
                                        orientation_key="portrait")
 
@@ -449,7 +450,7 @@ class TestTeamnameBleibtLesbar:
 
     def test_im_querformat_bleibt_er_einzeilig(self):
         """Dort reicht die Breite - ein Umbruch waere nur unruhig."""
-        daten = build_certificates_pdf("Site", "Runde 1",
+        daten = build_certificates_pdf("Site",
                                        [dict(EINTRAG, name=self.LANG)], 3,
                                        orientation_key="landscape")
 
@@ -458,7 +459,7 @@ class TestTeamnameBleibtLesbar:
     def test_ein_name_bricht_nicht_auf_mehr_als_zwei_zeilen(self):
         name = ("Arbeitsgemeinschaft Robotik und Technik der Gesamtschule "
                 "Musterstadt Nord und Umgebung")
-        daten = build_certificates_pdf("Site", "Runde 1",
+        daten = build_certificates_pdf("Site",
                                        [dict(EINTRAG, name=name)], 3,
                                        orientation_key="portrait")
 
@@ -481,7 +482,7 @@ class TestUnterschriftBleibtAufDerLinie:
         from certificates import certificate_orientation
 
         ausricht = certificate_orientation(ausrichtung)
-        daten = build_certificates_pdf("Site", "Runde 1", [EINTRAG], 3,
+        daten = build_certificates_pdf("Site", [EINTRAG], 3,
                                        signature_name=self.NAME,
                                        signature_font_key="caveat",
                                        orientation_key=ausrichtung)
@@ -620,7 +621,7 @@ class TestHochformatFuelltDasBlatt:
 
     def urkunde(self, ausrichtung):
         return build_certificates_pdf(
-            "Coding-Wettbewerb", "Scratch!",
+            "Coding-Wettbewerb",
             [{"team_id": 1, "name": "Test1", "total": 10, "solved": 1, "rank": 1}],
             4, date_text="21.09.2026", signature_name="Tobias Henze",
             orientation_key=ausrichtung)
@@ -728,7 +729,7 @@ class TestNamenDerTeammitglieder:
 
     def urkunde(self, eintrag, ausrichtung="landscape"):
         return build_certificates_pdf(
-            "Coding-Wettbewerb", "Scratch-Cup", [eintrag], 4,
+            "Coding-Wettbewerb", [eintrag], 4,
             date_text="21.09.2026", signature_name="Tobias Händler",
             orientation_key=ausrichtung)
 
@@ -756,7 +757,7 @@ class TestNamenDerTeammitglieder:
         zeilen = self.zeilen(self.urkunde(self.MIT_NAMEN, ausrichtung))
         groessen = {text: groesse for text, _, groesse in zeilen}
 
-        fliesstext = groessen['für die Teilnahme am Wettbewerb "Scratch-Cup"']
+        fliesstext = groessen["für die Teilnahme am Wettbewerb"]
         assert groessen["Anna Beispiel, Ben Muster und Carla Test"] >= fliesstext
 
     def test_ohne_namen_steht_keine_zusaetzliche_zeile_da(self):
@@ -764,7 +765,7 @@ class TestNamenDerTeammitglieder:
         texte = [text for text, _, _ in zeilen]
 
         assert texte.index("Die Pixelpiraten") + 1 == texte.index(
-            'für die Teilnahme am Wettbewerb "Scratch-Cup"')
+            "für die Teilnahme am Wettbewerb")
 
     # Das Layout ohne Namen, wie es vor dieser Änderung war: Höhe über dem
     # unteren Blattrand und gesetzte Schriftgröße je Zeile. Das Querformat ist

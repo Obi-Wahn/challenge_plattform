@@ -91,6 +91,14 @@ class Challenge(db.Model):
     __tablename__ = 'challenges'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
+    # Der Untertitel dieses Wettbewerbs, unter seinem Titel. Leer heißt: es
+    # gilt der Untertitel aus den Einstellungen.
+    #
+    # Einen eigenen Namen braucht ein Wettbewerb nicht - "title" ist sein
+    # Name. Dieselbe Installation richtet so einmal den "Scratch-Wettbewerb"
+    # und einmal den "Calliope-Wettbewerb" aus, und der Name bleibt bei dem
+    # Wettbewerb, zu dem er gehört, auch wenn längst ein anderer läuft.
+    tagline = db.Column(db.String(300), nullable=False, default="")
     start_time = db.Column(db.DateTime, nullable=True)
     end_time = db.Column(db.DateTime, nullable=True)
     active = db.Column(db.Boolean, default=False)
@@ -229,3 +237,20 @@ class Settings(db.Model):
             db.session.add(settings)
             db.session.commit()
         return settings
+
+
+def event_branding(challenge=None):
+    """Name und Untertitel der Veranstaltung, wie sie für diesen Wettbewerb gelten.
+
+    Der Name ist der Titel des Wettbewerbs: Beides auseinanderzuhalten wäre
+    doppelt, ein Wettbewerb heißt, wie er heißt. Den Untertitel darf er
+    überschreiben; lässt er ihn leer, gilt der aus den Einstellungen.
+
+    Ohne Wettbewerb gelten die Einstellungen allein - das ist der Fall auf
+    einer frischen Installation, in der noch keiner angelegt ist.
+    """
+    settings = Settings.get()
+    return {
+        "name": (challenge.title if challenge else "") or settings.site_name,
+        "tagline": (challenge.tagline if challenge else "") or settings.tagline,
+    }

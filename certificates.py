@@ -230,16 +230,16 @@ class CertificatePDF(FPDF):
         self.set_x((self.w - breite) / 2)
         self.cell(breite, height, text, align="C", new_x="LMARGIN", new_y="NEXT")
 
-    def certificate_blocks(self, site_name, challenge_title, entry, task_count):
+    def certificate_blocks(self, event_name, entry, task_count):
         """Die Zeilen der Urkunde von oben nach unten, noch ohne Position.
 
         "abstand" ist die Luft über einer Zeile, "zeilen" die Zahl der Zeilen,
         auf die sie notfalls umbrechen darf.
         """
-        if challenge_title:
-            teilnahme = pdf_safe(f"für die Teilnahme am Wettbewerb \"{challenge_title}\"")
-        else:
-            teilnahme = "für die Teilnahme am Wettbewerb"
+        # Der Name des Wettbewerbs steht oben auf dem Blatt. Ihn hier noch
+        # einmal in Anführungszeichen zu wiederholen, wäre dieselbe Angabe
+        # zweimal - ein Wettbewerb hat nur einen Namen.
+        teilnahme = "für die Teilnahme am Wettbewerb"
 
         points = entry["total"]
         summary = f"{points} " + ("Punkt" if points == 1 else "Punkte")
@@ -247,8 +247,14 @@ class CertificatePDF(FPDF):
             summary += f" - {entry['solved']} von {task_count} Aufgaben bearbeitet"
 
         bloecke = [
-            {"text": pdf_safe(site_name), "style": "", "size": 16, "hoehe": 8,
-             "farbe": (90, 90, 120), "abstand": 0},
+            # Der Name des Wettbewerbs darf auf zwei Zeilen, bevor er kleiner
+            # wird als der Fließtext unter ihm. Hier steht nicht mehr nur
+            # "Coding-Wettbewerb", sondern der Name des Wettbewerbs selbst,
+            # also auch "Calliope-Wettbewerb der Klassen 5 und 6" - einzeilig
+            # rutschte das im Hochformat auf unter 14 pt.
+            {"text": pdf_safe(event_name), "style": "", "size": 16, "hoehe": 8,
+             "farbe": (90, 90, 120), "abstand": 0,
+             "zeilen": 2, "mindestens": 14},
             {"text": "Urkunde", "style": "B", "size": 40, "hoehe": 18,
              "farbe": (30, 30, 60), "abstand": 4},
             {"text": "verliehen an das Team", "style": "", "size": 14, "hoehe": 8,
@@ -325,7 +331,7 @@ class CertificatePDF(FPDF):
         hoehe = text_hoehe + abstaende * faktor
         return oben + max(0, (platz - hoehe) / 2)
 
-    def certificate(self, site_name, challenge_title, entry, task_count, date_text):
+    def certificate(self, event_name, entry, task_count, date_text):
         self.add_page()
 
         # Decorative double border
@@ -335,7 +341,7 @@ class CertificatePDF(FPDF):
         self.set_line_width(0.3)
         self.rect(14, 14, self.w - 28, self.h - 28)
 
-        bloecke = self.certificate_blocks(site_name, challenge_title, entry, task_count)
+        bloecke = self.certificate_blocks(event_name, entry, task_count)
         self.set_y(self.layout_blocks(bloecke))
 
         for block in bloecke:
@@ -395,7 +401,7 @@ class CertificatePDF(FPDF):
                                self.mass(10), self.mass(5), (130, 130, 150))
 
 
-def build_certificates_pdf(site_name, challenge_title, entries, task_count, date_text=None,
+def build_certificates_pdf(event_name, entries, task_count, date_text=None,
                            signature_name="", signature_font_key=None,
                            orientation_key=None):
     """Builds one PDF holding a certificate page per entry."""
@@ -413,10 +419,10 @@ def build_certificates_pdf(site_name, challenge_title, entries, task_count, date
         signature_offset=orientation.get("signature_offset", 52)
     )
     pdf.set_auto_page_break(False)
-    pdf.set_title(pdf_safe(f"Urkunden - {site_name}"))
+    pdf.set_title(pdf_safe(f"Urkunden - {event_name}"))
 
     for entry in entries:
-        pdf.certificate(site_name, challenge_title, entry, task_count, date_text)
+        pdf.certificate(event_name, entry, task_count, date_text)
 
     return bytes(pdf.output())
 
@@ -432,12 +438,14 @@ def certificate_entry(team, standings):
 
 def build_certificates_for(challenge, entries, task_count):
     """Certificates for a competition, using the configured signature."""
-    from models import Settings
+    from models import Settings, event_branding
 
     settings = Settings.get()
+    # Der Name kommt vom Wettbewerb selbst, nicht aus den Einstellungen: Eine
+    # nachgereichte Urkunde soll den Namen tragen, unter dem der Wettbewerb
+    # damals lief, auch wenn inzwischen ein anderer aktiv ist.
     return build_certificates_pdf(
-        settings.site_name,
-        challenge.title if challenge else "",
+        event_branding(challenge)["name"],
         entries,
         task_count,
         signature_name=settings.signature_name,
