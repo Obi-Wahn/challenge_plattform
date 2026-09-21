@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, render_template, request, redirect, url_for
 from extensions import db, limiter
 from sqlalchemy.exc import IntegrityError
 from models import Team, Challenge
 from scoring import get_standings, get_podium
+from sitzung import team_abmelden, team_anmelden
 from network import join_url
 import base64
 import io
@@ -117,8 +118,7 @@ def index():
             return mit_fehler("Teamname vergeben. Bitte einloggen oder anderen Namen wählen.")
 
         # Auto-login
-        session["team_id"] = new_team.id
-        session["team_name"] = new_team.name
+        team_anmelden(new_team)
         return redirect(url_for("challenge.view"))
 
     return render_template("index.html", qr_code_data=qr_code_data, beitritt=beitritt)
@@ -140,8 +140,7 @@ def login():
         challenge = Challenge.current()
         team = team_zur_anmeldung(challenge, team_name) if challenge else None
         if team and team.check_password(password):
-            session["team_id"] = team.id
-            session["team_name"] = team.name
+            team_anmelden(team)
             return redirect(url_for("challenge.view"))
         else:
              return render_template("login.html", error="Ungültiger Teamname oder Passwort.")
@@ -150,8 +149,7 @@ def login():
 
 @public_bp.route("/logout")
 def logout():
-    session.pop("team_id", None)
-    session.pop("team_name", None)
+    team_abmelden()
     return redirect(url_for("public.index"))
 
 @public_bp.route("/scoreboard")

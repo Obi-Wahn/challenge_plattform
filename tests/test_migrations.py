@@ -10,7 +10,8 @@ import sqlite3
 import pytest
 
 from app import (ensure_added_columns, ensure_pause_timestamp,
-                 ensure_team_challenge_binding, run_startup_migrations)
+                 ensure_team_challenge_binding, ensure_team_uids,
+                 run_startup_migrations)
 
 
 @pytest.fixture
@@ -229,6 +230,14 @@ class TestNachtraeglicheSpalten:
         spalten = {zeile[1] for zeile in lies(pfad, "PRAGMA table_info(teams)")}
         assert {"member_names", "members_approved"} <= spalten
 
+    def test_spalte_fuer_das_kennzeichen_wird_ergaenzt(self, alte_datenbank):
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
+
+        ensure_added_columns()
+
+        spalten = {zeile[1] for zeile in lies(pfad, "PRAGMA table_info(teams)")}
+        assert "uid" in spalten
+
     def test_zweiter_aufruf_tut_nichts(self, alte_datenbank):
         alte_datenbank(ALTES_TEAM_SCHEMA)
 
@@ -241,6 +250,31 @@ class TestNachtraeglicheSpalten:
         ensure_added_columns()
 
         assert lies(pfad, "SELECT title, max_points FROM tasks") == [("Aufgabe 1", 10)]
+
+
+class TestKennzeichenDerTeams:
+    """Teams von vorher bekommen beim Start ihr Kennzeichen."""
+
+    def test_jedes_alte_team_bekommt_einen_eigenen_wert(self, alte_datenbank):
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
+
+        ensure_added_columns()
+        ensure_team_uids()
+
+        werte = [zeile[0] for zeile in lies(pfad, "SELECT uid FROM teams ORDER BY id")]
+        assert all(werte), "Ohne Kennzeichen käme kein Team mehr auf seine Seite"
+        assert len(set(werte)) == len(werte), "Ein gemeinsamer Wert wäre kein Kennzeichen"
+
+    def test_zweiter_aufruf_laesst_die_werte_stehen(self, alte_datenbank):
+        """Sonst flöge bei jedem Neustart jedes Team aus seiner Sitzung."""
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
+
+        ensure_added_columns()
+        ensure_team_uids()
+        vorher = lies(pfad, "SELECT id, uid FROM teams ORDER BY id")
+        ensure_team_uids()
+
+        assert lies(pfad, "SELECT id, uid FROM teams ORDER BY id") == vorher
 
 
 def test_startmigrationen_laufen_auch_auf_einer_leeren_datenbank(database):
@@ -260,7 +294,7 @@ def test_der_umbau_der_teams_verliert_die_spalten_der_namen_nicht(alte_datenbank
     run_startup_migrations()
 
     spalten = {zeile[1] for zeile in lies(pfad, "PRAGMA table_info(teams)")}
-    assert {"challenge_id", "member_names", "members_approved"} <= spalten
+    assert {"challenge_id", "member_names", "members_approved", "uid"} <= spalten
     assert lies(pfad, "SELECT name FROM teams ORDER BY id") == [("Alpha",), ("Beta",)]
 
 

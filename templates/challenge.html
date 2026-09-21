@@ -3,13 +3,6 @@
 
 <h2 class="mb-3">🧩 {{ event.name }}</h2>
 
-{% if not challenge %}
-<div class="event-card text-secondary">
-  Noch ist kein Event aktiv – lehnt euch zurück ☕
-</div>
-
-{% else %}
-
 <!-- Team + Challenge -->
 <div class="mb-3 text-secondary">
   Team <strong>{{ team }}</strong> · {{ challenge.title }}
@@ -207,7 +200,6 @@
   {% endfor %}
 
 </div>
-{% endif %}
 
 {% if seconds %}
 <script>

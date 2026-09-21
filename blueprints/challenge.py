@@ -1,8 +1,9 @@
-from flask import (Blueprint, render_template, request, redirect, url_for, session,
+from flask import (Blueprint, render_template, request, redirect, url_for,
                    abort, current_app, send_file, flash)
 from extensions import db
-from models import (Team, Challenge, Task, Submission, Settings, MAX_MEMBERS,
+from models import (Challenge, Task, Submission, Settings, MAX_MEMBERS,
                     MAX_MEMBER_TEXT_LENGTH, format_member_names, parse_member_names)
+from sitzung import angemeldetes_team
 from uploads import zum_loeschen_vormerken
 from scoring import get_standings
 from certificates import build_certificates_for, certificate_entry, names_line
@@ -16,47 +17,17 @@ challenge_bp = Blueprint('challenge', __name__)
 def allowed_file(filename, allowed_ext):
     return "." in filename and filename.lower().endswith(allowed_ext.lower())
 
-def team_of_current_challenge(challenge):
-    """The logged-in team, but only if it belongs to this competition.
-
-    A session from an earlier competition must not carry over once another one
-    has been activated.
-    """
-    team_id = session.get("team_id")
-    if not team_id or not challenge:
-        return None
-
-    team = db.session.get(Team, team_id)
-    if team is None or team.challenge_id != challenge.id:
-        return None
-    return team
-
 @challenge_bp.route("/challenge")
 def view():
-    if "team_id" not in session:
-        return redirect(url_for("public.index"))
-
     # Teams always see the currently active competition.
     challenge = Challenge.current()
-    team = team_of_current_challenge(challenge)
 
-    if challenge and team is None:
-        # Logged in for a competition that is no longer the current one.
-        session.pop("team_id", None)
-        session.pop("team_name", None)
+    # Wer hier nicht mehr angemeldet ist, gehört auf die Startseite. Das gilt
+    # auch nach dem Löschen des Wettbewerbs: Mit ihm sind seine Teams weg,
+    # und angemeldetes_team() räumt die Sitzung dann gleich mit auf.
+    team = angemeldetes_team(challenge)
+    if team is None:
         return redirect(url_for("public.index"))
-
-    if not challenge:
-        return render_template(
-            "challenge.html",
-            challenge=None,
-            tasks=[],
-            submission_map={},
-            status="not_scheduled",
-            seconds=0,
-            team=session.get("team_name"),
-            member_names_enabled=False
-        )
 
     team_id = team.id
     tasks = Task.query.filter_by(challenge_id=challenge.id).all()
@@ -100,7 +71,7 @@ def team_members():
     noch nachgetragen werden können.
     """
     challenge = Challenge.current()
-    team = team_of_current_challenge(challenge)
+    team = angemeldetes_team(challenge)
     if team is None:
         return redirect(url_for("public.index"))
 
@@ -153,17 +124,12 @@ def team_members():
 
 @challenge_bp.route("/submit/<int:task_id>", methods=["POST"])
 def submit_task(task_id):
-    if "team_id" not in session:
-        abort(403)
-
     # Submissions are only accepted for the active competition,
     # matching what teams see on the challenge page.
     challenge = Challenge.current()
-    if not challenge:
-        abort(403)
 
     # A team may only submit for its own competition.
-    team = team_of_current_challenge(challenge)
+    team = angemeldetes_team(challenge)
     if team is None:
         abort(403)
 
@@ -247,7 +213,7 @@ def certificate_filename(team_name):
 def certificate():
     """A team downloads its own certificate, once the competition is over."""
     challenge = Challenge.current()
-    team = team_of_current_challenge(challenge)
+    team = angemeldetes_team(challenge)
     if team is None:
         return redirect(url_for("public.index"))
 

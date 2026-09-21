@@ -171,6 +171,8 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Ein Team hat die falsche Datei hochgeladen | `/admin` → *Abgaben* → **🔓 Erneut abgeben erlauben**. Das gilt **einmal**; die bisherige Bewertung wird dabei gelöscht und die Abgabe landet wieder in der Warteschlange. |
 | „Abgabe nicht möglich" bei einem Team | Wettbewerb pausiert, Endzeit überschritten, oder das Team gehört zu einem anderen Wettbewerb. |
 | Falsches Dateiformat wird abgewiesen | Das erlaubte Format steht pro Aufgabe. Prüfen, ob es zu dem passt, was die Umgebung tatsächlich exportiert (Scratch: `.sb3`, MakeCode-Calliope: `.hex`). |
+| Wettbewerb gelöscht, ein Team sitzt noch davor | Mit dem Wettbewerb sind seine Teams weg. Das Team landet beim nächsten Klick auf der Startseite und meldet sich dort für den nächsten Wettbewerb neu an. |
+| Nach dem Update auf diese Fassung sind alle Teams abgemeldet | Einmalig und so gewollt: Anmeldungen aus der Zeit davor gelten nicht mehr. Teamname und Passwort bleiben, die Teams melden sich einmal neu an. Darum das Update besser vor dem Wettbewerb einspielen als mittendrin. |
 | Versehentlich beendet | **🔓 Wieder öffnen** auf der Wettbewerbsseite. Die Endzeit wird gelöscht und muss neu gesetzt werden. |
 | Teams sehen die geänderte Zeit nicht | Sie müssen die Seite einmal neu laden. Die Uhr zählt im Browser weiter und merkt von sich aus nichts. |
 | Ein Gerät erreicht den Server nicht | Zuerst die Adresse auf der Startseite mit der im Terminal vergleichen. Dann Firewall. Dann, ob das Gerät im selben Netz hängt (nicht im Gast-WLAN). |
