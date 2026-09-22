@@ -440,6 +440,22 @@ class TestHinweise:
 
         assert "Geheimtipp" in client.get("/challenge").get_data(as_text=True)
 
+    def test_knopfreihe_fluchtet_auch_ohne_hinweis(
+            self, admin, make_challenge, make_task):
+        challenge = make_challenge()
+        make_task(challenge, title="Mit Tipp", hint="Nutzt „wiederhole“.")
+        make_task(challenge, title="Ohne Tipp")
+
+        seite = admin.get(
+            f"/admin/challenges/{challenge.id}/tasks").get_data(as_text=True)
+
+        # Der Umschalter ist in beiden Zuständen gleich breit (das längere
+        # Wort hält unsichtbar die Breite), und wo es nichts umzuschalten
+        # gibt, hält ein Platzhalter die Lücke. Sonst stünden Bearbeiten,
+        # Sichern und Löschen von Zeile zu Zeile an anderer Stelle.
+        assert seite.count("aufgaben-tipp-platz") == 1
+        assert seite.count("aufgaben-tipp-luecke") == 1
+
 
 class TestEinstellungen:
     def test_name_und_untertitel_werden_gespeichert(self, admin, client, database):

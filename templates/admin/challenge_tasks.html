@@ -45,9 +45,16 @@
         <form method="post" action="{{ url_for('admin.task_toggle_hint', tid=t.id) }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button class="btn btn-sm {% if t.hint_visible %}btn-info{% else %}btn-outline-info{% endif %}">
-            💡 {% if t.hint_visible %}sichtbar{% else %}verborgen{% endif %}
+            💡 <span class="aufgaben-tipp-wort">
+              <span class="aufgaben-tipp-platz" aria-hidden="true">verborgen</span>
+              <span>{% if t.hint_visible %}sichtbar{% else %}verborgen{% endif %}</span>
+            </span>
           </button>
         </form>
+        {% else %}
+        <span class="btn btn-sm btn-outline-info aufgaben-tipp-luecke" aria-hidden="true">
+          💡 verborgen
+        </span>
         {% endif %}
 
         <form method="post" action="{{ url_for('admin.task_delete', tid=t.id) }}"
