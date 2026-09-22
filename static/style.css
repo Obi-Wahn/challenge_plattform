@@ -192,3 +192,29 @@ input::placeholder, textarea::placeholder {
 /* Die letzten fünf Minuten färben die Uhr, die letzte Minute macht sie rot. */
 .zeitleiste-knapp .zeitleiste-uhr { color: #fbbf24; }
 .zeitleiste-gleich .zeitleiste-uhr { color: #f87171; }
+
+/* ====== Aufgabenliste im Admin-Bereich ====== */
+
+/* Der Umschalter heißt mal "sichtbar", mal "verborgen". Wäre er nur so breit
+   wie sein Wort, säße die ganze Knopfreihe je nach Zustand ein Stück weiter
+   links - die Zeilen der Liste würden untereinander nicht mehr fluchten.
+   Deshalb steht das längere Wort unsichtbar hinter dem angezeigten und hält
+   die Breite. So stimmt sie auch, wenn die Wörter einmal andere werden. */
+.aufgaben-tipp-wort {
+  display: inline-grid;
+}
+
+.aufgaben-tipp-wort > * {
+  grid-area: 1 / 1;
+}
+
+.aufgaben-tipp-platz {
+  visibility: hidden;
+}
+
+/* Aufgaben ohne Tipp haben nichts umzuschalten. Statt den Knopf wegzulassen
+   und die übrigen nach rechts rutschen zu lassen, hält ein unsichtbarer
+   Platzhalter die Lücke. */
+.aufgaben-tipp-luecke {
+  visibility: hidden;
+}
