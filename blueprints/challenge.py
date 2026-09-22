@@ -14,8 +14,37 @@ from datetime import datetime
 
 challenge_bp = Blueprint('challenge', __name__)
 
+# Wie lang der Name einer abgelegten Abgabe werden darf. Dateisysteme lassen
+# meist 255 Zeichen je Namensbestandteil zu; darüber scheitert das Speichern
+# mit einem OSError, und die Abgabe endete für das Team in einer Fehlerseite.
+# 100 Zeichen sind mehr, als ein Mensch tippt, und lassen Luft für das
+# vorangestellte "task_<nummer>_".
+MAX_DATEINAME = 100
+
+# So lang ist Task.allowed_extension höchstens (String(10)). Was darüber
+# hinausgeht, ist keine Endung mehr, sondern Name.
+MAX_ENDUNG = 10
+
 def allowed_file(filename, allowed_ext):
     return "." in filename and filename.lower().endswith(allowed_ext.lower())
+
+def gekuerzter_dateiname(filename):
+    """Kürzt einen zu langen Dateinamen, behält dabei aber die Endung.
+
+    Gekürzt statt abgewiesen: Wie die Datei heißt, ist nebensächlich - es
+    zählt, was darin steht -, und ein Team hat pro Aufgabe nur einen
+    Versuch. Die Endung bleibt, weil der Download in der Verwaltung sie aus
+    dem abgelegten Namen nimmt.
+
+    secure_filename() hat den Namen vorher auf ASCII gebracht, ein Zeichen
+    ist hier also auch ein Byte.
+    """
+    if len(filename) <= MAX_DATEINAME:
+        return filename
+
+    stamm, endung = os.path.splitext(filename)
+    endung = endung[:MAX_ENDUNG]
+    return stamm[:MAX_DATEINAME - len(endung)] + endung
 
 @challenge_bp.route("/challenge")
 def view():
@@ -156,7 +185,7 @@ def submit_task(task_id):
     if file.filename == "" or not allowed_file(file.filename, task.allowed_extension):
         abort(400)
 
-    filename = secure_filename(file.filename)
+    filename = gekuerzter_dateiname(secure_filename(file.filename))
     team_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], str(team_id))
     os.makedirs(team_folder, exist_ok=True)
     
