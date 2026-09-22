@@ -287,8 +287,14 @@
         nicht rückgängig machen.
       </div>
     </div>
+    <!-- Der Name steht in einem data-Attribut und nicht im JavaScript-Text:
+         Dort beendete ein Apostroph im Namen - „Robo's Cup“ - die
+         Zeichenkette, die Rückfrage entstand gar nicht erst, und der
+         Wettbewerb war mit einem Klick gelöscht. Als Attribut ist der Name
+         immer nur Text. -->
     <form method="post" action="{{ url_for('admin.challenge_delete', cid=challenge.id) }}"
-      onsubmit="return confirm('Wettbewerb „{{ challenge.title }}“ wirklich löschen? Alle Aufgaben, Teams und Abgaben gehen verloren!');">
+      data-wettbewerb="{{ challenge.title }}"
+      onsubmit="return confirm('Wettbewerb „' + this.dataset.wettbewerb + '“ wirklich löschen? Alle Aufgaben, Teams und Abgaben gehen verloren!');">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button class="btn btn-outline-danger">🗑 Löschen</button>
     </form>

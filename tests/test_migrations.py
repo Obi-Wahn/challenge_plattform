@@ -222,6 +222,55 @@ class TestNachtraeglicheSpalten:
         assert zeilen[0][1] is None, "Ein nicht pausierter Wettbewerb bleibt leer"
         assert zeilen[1][1] is not None, "Die laufende Pause braucht einen Zeitpunkt"
 
+    def test_der_zeitpunkt_steht_so_da_wie_alle_anderen(self, alte_datenbank):
+        """Derselbe Text, den auch der Weg über die Modelle schreibt.
+
+        Ohne die Typangabe ginge das datetime-Objekt unverändert an sqlite3,
+        und dessen eingebauter Adapter ist seit Python 3.12 abgekündigt - er
+        meldete sich bei jedem Testlauf mit einer Warnung. Geschrieben wird
+        so oder so derselbe Text; hier steht, dass das auch stimmt.
+        """
+        import re
+
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA + """
+            UPDATE challenges SET paused = 1 WHERE id = 2;
+        """)
+
+        ensure_added_columns()
+        ensure_pause_timestamp()
+
+        zeitpunkt = lies(pfad, "SELECT paused_at FROM challenges WHERE id = 2")[0][0]
+        assert re.fullmatch(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(\.\d+)?", zeitpunkt), \
+            f"So steht der Zeitpunkt nicht in der Datenbank: {zeitpunkt!r}"
+
+    def test_kein_rohes_datum_geht_an_sqlite(self, alte_datenbank):
+        """Der abgekündigte Adapter von sqlite3 wird gar nicht erst bemüht."""
+        from datetime import datetime
+
+        from sqlalchemy import event
+
+        from extensions import db
+
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA + """
+            UPDATE challenges SET paused = 1 WHERE id = 2;
+        """)
+        ensure_added_columns()
+
+        rohe = []
+
+        def mitschreiben(conn, cursor, anweisung, parameter, kontext, many):
+            werte = parameter.values() if isinstance(parameter, dict) else (parameter or ())
+            rohe.extend(w for w in werte if isinstance(w, datetime))
+
+        event.listen(db.engine, "before_cursor_execute", mitschreiben)
+        try:
+            ensure_pause_timestamp()
+        finally:
+            event.remove(db.engine, "before_cursor_execute", mitschreiben)
+
+        assert not rohe, f"Ein datetime-Objekt ging unverwandelt weiter: {rohe}"
+        assert lies(pfad, "SELECT paused_at FROM challenges WHERE id = 2")[0][0]
+
     def test_spalten_fuer_die_namen_werden_ergaenzt(self, alte_datenbank):
         pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
 

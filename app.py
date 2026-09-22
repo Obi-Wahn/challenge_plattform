@@ -45,6 +45,33 @@ UNSICHERE_ZIELE = re.compile(
 # Tests kommt das vor - nicht ein zweites Mal in dieselbe Datei schreibt.
 LOG_HANDLER_NAME = "protokolldatei"
 
+# Was auf einer Fehlerseite steht, je Fehlerart: ein Zeichen, eine
+# Überschrift und ein Satz, der sagt, was zu tun ist.
+#
+# Ohne diese Seiten zeigt der Webserver seine eigene: englisch, ohne
+# Erklärung und ohne Weg zurück. Das trifft genau die Momente, in denen im
+# Wettbewerb jemand die Hand hebt - die falsche Dateiart, die zu große Datei,
+# der fünfte Fehlversuch am Admin-Passwort.
+FEHLERSEITEN = {
+    400: ("🤔", "Damit konnte der Server nichts anfangen",
+          "Die Anfrage kam unvollständig an. Am einfachsten ist es, die Seite "
+          "neu zu laden und es noch einmal zu versuchen."),
+    403: ("🔒", "Das geht gerade nicht",
+          "Entweder ist die Anmeldung abgelaufen, oder der Wettbewerb nimmt "
+          "gerade nichts mehr entgegen. Auf der Startseite geht es weiter."),
+    404: ("🧭", "Diese Seite gibt es nicht",
+          "Vielleicht hat sich in der Adresse ein Tippfehler versteckt."),
+    413: ("📦", "Die Datei ist zu groß",
+          "Bis zu 16 MB nimmt der Server an. Bei einem Scratch-Projekt helfen "
+          "meist kleinere Klänge oder Bilder - fragt sonst die Lehrkraft."),
+    429: ("⏱️", "Zu viele Versuche",
+          "Zum Schutz vor Rateversuchen ist die Anmeldung kurz gesperrt. "
+          "Wartet eine Minute, dann geht es wieder."),
+    500: ("🛠️", "Da ist etwas schiefgegangen",
+          "Der Fehler steht mit Zeitstempel in der Protokolldatei "
+          "logs/anwendung.log. Ein Neuladen der Seite hilft oft schon."),
+}
+
 
 def configure_logging(app):
     """Schreibt Fehler und wichtige Ereignisse in eine Datei.
@@ -177,7 +204,46 @@ def create_app():
             "nav_urkunde": status == "finished",
         }
 
+    register_error_handlers(app)
+
     return app
+
+
+def register_error_handlers(app):
+    """Zeigt für jeden Fehler eine Seite der Anwendung statt der des Servers."""
+    from flask import render_template
+
+    def fehlerseite(code):
+        zeichen, ueberschrift, erklaerung = FEHLERSEITEN[code]
+
+        # Ein angemeldetes Team kommt mit einem Klick zurück an die Arbeit,
+        # statt sich über die Startseite neu durchklicken zu müssen.
+        zurueck = None
+        try:
+            from flask import url_for
+            from models import Challenge
+            from sitzung import angemeldetes_team
+            if angemeldetes_team(Challenge.current()):
+                zurueck = url_for("challenge.view")
+        except Exception: # noqa: BLE001 - eine Fehlerseite darf nie selbst scheitern
+            zurueck = None
+
+        return render_template(
+            "fehler.html", code=code, zeichen=zeichen,
+            ueberschrift=ueberschrift, erklaerung=erklaerung, zurueck=zurueck
+        ), code
+
+    for code in FEHLERSEITEN:
+        # Der Umweg über die Vorgabe bindet den Wert fest: Ohne sie zeigten
+        # am Ende alle Handler auf dieselbe letzte Zahl.
+        @app.errorhandler(code)
+        def zeigen(error, code=code):
+            if code == 500:
+                # Nach einem Fehler steht die Sitzung der Datenbank womöglich
+                # quer. Die Fehlerseite fragt aber selbst noch einmal nach dem
+                # Wettbewerb - also erst aufräumen.
+                db.session.rollback()
+            return fehlerseite(code)
 
 app = create_app()
 
@@ -359,17 +425,24 @@ def ensure_pause_timestamp():
     und die Uhr liefe trotz Pause weiter. Der Start des Updates ist der
     genaueste Zeitpunkt, den es hier noch gibt.
     """
-    from sqlalchemy import inspect, text
+    from sqlalchemy import DateTime, bindparam, inspect, text
 
     inspector = inspect(db.engine)
     if "challenges" not in set(inspector.get_table_names()):
         return
 
+    # Der Zeitpunkt wird als DateTime angemeldet, damit SQLAlchemy ihn selbst
+    # in Text umwandelt - so, wie es beim Weg über die Modelle ohnehin
+    # geschieht. Ohne die Angabe ginge das datetime-Objekt unverändert an
+    # sqlite3, und dessen eingebauter Adapter ist seit Python 3.12
+    # abgekündigt. Gespeichert wird in beiden Fällen derselbe Text.
+    befehl = text(
+        "UPDATE challenges SET paused_at = :jetzt "
+        "WHERE paused = 1 AND paused_at IS NULL"
+    ).bindparams(bindparam("jetzt", type_=DateTime))
+
     with db.engine.begin() as conn:
-        conn.execute(text(
-            "UPDATE challenges SET paused_at = :jetzt "
-            "WHERE paused = 1 AND paused_at IS NULL"
-        ), {"jetzt": datetime.now()})
+        conn.execute(befehl, {"jetzt": datetime.now()})
 
 def ensure_team_uids():
     """Gibt Teams aus der Zeit vor der Spalte ihr Kennzeichen.

@@ -71,6 +71,8 @@ class TestDateiUpload:
     def test_nur_das_erlaubte_format(self, make_challenge, make_task, logged_in_team):
         import io
 
+        from models import Submission
+
         challenge = make_challenge()
         task = make_task(challenge, allowed_extension=".sb3")
         client, _team = logged_in_team(challenge)
@@ -80,7 +82,10 @@ class TestDateiUpload:
                 "csrf_token": csrf_token(client, "/"),
                 "file": (io.BytesIO(b"x"), name),
             }, content_type="multipart/form-data")
-            assert antwort.status_code == 400, name
+            # Das Team bekommt eine Meldung statt einer Fehlerseite - und
+            # nichts davon wird angenommen.
+            assert antwort.status_code == 302, name
+            assert Submission.query.count() == 0, name
 
     def test_pfadangaben_im_dateinamen_werden_entschaerft(
             self, flask_app, make_challenge, make_task, logged_in_team):
@@ -116,23 +121,33 @@ class TestDateiUpload:
 
 
 class TestCodeAnzeige:
-    def test_hochgeladener_code_wird_escaped_angezeigt(
+    def test_hochgeladener_code_wird_nicht_zu_html(
             self, admin, make_challenge, make_task, logged_in_team):
-        """Eine abgegebene Datei darf im Browser kein Skript ausführen."""
+        """Eine abgegebene Datei darf im Browser kein Skript ausführen.
+
+        Der Inhalt steht seit dem Umbau der Bewertungsseite nicht mehr in der
+        Seite selbst, sondern wird als JSON nachgeladen - daraus kann der
+        Browser unter keinen Umständen HTML machen.
+        """
         import io
 
+        from models import Submission
+
         challenge = make_challenge()
-        task = make_task(challenge, allowed_extension=".sb3")
+        task = make_task(challenge, allowed_extension=".py")
         client, _team = logged_in_team(challenge)
         client.post(f"/submit/{task.id}", data={
             "csrf_token": csrf_token(client, "/"),
-            "file": (io.BytesIO(b"<script>alert(1)</script>"), "loesung.sb3"),
+            "file": (io.BytesIO(b"<script>alert(1)</script>"), "loesung.py"),
         }, content_type="multipart/form-data")
 
         html = admin.get("/admin/submissions").get_data(as_text=True)
-
         assert "<script>alert(1)</script>" not in html
-        assert "&lt;script&gt;" in html
+
+        abgabe = Submission.query.one()
+        antwort = admin.get(f"/admin/submissions/{abgabe.id}/code")
+        assert antwort.mimetype == "application/json"
+        assert antwort.headers["X-Content-Type-Options"] == "nosniff"
 
     def test_teamname_wird_escaped_angezeigt(self, client, make_challenge, make_team):
         challenge = make_challenge()
@@ -163,6 +178,8 @@ class TestRateLimit:
                 "team": "Team Blitz", "password": "raten",
             })
             assert gebremst.status_code == 429
+            # Und zwar mit der eigenen Seite, nicht der englischen des Servers.
+            assert "Zu viele Versuche" in gebremst.get_data(as_text=True)
         finally:
             limiter.enabled = False
             limiter.reset()

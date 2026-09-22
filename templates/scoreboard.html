@@ -54,13 +54,14 @@
               {% for task in tasks %}
               <td class="p-4 text-center">
                 {% set points = team.task_points[task.id] %}
-                {% if points is not none and points > 0 %}
+                {% if points %}
                 <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25">
                   {{ points }}
                 </span>
-                {% elif points == 0 %}
-                <span class="text-muted opacity-25">-</span>
                 {% else %}
+                <!-- Keine Punkte und keine Abgabe sehen gleich aus: Die
+                     Rangliste hängt am Beamer, ein "0" daneben wäre nur ein
+                     zweiter Strich. -->
                 <span class="text-muted opacity-25">-</span>
                 {% endif %}
               </td>

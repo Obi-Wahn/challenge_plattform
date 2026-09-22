@@ -71,7 +71,11 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
         oder an Kolleginnen und Kollegen weitergeben.
 *   **Review-System**:
     *   Anzeige eingereichter Lösungen inklusive **Aufgabenbeschreibung**.
-    *   **In-Browser Code Preview**: Code direkt im Browser lesen.
+    *   **In-Browser Code Preview**: Code direkt im Browser lesen – bei
+        Textformaten (`.pde`, `.py`, `.java`), und erst beim Aufklappen
+        nachgeladen, damit die Seite auch bei vielen Abgaben schnell bleibt.
+        Ein Scratch- oder MakeCode-Projekt ist eine gepackte Datei und lässt
+        sich nicht als Text lesen; dort führt der Weg über den Download.
     *   Download-Option für lokale Tests.
     *   Bewertung mit Punkten (automatisch auf 0–Max. begrenzt) und Feedback.
     *   **Korrektur freigeben**: Eine Abgabe für das Team wieder öffnen; es darf dann genau
@@ -92,6 +96,11 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
     Druckschrift. Ohne Eintrag steht dort wie bisher „Unterschrift“ zum
     Unterschreiben von Hand. Sind für ein Team Namen freigegeben, stehen sie als
     Aufzählung direkt unter dem Teamnamen.
+*   **Eigene Fehlerseiten**: Geht etwas schief – falsche Dateiart, zu große Datei,
+    abgelaufene Anmeldung, zu viele Anmeldeversuche –, steht dort ein deutscher Satz
+    und ein Weg zurück statt der englischen Seite des Webservers. Die gewöhnlichen
+    Missgeschicke einer Schulstunde landen gar nicht erst dort: Das Team bekommt eine
+    Meldung auf seiner Wettbewerbsseite.
 *   **Einstellungen**: Name und Beschreibung der Anwendung frei anpassbar, ohne Code
     zu ändern; dort wird auch freigeschaltet, ob die Teams ihre Namen eintragen dürfen.
 *   **Jeder Wettbewerb heißt, wie er heißt**: Sein Name steht auf Startseite,
@@ -360,7 +369,7 @@ ruff check .
 ```
 
 Beides läuft auch automatisch: Bei jedem Push und jedem Pull Request führt
-GitHub dieselben zwei Befehle aus, auf Python 3.10 und 3.13. Am Pull Request
+GitHub dieselben zwei Befehle aus, auf Python 3.10, 3.13 und 3.14. Am Pull Request
 steht dann ein grünes Häkchen oder ein rotes Kreuz – man muss also nicht
 daran denken, selbst zu testen. Die Einstellungen dazu stehen in
 `.github/workflows/tests.yml`.

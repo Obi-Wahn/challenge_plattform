@@ -38,15 +38,24 @@ def test_falsches_dateiformat_wird_abgewiesen(make_challenge, make_task, logged_
 
     antwort = abgeben(client, task, dateiname="loesung.exe")
 
-    assert antwort.status_code == 400
+    # Zurück zu den Aufgaben, mit einer Meldung - und ohne dass etwas
+    # gespeichert wurde. Vorher endete das in der Fehlerseite des Servers.
+    assert antwort.status_code == 302
+    assert antwort.headers["Location"] == "/challenge"
     assert Submission.query.count() == 0
 
 
 def test_ohne_anmeldung_keine_abgabe(client, make_challenge, make_task):
+    from models import Submission
+
     challenge = make_challenge()
     task = make_task(challenge)
 
-    assert abgeben(client, task).status_code == 403
+    antwort = abgeben(client, task)
+
+    assert antwort.status_code == 302
+    assert antwort.headers["Location"] == "/"
+    assert Submission.query.count() == 0
 
 
 def test_aufgabe_aus_fremdem_wettbewerb_wird_abgewiesen(
@@ -56,6 +65,8 @@ def test_aufgabe_aus_fremdem_wettbewerb_wird_abgewiesen(
     fremde_aufgabe = make_task(fremd)
     client, _team = logged_in_team(aktuell)
 
+    # Eine Aufgabe, die nicht zum eigenen Wettbewerb gehört, bleibt verboten:
+    # Das ist kein Missgeschick, sondern ein Weg, den es nicht geben soll.
     assert abgeben(client, fremde_aufgabe).status_code == 403
 
 
@@ -68,10 +79,12 @@ def test_team_eines_anderen_wettbewerbs_darf_nicht_abgeben(
     neu = make_challenge(title="Neu", active=True)
     aufgabe = make_task(neu)
 
-    assert abgeben(client, aufgabe).status_code == 403
+    assert abgeben(client, aufgabe).status_code == 302
 
 
 def test_pause_sperrt_die_abgabe(make_challenge, make_task, logged_in_team, database):
+    from models import Submission
+
     challenge = make_challenge()
     task = make_task(challenge)
     client, _team = logged_in_team(challenge)
@@ -79,11 +92,14 @@ def test_pause_sperrt_die_abgabe(make_challenge, make_task, logged_in_team, data
     challenge.paused = True
     database.session.commit()
 
-    assert abgeben(client, task).status_code == 403
+    assert abgeben(client, task).status_code == 302
+    assert Submission.query.count() == 0
 
 
 def test_beendeter_wettbewerb_sperrt_die_abgabe(
         make_challenge, make_task, logged_in_team, database):
+    from models import Submission
+
     challenge = make_challenge()
     task = make_task(challenge)
     client, _team = logged_in_team(challenge)
@@ -91,17 +107,25 @@ def test_beendeter_wettbewerb_sperrt_die_abgabe(
     challenge.end_time = datetime.now() - timedelta(minutes=1)
     database.session.commit()
 
-    assert abgeben(client, task).status_code == 403
+    assert abgeben(client, task).status_code == 302
+    assert Submission.query.count() == 0
 
 
 def test_zweite_abgabe_ohne_freigabe_wird_abgewiesen(
         make_challenge, make_task, logged_in_team):
+    from models import Submission
+
     challenge = make_challenge()
     task = make_task(challenge)
     client, _team = logged_in_team(challenge)
 
-    assert abgeben(client, task).status_code == 302
-    assert abgeben(client, task).status_code == 403
+    assert abgeben(client, task, inhalt=b"erster versuch").status_code == 302
+    assert abgeben(client, task, inhalt=b"zweiter versuch").status_code == 302
+
+    # Es bleibt bei genau einer Abgabe, und zwar bei der ersten.
+    abgabe = Submission.query.one()
+    with open(abgabe.filename, "rb") as datei:
+        assert datei.read() == b"erster versuch"
 
 
 class TestKorrektur:
@@ -120,8 +144,11 @@ class TestKorrektur:
         })
 
         assert abgeben(client, task, inhalt=b"zweiter versuch").status_code == 302
-        # Die Freigabe ist damit aufgebraucht.
-        assert abgeben(client, task, inhalt=b"dritter versuch").status_code == 403
+        # Die Freigabe ist damit aufgebraucht: Der dritte Versuch ändert nichts.
+        abgeben(client, task, inhalt=b"dritter versuch")
+        abgabe = Submission.query.one()
+        with open(abgabe.filename, "rb") as datei:
+            assert datei.read() == b"zweiter versuch"
 
     def test_korrektur_loescht_die_alte_bewertung(
             self, admin, make_challenge, make_task, logged_in_team, database):

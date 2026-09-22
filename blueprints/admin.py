@@ -1,9 +1,9 @@
 from flask import (Blueprint, render_template, request, redirect, url_for, session,
-                   send_from_directory, send_file, flash)
+                   send_from_directory, send_file, flash, jsonify)
 from extensions import db
 from models import (Team, Challenge, Task, Submission, Settings, TASK_FORMATS,
-                    MAX_MEMBERS, MAX_MEMBER_TEXT_LENGTH, format_member_names,
-                    parse_member_names, event_branding)
+                    TEXT_FORMATS, MAX_MEMBERS, MAX_MEMBER_TEXT_LENGTH,
+                    format_member_names, parse_member_names, event_branding)
 from scoring import get_standings
 from task_rules import KEIN_TITEL, PUNKTE_KEINE_ZAHL, clean_task_values
 from certificates import (build_certificates_for, certificate_entry, signature_font,
@@ -22,6 +22,13 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 # den Wettbewerb ins nächste Jahr schiebt.
 MAX_DAUER_MINUTEN = 24 * 60
 STANDARD_DAUER_MINUTEN = 45
+
+# So lang dürfen die Namen werden, die in die Datenbank gehen - dieselben
+# Grenzen, die dort als Spaltenbreite stehen. SQLite setzt sie nicht selbst
+# durch: Ohne diese Prüfung landen auch 5000 Zeichen in der Spalte.
+MAX_TITEL = 200
+MAX_SEITENNAME = 100
+MAX_UNTERTITEL = 300
 
 def gelesene_dauer(value):
     """Die eingetippte Dauer in Minuten, als (Minuten, Fehlermeldung).
@@ -53,8 +60,8 @@ def zeitpunkt_text(zeitpunkt, bezug):
 
 @admin_bp.before_request
 def restrict_admin():
-    if request.endpoint == 'auth.admin_login':
-        return
+    # Gilt für alles unter /admin außer der Anmeldung selbst: Die liegt in
+    # auth_bp, und diese Prüfung läuft nur für die Seiten dieses Blueprints.
     if not session.get("is_admin"):
         return redirect(url_for('auth.admin_login'))
 
@@ -90,9 +97,13 @@ def challenge_overview(challenge):
     }
 
 def safe_redirect_target(default):
-    """A "next" value from a form, but only if it stays on this site."""
+    """A "next" value from a form, but only if it stays on this site.
+
+    Der Backslash zählt dabei wie ein Schrägstrich: Browser machen aus
+    „/\\fremd.de" das Ziel „//fremd.de", also eine andere Seite.
+    """
     target = (request.form.get("next") or "").strip()
-    if target.startswith("/") and not target.startswith("//"):
+    if target.startswith("/") and not target.startswith("//") and "\\" not in target:
         return target
     return default
 
@@ -163,6 +174,19 @@ def parse_datetime_local(value):
             continue
     return None
 
+def unveraenderte_zeit(alt, neu):
+    """Behält die gespeicherte Zeit, wenn das Formular dieselbe Minute zurückgibt.
+
+    Das Feld im Formular kennt nur Stunden und Minuten. Nach „Jetzt starten
+    für 45 Minuten" hat die Endzeit aber Sekunden, und ein Speichern im
+    Formular „Name & Zeiten" schnitt sie bisher auf die volle Minute ab -
+    ohne dass jemand die Zeit angefasst hätte.
+    """
+    if alt and neu and alt.replace(second=0, microsecond=0) == neu:
+        return alt
+    return neu
+
+
 def latest_challenge_with_teams():
     """The most recent competition that has teams, as a source for a carry-over."""
     return (Challenge.query.filter(Challenge.teams.any())
@@ -173,10 +197,18 @@ def challenge_new():
     previous = latest_challenge_with_teams()
 
     if request.method == "POST":
-        title = request.form["title"]
+        # Geprüft wie beim Bearbeiten: Ein Name aus lauter Leerzeichen kam
+        # vorher durch - das HTML-„required" lässt ein Leerzeichen gelten -
+        # und stand danach als leere Zeile auf der Startseite, der
+        # Beamerseite und auf jeder Urkunde dieses Wettbewerbs.
+        title = request.form.get("title", "").strip()[:MAX_TITEL]
+        if not title:
+            flash("Der Wettbewerb braucht einen Namen - nichts angelegt.", "warning")
+            return redirect(url_for('admin.challenge_new'))
+
         challenge = Challenge(
             title=title,
-            tagline=request.form.get("tagline", "").strip()[:300],
+            tagline=request.form.get("tagline", "").strip()[:MAX_UNTERTITEL],
             start_time=parse_datetime_local(request.form.get("start_time")),
             end_time=parse_datetime_local(request.form.get("end_time"))
         )
@@ -215,12 +247,12 @@ def challenge_edit(cid):
     challenge = db.get_or_404(Challenge, cid)
 
     if request.method == "POST":
-        title = request.form.get("title", "").strip()
+        title = request.form.get("title", "").strip()[:MAX_TITEL]
         if title:
             challenge.title = title
         # Anders als der Name darf der Untertitel leer bleiben: Leer ist die
         # Antwort "nimm den aus den Einstellungen", nicht ein Versehen.
-        challenge.tagline = request.form.get("tagline", "").strip()[:300]
+        challenge.tagline = request.form.get("tagline", "").strip()[:MAX_UNTERTITEL]
         # Erst prüfen, dann verstellen: Eine unbrauchbare Dauer soll die
         # Eingabe abweisen, ohne unterwegs schon die Zeiten verstellt zu haben.
         dauer, dauer_fehler = gelesene_dauer(request.form.get("duration_minutes"))
@@ -228,26 +260,35 @@ def challenge_edit(cid):
             flash(dauer_fehler, "warning")
             return redirect(url_for('admin.challenge_edit', cid=cid))
 
-        challenge.start_time = parse_datetime_local(request.form.get("start_time"))
-        challenge.end_time = parse_datetime_local(request.form.get("end_time"))
+        challenge.start_time = unveraenderte_zeit(
+            challenge.start_time, parse_datetime_local(request.form.get("start_time")))
+        challenge.end_time = unveraenderte_zeit(
+            challenge.end_time, parse_datetime_local(request.form.get("end_time")))
 
         # Die Dauer ist nur eine andere Art, dieselbe Endzeit einzutragen:
         # Sie rechnet sie aus und sticht dabei ein ausgefülltes Endzeit-Feld.
         # Gespeichert wird weiterhin allein die Endzeit.
+        war_pausiert = challenge.paused
         if dauer:
             beginn = challenge.start_time or datetime.now()
             challenge.start_time = beginn
             challenge.end_time = beginn + timedelta(minutes=dauer)
+            # Eine neue Dauer hebt die Pause auf - genau wie „Jetzt starten“.
+            # Sonst rechnete der Wettbewerb weiter ab dem Zeitpunkt der Pause:
+            # Die Teams sähen „Startet in …“ für einen Wettbewerb, der laufen
+            # soll, und eine Restzeit, die um die Pause zu lang ist.
+            challenge.paused = False
+            challenge.paused_at = None
 
         db.session.commit()
 
         if dauer:
-            flash(
-                f"Gespeichert. {dauer} Minuten ab "
-                f"{zeitpunkt_text(challenge.start_time, datetime.now())}, also bis "
-                f"{zeitpunkt_text(challenge.end_time, challenge.start_time)}.",
-                "success"
-            )
+            meldung = (f"Gespeichert. {dauer} Minuten ab "
+                       f"{zeitpunkt_text(challenge.start_time, datetime.now())}, also bis "
+                       f"{zeitpunkt_text(challenge.end_time, challenge.start_time)}.")
+            if war_pausiert:
+                meldung += " Die Pause ist damit beendet."
+            flash(meldung, "success")
         else:
             flash("Name, Untertitel und Zeiten gespeichert.", "success")
         return redirect(url_for('admin.challenge_detail', cid=cid))
@@ -509,13 +550,97 @@ def task_toggle_hint(tid):
     db.session.commit()
     return redirect(url_for('admin.challenge_tasks', cid=task.challenge_id))
 
+# Wie viel von einer Abgabe im Anzeigefeld steht. Mehr liest niemand am
+# Bildschirm, und die Seite soll auch bei einer versehentlich riesigen Datei
+# schnell bleiben.
+MAX_CODE_ZEICHEN = 200_000
+
+
+def gelesene_punkte(wert, maximum):
+    """Die eingetippte Punktzahl, als (Punkte, Fehlermeldung).
+
+    Über das Formular kommt hier immer eine Zahl an - das Feld ist ein
+    Zahlenfeld. Ein von Hand abgeschicktes Formular beendete die Bewertung
+    vorher aber mit einem Serverfehler, und dieselbe Prüfung gibt es für
+    Aufgaben längst (clean_task_values). Zu große und negative Werte werden
+    wie bisher auf den erlaubten Bereich gebracht.
+    """
+    try:
+        punkte = int(str(wert).strip())
+    except (TypeError, ValueError):
+        return None, "Die Punktzahl muss eine Zahl sein - nichts gespeichert."
+
+    return max(0, min(punkte, maximum or 0)), None
+
+
+def dateigroesse(pfad):
+    """Die Größe einer Abgabe als lesbarer Text, oder None, wenn sie fehlt."""
+    try:
+        bytes_ = os.path.getsize(pfad)
+    except OSError:
+        return None
+
+    if bytes_ < 1024:
+        return f"{bytes_} Byte"
+    if bytes_ < 1024 * 1024:
+        return f"{bytes_ / 1024:.0f} KB"
+    return f"{bytes_ / (1024 * 1024):.1f} MB"
+
+
+def code_der_abgabe(submission):
+    """Der Inhalt einer Abgabe zum Anzeigen, als (Text, Hinweis).
+
+    Gelesen wird erst hier, also wenn jemand den Code wirklich sehen will.
+    Vorher las die Bewertungsseite jede Abgabe des Wettbewerbs beim Öffnen
+    komplett ein und schrieb sie ins HTML - zehn Scratch-Projekte von je 2 MB
+    ergaben so eine Seite von 35 MB, in der nichts Lesbares stand.
+    """
+    endung = os.path.splitext(submission.filename)[1].lower()
+    if endung not in TEXT_FORMATS:
+        bezeichnung = TASK_FORMATS.get(endung)
+        was = f"Eine {bezeichnung}-Datei" if bezeichnung else "Diese Art von Datei"
+        return "", f"{was} lässt sich nicht als Text anzeigen - zum Ansehen herunterladen."
+
+    if not os.path.exists(submission.filename):
+        return "", "Die Datei liegt nicht mehr an ihrem Platz."
+
+    try:
+        with open(submission.filename, "r", encoding="utf-8", errors="replace") as datei:
+            text = datei.read(MAX_CODE_ZEICHEN + 1)
+    except OSError as fehler:
+        return "", f"Die Datei konnte nicht gelesen werden: {fehler}"
+
+    if len(text) > MAX_CODE_ZEICHEN:
+        return text[:MAX_CODE_ZEICHEN], ("Nur der Anfang wird angezeigt - die "
+                                         "ganze Datei steckt im Download.")
+
+    return text, ""
+
+
+@admin_bp.route("/submissions/<int:submission_id>/code")
+def submission_code(submission_id):
+    """Der Inhalt einer Abgabe, nachgeladen beim Aufklappen.
+
+    Als JSON und nicht als Seite: So kann der Browser den Inhalt einer
+    fremden Datei unter keinen Umständen als HTML auffassen.
+    """
+    submission = db.get_or_404(Submission, submission_id)
+    text, hinweis = code_der_abgabe(submission)
+
+    antwort = jsonify({"code": text, "hinweis": hinweis})
+    # Der Browser soll den Inhalt auch dann nicht als HTML auffassen, wenn er
+    # zu raten versucht, was er da bekommt.
+    antwort.headers["X-Content-Type-Options"] = "nosniff"
+    return antwort
+
+
 @admin_bp.route("/submissions", methods=["GET", "POST"])
 def submissions():
     if request.method == "POST":
         submission_id = request.form.get("submission_id")
-        
+        submission = db.session.get(Submission, submission_id)
+
         if "soft_reset" in request.form:
-             submission = db.session.get(Submission, submission_id)
              if submission:
                  submission.points = None
                  submission.feedback = None
@@ -523,9 +648,12 @@ def submissions():
         else:
              points = request.form.get("points")
              feedback = request.form.get("feedback", "")
-             submission = db.session.get(Submission, submission_id)
              if submission and points: # Check if points is not empty string
-                 submission.points = max(0, min(int(points), submission.task.max_points))
+                 punkte, fehler = gelesene_punkte(points, submission.task.max_points)
+                 if fehler:
+                     flash(fehler, "warning")
+                     return redirect(url_for('admin.submissions'))
+                 submission.points = punkte
                  submission.feedback = feedback
                  db.session.commit()
         return redirect(url_for('admin.submissions'))
@@ -545,16 +673,11 @@ def submissions():
 
     submissions_data = []
     for s in raw_submissions:
-        content = "Datei konnte nicht gelesen werden."
-        try:
-            if os.path.exists(s.filename):
-                with open(s.filename, "r", encoding="utf-8", errors="replace") as f:
-                    content = f.read()
-            else:
-                content = "Datei nicht gefunden."
-        except Exception as e:
-            content = f"Fehler: {e}"
-
+        # Der Inhalt wird hier nicht mehr gelesen; das erledigt
+        # submission_code() beim Aufklappen. Angezeigt wird nur, was die
+        # Entscheidung trägt: ob sich die Datei überhaupt als Text lesen
+        # lässt und wie groß sie ist.
+        endung = os.path.splitext(s.filename)[1].lower()
         submissions_data.append({
             "id": s.id,
             "team_name": s.team.name,
@@ -564,7 +687,10 @@ def submissions():
             "points": s.points,
             "feedback": s.feedback,
             "resubmit_allowed": s.resubmit_allowed,
-            "code": content
+            "abgegeben": s.timestamp,
+            "endung": endung,
+            "als_text_lesbar": endung in TEXT_FORMATS,
+            "groesse": dateigroesse(s.filename),
         })
 
     return render_template("admin/review.html", submissions=submissions_data, challenge=challenge)
@@ -797,8 +923,8 @@ def settings():
     site_settings = Settings.get()
 
     if request.method == "POST":
-        site_name = request.form.get("site_name", "").strip()
-        tagline = request.form.get("tagline", "").strip()
+        site_name = request.form.get("site_name", "").strip()[:MAX_SEITENNAME]
+        tagline = request.form.get("tagline", "").strip()[:MAX_UNTERTITEL]
         if site_name:
             site_settings.site_name = site_name
         if tagline:
@@ -806,7 +932,7 @@ def settings():
 
         # The signature may deliberately be emptied again, so it is stored as
         # given instead of only when something was typed.
-        site_settings.signature_name = request.form.get("signature_name", "").strip()[:100]
+        site_settings.signature_name = request.form.get("signature_name", "").strip()[:MAX_SEITENNAME]
         font = request.form.get("signature_font", "")
         site_settings.signature_font = font if font in SIGNATURE_FONTS else DEFAULT_SIGNATURE_FONT
 

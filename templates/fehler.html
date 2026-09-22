@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Eine Fehlerseite in der Gestaltung der Anwendung, auf Deutsch und mit
+     einem Weg zurück. Ohne sie stünde hier die nackte englische Seite des
+     Webservers - und das ausgerechnet in den Momenten, in denen mitten im
+     Wettbewerb jemand die Hand hebt. -->
+<div class="row justify-content-center text-center">
+  <div class="col-md-7">
+
+    <div class="event-card">
+      <h1 class="mb-3">{{ zeichen }}</h1>
+      <h2 class="h4 mb-3">{{ ueberschrift }}</h2>
+
+      <p class="text-secondary mb-4">{{ erklaerung }}</p>
+
+      <div class="d-flex flex-wrap justify-content-center gap-2">
+        {% if zurueck %}
+        <a href="{{ zurueck }}" class="btn btn-primary">↩ Zurück zu den Aufgaben</a>
+        {% endif %}
+        <a href="{{ url_for('public.index') }}"
+          class="btn {% if zurueck %}btn-outline-light{% else %}btn-primary{% endif %}">
+          🏠 Zur Startseite
+        </a>
+      </div>
+
+      <p class="text-secondary small mt-4 mb-0">Fehler {{ code }}</p>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

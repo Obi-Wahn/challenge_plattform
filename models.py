@@ -230,6 +230,13 @@ TASK_FORMATS = {
 
 DEFAULT_TASK_FORMAT = ".pde"
 
+# Welche Formate sich in der Bewertung als Text lesen lassen. Eine .sb3- oder
+# .mkcd-Datei ist eine ZIP-Datei und eine .hex-Datei eine Liste aus
+# Maschinencode - im Anzeigefeld stünde davon nur Zeichensalat, und die Seite
+# trüge dabei Megabyte davon mit sich herum. Für diese Formate gibt es den
+# Knopf zum Herunterladen.
+TEXT_FORMATS = {".pde", ".java", ".py"}
+
 class Task(db.Model):
     __tablename__ = 'tasks'
     id = db.Column(db.Integer, primary_key=True)
