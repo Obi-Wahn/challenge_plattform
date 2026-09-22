@@ -151,6 +151,19 @@ def team_members():
 
     return redirect(url_for("challenge.view"))
 
+def zurueck_mit_meldung(text, kategorie="warning"):
+    """Sagt dem Team, was schiefging, und bringt es zu seinen Aufgaben zurück.
+
+    Vorher endeten diese Fälle in der nackten Fehlerseite des Webservers -
+    englisch, ohne Erklärung und ohne Weg zurück. Es sind aber die
+    gewöhnlichen Missgeschicke einer Schulstunde: die falsche Datei erwischt,
+    die Seite zu lange offen gehabt. Dafür gehört eine Meldung an die Stelle,
+    an der es weitergeht.
+    """
+    flash(text, kategorie)
+    return redirect(url_for("challenge.view"))
+
+
 @challenge_bp.route("/submit/<int:task_id>", methods=["POST"])
 def submit_task(task_id):
     # Submissions are only accepted for the active competition,
@@ -160,7 +173,9 @@ def submit_task(task_id):
     # A team may only submit for its own competition.
     team = angemeldetes_team(challenge)
     if team is None:
-        abort(403)
+        # Wie auf der Wettbewerbsseite: Wer nicht (mehr) angemeldet ist,
+        # gehört auf die Startseite, nicht auf eine Fehlerseite.
+        return redirect(url_for("public.index"))
 
     task = db.get_or_404(Task, task_id)
     if task.challenge_id != challenge.id:
@@ -168,7 +183,10 @@ def submit_task(task_id):
 
     # Closed means closed: paused, or past the end time.
     if not challenge.accepts_submissions:
-        abort(403)
+        return zurueck_mit_meldung(
+            "Abgaben sind gerade gesperrt - der Wettbewerb ist beendet oder "
+            "pausiert. Gespeichert wurde nichts."
+        )
 
     team_id = team.id
 
@@ -176,14 +194,23 @@ def submit_task(task_id):
     # released this submission for a correction.
     existing = Submission.query.filter_by(team_id=team_id, task_id=task_id).first()
     if existing and not existing.resubmit_allowed:
-        abort(403)
+        return zurueck_mit_meldung(
+            f"„{task.title}“ habt ihr schon abgegeben. Soll die Abgabe ersetzt "
+            "werden, muss die Lehrkraft sie dafür freigeben."
+        )
 
     if "file" not in request.files:
-        abort(400)
-    
+        return zurueck_mit_meldung("Es war keine Datei dabei - gespeichert wurde nichts.")
+
     file = request.files["file"]
-    if file.filename == "" or not allowed_file(file.filename, task.allowed_extension):
-        abort(400)
+    if file.filename == "":
+        return zurueck_mit_meldung("Es war keine Datei ausgewählt - gespeichert wurde nichts.")
+
+    if not allowed_file(file.filename, task.allowed_extension):
+        return zurueck_mit_meldung(
+            f"„{task.title}“ nimmt nur Dateien mit der Endung "
+            f"{task.allowed_extension} an - gespeichert wurde nichts."
+        )
 
     filename = gekuerzter_dateiname(secure_filename(file.filename))
     team_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], str(team_id))

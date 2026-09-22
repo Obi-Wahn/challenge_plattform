@@ -208,6 +208,15 @@
   let rest = {{ seconds }};
   let takt = null;
 
+  // Aus der Sekundenzahl des Servers wird einmal ein Endpunkt gebildet, und
+  // die Anzeige richtet sich danach, wie viel Zeit seitdem vergangen ist -
+  // nicht danach, wie oft der Takt geschlagen hat. Schläft das Gerät
+  // zwischendurch, ein gesperrtes Handy etwa, laufen die Zeitgeber nicht:
+  // Eine mitzählende Uhr bliebe danach stehen und zeigte mehr Restzeit an,
+  // als das Team noch hat. Die eingestellte Uhrzeit des Geräts spielt dabei
+  // weiterhin keine Rolle, es zählt allein der Abstand zu diesem Punkt.
+  const endpunkt = Date.now() + rest * 1000;
+
   // Vor dem Start zählt die Uhr bis zum Beginn, danach bis zum Ende. Nur im
   // zweiten Fall ist bei null der Wettbewerb vorbei.
   const zaehltBisZumEnde = {{ "false" if status == "upcoming" else "true" }};
@@ -224,6 +233,12 @@
   const neuLaden = document.getElementById("zeitleiste-neu");
 
   function zeichne() {
+    // In der Pause bleibt es bei der Zahl vom Server: Dort steht die Uhr,
+    // und gezeichnet wird ohnehin nur ein einziges Mal.
+    if (laeuftDieUhr) {
+      rest = Math.round((endpunkt - Date.now()) / 1000);
+    }
+
     if (rest <= 0) {
       // Bewusst kein automatisches Neuladen: Es würde eine laufende Abgabe
       // abbrechen. Deshalb steht hier nur, dass es so weit ist, und daneben
@@ -256,7 +271,6 @@
     // rot - aber nur vor dem Ende. Vor dem Start ist Warten kein Alarm.
     leiste.classList.toggle("zeitleiste-knapp", zaehltBisZumEnde && rest <= 300);
     leiste.classList.toggle("zeitleiste-gleich", zaehltBisZumEnde && rest <= 60);
-    rest -= 1;
   }
 
   zeichne();
@@ -266,12 +280,8 @@
 </script>
 {% endif %}
 
-<!-- Auto-Refresh alle 15 Sekunden -->
-<!-- Auto-Refresh removed because it interrupts file upload -->
-<!-- <script>
-  setTimeout(() => {
-    location.reload();
-  }, 15000);
-</script> -->
+<!-- Die Seite lädt sich bewusst nicht selbst neu: Das brach eine laufende
+     Abgabe ab. Steht die Uhr bei null, erscheint stattdessen der Link in der
+     Zeitleiste, den das Team selbst antippt. -->
 
 {% endblock %}

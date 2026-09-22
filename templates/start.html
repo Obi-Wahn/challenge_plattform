@@ -83,7 +83,19 @@
   // the clock or timezone of the device showing this page.
   let remaining = {{ seconds }};
 
+  // Die Anzeige richtet sich nach der Zeit, die seit dem Laden vergangen
+  // ist, nicht nach der Zahl der Takte. Zeitgeber laufen nicht, während ein
+  // Gerät schläft, und ein zugeklappter Laptop am Beamer zeigte sonst nach
+  // dem Aufklappen zu viel Restzeit. Die eingestellte Uhrzeit des Geräts
+  // spielt dabei weiterhin keine Rolle.
+  const endpunkt = Date.now() + remaining * 1000;
+  const laeuftDieUhr = {{ "false" if challenge and challenge.paused else "true" }};
+
   function updateCountdown() {
+    if (laeuftDieUhr) {
+      remaining = Math.round((endpunkt - Date.now()) / 1000);
+    }
+
     if (remaining <= 0) {
       location.reload();
       return;
@@ -99,12 +111,11 @@
     }
 
     document.getElementById("countdown").innerText = parts.join(":");
-    remaining -= 1;
   }
 
   updateCountdown();
   // In der Pause steht die Uhr still, wie auf der Wettbewerbsseite auch.
-  if ({{ "false" if challenge and challenge.paused else "true" }}) {
+  if (laeuftDieUhr) {
     setInterval(updateCountdown, 1000);
   }
 </script>

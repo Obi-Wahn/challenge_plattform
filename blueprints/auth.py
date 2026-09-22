@@ -1,7 +1,20 @@
+import secrets
+
 from flask import Blueprint, render_template, request, redirect, url_for, session, current_app
 from extensions import limiter
 
 auth_bp = Blueprint('auth', __name__)
+
+
+def passwort_stimmt(eingabe, erwartet):
+    """Vergleicht die beiden Passwörter, ohne die Dauer zu verraten.
+
+    Ein gewöhnlicher Vergleich bricht beim ersten falschen Zeichen ab und
+    braucht damit unterschiedlich lange. Im Schul-LAN und hinter der Bremse
+    von fünf Versuchen pro Minute ist daraus nichts zu holen - aber richtig
+    vergleichen kostet hier nichts.
+    """
+    return secrets.compare_digest(str(eingabe or ""), str(erwartet or ""))
 
 @auth_bp.route("/admin/login", methods=["GET", "POST"])
 # Only actual login attempts count towards the limit - merely opening or
@@ -10,7 +23,7 @@ auth_bp = Blueprint('auth', __name__)
 def admin_login():
     if request.method == "POST":
         password = request.form.get("password")
-        if password == current_app.config['ADMIN_PASSWORD']:
+        if passwort_stimmt(password, current_app.config['ADMIN_PASSWORD']):
             session["is_admin"] = True
             return redirect(url_for('admin.dashboard')) # Assuming admin blueprint has a dashboard route
         else:

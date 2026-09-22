@@ -42,6 +42,10 @@
 
       <p class="text-secondary mb-0">
         Aufgabe: <strong>{{ submission.task_title }}</strong>
+        <span class="text-secondary">
+          · {{ submission.endung }}{% if submission.groesse %}, {{ submission.groesse }}{% endif %}
+          {%- if submission.abgegeben %} · abgegeben {{ submission.abgegeben.strftime('%H:%M') }} Uhr{% endif %}
+        </span>
       </p>
     </div>
 
@@ -50,10 +54,16 @@
         data-bs-target="#desc-{{ submission.id }}" aria-expanded="false">
         ℹ️ Aufgabenbeschreibung
       </button>
+      <!-- Der Inhalt wird erst geholt, wenn jemand ihn sehen will: Die Seite
+           trug vorher jede Abgabe des Wettbewerbs vollständig mit sich. -->
+      {% if submission.als_text_lesbar %}
       <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="collapse"
-        data-bs-target="#code-{{ submission.id }}" aria-expanded="false">
+        data-bs-target="#code-{{ submission.id }}" aria-expanded="false"
+        data-code-url="{{ url_for('admin.submission_code', submission_id=submission.id) }}"
+        data-code-ziel="code-text-{{ submission.id }}">
         📄 Code anzeigen
       </button>
+      {% endif %}
       <a href="{{ url_for('admin.download_submission', submission_id=submission.id) }}"
         class="btn btn-sm btn-outline-light">
         ⬇️ Datei herunterladen
@@ -70,11 +80,17 @@
     </div>
   </div>
 
+  {% if submission.als_text_lesbar %}
   <div class="collapse mb-4" id="code-{{ submission.id }}">
-    <div class="card card-body bg-dark text-light font-monospace"
-      style="white-space: pre-wrap; max-height: 400px; overflow-y: auto; font-size: 0.9em;">{{ submission.code }}
-    </div>
+    <div class="card card-body bg-dark text-light font-monospace" id="code-text-{{ submission.id }}"
+      style="white-space: pre-wrap; max-height: 400px; overflow-y: auto; font-size: 0.9em;">Wird geladen …</div>
   </div>
+  {% else %}
+  <p class="text-secondary small mb-4">
+    📦 Eine {{ submission.endung }}-Datei lässt sich nicht als Text anzeigen –
+    zum Ansehen herunterladen.
+  </p>
+  {% endif %}
 
   <hr class="my-4" style="border-color: rgba(255,255,255,0.15);">
 
@@ -157,5 +173,40 @@
 <a href="{{ url_for('admin.dashboard') }}" class="text-secondary">
   ← zurück zur Steuerzentrale
 </a>
+
+<script>
+  // Holt den Inhalt einer Abgabe beim ersten Aufklappen nach. Der Text wird
+  // über textContent gesetzt, nie als HTML: Er kommt aus einer Datei, die
+  // ein Team hochgeladen hat.
+  document.querySelectorAll("[data-code-url]").forEach(knopf => {
+    let geholt = false;
+
+    knopf.addEventListener("click", () => {
+      if (geholt) {
+        return;
+      }
+      geholt = true;
+
+      const ziel = document.getElementById(knopf.dataset.codeZiel);
+      fetch(knopf.dataset.codeUrl)
+        .then(antwort => {
+          if (!antwort.ok) {
+            throw new Error(antwort.status);
+          }
+          return antwort.json();
+        })
+        .then(daten => {
+          ziel.textContent = daten.code || daten.hinweis || "(Die Datei ist leer.)";
+          if (daten.code && daten.hinweis) {
+            ziel.textContent += "\n\n" + daten.hinweis;
+          }
+        })
+        .catch(() => {
+          geholt = false; // beim nächsten Klick noch einmal versuchen
+          ziel.textContent = "Der Inhalt konnte nicht geladen werden.";
+        });
+    });
+  });
+</script>
 
 {% endblock %}

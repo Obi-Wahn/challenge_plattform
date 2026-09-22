@@ -266,6 +266,96 @@ class TestDauerImFormular:
         assert "45 Minuten" in html
 
 
+class TestDauerUndPauseZusammen:
+    """Eine neue Dauer hebt die Pause auf - wie „Jetzt starten" es auch tut."""
+
+    def test_eine_neue_dauer_beendet_die_pause(self, admin, make_challenge):
+        challenge = make_challenge(paused=True,
+                                   paused_at=datetime.now() - timedelta(minutes=10))
+
+        anmelden_und_posten(admin, f"/admin/challenges/{challenge.id}/edit", {
+            "title": challenge.title,
+            "tagline": "",
+            "start_time": "",
+            "end_time": "",
+            "duration_minutes": "45",
+        })
+
+        challenge = frisch(challenge)
+        assert challenge.paused is False
+        assert challenge.paused_at is None
+
+    def test_der_wettbewerb_laeuft_danach_mit_der_neuen_dauer(self, admin, make_challenge):
+        """Vorher stand er auf „startet in 10 Minuten" - die Pause lag ja zurück."""
+        challenge = make_challenge(paused=True,
+                                   paused_at=datetime.now() - timedelta(minutes=10))
+
+        anmelden_und_posten(admin, f"/admin/challenges/{challenge.id}/edit", {
+            "title": challenge.title,
+            "tagline": "",
+            "start_time": "",
+            "end_time": "",
+            "duration_minutes": "45",
+        })
+
+        challenge = frisch(challenge)
+        assert challenge.status() == "running"
+        assert challenge.seconds_until_start == 0
+        assert 2650 <= challenge.remaining_seconds <= 2700
+
+    def test_die_meldung_sagt_es(self, admin, make_challenge):
+        challenge = make_challenge(paused=True,
+                                   paused_at=datetime.now() - timedelta(minutes=10))
+
+        antwort = anmelden_und_posten(admin, f"/admin/challenges/{challenge.id}/edit", {
+            "title": challenge.title,
+            "tagline": "",
+            "start_time": "",
+            "end_time": "",
+            "duration_minutes": "45",
+        })
+
+        assert "Pause ist damit beendet" in antwort.get_data(as_text=True)
+
+
+class TestDieSekundenBleiben:
+    """Das Formular kennt nur Minuten - es darf die Endzeit nicht beschneiden."""
+
+    def test_speichern_ohne_aenderung_laesst_die_endzeit_stehen(
+            self, admin, make_challenge):
+        start = datetime.now().replace(second=17, microsecond=0)
+        ende = start + timedelta(minutes=45)
+        challenge = make_challenge(start_time=start, end_time=ende)
+
+        anmelden_und_posten(admin, f"/admin/challenges/{challenge.id}/edit", {
+            "title": challenge.title,
+            "tagline": "",
+            # So, wie das Formular die Zeiten zurückschickt: ohne Sekunden.
+            "start_time": start.strftime("%Y-%m-%dT%H:%M"),
+            "end_time": ende.strftime("%Y-%m-%dT%H:%M"),
+            "duration_minutes": "",
+        })
+
+        challenge = frisch(challenge)
+        assert challenge.end_time == ende
+        assert challenge.start_time == start
+
+    def test_eine_wirklich_geaenderte_zeit_gilt(self, admin, make_challenge):
+        start = datetime.now().replace(second=17, microsecond=0)
+        challenge = make_challenge(start_time=start, end_time=start + timedelta(minutes=45))
+        neues_ende = (start + timedelta(minutes=90)).replace(second=0, microsecond=0)
+
+        anmelden_und_posten(admin, f"/admin/challenges/{challenge.id}/edit", {
+            "title": challenge.title,
+            "tagline": "",
+            "start_time": start.strftime("%Y-%m-%dT%H:%M"),
+            "end_time": neues_ende.strftime("%Y-%m-%dT%H:%M"),
+            "duration_minutes": "",
+        })
+
+        assert frisch(challenge).end_time == neues_ende
+
+
 class TestMeldungen:
     def test_die_meldung_nennt_das_datum_wenn_das_ende_morgen_liegt(
             self, admin, make_challenge):

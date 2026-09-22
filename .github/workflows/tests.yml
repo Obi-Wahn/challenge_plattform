@@ -17,8 +17,10 @@ jobs:
       fail-fast: false
       matrix:
         # 3.10 ist die älteste Version, mit der die Abhängigkeiten laufen
-        # (fpdf2 verlangt sie), 3.13 die aktuelle.
-        python-version: ["3.10", "3.13"]
+        # (fpdf2 verlangt sie). 3.14 ist die Fassung auf dem Entwicklungs-
+        # rechner - was dort auffällt, soll hier auffallen -, 3.13 die
+        # Zwischenstufe dazwischen.
+        python-version: ["3.10", "3.13", "3.14"]
 
     steps:
       - uses: actions/checkout@v7

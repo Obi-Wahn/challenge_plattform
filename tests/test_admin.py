@@ -29,6 +29,15 @@ class TestZugriffsschutz:
             assert antwort.status_code == 302, seite
             assert "/admin/login" in antwort.headers["Location"], seite
 
+    def test_das_passwort_wird_zeichenweise_gleich_lang_geprueft(self):
+        """secrets.compare_digest statt „==" - dieselbe Zeile, ohne Zeitverrat."""
+        from blueprints.auth import passwort_stimmt
+
+        assert passwort_stimmt("geheim", "geheim") is True
+        assert passwort_stimmt("geheim", "geheiN") is False
+        assert passwort_stimmt("", "geheim") is False
+        assert passwort_stimmt(None, "geheim") is False
+
     def test_falsches_passwort_meldet_nicht_an(self, client):
         antwort = client.post("/admin/login", data={
             "csrf_token": csrf_token(client, "/admin/login"),
@@ -206,6 +215,15 @@ class TestRuecksprung:
 
         assert "boese.example" not in antwort.headers["Location"]
 
+    def test_der_backslash_zaehlt_wie_ein_schraegstrich(self, admin, make_challenge):
+        """Browser machen aus „/\\boese.example" das Ziel „//boese.example"."""
+        challenge = make_challenge()
+
+        antwort = aktion(admin, f"/admin/challenges/{challenge.id}/pause",
+                         next="/\\boese.example/")
+
+        assert "boese.example" not in antwort.headers["Location"]
+
 
 class TestWettbewerbAnlegen:
     def test_anlegen_fuehrt_zur_neuen_wettbewerbs_seite(self, admin, database):
@@ -321,7 +339,57 @@ class TestWettbewerbAnlegen:
         assert Team.query.filter_by(challenge_id=neu.id).count() == 0
 
 
+class TestNameDesWettbewerbs:
+    def test_ein_name_aus_leerzeichen_legt_keinen_wettbewerb_an(self, admin, database):
+        """Das HTML-„required" lässt ein Leerzeichen als Eingabe gelten."""
+        from models import Challenge
+
+        antwort = admin.post("/admin/challenges/new", data={
+            "csrf_token": csrf_token(admin, "/admin/challenges/new"),
+            "title": "   ",
+        }, follow_redirects=True)
+
+        assert Challenge.query.count() == 0
+        assert "braucht einen Namen" in antwort.get_data(as_text=True)
+
+    def test_leerzeichen_am_rand_fallen_weg(self, admin, database):
+        from models import Challenge
+
+        admin.post("/admin/challenges/new", data={
+            "csrf_token": csrf_token(admin, "/admin/challenges/new"),
+            "title": "  Scratch-Wettbewerb  ",
+        })
+
+        assert Challenge.query.one().title == "Scratch-Wettbewerb"
+
+    def test_ein_absurd_langer_name_wird_gekuerzt(self, admin, database):
+        """SQLite setzt die Spaltenbreite nicht selbst durch."""
+        from blueprints.admin import MAX_TITEL
+        from models import Challenge
+
+        admin.post("/admin/challenges/new", data={
+            "csrf_token": csrf_token(admin, "/admin/challenges/new"),
+            "title": "W" * 5000,
+        })
+
+        assert len(Challenge.query.one().title) == MAX_TITEL
+
+
 class TestWettbewerbLoeschen:
+    def test_die_rueckfrage_uebersteht_einen_apostroph_im_namen(
+            self, admin, make_challenge):
+        """Sonst zerbricht der JavaScript-Text, und es wird ohne Frage gelöscht.
+
+        Der Name gehört deshalb in ein data-Attribut: Dort ist er für den
+        Browser immer nur Text und niemals Code.
+        """
+        challenge = make_challenge(title="Robo's Cup")
+
+        html = admin.get(f"/admin/wettbewerb/{challenge.id}").get_data(as_text=True)
+
+        assert 'data-wettbewerb="Robo&#39;s Cup"' in html
+        assert "confirm('Wettbewerb „Robo" not in html
+
     def test_loeschen_nimmt_aufgaben_teams_und_abgaben_mit(
             self, admin, make_challenge, make_task, make_team, database):
         from models import Submission, Task, Team

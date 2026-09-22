@@ -115,7 +115,10 @@ class TestWiederverwendeteTeamnummer:
             "file": (io.BytesIO(b"projekt"), "loesung.sb3"),
         }, content_type="multipart/form-data")
 
-        assert antwort.status_code == 403
+        # Die alte Anmeldung gilt nicht mehr: Es geht zur Startseite, und
+        # abgegeben wird unter keinem Namen etwas.
+        assert antwort.status_code == 302
+        assert antwort.headers["Location"] == "/"
         assert Submission.query.count() == 0
 
 
