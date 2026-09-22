@@ -27,6 +27,11 @@ os.environ["DATABASE_URL"] = "sqlite:///" + os.path.join(TMP_DIR, "test.db")
 # dürfen nicht in logs/ der laufenden Installation schreiben.
 os.environ["LOG_DIR"] = os.path.join(TMP_DIR, "logs")
 
+# Eine von Hand gesetzte Netzwerkadresse würde die Tests zur Startseite
+# unbemerkt umlenken - je nachdem, auf welchem Rechner sie laufen. Wer sie
+# braucht, setzt sie im Test selbst.
+os.environ.pop("LAN_ADRESSE", None)
+
 
 def csrf_token(client, path):
     """Holt ein CSRF-Token von einer Seite, die ein Formular enthält.

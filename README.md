@@ -161,6 +161,15 @@ Voraussetzung: Python 3.10 oder höher (fpdf2, das die Urkunden erzeugt, verlang
     ```
     Die Konsole zeigt beim Start die genaue Adresse an, unter der die Anwendung erreichbar ist — sowohl lokal (`http://localhost:8000`) als auch die Netzwerk-Adresse für andere Geräte im selben Netz.
 
+    Diese Netzwerk-Adresse erfragt die Anwendung beim Betriebssystem. In einem
+    Netz **ohne Gateway** — ein Switch, an dem nur die Rechner der Schule
+    hängen — lässt sich das so nicht beantworten. Die Anwendung sagt das dann
+    beim Start und nennt keine Adresse, statt eine zu nennen, die kein Gerät
+    erreicht. Abhilfe: die Adresse am Server ablesen (`ip addr` bzw.
+    `ipconfig`) und als `LAN_ADRESSE=192.168.1.50` in die `.env` eintragen.
+    Der Eintrag sticht die Erkennung und landet auf der Startseite und im
+    QR-Code.
+
 ## 📖 Nutzung
 
 1.  **Admin-Zugang**:

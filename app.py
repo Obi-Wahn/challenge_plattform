@@ -25,7 +25,7 @@ load_dotenv()
 from flask import Flask
 from config import Config
 from extensions import db, csrf, limiter
-from network import get_local_ip
+from network import FESTE_ADRESSE, lan_adresse
 from blueprints.auth import auth_bp
 from blueprints.public import public_bp
 from blueprints.challenge import challenge_bp
@@ -395,6 +395,27 @@ def ensure_team_uids():
             conn.execute(text("UPDATE teams SET uid = :uid WHERE id = :id"),
                          {"uid": secrets.token_hex(16), "id": team_id})
 
+def startmeldung(adresse, port, protokoll):
+    """Die Zeilen, die beim Start im Fenster stehen.
+
+    Ist die Netzwerkadresse nicht bekannt, wird das gesagt, statt
+    127.0.0.1 als Adresse "für andere Geräte" auszugeben - die führt kein
+    Handy zum Server, und man sucht den Fehler dann bei der Firewall.
+    """
+    zeilen = ["Server läuft auf:", f"  http://localhost:{port}  (auf diesem Rechner)"]
+
+    if adresse:
+        zeilen.append(f"  http://{adresse}:{port}  (für andere Geräte im gleichen Netzwerk)")
+    else:
+        zeilen.append("  Die Adresse für andere Geräte konnte nicht ermittelt werden.")
+        zeilen.append(f"  Trage sie als {FESTE_ADRESSE}=192.168.… in die .env ein - sonst")
+        zeilen.append("  steht auch auf der Startseite und im QR-Code keine brauchbare Adresse.")
+
+    zeilen.append(f"Protokoll: {protokoll}")
+    zeilen.append("Zum Beenden: STRG+C\n")
+    return zeilen
+
+
 def run_startup_migrations():
     """Alle Änderungen am Bestand, in der Reihenfolge, in der sie laufen müssen.
 
@@ -433,17 +454,22 @@ if __name__ == "__main__":
         # Production WSGI server for real deployments (e.g. the school LAN).
         from waitress import serve
 
-        adresse = get_local_ip()
+        adresse = lan_adresse()
 
-        print("Server läuft auf:")
-        print(f"  http://localhost:{port}  (auf diesem Rechner)")
-        print(f"  http://{adresse}:{port}  (für andere Geräte im gleichen Netzwerk)")
-        print(f"Protokoll: {os.path.join(app.config['LOG_DIR'], 'anwendung.log')}")
-        print("Zum Beenden: STRG+C\n")
+        for zeile in startmeldung(
+            adresse, port, os.path.join(app.config["LOG_DIR"], "anwendung.log")
+        ):
+            print(zeile)
 
         # Der Start gehört ins Protokoll: Danach lässt sich später zuordnen,
         # welche Meldungen zu welchem Wettbewerbstag gehören.
-        app.logger.info("Server gestartet auf http://%s:%s", adresse, port)
+        if adresse:
+            app.logger.info("Server gestartet auf http://%s:%s", adresse, port)
+        else:
+            app.logger.warning(
+                "Server gestartet auf Port %s, die Netzwerkadresse ist unbekannt "
+                "(%s in der .env setzen).", port, FESTE_ADRESSE
+            )
 
         serve(app, host="0.0.0.0", port=port)
 
