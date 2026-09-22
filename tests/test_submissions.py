@@ -240,3 +240,104 @@ class TestBewertung:
 
         assert "Altes Team" not in html
         assert "Alte Aufgabe" not in html
+
+
+class TestLangeDateinamen:
+    """Ein absurd langer Dateiname darf die Abgabe nicht scheitern lassen.
+
+    Dateisysteme lassen meist 255 Zeichen je Namensbestandteil zu. Darüber
+    scheitert das Speichern mit einem OSError - und für das Team sähe das
+    aus wie eine kaputte Seite, mitten im Wettbewerb.
+    """
+
+    def test_ein_sehr_langer_name_wird_gekuerzt_statt_abgewiesen(
+            self, make_challenge, make_task, logged_in_team, database):
+        import os
+
+        from models import Submission
+
+        challenge = make_challenge()
+        task = make_task(challenge)
+        client, team = logged_in_team(challenge)
+
+        antwort = abgeben(client, task, dateiname="x" * 300 + ".sb3")
+
+        assert antwort.status_code == 302
+        abgabe = Submission.query.filter_by(team_id=team.id, task_id=task.id).one()
+        # Die Datei liegt wirklich da - genau das schlug vorher fehl.
+        assert os.path.exists(abgabe.filename)
+
+    def test_die_endung_bleibt_erhalten(
+            self, make_challenge, make_task, logged_in_team, database):
+        from models import Submission
+
+        challenge = make_challenge()
+        task = make_task(challenge)
+        client, team = logged_in_team(challenge)
+
+        abgeben(client, task, dateiname="y" * 300 + ".sb3")
+
+        abgabe = Submission.query.filter_by(team_id=team.id, task_id=task.id).one()
+        # Der Download in der Verwaltung nimmt die Endung aus diesem Namen.
+        assert abgabe.filename.endswith(".sb3")
+
+    def test_der_abgelegte_name_haelt_die_grenze_ein(
+            self, make_challenge, make_task, logged_in_team, database):
+        import os
+
+        from blueprints.challenge import MAX_DATEINAME
+        from models import Submission
+
+        challenge = make_challenge()
+        task = make_task(challenge)
+        client, team = logged_in_team(challenge)
+
+        abgeben(client, task, dateiname="z" * 300 + ".sb3")
+
+        abgabe = Submission.query.filter_by(team_id=team.id, task_id=task.id).one()
+        name = os.path.basename(abgabe.filename)
+        # "task_<nummer>_" kommt noch davor, deshalb etwas Luft nach oben.
+        assert len(name) <= MAX_DATEINAME + 20
+
+    def test_ein_gewoehnlicher_name_bleibt_wie_er_ist(
+            self, make_challenge, make_task, logged_in_team, database):
+        from models import Submission
+
+        challenge = make_challenge()
+        task = make_task(challenge)
+        client, team = logged_in_team(challenge)
+
+        abgeben(client, task, dateiname="loesung.sb3")
+
+        abgabe = Submission.query.filter_by(team_id=team.id, task_id=task.id).one()
+        assert abgabe.filename.endswith("loesung.sb3")
+
+
+class TestGekuerzterDateiname:
+    def test_kurze_namen_bleiben_unveraendert(self):
+        from blueprints.challenge import gekuerzter_dateiname
+
+        assert gekuerzter_dateiname("loesung.sb3") == "loesung.sb3"
+
+    def test_lange_namen_werden_auf_die_grenze_gebracht(self):
+        from blueprints.challenge import MAX_DATEINAME, gekuerzter_dateiname
+
+        ergebnis = gekuerzter_dateiname("a" * 300 + ".sb3")
+
+        assert len(ergebnis) == MAX_DATEINAME
+        assert ergebnis.endswith(".sb3")
+
+    def test_auch_eine_absurde_endung_wird_mitgekuerzt(self):
+        """Was länger ist als jede erlaubte Endung, ist auch nur Name."""
+        from blueprints.challenge import MAX_DATEINAME, gekuerzter_dateiname
+
+        ergebnis = gekuerzter_dateiname("a.b" + "c" * 400)
+
+        assert len(ergebnis) <= MAX_DATEINAME
+
+    def test_ein_name_ohne_punkt_wird_einfach_gekuerzt(self):
+        from blueprints.challenge import MAX_DATEINAME, gekuerzter_dateiname
+
+        ergebnis = gekuerzter_dateiname("a" * 300)
+
+        assert len(ergebnis) == MAX_DATEINAME
