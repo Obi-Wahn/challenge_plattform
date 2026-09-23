@@ -277,10 +277,19 @@ class TestAufgabentext:
         assert self.markdown(flask_app, None) == ""
 
     def test_importierte_aufgabe_kann_kein_skript_einschleusen(
-            self, admin, make_challenge, database):
-        """Der ganze Weg: Aufgabe einlesen, dann die Bewertungsansicht ansehen."""
+            self, admin, make_challenge, make_team, database):
+        """Der ganze Weg: Aufgabe einlesen, dann die Bewertungsansicht ansehen.
+
+        Zwei Dinge müssen dafür stimmen, sonst prüft der Test nichts: Das
+        Formularfeld muss "file" heißen wie im Betrieb, sonst wird gar
+        nichts eingelesen. Und zu der Aufgabe muss eine Abgabe gehören,
+        denn die Bewertungsseite listet Abgaben - ohne eine davon steht die
+        Beschreibung nirgends auf der Seite.
+        """
         import io
         import json
+
+        from models import Submission, Task
 
         challenge = make_challenge()
         datei = json.dumps({
@@ -297,13 +306,25 @@ class TestAufgabentext:
             data={
                 "csrf_token": csrf_token(
                     admin, f"/admin/challenges/{challenge.id}/tasks"),
-                "datei": (io.BytesIO(datei), "aufgaben.json"),
+                "file": (io.BytesIO(datei), "aufgaben.json"),
             },
             content_type="multipart/form-data",
         )
 
+        task = Task.query.filter_by(challenge_id=challenge.id).one()
+        team = make_team(challenge, name="Team Import")
+        database.session.add(Submission(team_id=team.id, task_id=task.id,
+                                        filename="loesung.sb3"))
+        database.session.commit()
+
         html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        # Erst der Beleg, dass der Weg überhaupt beschritten wurde ...
+        assert "Harmlos" in html, "die eingelesene Aufgabe steht gar nicht auf der Seite"
+
+        # ... dann die eigentliche Prüfung.
         assert "<script>alert('uebernommen')</script>" not in html
+        assert "&lt;script&gt;" in html
 
 
 class TestSitzungsCookie:
