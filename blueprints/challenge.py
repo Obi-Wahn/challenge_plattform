@@ -10,6 +10,7 @@ from certificates import build_certificates_for, certificate_entry, names_line
 from werkzeug.utils import secure_filename
 import io
 import os
+import secrets
 from datetime import datetime
 
 challenge_bp = Blueprint('challenge', __name__)
@@ -45,6 +46,28 @@ def gekuerzter_dateiname(filename):
     stamm, endung = os.path.splitext(filename)
     endung = endung[:MAX_ENDUNG]
     return stamm[:MAX_DATEINAME - len(endung)] + endung
+
+def freier_pfad(pfad):
+    """Weicht auf einen noch unbelegten Pfad aus, ohne die Endung zu ändern.
+
+    Gebraucht bei der Korrektur: Gibt das Team seiner zweiten Fassung
+    denselben Dateinamen wie der ersten, zeigte der berechnete Pfad genau
+    auf die noch gültige alte Datei. Die würde beim Speichern
+    überschrieben - und zwar bevor feststeht, ob die Umstellung in der
+    Datenbank überhaupt gelingt. Scheitert sie danach, wären beide
+    Fassungen weg. Mit einem eigenen Pfad für die neue Datei greift
+    stattdessen dieselbe Vormerkung wie beim Namenswechsel: Die alte Datei
+    geht erst weg, wenn die Umstellung gespeichert ist.
+
+    Das Kennzeichen steht vor der Endung, weil der Download sie aus dem
+    abgelegten Namen nimmt. Dem Team fällt nichts davon auf - der Name der
+    heruntergeladenen Datei wird in der Verwaltung ohnehin neu gebildet.
+    """
+    stamm, endung = os.path.splitext(pfad)
+    while True:
+        kandidat = f"{stamm}-{secrets.token_hex(4)}{endung}"
+        if not os.path.exists(kandidat):
+            return kandidat
 
 @challenge_bp.route("/challenge")
 def view():
@@ -217,6 +240,12 @@ def submit_task(task_id):
     os.makedirs(team_folder, exist_ok=True)
     
     filepath = os.path.join(team_folder, f"task_{task_id}_{filename}")
+
+    # Eine Korrektur darf die noch gültige Datei nicht überschreiben, auch
+    # dann nicht, wenn sie denselben Namen trägt - siehe freier_pfad().
+    if existing and existing.filename == filepath:
+        filepath = freier_pfad(filepath)
+
     file.save(filepath)
 
     if existing:
@@ -233,9 +262,9 @@ def submit_task(task_id):
         # Die alte Datei geht erst weg, wenn die Umstellung gespeichert ist -
         # dieselbe Regel wie beim Löschen einer Abgabe. Würde sie vorher
         # gelöscht und das Speichern scheiterte, zeigte die Datenbank auf
-        # eine Datei, die es nicht mehr gibt.
-        if previous_filepath != filepath:
-            zum_loeschen_vormerken(db.session, previous_filepath)
+        # eine Datei, die es nicht mehr gibt. Dass die neue Datei woanders
+        # liegt als die alte, stellt freier_pfad() sicher.
+        zum_loeschen_vormerken(db.session, previous_filepath)
     else:
         db.session.add(Submission(
             team_id=team_id,

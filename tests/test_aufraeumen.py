@@ -176,6 +176,58 @@ class TestAbgabeUeberDieOberflaeche:
         assert not os.path.exists(pfad)
 
 
+class TestWennDasLoeschenNichtGeht:
+    """Eine Datei, die nicht wegzubekommen ist, gehört ins Protokoll.
+
+    Dass das Löschen der Abgabe daran nicht scheitert, ist richtig - sonst
+    bliebe eine Bewertung hängen, weil die Platte klemmt. Nur darf es
+    deswegen nicht unbemerkt bleiben: Sonst verschwänden die Abgaben aus der
+    Datenbank, die Dateien blieben liegen, und niemand erführe davon.
+    """
+
+    def protokoll(self, flask_app):
+        pfad = os.path.join(flask_app.config["LOG_DIR"], "anwendung.log")
+        if not os.path.exists(pfad):
+            return ""
+        with open(pfad, encoding="utf-8") as datei:
+            return datei.read()
+
+    def test_fehler_steht_im_protokoll(self, flask_app, admin,
+                                       wettbewerb_mit_abgabe, monkeypatch):
+        _challenge, _team, _task, abgabe, pfad = wettbewerb_mit_abgabe
+
+        import uploads
+
+        def geht_nicht(_pfad):
+            raise PermissionError(13, "Keine Berechtigung")
+
+        monkeypatch.setattr(uploads.os, "remove", geht_nicht)
+        vorher = len(self.protokoll(flask_app))
+
+        antwort = admin.post(f"/admin/reset/{abgabe.id}", data={
+            "csrf_token": csrf_token(admin, "/admin/submissions"),
+        })
+
+        assert antwort.status_code in (200, 302), "das Löschen ist daran gescheitert"
+
+        neu_im_protokoll = self.protokoll(flask_app)[vorher:]
+        assert pfad in neu_im_protokoll
+        assert "nicht entfernt werden" in neu_im_protokoll
+
+    def test_schon_verschwundene_datei_wird_nicht_gemeldet(
+            self, flask_app, admin, wettbewerb_mit_abgabe):
+        """Der gewöhnliche Fall einer von Hand aufgeräumten Ablage."""
+        _challenge, _team, _task, abgabe, pfad = wettbewerb_mit_abgabe
+        os.remove(pfad)
+        vorher = len(self.protokoll(flask_app))
+
+        admin.post(f"/admin/reset/{abgabe.id}", data={
+            "csrf_token": csrf_token(admin, "/admin/submissions"),
+        })
+
+        assert "nicht entfernt werden" not in self.protokoll(flask_app)[vorher:]
+
+
 class TestKorrekturabgabe:
     """Die alte Datei geht erst weg, wenn die Umstellung gespeichert ist.
 
@@ -185,7 +237,8 @@ class TestKorrekturabgabe:
     """
 
     def abgabe_und_korrektur(self, flask_app, make_challenge, make_task,
-                             logged_in_team, upload, database):
+                             logged_in_team, upload, database,
+                             name="erste.sb3"):
         from models import Submission
 
         challenge = make_challenge(
@@ -197,7 +250,7 @@ class TestKorrekturabgabe:
 
         client.post(f"/submit/{task.id}", data={
             "csrf_token": csrf_token(client, "/challenge"),
-            "file": upload(b"erste fassung", "erste.sb3"),
+            "file": upload(b"erste fassung", name),
         }, content_type="multipart/form-data")
 
         abgabe = Submission.query.first()
@@ -264,6 +317,73 @@ class TestKorrekturabgabe:
 
         assert os.path.exists(erster_pfad), \
             "die alte Datei wurde gelöscht, obwohl die Umstellung nicht gespeichert wurde"
+
+    def test_gleicher_name_ueberschreibt_die_alte_datei_nicht(
+            self, flask_app, make_challenge, make_task, logged_in_team, upload,
+            database, monkeypatch):
+        """Der Fall, den die Namensprüfung vorher durchrutschen ließ.
+
+        Gibt das Team seiner Korrektur denselben Dateinamen wie der ersten
+        Fassung, zeigte der berechnete Pfad auf die noch gültige alte Datei.
+        Die wurde überschrieben, bevor feststand, ob das Speichern gelingt -
+        und beim Aufräumen danach auch noch gelöscht. Übrig blieb eine
+        Abgabe in der Datenbank ohne Datei auf der Platte.
+        """
+        from models import Submission
+
+        client, task, abgabe, erster_pfad = self.abgabe_und_korrektur(
+            flask_app, make_challenge, make_task, logged_in_team, upload, database,
+            name="loesung.sb3")
+        abgabe_id = abgabe.id
+
+        import blueprints.challenge as herausforderung
+        monkeypatch.setattr(herausforderung.db.session, "commit",
+                            lambda: (_ for _ in ()).throw(RuntimeError("kaputt")))
+
+        try:
+            client.post(f"/submit/{task.id}", data={
+                "csrf_token": csrf_token(client, "/challenge"),
+                "file": upload(b"zweite fassung", "loesung.sb3"),
+            }, content_type="multipart/form-data")
+        except RuntimeError:
+            pass
+
+        monkeypatch.undo()
+        database.session.rollback()
+
+        assert os.path.exists(erster_pfad), \
+            "die erste Fassung wurde überschrieben oder gelöscht"
+        with open(erster_pfad, "rb") as datei:
+            assert datei.read() == b"erste fassung"
+
+        abgabe = database.session.get(Submission, abgabe_id)
+        assert abgabe.filename == erster_pfad, \
+            "die Datenbank zeigt nicht mehr auf die gültige Abgabe"
+
+    def test_gleicher_name_wird_trotzdem_ersetzt(
+            self, flask_app, make_challenge, make_task, logged_in_team, upload,
+            database):
+        """Gelingt das Speichern, zählt auch bei gleichem Namen die neue Fassung."""
+        from models import Submission
+
+        client, task, _abgabe, erster_pfad = self.abgabe_und_korrektur(
+            flask_app, make_challenge, make_task, logged_in_team, upload, database,
+            name="loesung.sb3")
+
+        client.post(f"/submit/{task.id}", data={
+            "csrf_token": csrf_token(client, "/challenge"),
+            "file": upload(b"zweite fassung", "loesung.sb3"),
+        }, content_type="multipart/form-data")
+
+        abgabe = Submission.query.first()
+        assert not os.path.exists(erster_pfad), "die alte Datei blieb liegen"
+        assert os.path.exists(abgabe.filename)
+        with open(abgabe.filename, "rb") as datei:
+            assert datei.read() == b"zweite fassung"
+
+        # Die Endung muss bleiben: Der Download in der Verwaltung liest sie
+        # aus dem abgelegten Namen.
+        assert abgabe.filename.endswith(".sb3")
 
     def test_scheitert_das_speichern_bleibt_keine_waise_liegen(
             self, flask_app, make_challenge, make_task, logged_in_team, upload,

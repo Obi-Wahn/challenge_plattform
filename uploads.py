@@ -14,6 +14,7 @@ rückholbar.
 
 import os
 
+from flask import current_app, has_app_context
 from sqlalchemy import event
 from sqlalchemy.orm import object_session
 
@@ -45,14 +46,34 @@ def _datei_vormerken(mapper, connection, submission):
     zum_loeschen_vormerken(session, submission.filename)
 
 
+def _melden(pfad, fehler):
+    """Hält im Protokoll fest, dass eine Datei liegen geblieben ist.
+
+    Ohne diese Zeile bliebe ein dauerhaftes Problem - eine schreibgeschützte
+    Platte, ein Verzeichnis ohne Rechte - unsichtbar: Die Abgaben
+    verschwänden aus der Datenbank, die Dateien blieben liegen, und niemand
+    erführe davon. Gemeldet, nicht abgebrochen: Eine verwaiste Datei ist
+    immer noch besser als eine Löschung, die auf halbem Weg scheitert.
+    """
+    if has_app_context():
+        current_app.logger.warning(
+            "Datei einer gelöschten Abgabe konnte nicht entfernt werden: "
+            "%s (%s)", pfad, fehler)
+
+
 @event.listens_for(db.session, "after_commit")
 def _dateien_loeschen(session):
     for pfad in session.info.pop(VORGEMERKT, []):
         try:
             os.remove(pfad)
-        except OSError:
-            # Schon weg oder nie angekommen: Das Löschen der Abgabe darf
-            # daran nicht scheitern.
+        except FileNotFoundError:
+            # Schon weg oder nie angekommen. Das ist der gewöhnliche Fall
+            # einer von Hand aufgeräumten Ablage und keine Meldung wert.
+            continue
+        except OSError as fehler:
+            # Alles andere - fehlende Rechte, Platte nur lesbar - ist eine
+            # Störung, die jemand sehen sollte.
+            _melden(pfad, fehler)
             continue
 
         # Das Verzeichnis des Teams mitnehmen, sobald es leer ist.
