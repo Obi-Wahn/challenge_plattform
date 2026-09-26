@@ -253,16 +253,10 @@ siehe [Daten und Sicherungen](#-daten-und-sicherungen).
     Der Eintrag sticht die Erkennung und landet auf der Startseite und im
     QR-Code.
 
-    Die Anwendung läuft auf Port **8000**. Ist der auf dem Rechner schon
-    belegt, lässt er sich mit `PORT=8002` in der `.env` ändern. Die
-    [Scratch-Anleitungen](https://github.com/Obi-Wahn/Scratch-Anleitungen-Website)
-    laufen auf **8001**, beide können also gleichzeitig auf demselben Rechner
-    laufen:
-
-    ```text
-    Wettbewerbs-Website    http://localhost:8000
-    Scratch-Anleitungen    http://localhost:8001
-    ```
+    Die Anwendung läuft auf Port **8000**. Belegt schon ein anderes Programm
+    auf dem Rechner diesen Port, startet sie nicht. Dann lässt sich der Port
+    mit `PORT=8002` in der `.env` ändern; die Startmeldung, die Startseite und
+    der QR-Code nennen danach den neuen Port.
 
 ## 📖 Nutzung
 
