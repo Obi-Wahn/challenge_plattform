@@ -159,6 +159,10 @@ Bei **jedem weiteren Start** prüft sie nur, ob noch alles da ist, und startet
 dann direkt. Fehlt etwas – ist etwa `.venv` gelöscht worden –, holt sie genau
 das nach. Eine vorhandene `.env` und die Datenbank fasst sie nie an.
 
+**Beenden** mit STRG+C im Fenster. Unter Windows fragt die Eingabeaufforderung
+danach noch „Batchvorgang abbrechen (J/N)?“ – die Plattform ist da schon
+beendet, J und N führen beide zum selben Ergebnis.
+
 ```text
 Coding-Wettbewerb-Plattform
 ===========================
