@@ -150,21 +150,47 @@ class TestPause:
         assert 2990 < sekunden_im_skript(client) <= 3000
 
 
-class TestKeinAutomatischesNeuladen:
-    def test_die_seite_laedt_sich_nicht_selbst_neu(self, make_challenge, logged_in_team):
-        """Ein Neuladen würde eine laufende Abgabe abbrechen.
+class TestNeuladenNurWennNichtsUnterwegsIst:
+    """Der frühere Auto-Refresh brach laufende Abgaben ab und wurde deshalb
+    ausgebaut. Die Standabfrage lädt wieder neu, aber nur hinter einer Prüfung:
+    keine abgeschickte Abgabe, keine ausgewählte Datei, keine ungespeicherten
+    Namen. Die Uhr selbst lädt nie neu - sie weiß nichts davon, wie der Server
+    die Zeit sieht.
+    """
 
-        Genau deshalb wurde der Auto-Refresh auf dieser Seite schon einmal
-        wieder ausgebaut. Bei null erscheint stattdessen ein Link zum
-        Neuladen, den das Team selbst antippt.
-        """
+    def test_es_gibt_nur_eine_stelle_die_neu_laedt(self, make_challenge, logged_in_team):
+        """Eine zweite wäre die, die die Prüfung umgeht."""
         challenge = make_challenge(start_time=datetime.now() - timedelta(minutes=5),
                                    end_time=datetime.now() + timedelta(seconds=30))
         client, _team = logged_in_team(challenge)
 
-        # Ohne die Kommentare: In einem davon steht der Auto-Refresh, der
-        # genau deswegen schon einmal stillgelegt wurde.
         html = re.sub(r"<!--.*?-->", "", seite(client), flags=re.DOTALL)
 
-        assert "location.reload" not in html
+        assert html.count("location.reload") == 1
+
+    def test_die_uhr_selbst_laedt_nicht_neu(self, make_challenge, logged_in_team):
+        """Bei null steht dort nur, dass es so weit ist."""
+        challenge = make_challenge(start_time=datetime.now() - timedelta(minutes=5),
+                                   end_time=datetime.now() + timedelta(seconds=30))
+        client, _team = logged_in_team(challenge)
+
+        html = re.sub(r"<!--.*?-->", "", seite(client), flags=re.DOTALL)
+        uhrenskript = html.split("let rest =")[1].split("</script>")[0]
+
+        assert "location.reload" not in uhrenskript
         assert 'id="zeitleiste-neu"' in html
+
+    def test_vor_dem_neuladen_wird_geprueft(self, make_challenge, make_task,
+                                            logged_in_team):
+        """Die drei Dinge, die ein Neuladen kaputt machen würde."""
+        challenge = make_challenge(start_time=datetime.now() - timedelta(minutes=5),
+                                   end_time=datetime.now() + timedelta(seconds=30))
+        make_task(challenge)
+        client, _team = logged_in_team(challenge)
+
+        html = re.sub(r"<!--.*?-->", "", seite(client), flags=re.DOTALL)
+
+        assert "darfNeuLaden()" in html
+        assert "abgabeLaeuft" in html
+        assert "input[type='file']" in html
+        assert "member-names" in html

@@ -115,9 +115,10 @@ Drei Wege führen zur Endzeit, und gespeichert wird immer sie:
   Klick setzt Start auf jetzt und Ende auf jetzt plus Dauer. Der Weg für die
   Schulstunde, in der es selten pünktlich losgeht.
 
-Alles davon geht auch **während** der Wettbewerb läuft. Die Teams sehen die
-neue Zeit, sobald sie ihre Seite neu laden – die Uhr im Browser zählt von
-sich aus weiter und weiß nichts von der Änderung. Sag also kurz Bescheid.
+Alles davon geht auch **während** der Wettbewerb läuft: Die Teamseiten laden
+sich innerhalb von etwa 15 Sekunden von selbst neu und zeigen dann die neue
+Restzeit. Sag trotzdem kurz Bescheid – eine Uhr, die plötzlich anders steht,
+verunsichert sonst.
 
 **In der nächsten Woche weitermachen:** am Ende der Stunde **⏸ Pause**
 drücken, in der nächsten Woche **▶ Fortsetzen**. Bei einer so langen Pause
@@ -130,13 +131,18 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 - **Abgaben bewerten** unter `/admin` → *Abgaben*. Punkte und ein kurzes
   Feedback pro Abgabe.
 - **Hinweis freischalten**, wenn eine Aufgabe zu schwer ist: auf der
-  Aufgaben-Seite umschalten. Der Hinweis erscheint bei allen Teams sofort.
+  Aufgaben-Seite umschalten. Der Hinweis erscheint bei allen Teams innerhalb
+  von etwa 15 Sekunden, ohne dass jemand neu laden muss.
 - **Pausieren**, wenn etwas geklärt werden muss: **⏸ Pause** sperrt alle
   Abgaben und hält die Uhr an, **▶ Fortsetzen** gibt sie wieder frei und
   schiebt die Endzeit um die Dauer der Pause nach hinten. Den Teams geht also
-  keine Arbeitszeit verloren, und du musst nichts nachrechnen. In der Pause
-  zeigen die Zeitleiste der Teams und die Countdown-Seite dieselbe
-  stillstehende Zeit.
+  keine Arbeitszeit verloren, und du musst nichts nachrechnen. Auf den
+  Teamseiten erscheint innerhalb von etwa 15 Sekunden von selbst ein Kasten
+  *⏸ Kurze Pause*, die Zeitleiste wird orange, und die Countdown-Seite am
+  Beamer zeigt dieselbe stillstehende Zeit. Beim Fortsetzen verschwindet der
+  Kasten genauso von selbst wieder. Die Aufgaben bleiben in der Pause
+  absichtlich lesbar – nachdenken und nachlesen darf ein Team, nur abgeben
+  nicht.
 - **Rangliste** `/scoreboard` aktualisiert sich alle 30 Sekunden von selbst.
 
 > **Aus der Praxis:** Ab wann die Rangliste zeigen? (Von Anfang an motiviert
