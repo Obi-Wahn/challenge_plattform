@@ -194,3 +194,56 @@ class TestNeuladenNurWennNichtsUnterwegsIst:
         assert "abgabeLaeuft" in html
         assert "input[type='file']" in html
         assert "member-names" in html
+
+
+class TestLeisteAufDerRangliste:
+    """Die Rangliste hängt den ganzen Tag am Beamer und trägt dieselbe Leiste.
+
+    Sie hat die frühere Countdown-Seite abgelöst. Beide Uhren - die der Teams
+    und die am Beamer - müssen im selben Moment dasselbe zeigen, sonst sieht
+    der Raum zwei Zeiten.
+    """
+
+    def test_die_leiste_steht_auf_der_rangliste(self, client, make_challenge):
+        make_challenge(start_time=datetime.now() - timedelta(minutes=5),
+                       end_time=datetime.now() + timedelta(hours=1))
+
+        leiste = zeitleiste(client, "/scoreboard")
+
+        assert "Läuft" in leiste
+        assert 'id="restzeit"' in leiste
+        assert "verbleibend" in leiste
+
+    def test_die_pause_steht_auch_am_beamer(self, client, make_challenge):
+        make_challenge(start_time=datetime.now() - timedelta(minutes=20),
+                       end_time=datetime.now() + timedelta(minutes=40),
+                       paused=True,
+                       paused_at=datetime.now() - timedelta(minutes=10))
+
+        leiste = zeitleiste(client, "/scoreboard")
+
+        assert "Pausiert" in leiste
+        assert "const laeuftDieUhr = false;" in seite(client, "/scoreboard")
+
+    def test_beide_uhren_zeigen_dieselbe_zeit(self, make_challenge, logged_in_team):
+        challenge = make_challenge(start_time=datetime.now() - timedelta(minutes=20),
+                                   end_time=datetime.now() + timedelta(minutes=40))
+        client, _team = logged_in_team(challenge)
+
+        assert abs(sekunden_im_skript(client)
+                   - sekunden_im_skript(client, "/scoreboard")) <= 1
+
+    def test_ohne_urkunde_am_beamer(self, client, make_challenge):
+        """Der Urkunden-Knopf gehört den Teams, nicht der Leinwand."""
+        make_challenge(start_time=datetime.now() - timedelta(hours=2),
+                       end_time=datetime.now() - timedelta(hours=1))
+
+        leiste = zeitleiste(client, "/scoreboard")
+
+        assert "Beendet" in leiste
+        assert "Urkunde" not in leiste
+
+    def test_ohne_wettbewerb_keine_leiste(self, client, database):
+        html = client.get("/scoreboard").get_data(as_text=True)
+
+        assert '<div class="zeitleiste' not in html

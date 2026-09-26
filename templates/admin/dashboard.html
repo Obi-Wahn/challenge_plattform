@@ -105,12 +105,20 @@
 </div>
 
 <!-- ===== VORBEREITUNG ===== -->
+<!-- Reihenfolge wie auf der Wettbewerbsseite: erst der Wettbewerb selbst,
+     dann wer mitmacht, dann was zu tun ist. -->
 <h5 class="text-secondary text-uppercase mb-3 section-label">Vorbereitung</h5>
 <div class="row g-3 mb-5">
   <div class="col-md-3 col-6">
     <a href="{{ url_for('admin.challenge_detail', cid=challenge.id) }}" class="btn btn-outline-light w-100 h-100 py-4">
       🏁<br><strong>Wettbewerb</strong>
       <div class="small text-secondary">alles auf einen Blick</div>
+    </a>
+  </div>
+  <div class="col-md-3 col-6">
+    <a href="{{ url_for('admin.teams') }}" class="btn btn-outline-light w-100 h-100 py-4">
+      👥<br><strong>Teams</strong>
+      <div class="small text-secondary">{{ overview.teams }} angemeldet</div>
     </a>
   </div>
   <div class="col-md-3 col-6">
@@ -139,18 +147,6 @@
         {{ overview.open_reviews }}
       </span>
       {% endif %}
-    </a>
-  </div>
-  <div class="col-md-3 col-6">
-    <a href="{{ url_for('admin.teams') }}" class="btn btn-outline-light w-100 h-100 py-4">
-      👥<br><strong>Teams</strong>
-      <div class="small text-secondary">{{ overview.teams }} angemeldet</div>
-    </a>
-  </div>
-  <div class="col-md-3 col-6">
-    <a href="{{ url_for('public.start') }}" target="_blank" class="btn btn-outline-light w-100 h-100 py-4">
-      ⏱️<br><strong>Countdown</strong>
-      <div class="small text-secondary">zum Projizieren</div>
     </a>
   </div>
 </div>

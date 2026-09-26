@@ -171,5 +171,12 @@ class TestOeffentlicheSeiten:
         assert "Die Pixelpiraten" in html
 
     def test_seiten_funktionieren_auch_ohne_wettbewerb(self, client, database):
-        for pfad in ["/", "/login", "/scoreboard", "/siegerehrung", "/start"]:
+        for pfad in ["/", "/login", "/scoreboard", "/siegerehrung"]:
             assert client.get(pfad).status_code == 200, pfad
+
+    def test_die_alte_countdown_adresse_fuehrt_zur_rangliste(self, client, database):
+        """Die Seite gibt es nicht mehr, ein altes Lesezeichen soll trotzdem tragen."""
+        antwort = client.get("/start")
+
+        assert antwort.status_code == 302
+        assert antwort.headers["Location"].endswith("/scoreboard")
