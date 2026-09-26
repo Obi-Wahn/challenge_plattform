@@ -54,7 +54,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 
 ### Für die Teams
 *   **Beitritt per QR-Code**: Der Code auf der Startseite führt das Smartphone direkt hin, sonst tippt man die Adresse aus dem Schulnetz ein. Die Seiten sind für Desktop, Tablet und Smartphone gemacht.
-*   **Anmeldung je Wettbewerb**: Teamname und Passwort; derselbe Teamname darf in mehreren Wettbewerben vorkommen.
+*   **Anmeldung je Wettbewerb**: Teamname und Passwort; derselbe Teamname darf in mehreren Wettbewerben vorkommen. Ist der Wettbewerb beendet oder pausiert, nimmt die Startseite keine neuen Teams mehr an – wer schon dabei ist, kommt weiter hinein.
 *   **Wettbewerbsseite**: alle Aufgaben mit Fortschritt, eigenen Punkten und dem Feedback der Lehrkraft, dazu die Restzeit als Leiste.
 *   **Schwierigkeit auf einen Blick**: Unter dem einleitenden Satz jeder Aufgabe stehen Punkte und Stufe — 🟢 einfach, 🟡 mittel, 🔴 schwer.
 *   **Aktualisiert sich selbst**: Die Seite fragt alle 15 Sekunden nach dem Stand — Pause, Fortsetzen, ein freigeschalteter Tipp und eine neue Dauer kommen an, ohne dass jemand neu laden muss.
@@ -74,6 +74,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Teams**: Passwort zurücksetzen, die eingetragenen Namen kontrollieren, freigeben oder die Freigabe zurücknehmen; eine Zeile oben zeigt, wie viele noch auf die Kontrolle warten.
 *   **Urkunden**: als PDF und Druckansicht, für alle Teams oder einzeln, im Quer- oder Hochformat, mit Namen und Handschrift unter der Unterschriftslinie — auch für einen längst beendeten Wettbewerb, mit den Punkten von damals.
 *   **Einstellungen**: Standardname und -untertitel für die Zeit, in der kein Wettbewerb läuft, Quer- oder Hochformat der Urkunden, Name und Handschrift unter der Unterschriftslinie, und ob die Teams ihre Namen eintragen dürfen.
+*   **Protokolldatei**: Was anlegt, ändert oder wegnimmt, steht mit Zeitstempel in `logs/anwendung.log` – samt jeder **abgewiesenen** Abgabe mit Grund. Damit ist „Wir haben doch abgegeben!“ nach dem Wettbewerbstag beantwortbar.
 *   **Eigene Fehlerseiten**: deutscher Satz und ein Weg zurück statt der englischen Seite des Webservers. Die gewöhnlichen Missgeschicke landen gar nicht dort, sondern als Meldung auf der Wettbewerbsseite des Teams.
 
 ### Für den Beamer
@@ -388,15 +389,16 @@ Festgehalten wird, was etwas **anlegt, ändert oder wegnimmt** – und was
 
 | Wann | Was im Protokoll steht |
 |---|---|
+| Start | der Server ist hochgefahren, mit Adresse und Port |
 | Aufbau | Wettbewerb angelegt, bearbeitet, aktiv geschaltet, gelöscht · Team angelegt, gelöscht, Passwort zurückgesetzt · übernommene Teams · Aufgabe angelegt, bearbeitet, gelöscht · Aufgaben gesichert und eingelesen · geänderte Einstellungen (nur welche Felder) |
-| Wettbewerbstag | abgelehnte Abgabe samt Grund (falsche Endung, zu groß, pausiert, beendet, schon abgegeben) · zurückgesetzte Abgabe · fehlgeschlagene Admin-Anmeldung mit Adresse |
+| Wettbewerbstag | freigeschalteter oder wieder verborgener Tipp · abgelehnte Abgabe samt Grund (falsche Endung, zu groß, pausiert, beendet, schon abgegeben) · zurückgesetzte Abgabe · fehlgeschlagene Admin-Anmeldung mit Adresse |
 | Zum Abschluss | erzeugte Urkunden (Wettbewerb, Anzahl, Ausrichtung) · gesicherte Datenbank |
 | Störungen | eine Datei, die nicht gelöscht werden konnte · eine Urkunde, die nicht erzeugt werden konnte · jeder unbehandelte Fehler mit Traceback |
 
 Der gewöhnliche Betrieb bleibt **absichtlich still**: kein Seitenaufruf, keine
 An- und Abmeldung eines Teams, keine eingegangene Abgabe, keine einzelne
-Bewertung, kein Start und keine Pause. Sonst wäre die Datei nach einer
-Schulstunde nicht mehr zu lesen – und genau dann soll sie gebraucht werden
+Bewertung, und vom Wettbewerb selbst weder Start noch Pause. Sonst wäre die
+Datei nach einer Schulstunde nicht mehr zu lesen – und genau dann soll sie gebraucht werden
 können. Passwörter stehen nie darin, auch keine geratenen.
 
 Der Sinn: Ohne diese Datei stünde ein Traceback nur im Terminalfenster. Wer
@@ -518,6 +520,7 @@ challenge_plattform/
 ├── task_exchange.py       # Aufgaben sichern und einlesen
 ├── network.py             # Adresse, unter der die Teams beitreten
 ├── sitzung.py             # Anmeldung eines Teams und ihre Gültigkeit
+├── protokoll.py           # die Zeilen, die in logs/anwendung.log gehen
 ├── uploads.py             # löscht Dateien mit ihrer Abgabe
 ├── task_rules.py          # Regeln für Aufgabenwerte, für Formular und Import
 ├── requirements.txt       # Abhängigkeiten

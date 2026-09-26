@@ -167,3 +167,116 @@ class TestTeamVerwaltungImAdmin:
 
         assert antwort.status_code == 302
         assert Submission.query.filter_by(team_id=team_id).count() == 0
+
+
+class TestAnmeldungGeschlossen:
+    """Ein beendeter oder pausierter Wettbewerb nimmt keine neuen Teams mehr an.
+
+    Nach dem Ende hängt die Rangliste am Beamer: Ein Team, das sich dann noch
+    anmeldet, stünde mit null Punkten mitten in der Siegerehrung - und auf der
+    Urkundenliste, denn die zählt jedes Team des Wettbewerbs, auch eines ohne
+    Abgabe. In der Pause sieht die Lehrkraft nicht auf den Bildschirm.
+    """
+
+    def beendet(self, challenge, database):
+        from datetime import datetime, timedelta
+
+        challenge.end_time = datetime.now() - timedelta(minutes=1)
+        database.session.commit()
+
+    def test_die_startseite_zeigt_nach_dem_ende_kein_formular(
+            self, client, make_challenge, database):
+        challenge = make_challenge()
+        self.beendet(challenge, database)
+
+        html = client.get("/").get_data(as_text=True)
+
+        assert "Anmeldung geschlossen" in html
+        assert "Der Wettbewerb ist beendet" in html
+        assert 'name="team"' not in html
+        # Der Weg zur eigenen Urkunde muss offen bleiben.
+        assert "Hier einloggen" in html
+
+    def test_die_startseite_zeigt_in_der_pause_kein_formular(
+            self, client, make_challenge, database):
+        challenge = make_challenge()
+        challenge.paused = True
+        database.session.commit()
+
+        html = client.get("/").get_data(as_text=True)
+
+        assert "Anmeldung geschlossen" in html
+        assert "pausiert" in html
+        assert 'name="team"' not in html
+
+    def test_ein_von_hand_abgeschicktes_formular_wird_abgewiesen(
+            self, client, make_challenge, database):
+        """Das Formular ist weg - der POST kommt trotzdem an und muss scheitern."""
+        from models import Team
+
+        challenge = make_challenge()
+        # Token holen, solange die Seite noch eines zeigt.
+        marke = csrf_token(client, "/")
+        self.beendet(challenge, database)
+
+        antwort = client.post("/", data={
+            "csrf_token": marke,
+            "team": "Die Nachzügler",
+            "password": "geheim",
+        })
+
+        assert antwort.status_code == 200, "kein Redirect - es wurde nichts angelegt"
+        assert "Der Wettbewerb ist beendet" in antwort.get_data(as_text=True)
+        assert Team.query.count() == 0
+
+    def test_in_der_pause_ebenso(self, client, make_challenge, database):
+        from models import Team
+
+        challenge = make_challenge()
+        marke = csrf_token(client, "/")
+        challenge.paused = True
+        database.session.commit()
+
+        antwort = client.post("/", data={
+            "csrf_token": marke,
+            "team": "Die Nachzügler",
+            "password": "geheim",
+        })
+
+        assert antwort.status_code == 200
+        assert "pausiert" in antwort.get_data(as_text=True)
+        assert Team.query.count() == 0
+
+    def test_vor_dem_start_bleibt_die_anmeldung_offen(
+            self, client, make_challenge, database):
+        """Genau dann melden sich die Teams an."""
+        from datetime import datetime, timedelta
+        from models import Team
+
+        challenge = make_challenge()
+        challenge.start_time = datetime.now() + timedelta(hours=1)
+        database.session.commit()
+
+        html = client.get("/").get_data(as_text=True)
+        assert 'name="team"' in html
+
+        assert registrieren(client, "Die Frühen").status_code == 302
+        assert Team.query.count() == 1
+
+    def test_ohne_wettbewerb_bleibt_das_formular_stehen(self, client):
+        """Frische Installation: Die Lehrkraft soll die Anmeldung ansehen können."""
+        html = client.get("/").get_data(as_text=True)
+
+        assert "Anmeldung geschlossen" not in html
+        assert 'name="team"' in html
+
+    def test_ein_angemeldetes_team_kommt_nach_dem_ende_weiter_hinein(
+            self, client, make_challenge, make_team, database):
+        challenge = make_challenge()
+        make_team(challenge, name="Die Pixelpiraten", password="geheim")
+        self.beendet(challenge, database)
+
+        antwort = anmelden(client, "Die Pixelpiraten")
+
+        assert antwort.status_code == 302
+        assert "/challenge" in antwort.headers["Location"]

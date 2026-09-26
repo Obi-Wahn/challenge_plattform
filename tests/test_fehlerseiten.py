@@ -15,8 +15,11 @@ from tests.helpers import csrf_token
 
 
 def abgeben(client, task, dateiname="loesung.sb3", inhalt=b"projekt"):
+    # Das Token kommt von der Anmeldeseite, nicht von der Startseite: Die zeigt
+    # ihr Formular - und damit ihr Token - nicht mehr, wenn der Wettbewerb
+    # beendet oder pausiert ist, und genau das prüfen manche dieser Tests.
     return client.post(f"/submit/{task.id}", data={
-        "csrf_token": csrf_token(client, "/"),
+        "csrf_token": csrf_token(client, "/login"),
         "file": (io.BytesIO(inhalt), dateiname),
     }, content_type="multipart/form-data", follow_redirects=True)
 

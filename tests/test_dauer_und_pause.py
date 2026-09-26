@@ -418,6 +418,22 @@ class TestJetztStarten:
         assert challenge.paused_at is None
         assert challenge.accepts_submissions is True
 
+    def test_die_meldung_verspricht_kein_neuladen_von_hand(self, admin, make_challenge):
+        """Die Teamseiten holen sich den Stand selbst - seit der Standabfrage.
+
+        Vorher schickte dieser Satz die Lehrkraft durch den Raum, um dreißig
+        Tablets neu zu laden, und widersprach damit README und Leitfaden.
+        """
+        challenge = make_challenge()
+
+        antwort = anmelden_und_posten(
+            admin, f"/admin/challenges/{challenge.id}/jetzt-starten",
+            {"duration_minutes": "45"})
+
+        text = antwort.get_data(as_text=True)
+        assert "15 Sekunden von selbst" in text
+        assert "neu laden" not in text
+
     def test_ohne_dauer_passiert_nichts(self, admin, make_challenge):
         challenge = make_challenge()
 
