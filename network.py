@@ -20,6 +20,12 @@ FESTE_ADRESSE = "LAN_ADRESSE"
 # welche Adresse es dafür nähme.
 SUCHZIEL = ("8.8.8.8", 80)
 
+# Eintrag in der .env für den Port, auf dem der Server lauscht. Ohne ihn
+# bleibt es bei STANDARD_PORT. Nötig ist er nur, wenn auf demselben Rechner
+# schon etwas anderes diesen Port belegt.
+PORT_EINTRAG = "PORT"
+STANDARD_PORT = 8000
+
 _log = logging.getLogger(__name__)
 
 
@@ -73,6 +79,32 @@ def lan_adresse():
     statt eine Adresse zu nennen, die niemandem nützt.
     """
     return eingetragene_adresse() or ermittelte_adresse()
+
+
+def server_port():
+    """Der Port, auf dem der Server lauscht.
+
+    Ein Tippfehler fällt auf STANDARD_PORT zurück und wird gemeldet, statt
+    den Start scheitern zu lassen: Die Startmeldung nennt ohnehin den Port,
+    der tatsächlich gilt.
+    """
+    wert = (os.environ.get(PORT_EINTRAG) or "").strip()
+    if not wert:
+        return STANDARD_PORT
+
+    try:
+        port = int(wert)
+    except ValueError:
+        port = 0
+
+    if not 1 <= port <= 65535:
+        _log.warning(
+            "%s=%r ist kein gültiger Port, es bleibt bei %s.",
+            PORT_EINTRAG, wert, STANDARD_PORT,
+        )
+        return STANDARD_PORT
+
+    return port
 
 
 def get_local_ip():
