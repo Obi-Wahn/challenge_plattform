@@ -25,7 +25,7 @@ load_dotenv()
 from flask import Flask
 from config import Config
 from extensions import db, csrf, limiter
-from network import FESTE_ADRESSE, lan_adresse
+from network import FESTE_ADRESSE, lan_adresse, server_port
 from blueprints.auth import auth_bp
 from blueprints.public import public_bp
 from blueprints.challenge import challenge_bp
@@ -514,7 +514,7 @@ if __name__ == "__main__":
     # arbitrary code execution and this app is bound to 0.0.0.0 for LAN access,
     # so it must only be enabled explicitly for local development.
     debug_mode = os.environ.get("FLASK_DEBUG", "false").strip().lower() in ("1", "true", "yes")
-    port = 8000
+    port = server_port()
 
     if debug_mode:
         # Flask's built-in dev server, with debugger and auto-reload, for local development only.

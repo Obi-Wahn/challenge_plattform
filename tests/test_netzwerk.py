@@ -12,7 +12,15 @@ import pytest
 
 import network
 from app import startmeldung
-from network import FESTE_ADRESSE, eingetragene_adresse, join_url, lan_adresse
+from network import (
+    FESTE_ADRESSE,
+    PORT_EINTRAG,
+    STANDARD_PORT,
+    eingetragene_adresse,
+    join_url,
+    lan_adresse,
+    server_port,
+)
 
 
 @pytest.fixture
@@ -144,3 +152,38 @@ class TestZusammenspielMitDerStartseite:
         monkeypatch.setenv(FESTE_ADRESSE, "10.0.0.7")
 
         assert join_url("http://192.168.1.50:8000/") == "http://192.168.1.50:8000/"
+
+
+class TestPort:
+    """Der Port aus der .env - damit ein zweiter Server daneben Platz hat."""
+
+    def test_ohne_eintrag_bleibt_es_bei_8000(self, monkeypatch):
+        monkeypatch.delenv(PORT_EINTRAG, raising=False)
+
+        assert STANDARD_PORT == 8000
+        assert server_port() == 8000
+
+    def test_der_eintrag_gilt(self, monkeypatch):
+        monkeypatch.setenv(PORT_EINTRAG, " 8002 ")
+
+        assert server_port() == 8002
+
+    @pytest.mark.parametrize("wert", ["", "   "])
+    def test_ein_leerer_eintrag_zaehlt_nicht(self, monkeypatch, wert):
+        monkeypatch.setenv(PORT_EINTRAG, wert)
+
+        assert server_port() == STANDARD_PORT
+
+    @pytest.mark.parametrize("wert", ["800o", "8000.5", "0", "-1", "65536", ":8000"])
+    def test_ein_tippfehler_faellt_auf_den_standard_zurueck(self, monkeypatch, caplog, wert):
+        """Der Start soll nicht scheitern, der Fehler aber auffallen."""
+        monkeypatch.setenv(PORT_EINTRAG, wert)
+
+        assert server_port() == STANDARD_PORT
+        assert PORT_EINTRAG in caplog.text
+
+    def test_der_port_steht_in_der_startmeldung(self):
+        meldung = "\n".join(startmeldung("192.168.1.50", 8002, "logs/anwendung.log"))
+
+        assert "http://localhost:8002" in meldung
+        assert "http://192.168.1.50:8002" in meldung

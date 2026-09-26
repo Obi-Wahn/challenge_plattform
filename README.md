@@ -179,6 +179,17 @@ Voraussetzung: Python 3.10 oder höher (fpdf2, das die Urkunden erzeugt, verlang
     Der Eintrag sticht die Erkennung und landet auf der Startseite und im
     QR-Code.
 
+    Die Anwendung läuft auf Port **8000**. Ist der auf dem Rechner schon
+    belegt, lässt er sich mit `PORT=8002` in der `.env` ändern. Die
+    [Scratch-Anleitungen](https://github.com/Obi-Wahn/Scratch-Anleitungen-Website)
+    laufen auf **8001**, beide können also gleichzeitig auf demselben Rechner
+    laufen:
+
+    ```text
+    Wettbewerbs-Website    http://localhost:8000
+    Scratch-Anleitungen    http://localhost:8001
+    ```
+
 ## 📖 Nutzung
 
 1.  **Admin-Zugang**:

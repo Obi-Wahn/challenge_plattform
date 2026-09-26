@@ -32,6 +32,9 @@ os.environ["LOG_DIR"] = os.path.join(TMP_DIR, "logs")
 # braucht, setzt sie im Test selbst.
 os.environ.pop("LAN_ADRESSE", None)
 
+# Dasselbe für den Port: Die Tests sollen vom Standard ausgehen.
+os.environ.pop("PORT", None)
+
 
 def csrf_token(client, path):
     """Holt ein CSRF-Token von einer Seite, die ein Formular enthält.
