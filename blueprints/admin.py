@@ -2,8 +2,9 @@ from flask import (Blueprint, render_template, request, redirect, url_for, sessi
                    send_from_directory, send_file, flash, jsonify)
 from extensions import db
 from models import (Team, Challenge, Task, Submission, Settings, TASK_FORMATS,
-                    TEXT_FORMATS, MAX_MEMBERS, MAX_MEMBER_TEXT_LENGTH,
-                    format_member_names, parse_member_names, event_branding)
+                    TEXT_FORMATS, TASK_DIFFICULTIES, MAX_MEMBERS,
+                    MAX_MEMBER_TEXT_LENGTH, format_member_names,
+                    parse_member_names, event_branding)
 from scoring import get_standings
 from task_rules import KEIN_TITEL, PUNKTE_KEINE_ZAHL, clean_task_values
 from certificates import (build_certificates_for, certificate_entry, signature_font,
@@ -80,6 +81,7 @@ def geprüfte_aufgabenwerte(form):
         form.get("max_points"),
         form.get("allowed_extension"),
         form.get("hint"),
+        form.get("difficulty"),
     )
 
 
@@ -364,7 +366,8 @@ def challenge_tasks(cid):
         "admin/challenge_tasks.html",
         challenge=challenge,
         tasks=tasks,
-        task_formats=TASK_FORMATS
+        task_formats=TASK_FORMATS,
+        task_difficulties=TASK_DIFFICULTIES,
     )
 
 @admin_bp.route("/challenges/<int:cid>/tasks/export")
@@ -541,7 +544,12 @@ def task_edit(tid):
             flash(hinweis, "warning")
         return redirect(url_for('admin.challenge_tasks', cid=cid))
 
-    return render_template("admin/task_edit.html", task=task, task_formats=TASK_FORMATS)
+    return render_template(
+        "admin/task_edit.html",
+        task=task,
+        task_formats=TASK_FORMATS,
+        task_difficulties=TASK_DIFFICULTIES,
+    )
 
 @admin_bp.route("/tasks/<int:tid>/toggle_hint", methods=["POST"])
 def task_toggle_hint(tid):

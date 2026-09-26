@@ -41,6 +41,11 @@ UNSICHERE_ZIELE = re.compile(
     r'(href|src)="(?!https?:|mailto:|#|/)[^"]*"', re.IGNORECASE
 )
 
+# Der erste Absatz einer Aufgabe sagt in einem Satz, worum es geht - er liest
+# sich wie ein Untertitel. Punkte und Schwierigkeit stehen auf der
+# Wettbewerbsseite dahinter, also vor dem ausfuehrlichen Teil.
+ERSTER_ABSATZ = re.compile(r"\s*<p>.*?</p>", re.DOTALL)
+
 # Name des Handlers, damit ein zweiter Aufruf von create_app() - in den
 # Tests kommt das vor - nicht ein zweites Mal in dieselbe Datei schreibt.
 LOG_HANDLER_NAME = "protokolldatei"
@@ -159,6 +164,31 @@ def create_app():
         html = markdown.markdown(str(escape(text)))
         return Markup(UNSICHERE_ZIELE.sub(r'\1="#"', html))
 
+    @app.template_filter('aufgabentext')
+    def split_task_description(text):
+        """Der Aufgabentext in zwei Teilen: Einleitung und der Rest.
+
+        Dazwischen stehen auf der Wettbewerbsseite Punkte und Schwierigkeit.
+        Die Einleitung ist der erste Absatz - ein Satz, der sagt, worum es
+        geht. Faengt der Text ohne Absatz an, etwa mit einer Liste oder einer
+        Ueberschrift, bleibt die Einleitung leer und alles steht im Rest; die
+        Angaben stehen dann direkt unter dem Titel.
+        """
+        from markupsafe import Markup
+
+        html = render_markdown(text)
+        if not html:
+            return {"einleitung": Markup(""), "rest": Markup("")}
+
+        treffer = ERSTER_ABSATZ.match(html)
+        if not treffer:
+            return {"einleitung": Markup(""), "rest": html}
+
+        return {
+            "einleitung": Markup(treffer.group(0)),
+            "rest": Markup(html[treffer.end():]),
+        }
+
     # Site branding (name, tagline) is admin-editable, stored in the DB,
     # and injected into every template instead of being hardcoded.
     #
@@ -268,6 +298,7 @@ ADDED_COLUMNS = {
     "tasks": {
         "hint": "TEXT",
         "hint_visible": "BOOLEAN DEFAULT 0",
+        "difficulty": "VARCHAR(10) NOT NULL DEFAULT ''",
     },
     "submissions": {
         "resubmit_allowed": "BOOLEAN DEFAULT 0",

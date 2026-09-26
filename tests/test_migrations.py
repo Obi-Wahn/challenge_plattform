@@ -161,6 +161,16 @@ class TestNachtraeglicheSpalten:
         spalten = {zeile[1] for zeile in lies(pfad, "PRAGMA table_info(tasks)")}
         assert {"hint", "hint_visible"} <= spalten
 
+    def test_schwierigkeit_wird_ergaenzt_und_bleibt_leer(self, alte_datenbank):
+        """Aufgaben von vorher haben keine Schwierigkeit - und sollen keine bekommen."""
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
+
+        ensure_added_columns()
+
+        spalten = {zeile[1] for zeile in lies(pfad, "PRAGMA table_info(tasks)")}
+        assert "difficulty" in spalten
+        assert lies(pfad, "SELECT difficulty FROM tasks") == [("",)]
+
     def test_korrektur_spalte_wird_ergaenzt(self, alte_datenbank):
         pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
 

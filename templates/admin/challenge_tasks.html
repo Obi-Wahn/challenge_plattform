@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_schwierigkeit.html" import schwierigkeit %}
 {% block content %}
 
 <div class="mb-4">
@@ -28,6 +29,7 @@
         <span class="text-secondary ms-2">
           ({{ t.max_points }} Punkte)
         </span>
+        {{ schwierigkeit(t) }}
       </div>
 
       <div class="d-flex flex-wrap gap-2">
@@ -95,6 +97,16 @@
     </div>
 
     <div class="mb-3">
+      <label class="form-label">Schwierigkeit</label>
+      <select name="difficulty" class="form-select">
+        <option value="">keine Angabe</option>
+        {% for stufe, zeichen in task_difficulties.items() %}
+        <option value="{{ stufe }}">{{ zeichen }} {{ stufe }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-3">
       <label class="form-label">Erlaubtes Dateiformat</label>
       <select name="allowed_extension" class="form-select">
         {% for extension, label in task_formats.items() %}
@@ -123,7 +135,8 @@
   <p class="text-secondary">
     Aufgaben, die gut funktioniert haben, kannst du als Datei sichern und beim
     nächsten Wettbewerb wieder einlesen. Die Datei enthält nur die Aufgaben –
-    keine Abgaben, keine Punkte. Hinweise sind nach dem Einlesen zunächst verborgen.
+    mit Schwierigkeit, aber ohne Abgaben und ohne Punkte der Teams. Hinweise sind
+    nach dem Einlesen zunächst verborgen.
   </p>
 
   <div class="row g-4">

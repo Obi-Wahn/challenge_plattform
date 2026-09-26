@@ -51,17 +51,25 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 
 5. **Aufgaben anlegen oder einlesen.** Fertige Sätze liegen unter
    `beispiele/` (Scratch, Calliope) und werden auf der Aufgaben-Seite mit
-   **⬆️ Datei einlesen** übernommen. Aufgaben aus einem früheren Wettbewerb
-   lassen sich dort ebenso einzeln oder als Satz exportieren und wieder
-   einlesen.
+   **⬆️ Datei einlesen** übernommen; sie bringen auch ihre Schwierigkeit
+   mit. Aufgaben aus einem früheren Wettbewerb lassen sich dort ebenso
+   einzeln oder als Satz exportieren und wieder einlesen.
 
 6. **Urkundenformat wählen** unter *Einstellungen*: Querformat oder Hochformat.
    Am besten jetzt schon eine Probeurkunde ausdrucken – dann weißt du, ob
    Drucker und Papier mitspielen.
 
 7. **Pro Aufgabe festlegen:** Punkte, erlaubtes Dateiformat
-   (z. B. `.sb3` für Scratch, `.hex` für Calliope) und optional einen
-   Hinweis. Der Hinweis bleibt verborgen, bis er freigeschaltet wird.
+   (z. B. `.sb3` für Scratch, `.hex` für Calliope), die Schwierigkeit und
+   optional einen Hinweis. Der Hinweis bleibt verborgen, bis er
+   freigeschaltet wird.
+
+   Die Schwierigkeit ist *einfach*, *mittel* oder *schwer*; „keine Angabe“
+   ist auch eine Antwort, dann steht bei der Aufgabe nichts. Die Teams sehen
+   sie als farbiges Schild unter dem ersten Satz der Aufgabe, gleich neben
+   den Punkten, und finden so schnell etwas Passendes. Beim Sichern reist
+   sie in der JSON-Datei mit; ältere Dateien ohne diese Angabe lassen sich
+   unverändert einlesen.
 
 > **Aus der Praxis:** Wie viele Aufgaben passen in die zur Verfügung stehende
 > Zeit? Welche Punktverteilung hat sich bewährt?
@@ -217,7 +225,8 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
       und Bewertungen, in `uploads/` die Programme der Teams.
 - [ ] **Gut gelaufene Aufgaben exportieren** (Aufgaben-Seite: **⬇️ Alle Aufgaben sichern**, oder das ⬇️ neben einer
       einzelnen Aufgabe) und
-      die Datei aufheben. Beim nächsten Mal wieder einlesen.
+      die Datei aufheben. Beim nächsten Mal wieder einlesen – Punkte,
+      Dateiformat, Schwierigkeit und Hinweis kommen mit.
 - [ ] **Protokolldatei durchsehen**, falls etwas hakte – und die Erkenntnis
       oben in den Kasten eintragen.
 - [ ] Alte Sicherungskopien in `data/` (`challenge-vor-…​.db`) löschen,

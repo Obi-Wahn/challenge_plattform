@@ -11,7 +11,12 @@ Serverfehler.
 Die Regeln stehen deshalb hier, und alle drei Wege benutzen sie.
 """
 
-from models import TASK_FORMATS, DEFAULT_TASK_FORMAT
+from models import (
+    TASK_FORMATS,
+    DEFAULT_TASK_FORMAT,
+    TASK_DIFFICULTIES,
+    NO_TASK_DIFFICULTY,
+)
 
 MAX_TITLE = 200
 MAX_POINTS = 1000
@@ -28,7 +33,7 @@ KEIN_TITEL = "kein_titel"
 PUNKTE_KEINE_ZAHL = "punkte_keine_zahl"
 
 
-def clean_task_values(title, description, points, extension, hint):
+def clean_task_values(title, description, points, extension, hint, difficulty=None):
     """Prüft die Werte einer Aufgabe.
 
     Gibt (werte, hinweise, problem) zurück:
@@ -84,11 +89,22 @@ def clean_task_values(title, description, points, extension, hint):
         hint = hint[:MAX_HINT]
         hinweise.append(f"„{title[:40]}“: Hinweis gekürzt")
 
+    difficulty = str(difficulty or "").strip().lower()
+    if difficulty and difficulty not in TASK_DIFFICULTIES:
+        # Keine Angabe ist eine gültige Antwort, deshalb kein Abbruch - aber
+        # mit Ansage, damit ein Tippfehler in einer Datei auffällt.
+        hinweise.append(
+            f"„{title[:40]}“: Schwierigkeit {difficulty[:20]} ist unbekannt, "
+            "keine eingetragen"
+        )
+        difficulty = NO_TASK_DIFFICULTY
+
     werte = {
         "title": title,
         "description": description or None,
         "max_points": points,
         "allowed_extension": extension,
         "hint": hint or None,
+        "difficulty": difficulty,
     }
     return werte, hinweise, None

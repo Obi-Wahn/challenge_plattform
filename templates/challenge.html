@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "_zeitleiste.html" import zeitleiste, zeitleiste_skript %}
+{% from "_schwierigkeit.html" import schwierigkeit %}
 {% block content %}
 
 <h2 class="mb-3">🧩 {{ event.name }}</h2>
@@ -112,15 +113,32 @@
   <div class="col-md-6">
     <div class="event-card h-100">
 
-      <h5>{{ task.title }}</h5>
-      <!-- Markdown Rendering -->
-      <div class="text-secondary task-description">
-        {{ task.description | markdown }}
+      {% set aufgabentext = task.description | aufgabentext %}
+
+      <h5 class="mb-1">{{ task.title }}</h5>
+
+      <!-- Erst der Satz, der sagt, worum es geht, dann Punkte und
+           Schwierigkeit, dann der ausführliche Teil: So sehen die Teams beim
+           Überfliegen, was eine Aufgabe bringt und wie schwer sie ist. -->
+      {% if aufgabentext.einleitung %}
+      <div class="text-secondary task-description task-einleitung">
+        {{ aufgabentext.einleitung }}
+      </div>
+      {% endif %}
+
+      <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+        <small class="text-secondary">
+          Max. Punkte: {{ task.max_points }}
+        </small>
+        {{ schwierigkeit(task) }}
       </div>
 
-      <small class="text-secondary">
-        Max. Punkte: {{ task.max_points }}
-      </small>
+      {% if aufgabentext.rest %}
+      <!-- Markdown Rendering -->
+      <div class="text-secondary task-description">
+        {{ aufgabentext.rest }}
+      </div>
+      {% endif %}
 
       {% if task.hint_visible and task.hint %}
       <div class="mt-2 p-2 rounded bg-dark border border-info text-light small">
