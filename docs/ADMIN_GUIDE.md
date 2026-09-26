@@ -91,10 +91,9 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 
 ### Vor dem Start
 
-1. Server starten:
-   ```bash
-   python app.py
-   ```
+1. Server starten: die Startdatei öffnen (`start_windows.bat`,
+   `start_macos.command` oder `./start_linux.sh`), oder von Hand
+   `python app.py` in der aktivierten Umgebung.
    Im Terminal stehen beide Adressen (lokal und fürs Netzwerk) und der Pfad
    der Protokolldatei. **Das Fenster offen lassen.**
 2. Wettbewerb unter `/admin` **aktivieren**.
