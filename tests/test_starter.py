@@ -244,16 +244,37 @@ class TestAktualisieren:
     def test_saubere_git_installation_wird_vorgespult(self, ordner, monkeypatch):
         (ordner / ".git").mkdir()
         monkeypatch.setattr(starter.shutil, "which", lambda _: "/usr/bin/git")
-        aufrufe = Aufrufe()
+        aufrufe = Aufrufe(
+            ergebnis(), ergebnis(stdout="alt\n"), ergebnis(), ergebnis(stdout="neu\n"),
+        )
 
         assert starter.aktualisieren(str(ordner), ausfuehren=aufrufe) == "aktualisiert"
         # Nur vorspulen: Ein Merge könnte Konflikte in den Ordner schreiben.
-        assert aufrufe.befehle[-1] == ["git", "pull", "--ff-only"]
+        assert ["git", "pull", "--ff-only"] in aufrufe.befehle
+
+    def test_ohne_neue_fassung_heisst_es_schon_aktuell(self, ordner, monkeypatch):
+        # Sonst stünde "aktualisiert" direkt unter "Already up to date.".
+        (ordner / ".git").mkdir()
+        monkeypatch.setattr(starter.shutil, "which", lambda _: "/usr/bin/git")
+        aufrufe = Aufrufe(
+            ergebnis(), ergebnis(stdout="gleich\n"), ergebnis(), ergebnis(stdout="gleich\n"),
+        )
+
+        assert starter.aktualisieren(str(ordner), ausfuehren=aufrufe) == "schon aktuell"
+
+    def test_unbekannter_stand_gilt_als_aktualisiert(self, ordner, monkeypatch):
+        (ordner / ".git").mkdir()
+        monkeypatch.setattr(starter.shutil, "which", lambda _: "/usr/bin/git")
+        aufrufe = Aufrufe(
+            ergebnis(), ergebnis(returncode=128), ergebnis(), ergebnis(returncode=128),
+        )
+
+        assert starter.aktualisieren(str(ordner), ausfuehren=aufrufe) == "aktualisiert"
 
     def test_gescheitertes_pull_wird_gemeldet(self, ordner, monkeypatch):
         (ordner / ".git").mkdir()
         monkeypatch.setattr(starter.shutil, "which", lambda _: "/usr/bin/git")
-        aufrufe = Aufrufe(ergebnis(), ergebnis(returncode=1))
+        aufrufe = Aufrufe(ergebnis(), ergebnis(stdout="alt\n"), ergebnis(returncode=1))
 
         with pytest.raises(starter.Abbruch):
             starter.aktualisieren(str(ordner), ausfuehren=aufrufe)

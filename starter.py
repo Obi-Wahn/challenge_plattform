@@ -321,10 +321,19 @@ def aktualisieren(basis=BASIS, ausfuehren=subprocess.run):
             "Die Änderungen erst sichern oder mit git verwerfen."
         )
 
+    def stand():
+        # Die Meldung von git selbst ("Already up to date.") ist je nach
+        # Spracheinstellung eine andere, der Commit nicht.
+        kopf = ausfuehren(["git", "rev-parse", "HEAD"], cwd=basis, capture_output=True, text=True)
+        return kopf.stdout.strip() if kopf.returncode == 0 else None
+
+    vorher = stand()
     ergebnis = ausfuehren(["git", "pull", "--ff-only"], cwd=basis)
     if ergebnis.returncode != 0:
         raise Abbruch("git pull ist gescheitert, die Meldung steht oben. Es wurde nichts verändert.")
 
+    if vorher is not None and stand() == vorher:
+        return "schon aktuell"
     return "aktualisiert"
 
 
