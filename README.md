@@ -30,7 +30,6 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 - [Features](#-features)
 - [Technologien](#-technologien)
 - [Installation & Setup](#-installation--setup)
-- [Nutzung](#-nutzung)
 - [Leitfaden für den Wettbewerbstag](#-leitfaden-für-den-wettbewerbstag)
 - [Frontend-Bibliotheken aktualisieren](#-frontend-bibliotheken-aktualisieren)
 - [Python-Pakete aktuell halten](#-python-pakete-aktuell-halten)
@@ -68,12 +67,12 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Steuerzentrale**: Zustand, Teams, Aufgaben und offene Bewertungen auf einen Blick, die Kacheln nach Vorbereitung, Während des Wettbewerbs und Zum Abschluss sortiert.
 *   **Wettbewerbe verwalten**: anlegen, aktivieren, pausieren, beenden und wieder öffnen. Beim Anlegen lassen sich die Teams eines früheren Wettbewerbs übernehmen, mit Passwort und den Namen für die Urkunde.
 *   **Eigener Name je Wettbewerb**: Name und Untertitel stehen auf Startseite, Rangliste, Teamseite und Urkunden und bleiben dort, wenn längst ein anderer läuft.
-*   **Aufgaben**: Beschreibung in Markdown, erlaubtes Dateiformat, optionaler Tipp. Aufgaben lassen sich als JSON sichern, weitergeben und in einen anderen Wettbewerb einlesen — ohne Abgaben und Punkte.
+*   **Aufgaben**: Beschreibung in Markdown, erlaubtes Dateiformat, optionaler Tipp. Aufgaben lassen sich als JSON sichern, weitergeben und in einen anderen Wettbewerb einlesen — ohne Abgaben und Punkte. Fertige Sätze für Scratch und Calliope liegen unter `beispiele/` und sind mit einem Klick eingelesen.
 *   **Zeit im Griff**: Start- und Endzeit oder eine Dauer in Minuten samt „Jetzt starten für … Minuten"; die Pause hält die Uhr an, „Fortsetzen" schiebt das Ende um die Pausendauer nach hinten.
 *   **Bewerten**: Abgaben mit Aufgabenbeschreibung daneben, Textformate direkt im Browser lesbar, Download für lokale Tests, Punkte und Feedback, Korrektur freigeben oder Abgabe löschen.
 *   **Teams**: Passwort zurücksetzen, die eingetragenen Namen kontrollieren, freigeben oder die Freigabe zurücknehmen; eine Zeile oben zeigt, wie viele noch auf die Kontrolle warten.
 *   **Urkunden**: als PDF und Druckansicht, für alle Teams oder einzeln, im Quer- oder Hochformat, mit Namen und Handschrift unter der Unterschriftslinie — auch für einen längst beendeten Wettbewerb, mit den Punkten von damals.
-*   **Einstellungen**: Name und Beschreibung der Anwendung, und ob die Teams ihre Namen eintragen dürfen.
+*   **Einstellungen**: Name und Untertitel der Anwendung, Quer- oder Hochformat der Urkunden, Name und Handschrift unter der Unterschriftslinie, und ob die Teams ihre Namen eintragen dürfen.
 *   **Eigene Fehlerseiten**: deutscher Satz und ein Weg zurück statt der englischen Seite des Webservers. Die gewöhnlichen Missgeschicke landen gar nicht dort, sondern als Meldung auf der Wettbewerbsseite des Teams.
 
 ### Für den Beamer
@@ -231,27 +230,14 @@ siehe [Daten und Sicherungen](#-daten-und-sicherungen).
     mit `PORT=8002` in der `.env` ändern; die Startmeldung, die Startseite und
     der QR-Code nennen danach den neuen Port.
 
-## 📖 Nutzung
-
-1.  **Admin-Zugang**:
-    *   Rufe `/admin` auf (Link auch im Footer der Seite).
-    *   Login mit dem in der `.env` definierten Passwort (`ADMIN_PASSWORD`).
-    *   Passe unter **Einstellungen** bei Bedarf Name und Beschreibung der Veranstaltung an.
-    *   Lege einen neuen Wettbewerb an.
-    *   Füge Aufgaben hinzu, wähle Punkte, erlaubtes Dateiformat und optional einen Hinweis.
-    *   Aktiviere den Wettbewerb.
-
-    *   **Schnellstart:** Unter `beispiele/` liegen fertige Aufgabensätze für
-        Scratch und Calliope. Auf der Aufgaben-Seite mit **⬆️ Datei einlesen**
-        laden – dann steht ein kompletter Wettbewerb, den man nach Belieben
-        anpassen kann.
-
-2.  **Teilnehmer**:
-    *   Registrieren sich auf der Startseite (oder scannen den dort angezeigten QR-Code).
-    *   Werden direkt zum aktiven Wettbewerb weitergeleitet.
-    *   Können Lösungen im geforderten Format hochladen.
-
 ## 🧭 Leitfaden für den Wettbewerbstag
+
+Der Weg hinein: `/admin` aufrufen – der Link steht auch in der Fußzeile jeder
+Seite – und mit dem Passwort anmelden, das die Startdatei beim ersten Mal
+abgefragt und als `ADMIN_PASSWORD` in die `.env` geschrieben hat. Den Namen,
+unter dem die Teams ihren Wettbewerb sehen, trägt man beim Anlegen des
+Wettbewerbs ein, nicht unter *Einstellungen* – dort steht der Name der
+Anwendung selbst.
 
 Wie ein Wettbewerb **abläuft** – was eine Woche vorher, am Vortag, während
 des Wettbewerbs und danach zu tun ist, und was zu tun ist, wenn etwas klemmt –
@@ -434,20 +420,58 @@ pytest -k "urkunde"                    # alles rund um Urkunden
 pytest -v                              # mit Namen jedes einzelnen Tests
 ```
 
+**Wettbewerb und Zeit**
+
 | Datei | prüft |
 | --- | --- |
 | `test_challenge_status.py` | geplant / läuft / pausiert / beendet, Restzeiten |
-| `test_teams.py` | Registrierung, Anmeldung, Bindung ans Wettbewerb, Team-Verwaltung |
+| `test_dauer_und_pause.py` | Dauer in Minuten, „Jetzt starten“, Pause hält die Uhr an |
+| `test_zeitleiste.py` | die Restzeit-Leiste auf Wettbewerbsseite und Rangliste |
+| `test_aktualisierung.py` | die Teamseite holt sich den Stand von selbst |
+| `test_veranstaltungsname.py` | eigener Name je Wettbewerb, Urkunden für ältere Wettbewerbe |
+
+**Teams, Abgaben, Bewertung**
+
+| Datei | prüft |
+| --- | --- |
+| `test_teams.py` | Registrierung, Anmeldung, Bindung an den Wettbewerb, Team-Verwaltung |
+| `test_sitzung.py` | die Anmeldung gilt nicht mehr, wenn ihr Wettbewerb gelöscht ist |
 | `test_submissions.py` | Abgabe, Korrektur nach Freigabe, Bewertung |
+| `test_bewertungsseite.py` | die Bewertungsseite lädt Code nach, statt ihn mitzuschicken |
+| `test_aufraeumen.py` | hochgeladene Dateien verschwinden mit ihrer Abgabe |
 | `test_scoring.py` | Rangliste und Podium, auch bei Gleichstand |
-| `test_admin.py` | Steuerzentrale, Wettbewerbs-Seite, Beenden, Aktivieren |
 | `test_certificates.py` | Urkunden-PDF, Unterschrift, Namen der Teammitglieder, Download durch die Teams |
 | `test_mitgliedernamen.py` | Namen eintragen, kontrollieren, freigeben |
-| `test_veranstaltungsname.py` | Eigener Veranstaltungsname je Wettbewerb, Urkunden für ältere Wettbewerbe |
-| `test_task_exchange.py` | Aufgaben sichern und wiederverwenden |
+
+**Seiten und Bedienung**
+
+| Datei | prüft |
+| --- | --- |
+| `test_startseite.py` | QR-Code und abtippbare Adresse |
+| `test_navigation.py` | die obere Leiste, je nach Stand des Wettbewerbs |
+| `test_fusszeile.py` | Name der Anwendung, Admin-Anmeldung, Link auf das Repository |
+| `test_admin.py` | Steuerzentrale, Wettbewerbs-Seite, Beenden, Aktivieren |
+| `test_fehlerseiten.py` | eigene deutsche Seiten für 400/403/404/413/429/500 |
+
+**Betrieb und Werkzeuge**
+
+| Datei | prüft |
+| --- | --- |
+| `test_starter.py` | die Schritte hinter den Startdateien, ohne echtes pip und git |
+| `test_netzwerk.py` | die Adresse, unter der die Teams den Server erreichen |
+| `test_protokoll.py` | `logs/anwendung.log` entsteht und füllt sich |
 | `test_migrations.py` | Datenbank aus einer älteren Version weiterbenutzen |
-| `test_security.py` | CSRF, Passwörter, Uploads, Rate-Limit |
+| `test_task_exchange.py` | Aufgaben sichern und wiederverwenden |
+| `test_leitfaden.py` | der Leitfaden nennt nur Seiten und Dateien, die es gibt |
 | `test_vendor.py` | Versionsliste und `static/vendor/` bleiben deckungsgleich |
+| `test_pakete.py` | das Werkzeug, das nach neueren Python-Paketen sieht |
+
+**Sicherheit**
+
+| Datei | prüft |
+| --- | --- |
+| `test_security.py` | CSRF, Passwörter, Uploads, Rate-Limit |
+| `test_eingaben.py` | Eingaben werden geprüft, auch am Formular vorbei |
 
 ## 📂 Projektstruktur
 
@@ -465,6 +489,7 @@ challenge_plattform/
 ├── certificates.py        # Urkunden als PDF
 ├── task_exchange.py       # Aufgaben sichern und einlesen
 ├── network.py             # Adresse, unter der die Teams beitreten
+├── sitzung.py             # Anmeldung eines Teams und ihre Gültigkeit
 ├── uploads.py             # löscht Dateien mit ihrer Abgabe
 ├── task_rules.py          # Regeln für Aufgabenwerte, für Formular und Import
 ├── requirements.txt       # Abhängigkeiten
