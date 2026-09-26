@@ -333,7 +333,7 @@ def challenge_start_now(cid):
     flash(
         f"„{challenge.title}“ läuft – {dauer} Minuten, bis "
         f"{zeitpunkt_text(challenge.end_time, jetzt)}. Die Teams sehen die "
-        "neue Zeit, sobald sie ihre Seite neu laden.",
+        "neue Zeit innerhalb von etwa 15 Sekunden von selbst.",
         "success"
     )
     return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))
@@ -587,6 +587,13 @@ def task_toggle_hint(tid):
     task = db.get_or_404(Task, tid)
     task.hint_visible = not task.hint_visible
     db.session.commit()
+    # Ein freigeschalteter Tipp ändert, was die Teams auf ihrer Seite sehen -
+    # deshalb steht er im Protokoll. Danach ist im Nachhinein zu sehen, wann
+    # die Hilfe kam; das ist die Frage, wenn ein Team am Ende sagt, es habe
+    # den Tipp nie gesehen.
+    ereignis("Tipp %s: Aufgabe „%s“ (#%s)",
+             "freigeschaltet" if task.hint_visible else "verborgen",
+             task.title, task.id)
     return redirect(url_for('admin.challenge_tasks', cid=task.challenge_id))
 
 # Wie viel von einer Abgabe im Anzeigefeld steht. Mehr liest niemand am

@@ -172,9 +172,29 @@ class Challenge(db.Model):
         """Whether teams may hand something in right now.
 
         A paused or finished competition is closed. A competition whose start
-        time has not come yet stays open on purpose: the start time drives the
-        countdown page, and a teacher testing beforehand should not be locked
-        out by it.
+        time has not come yet stays open on purpose: the start time only drives
+        the remaining-time bar, and a teacher testing beforehand should not be
+        locked out by it.
+        """
+        return not self.paused and self.status() != "finished"
+
+    @property
+    def accepts_registrations(self):
+        """Ob sich gerade noch ein neues Team anmelden darf.
+
+        Dieselbe Bedingung wie bei den Abgaben, aber aus einem eigenen Grund -
+        deshalb steht sie hier getrennt.
+
+        Ein **beendeter** Wettbewerb ist zu: Danach hängt die Rangliste am
+        Beamer, und ein Team, das sich dann noch anmeldet, stünde mit null
+        Punkten mitten in der Siegerehrung - und auf der Urkundenliste, denn
+        die zählt jedes Team des Wettbewerbs, auch eines ohne Abgabe.
+
+        Ein **pausierter** Wettbewerb ist ebenfalls zu: Die Pause ist der
+        Moment, in dem die Lehrkraft nicht auf den Bildschirm sieht.
+
+        Vor dem Start bleibt die Anmeldung offen: Genau dann melden sich die
+        Teams an.
         """
         return not self.paused and self.status() != "finished"
 

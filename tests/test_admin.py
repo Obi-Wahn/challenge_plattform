@@ -497,3 +497,61 @@ class TestAdminEinstieg:
         antwort = admin.get("/admin/", follow_redirects=True)
 
         assert "Steuerzentrale" in antwort.get_data(as_text=True)
+
+
+class TestKeineCountdownSeite:
+    """Kein Text im Adminbereich darf eine Seite nennen, die es nicht gibt.
+
+    Die eigene Countdown-Seite ist entfallen; die Restzeit steht als Leiste auf
+    der Teamseite und über der Rangliste. Die Hinweistexte der Formulare
+    erklärten sie aber weiter - und schickten die Lehrkraft damit auf die Suche
+    nach einer Seite, die sie nicht findet.
+    """
+
+    # Jede Seite, auf der die Lehrkraft einen Wettbewerb einrichtet oder
+    # ansieht: Dort standen die vier Sätze.
+    def seiten(self, challenge):
+        return [
+            "/admin/dashboard",
+            "/admin/challenges",
+            "/admin/challenges/new",
+            f"/admin/wettbewerb/{challenge.id}",
+            f"/admin/challenges/{challenge.id}/edit",
+            f"/admin/challenges/{challenge.id}/tasks",
+        ]
+
+    def test_keine_seite_nennt_sie(self, admin, make_challenge):
+        challenge = make_challenge(title="Scratch-Wettbewerb")
+
+        for pfad in self.seiten(challenge):
+            html = admin.get(pfad).get_data(as_text=True)
+            assert "Countdown" not in html, f"{pfad} nennt die Countdown-Seite noch"
+
+    def test_auch_der_hinweis_beim_nicht_aktiven_wettbewerb_nicht(
+            self, admin, make_challenge):
+        """Der Hinweis zählt auf, was immer den aktiven Wettbewerb zeigt."""
+        alt = make_challenge(title="Wettbewerb von damals", active=False)
+        make_challenge(title="Der aktive")
+
+        html = admin.get(f"/admin/wettbewerb/{alt.id}").get_data(as_text=True)
+
+        assert "nicht der aktive Wettbewerb" in html
+        assert "Countdown" not in html
+
+    def test_das_formular_erklaert_die_startzeit_ueber_die_restzeit_leiste(
+            self, admin, database):
+        html = admin.get("/admin/challenges/new").get_data(as_text=True)
+
+        assert "Restzeit-Leiste" in html
+
+    def test_der_hinweis_zum_namen_nennt_die_heutigen_stellen(
+            self, admin, make_challenge):
+        """Seit dem eigenen Namen je Wettbewerb sind es mehr als vier Stellen."""
+        challenge = make_challenge()
+
+        for pfad in ("/admin/challenges/new",
+                     f"/admin/challenges/{challenge.id}/edit"):
+            html = admin.get(pfad).get_data(as_text=True)
+            for stelle in ("Startseite", "Teamseite", "Rangliste", "Urkunden",
+                           "Browsertitel", "Fußzeile"):
+                assert stelle in html, f"{pfad} nennt {stelle} nicht"

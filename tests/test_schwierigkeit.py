@@ -144,6 +144,31 @@ class TestAnzeige:
 
         assert "aufgabe-schwierigkeit" not in html
 
+    def test_in_der_aufgabenliste_der_wettbewerbsseite(
+            self, admin, make_challenge, make_task):
+        """Dieselbe Angabe auf allen Seiten, die Aufgaben auflisten.
+
+        Die Aufgabenliste auf der Wettbewerbsseite zeigte nur Punkte und
+        Dateiformat, während Aufgabenverwaltung und Teamseite das Schild schon
+        trugen.
+        """
+        challenge = make_challenge()
+        make_task(challenge, title="Würfel", difficulty="einfach")
+
+        html = admin.get(f"/admin/wettbewerb/{challenge.id}").get_data(as_text=True)
+
+        assert "aufgabe-schwierigkeit-einfach" in html
+        assert TASK_DIFFICULTIES["einfach"] in html
+
+    def test_ohne_angabe_steht_dort_kein_leeres_schild(
+            self, admin, make_challenge, make_task):
+        challenge = make_challenge()
+        make_task(challenge, title="Würfel")
+
+        html = admin.get(f"/admin/wettbewerb/{challenge.id}").get_data(as_text=True)
+
+        assert "aufgabe-schwierigkeit" not in html
+
     def test_auf_der_wettbewerbsseite_der_teams(
             self, make_challenge, make_task, logged_in_team):
         challenge = make_challenge()

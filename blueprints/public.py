@@ -20,6 +20,17 @@ public_bp = Blueprint('public', __name__)
 MAX_TEAMNAME = 100
 MAX_PASSWORT = 128
 
+# Warum gerade keine Anmeldung möglich ist, je Zustand des Wettbewerbs. Der
+# Satz steht an zwei Stellen - auf der Startseite anstelle des Formulars und
+# als Antwort auf ein von Hand abgeschicktes Formular -, deshalb hier.
+ANMELDUNG_ZU = {
+    "finished": "Der Wettbewerb ist beendet - neue Teams können sich nicht "
+                "mehr anmelden. Wer schon angemeldet ist, kommt über "
+                "„Anmelden“ an seine Urkunde.",
+    "paused": "Der Wettbewerb ist gerade pausiert. Sobald es weitergeht, "
+              "könnt ihr euch hier anmelden.",
+}
+
 
 def bereinigter_teamname(wert):
     """Der Teamname ohne umgebende Leerzeichen.
@@ -77,17 +88,35 @@ def index():
 
     challenge = Challenge.current()
 
+    # Steht hier ein Satz, ist die Anmeldung zu und er sagt, warum - siehe
+    # Challenge.accepts_registrations. None heißt offen.
+    #
+    # Ohne Wettbewerb bleibt das Formular stehen: Das ist der Fall auf einer
+    # frischen Installation, in der noch keiner angelegt ist, und die Lehrkraft
+    # soll dort ausprobieren können, wie die Anmeldung aussieht.
+    anmeldung_zu = None
+    if challenge and not challenge.accepts_registrations:
+        anmeldung_zu = ANMELDUNG_ZU[
+            "finished" if challenge.status() == "finished" else "paused"]
+
     if request.method == "POST":
         team_name = bereinigter_teamname(request.form.get("team"))
         password = request.form.get("password") or ""
 
         def mit_fehler(text):
             return render_template("index.html", error=text,
-                                   qr_code_data=qr_code_data, beitritt=beitritt)
+                                   qr_code_data=qr_code_data, beitritt=beitritt,
+                                   anmeldung_zu=anmeldung_zu)
 
         if not challenge:
             return mit_fehler("Aktuell läuft kein Wettbewerb. Bitte wartet, "
                               "bis die Lehrkraft einen gestartet hat.")
+
+        # Das Formular steht dann gar nicht auf der Seite. Ein von Hand
+        # abgeschicktes kommt trotzdem hier an und wird abgewiesen, statt ein
+        # Team in einen geschlossenen Wettbewerb zu setzen.
+        if anmeldung_zu:
+            return mit_fehler(anmeldung_zu)
 
         if not team_name or not password:
             return mit_fehler("Bitte Teamname und Passwort angeben.")
@@ -125,7 +154,8 @@ def index():
         team_anmelden(new_team)
         return redirect(url_for("challenge.view"))
 
-    return render_template("index.html", qr_code_data=qr_code_data, beitritt=beitritt)
+    return render_template("index.html", qr_code_data=qr_code_data, beitritt=beitritt,
+                           anmeldung_zu=anmeldung_zu)
 
 @public_bp.route("/login", methods=["GET", "POST"])
 # Only actual login attempts count towards the limit - merely opening or

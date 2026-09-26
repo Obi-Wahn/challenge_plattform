@@ -305,13 +305,20 @@ class TestAufbauUndVerwaltung:
 
 
 class TestWettbewerbstag:
-    """Am Tag selbst steht nur drin, was schiefging - das ist die Frage danach."""
+    """Am Tag selbst steht drin, was schiefging - und der freigeschaltete Tipp.
+
+    Beides sind die Fragen danach: „Wir haben doch abgegeben!" und „Wann kam
+    die Hilfe?" Der gewöhnliche Betrieb bleibt still, siehe TestWasStillBleibt.
+    """
 
     def abgeben(self, client, task, dateiname="loesung.sb3", inhalt=b"projekt"):
         import io
 
+        # Das Token kommt von der Anmeldeseite, nicht von der Startseite: Die zeigt
+        # ihr Formular - und damit ihr Token - nicht mehr, wenn der Wettbewerb
+        # beendet oder pausiert ist, und genau das prüfen manche dieser Tests.
         return client.post(f"/submit/{task.id}", data={
-            "csrf_token": csrf_token(client, "/"),
+            "csrf_token": csrf_token(client, "/login"),
             "file": (io.BytesIO(inhalt), dateiname),
         }, content_type="multipart/form-data")
 
@@ -342,6 +349,33 @@ class TestWettbewerbstag:
         self.abgeben(client, task)
 
         assert "pausiert oder beendet" in protokoll.neu()
+
+    def test_freigeschalteter_tipp(self, admin, protokoll, make_challenge, make_task):
+        challenge = make_challenge()
+        task = make_task(challenge, title="Katze bewegen",
+                         hint="Schau in die Anleitung.")
+        protokoll.neu()
+
+        admin.post(f"/admin/tasks/{task.id}/toggle_hint", data={
+            "csrf_token": csrf_token(admin, f"/admin/challenges/{challenge.id}/tasks"),
+        })
+
+        zeile = protokoll.neu()
+        assert "Tipp freigeschaltet" in zeile
+        assert "Katze bewegen" in zeile
+
+    def test_wieder_verborgener_tipp(self, admin, protokoll, make_challenge, make_task):
+        """Auch das Zurücknehmen steht drin - sonst bliebe die Datei im Irrtum."""
+        challenge = make_challenge()
+        task = make_task(challenge, title="Katze bewegen",
+                         hint="Schau in die Anleitung.", hint_visible=True)
+        protokoll.neu()
+
+        admin.post(f"/admin/tasks/{task.id}/toggle_hint", data={
+            "csrf_token": csrf_token(admin, f"/admin/challenges/{challenge.id}/tasks"),
+        })
+
+        assert "Tipp verborgen" in protokoll.neu()
 
     def test_keine_datei_ausgewaehlt(self, protokoll, make_challenge, make_task,
                                     logged_in_team):
@@ -540,16 +574,11 @@ class TestWasStillBleibt:
 
         assert protokoll.neu().strip() == ""
 
-    def test_freigeschalteter_hinweis_und_namensfreigabe(
-            self, admin, protokoll, make_challenge, make_task, make_team):
+    def test_namensfreigabe(self, admin, protokoll, make_challenge, make_team):
         challenge = make_challenge()
-        task = make_task(challenge, hint="Schau in die Anleitung.")
         team = make_team(challenge, name="Team Blitz")
         protokoll.neu()
 
-        admin.post(f"/admin/tasks/{task.id}/toggle_hint", data={
-            "csrf_token": csrf_token(admin, f"/admin/challenges/{challenge.id}/tasks"),
-        })
         admin.post(f"/admin/team/{team.id}/namen", data={
             "csrf_token": csrf_token(admin, "/admin/challenges/new"),
             "member_names": "Anna, Ben",

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_schwierigkeit.html" import schwierigkeit %}
 {% block content %}
 
 {% set finished = challenge.status() == "finished" %}
@@ -124,7 +125,7 @@
 
 {% if not is_current %}
 <div class="alert alert-secondary">
-  Dies ist nicht der aktive Wettbewerb. Rangliste, Siegerehrung, Countdown und die
+  Dies ist nicht der aktive Wettbewerb. Rangliste, Siegerehrung und die
   Bewertungsseite zeigen immer den aktiven Wettbewerb – aktiviere diesen hier, wenn du
   sie für ihn brauchst. Die Urkunden gibt es auch so, mit den Punkten und dem Namen
   von damals.
@@ -234,7 +235,7 @@
       <ul class="list-group list-group-flush">
         {% for task in tasks %}
         <li class="list-group-item bg-transparent text-light d-flex justify-content-between gap-2">
-          <span>{{ task.title }}</span>
+          <span>{{ task.title }} {{ schwierigkeit(task) }}</span>
           <span class="text-secondary small text-nowrap">
             {{ task.max_points }} P · {{ task.allowed_extension }}
           </span>
