@@ -8,6 +8,39 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
 ![Flask](https://img.shields.io/badge/Flask-3.x-green.svg)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple.svg)
 
+## ⚡ Schnellstart
+
+1.  [Python 3.10 oder höher](https://www.python.org/downloads/) installieren
+    (unter Windows „Add python.exe to PATH“ ankreuzen).
+2.  Das Projekt als ZIP von der
+    [Release-Seite](https://github.com/Obi-Wahn/challenge_plattform/releases)
+    herunterladen und entpacken.
+3.  Die Startdatei für das eigene System öffnen: `start_windows.bat`,
+    `start_macos.command` oder `start_linux.sh`. Sie richtet beim ersten Mal
+    alles ein (dafür braucht es einmal Internet) und startet die Plattform.
+
+Ausführlich, auch für die Installation mit git und von Hand:
+[Installation & Setup](#-installation--setup).
+Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag).
+
+## 📑 Inhalt
+
+- [Schnellstart](#-schnellstart)
+- [So sieht es aus](#-so-sieht-es-aus)
+- [Features](#-features)
+- [Technologien](#-technologien)
+- [Installation & Setup](#-installation--setup)
+- [Nutzung](#-nutzung)
+- [Leitfaden für den Wettbewerbstag](#-leitfaden-für-den-wettbewerbstag)
+- [Frontend-Bibliotheken aktualisieren](#-frontend-bibliotheken-aktualisieren)
+- [Python-Pakete aktuell halten](#-python-pakete-aktuell-halten)
+- [Daten und Sicherungen](#-daten-und-sicherungen)
+- [Protokolldatei](#-protokolldatei)
+- [Tests](#-tests)
+- [Projektstruktur](#-projektstruktur)
+- [Herkunft & Mitwirkende](#-herkunft--mitwirkende)
+- [Lizenz](#-lizenz)
+
 ## 📸 So sieht es aus
 
 | Steuerzentrale (Lehrkraft) | Teamansicht (Schülerinnen und Schüler) |
