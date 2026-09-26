@@ -252,3 +252,37 @@ input::placeholder, textarea::placeholder {
 .aufgaben-tipp-luecke {
   visibility: hidden;
 }
+
+/* Die Schwierigkeit als Schild, auf der Wettbewerbsseite und in der
+   Aufgabenliste. Die Farbe wiederholt, was das Zeichen schon sagt: Wer sie
+   nicht unterscheidet, liest die Stufe am Zeichen und am Wort. */
+.aufgabe-schwierigkeit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.aufgabe-schwierigkeit-einfach {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.45);
+  color: #86efac;
+}
+
+.aufgabe-schwierigkeit-mittel {
+  background: rgba(251, 191, 36, 0.15);
+  border-color: rgba(251, 191, 36, 0.45);
+  color: #fcd34d;
+}
+
+.aufgabe-schwierigkeit-schwer {
+  background: rgba(248, 113, 113, 0.15);
+  border-color: rgba(248, 113, 113, 0.45);
+  color: #fca5a5;
+}

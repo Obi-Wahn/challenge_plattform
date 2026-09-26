@@ -28,11 +28,13 @@ class TestDateiLesen:
     def test_liest_den_vollen_rahmen(self):
         tasks, uebersprungen = parse_tasks(json.dumps({"aufgaben": [
             {"titel": "A", "beschreibung": "Text", "punkte": 10,
-             "dateiformat": ".sb3", "hinweis": "Tipp"}]}).encode("utf-8"))
+             "dateiformat": ".sb3", "hinweis": "Tipp",
+             "schwierigkeit": "mittel"}]}).encode("utf-8"))
 
         assert uebersprungen == []
         assert tasks == [{"title": "A", "description": "Text", "max_points": 10,
-                          "allowed_extension": ".sb3", "hint": "Tipp"}]
+                          "allowed_extension": ".sb3", "hint": "Tipp",
+                          "difficulty": "mittel"}]
 
     def test_liest_auch_eine_schlichte_liste(self):
         """Damit eine von Hand geschriebene Datei funktioniert."""

@@ -1,0 +1,17 @@
+{# ====== Schild für die Schwierigkeit ======
+
+   Dasselbe Schild steht auf der Wettbewerbsseite der Teams und in der
+   Aufgabenliste im Adminbereich. Damit beide Seiten gleich aussehen, gibt es
+   es nur einmal, hier.
+
+   Eine Aufgabe ohne Angabe bekommt nichts - kein leeres Schild, keine Lücke.
+   Das Zeichen kommt aus TASK_DIFFICULTIES (models.py), damit Anzeige und
+   Prüfung dieselben Stufen kennen. Es steht zusätzlich zur Farbe, denn eine
+   Farbe allein unterscheidet die Stufen nicht für jeden.
+#}
+
+{% macro schwierigkeit(task) %}
+{%- if task.difficulty_symbol -%}
+<span class="aufgabe-schwierigkeit aufgabe-schwierigkeit-{{ task.difficulty }}">{{ task.difficulty_symbol }} {{ task.difficulty }}</span>
+{%- endif -%}
+{% endmacro %}

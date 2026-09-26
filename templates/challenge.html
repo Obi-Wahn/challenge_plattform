@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "_zeitleiste.html" import zeitleiste, zeitleiste_skript %}
+{% from "_schwierigkeit.html" import schwierigkeit %}
 {% block content %}
 
 <h2 class="mb-3">🧩 {{ event.name }}</h2>
@@ -118,9 +119,12 @@
         {{ task.description | markdown }}
       </div>
 
-      <small class="text-secondary">
-        Max. Punkte: {{ task.max_points }}
-      </small>
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <small class="text-secondary">
+          Max. Punkte: {{ task.max_points }}
+        </small>
+        {{ schwierigkeit(task) }}
+      </div>
 
       {% if task.hint_visible and task.hint %}
       <div class="mt-2 p-2 rounded bg-dark border border-info text-light small">

@@ -230,6 +230,21 @@ TASK_FORMATS = {
 
 DEFAULT_TASK_FORMAT = ".pde"
 
+# Wie schwer eine Aufgabe ist, als {Wert: Zeichen}. Bisher stand die
+# Schwierigkeit im Titel („Punkte sammeln (mittel)“); als eigene Eigenschaft
+# lässt sie sich anzeigen, sichern und wieder einlesen. Die Reihenfolge ist die
+# des Auswahlfelds.
+TASK_DIFFICULTIES = {
+    "einfach": "🟢",
+    "mittel": "🟡",
+    "schwer": "🔴",
+}
+
+# Keine Angabe ist der Normalfall: Aufgaben aus der Zeit vor dem Feld haben
+# keine, und eine Datei ohne den Schlüssel soll sich unverändert einlesen
+# lassen.
+NO_TASK_DIFFICULTY = ""
+
 # Welche Formate sich in der Bewertung als Text lesen lassen. Eine .sb3- oder
 # .mkcd-Datei ist eine ZIP-Datei und eine .hex-Datei eine Liste aus
 # Maschinencode - im Anzeigefeld stünde davon nur Zeichensalat, und die Seite
@@ -247,7 +262,18 @@ class Task(db.Model):
     allowed_extension = db.Column(db.String(10), default=".pde")
     hint = db.Column(db.Text, nullable=True)
     hint_visible = db.Column(db.Boolean, default=False)
+    # Leer heißt: keine Angabe. Sonst ein Schlüssel aus TASK_DIFFICULTIES.
+    difficulty = db.Column(db.String(10), nullable=False, default=NO_TASK_DIFFICULTY)
     submissions = db.relationship('Submission', backref='task', lazy=True, cascade="all, delete-orphan")
+
+    @property
+    def difficulty_symbol(self):
+        """Das Zeichen zur Schwierigkeit, oder "" ohne Angabe.
+
+        Damit das Schild auf der Wettbewerbsseite und in der Aufgabenliste
+        dieselben drei Stufen kennt wie die Prüfung der Eingaben.
+        """
+        return TASK_DIFFICULTIES.get(self.difficulty or "", "")
 
 class Submission(db.Model):
     __tablename__ = 'submissions'

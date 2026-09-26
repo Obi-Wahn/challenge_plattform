@@ -26,6 +26,18 @@
                 </div>
 
                 <div class="mb-3">
+                    <label class="form-label">Schwierigkeit</label>
+                    <select name="difficulty" class="form-select">
+                        <option value="" {% if not task.difficulty %}selected{% endif %}>keine Angabe</option>
+                        {% for stufe, zeichen in task_difficulties.items() %}
+                        <option value="{{ stufe }}" {% if task.difficulty==stufe %}selected{% endif %}>
+                            {{ zeichen }} {{ stufe }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
                     <label class="form-label">Hinweis (optional, während des Events freischaltbar)</label>
                     <textarea name="hint" class="form-control" rows="2"
                         placeholder="Tipp, falls ein Team nicht weiterkommt">{{ task.hint or '' }}</textarea>

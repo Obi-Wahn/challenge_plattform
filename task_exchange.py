@@ -4,6 +4,10 @@ The file is plain JSON: readable, editable in any text editor and easy to pass
 on to a colleague. Only what describes a task travels with it - not the
 submissions, not the points teams scored, and not whether a hint was already
 revealed during an event.
+
+Ältere Dateien kennen den Schlüssel „schwierigkeit“ nicht. Sie lassen sich
+unverändert einlesen; die Aufgaben entstehen dann ohne Schwierigkeit. Die
+Version des Formats bleibt deshalb dieselbe.
 """
 
 import json
@@ -34,6 +38,7 @@ def export_tasks(challenge, tasks):
                 "punkte": task.max_points or 0,
                 "dateiformat": task.allowed_extension or DEFAULT_TASK_FORMAT,
                 "hinweis": task.hint or "",
+                "schwierigkeit": task.difficulty or "",
             }
             for task in tasks
         ],
@@ -101,6 +106,7 @@ def parse_tasks(raw):
             entry.get("punkte", entry.get("max_points", 0)),
             entry.get("dateiformat") or entry.get("allowed_extension"),
             entry.get("hinweis") or entry.get("hint"),
+            entry.get("schwierigkeit") or entry.get("difficulty"),
         )
 
         if problem == KEIN_TITEL:
