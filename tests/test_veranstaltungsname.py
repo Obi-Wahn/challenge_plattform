@@ -1,9 +1,10 @@
 """Der Name eines Wettbewerbs ist sein Titel, und er gilt dort, wo er gemeint ist.
 
-Die Einstellungen benennen die Anwendung: Browsertitel, Leiste oben, Fußzeile.
-Wo ein Wettbewerb gemeint ist - Startseite, Rangliste, Teamseite,
-Urkunden -, steht sein eigener Name. Den Untertitel darf ein Wettbewerb
-überschreiben; lässt er ihn leer, gilt der aus den Einstellungen.
+Die Einstellungen halten nur die Standardwerte: Sie gelten, solange kein
+Wettbewerb mit eigenem Namen läuft. Läuft einer, steht überall sein Name -
+auf der Startseite, der Rangliste, der Teamseite, den Urkunden und auch im
+Browsertitel, in der Leiste oben und in der Fußzeile. Den Untertitel darf ein
+Wettbewerb überschreiben; lässt er ihn leer, gilt der aus den Einstellungen.
 """
 
 import io
@@ -96,14 +97,42 @@ class TestSeiten:
 
         assert "Calliope-Wettbewerb" in client.get("/scoreboard").get_data(as_text=True)
 
-    def test_leiste_oben_behaelt_den_namen_der_anwendung(self, einstellungen, client,
-                                                         make_challenge):
-        """Sonst hieße auch die Anmeldeseite plötzlich nach einem Wettbewerb."""
+    def test_leiste_oben_zeigt_den_namen_des_wettbewerbs(self, einstellungen, client,
+                                                        make_challenge):
+        """Auch auf einer Seite, die zu keinem Wettbewerb gehört: Es läuft ja einer."""
         make_challenge(title="Scratch-Wettbewerb")
 
         seite = client.get("/login").get_data(as_text=True)
 
         assert 'class="navbar-brand"' in seite
+        assert "Scratch-Wettbewerb" in seite
+        assert "Coding-Wettbewerb" not in seite
+
+    def test_browsertitel_und_fusszeile_zeigen_den_wettbewerb(self, einstellungen, client,
+                                                              make_challenge):
+        make_challenge(title="Scratch-Wettbewerb")
+
+        seite = client.get("/login").get_data(as_text=True)
+
+        assert "<title>Scratch-Wettbewerb</title>" in seite
+        assert "&copy; Scratch-Wettbewerb" in seite
+
+    def test_leiste_oben_bleibt_beim_aktiven_wettbewerb(self, einstellungen, admin,
+                                                        make_challenge):
+        """Eine Seite über einen älteren Wettbewerb ändert die Leiste nicht."""
+        alt = make_challenge(title="Calliope-Wettbewerb", active=False)
+        make_challenge(title="Scratch-Wettbewerb")
+
+        seite = admin.get(f"/admin/urkunden?wettbewerb={alt.id}").get_data(as_text=True)
+
+        assert "Calliope-Wettbewerb" in seite
+        assert ">🚀 Scratch-Wettbewerb</a>" in seite
+
+    def test_ohne_wettbewerb_steht_der_standardname_in_der_leiste(self, einstellungen,
+                                                                  client):
+        """Zum Beispiel auf einer frischen Installation."""
+        seite = client.get("/login").get_data(as_text=True)
+
         assert "Coding-Wettbewerb" in seite
 
     def test_ohne_wettbewerb_steht_der_name_aus_den_einstellungen_da(self, einstellungen,

@@ -105,6 +105,19 @@ input::placeholder, textarea::placeholder {
 .willkommen {
   /* Auf dem Handy wie bisher, am Beamer darf der Gruß mitwachsen. */
   font-size: clamp(2.2rem, 3.4vw, 3rem);
+  /* In der zweiten Zeile steht der Name des Wettbewerbs. Ein langes Wort darin
+     ("Programmierwettbewerb") ist auf dem Handy breiter als die Seite und
+     schöbe sie sonst zur Seite, statt umzubrechen. */
+  overflow-wrap: anywhere;
+}
+
+/* In der Leiste oben steht der Name des Wettbewerbs, und der kann lang sein.
+   Bootstrap lässt ihn weder umbrechen noch enden, er schöbe die Seite also
+   zur Seite; deshalb endet er hier mit drei Punkten. */
+.navbar-brand {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .qr-code {

@@ -42,10 +42,12 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 4. **Wettbewerb anlegen** unter `/admin` → *Neuer Wettbewerb*: Name,
    Startzeit, Endzeit. Der Name ist der, unter dem die Teams den Wettbewerb
    sehen – „Scratch-Wettbewerb der Klasse 6b“ etwa. Er steht auf der
-   Startseite, der Rangliste und auf den Urkunden, und er bleibt bei
-   diesem Wettbewerb, auch wenn später ein anderer läuft; seine Urkunden
-   tragen ihn also auch nächstes Jahr noch. Einen eigenen Untertitel kannst
-   du dazuschreiben; leer gelassen gilt der aus *Einstellungen*.
+   Startseite, der Rangliste, den Urkunden und auch im Browsertitel, in der
+   Leiste oben und in der Fußzeile, und er bleibt bei diesem Wettbewerb, auch
+   wenn später ein anderer läuft; seine Urkunden tragen ihn also auch nächstes
+   Jahr noch. Einen eigenen Untertitel kannst du dazuschreiben; leer gelassen
+   gilt der aus *Einstellungen*. Die Werte dort sind nur die Vorgabe für die
+   Zeit, in der noch kein Wettbewerb angelegt ist.
 
 5. **Aufgaben anlegen oder einlesen.** Fertige Sätze liegen unter
    `beispiele/` (Scratch, Calliope) und werden auf der Aufgaben-Seite mit
@@ -175,8 +177,8 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
    den Namen unter der Unterschriftslinie und die Handschrift.
 5. **Eine Urkunde nachreichen**, wenn jemand gefehlt hat: Die Urkunden-Kachel
    auf der Seite des betreffenden Wettbewerbs führt auch dann noch zu seinen
-   Urkunden, wenn längst ein anderer aktiv ist. Punkte, Namen und
-   Veranstaltungsname sind die von damals.
+   Urkunden, wenn längst ein anderer aktiv ist. Punkte, Namen und der Name
+   des Wettbewerbs sind die von damals.
 
 ---
 

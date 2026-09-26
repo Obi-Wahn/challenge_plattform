@@ -266,6 +266,8 @@ class Submission(db.Model):
 class Settings(db.Model):
     __tablename__ = 'settings'
     id = db.Column(db.Integer, primary_key=True)
+    # Standardname und -untertitel: Sie gelten, solange kein Wettbewerb mit
+    # eigenem Namen laeuft, also auf einer frischen Installation.
     site_name = db.Column(db.String(100), nullable=False, default="Coding-Wettbewerb")
     tagline = db.Column(
         db.String(300),
@@ -296,14 +298,17 @@ class Settings(db.Model):
 
 
 def event_branding(challenge=None):
-    """Name und Untertitel der Veranstaltung, wie sie für diesen Wettbewerb gelten.
+    """Name und Untertitel, wie sie für diesen Wettbewerb gelten.
 
     Der Name ist der Titel des Wettbewerbs: Beides auseinanderzuhalten wäre
     doppelt, ein Wettbewerb heißt, wie er heißt. Den Untertitel darf er
     überschreiben; lässt er ihn leer, gilt der aus den Einstellungen.
 
     Ohne Wettbewerb gelten die Einstellungen allein - das ist der Fall auf
-    einer frischen Installation, in der noch keiner angelegt ist.
+    einer frischen Installation, in der noch keiner angelegt ist. Die Werte
+    dort sind also die Standardwerte, kein eigener Name der Anwendung: Läuft
+    ein Wettbewerb, steht sein Name auch im Browsertitel, in der Leiste oben
+    und in der Fußzeile.
     """
     settings = Settings.get()
     return {
