@@ -155,6 +155,19 @@ class TestAnzeige:
         assert "aufgabe-schwierigkeit-schwer" in html
         assert "schwer" in html
 
+    def test_punkte_und_stufe_stehen_ueber_dem_aufgabentext(
+            self, make_challenge, make_task, logged_in_team):
+        """Die Teams sollen vor dem Lesen sehen, wie schwer eine Aufgabe ist."""
+        challenge = make_challenge()
+        make_task(challenge, title="Würfel", difficulty="mittel",
+                  description="Baut einen Würfel.")
+        client, _team = logged_in_team(challenge)
+
+        html = client.get("/challenge").get_data(as_text=True)
+
+        assert html.index("Max. Punkte") < html.index("Baut einen Würfel.")
+        assert html.index("aufgabe-schwierigkeit") < html.index("Baut einen Würfel.")
+
     def test_ohne_angabe_steht_kein_leeres_schild_auf_der_teamseite(
             self, make_challenge, make_task, logged_in_team):
         challenge = make_challenge()

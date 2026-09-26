@@ -113,17 +113,20 @@
   <div class="col-md-6">
     <div class="event-card h-100">
 
-      <h5>{{ task.title }}</h5>
-      <!-- Markdown Rendering -->
-      <div class="text-secondary task-description">
-        {{ task.description | markdown }}
-      </div>
+      <h5 class="mb-1">{{ task.title }}</h5>
 
-      <div class="d-flex flex-wrap align-items-center gap-2">
+      <!-- Punkte und Schwierigkeit stehen direkt unter dem Titel: So sehen die
+           Teams vor dem Lesen, was eine Aufgabe bringt und wie schwer sie ist. -->
+      <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
         <small class="text-secondary">
           Max. Punkte: {{ task.max_points }}
         </small>
         {{ schwierigkeit(task) }}
+      </div>
+
+      <!-- Markdown Rendering -->
+      <div class="text-secondary task-description">
+        {{ task.description | markdown }}
       </div>
 
       {% if task.hint_visible and task.hint %}
