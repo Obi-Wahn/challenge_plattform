@@ -12,26 +12,34 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 
 ## 📅 Eine Woche vorher
 
-1. **Anwendung auf den Stand bringen und Tests laufen lassen.**
+1. **Anwendung auf den Stand bringen.** Die Startdatei einmal mit
+   `--aktualisieren` aufrufen, also `start_windows.bat --aktualisieren` in
+   der Eingabeaufforderung bzw. `./start_linux.sh --aktualisieren`. Wer die
+   Plattform als ZIP geholt hat, geht den Weg aus der README unter
+   [Aktualisieren](../README.md#aktualisieren) – dort stehen beide Fälle.
+
+   Das braucht Internet – also zu Hause oder am Lehrerrechner, nicht am
+   Wettbewerbstag.
+
+2. **Tests laufen lassen**, wenn eine Entwicklungsumgebung eingerichtet ist:
    ```bash
-   git pull
    pip install -r requirements.txt -r requirements-dev.txt
    pytest
    ```
-   Braucht Internet – also zu Hause oder am Lehrerrechner, nicht am
-   Wettbewerbstag. Wenn `pytest` durchläuft, funktionieren Anmeldung,
-   Abgabe, Bewertung, Rangliste und Urkunden.
+   Wenn `pytest` durchläuft, funktionieren Anmeldung, Abgabe, Bewertung,
+   Rangliste und Urkunden.
 
-2. **Auf Updates sehen** (ebenfalls nur mit Internet):
+3. **Auf Updates sehen:**
    ```bash
    python werkzeuge/vendor_aktualisieren.py --pruefen   # Frontend
    python werkzeuge/pakete_pruefen.py                   # Python-Pakete
    ```
-   Beide ändern nichts, sie zeigen nur an. Eine neue Hauptversion kurz vor
-   dem Wettbewerb **nicht** mehr einspielen – und wenn doch etwas
-   aktualisiert wird, dann eines nach dem anderen und danach `pytest`.
+   Beide brauchen Internet und ändern nichts, sie zeigen nur an. Eine neue
+   Hauptversion kurz vor dem Wettbewerb **nicht** mehr einspielen – und wenn
+   doch etwas aktualisiert wird, dann eines nach dem anderen und danach
+   `pytest`.
 
-3. **Wettbewerb anlegen** unter `/admin` → *Neuer Wettbewerb*: Name,
+4. **Wettbewerb anlegen** unter `/admin` → *Neuer Wettbewerb*: Name,
    Startzeit, Endzeit. Der Name ist der, unter dem die Teams den Wettbewerb
    sehen – „Scratch-Wettbewerb der Klasse 6b“ etwa. Er steht auf der
    Startseite, der Rangliste und auf den Urkunden, und er bleibt bei
@@ -39,17 +47,17 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    tragen ihn also auch nächstes Jahr noch. Einen eigenen Untertitel kannst
    du dazuschreiben; leer gelassen gilt der aus *Einstellungen*.
 
-4. **Aufgaben anlegen oder einlesen.** Fertige Sätze liegen unter
+5. **Aufgaben anlegen oder einlesen.** Fertige Sätze liegen unter
    `beispiele/` (Scratch, Calliope) und werden auf der Aufgaben-Seite mit
    **⬆️ Datei einlesen** übernommen. Aufgaben aus einem früheren Wettbewerb
    lassen sich dort ebenso einzeln oder als Satz exportieren und wieder
    einlesen.
 
-5. **Urkundenformat wählen** unter *Einstellungen*: Querformat oder Hochformat.
+6. **Urkundenformat wählen** unter *Einstellungen*: Querformat oder Hochformat.
    Am besten jetzt schon eine Probeurkunde ausdrucken – dann weißt du, ob
    Drucker und Papier mitspielen.
 
-6. **Pro Aufgabe festlegen:** Punkte, erlaubtes Dateiformat
+7. **Pro Aufgabe festlegen:** Punkte, erlaubtes Dateiformat
    (z. B. `.sb3` für Scratch, `.hex` für Calliope) und optional einen
    Hinweis. Der Hinweis bleibt verborgen, bis er freigeschaltet wird.
 
@@ -183,9 +191,9 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | „Abgabe nicht möglich" bei einem Team | Wettbewerb pausiert, Endzeit überschritten, oder das Team gehört zu einem anderen Wettbewerb. Der Grund steht seit Neuestem als Meldung auf der Wettbewerbsseite des Teams. |
 | Falsches Dateiformat wird abgewiesen | Das erlaubte Format steht pro Aufgabe und in der Meldung, die das Team bekommt. Prüfen, ob es zu dem passt, was die Umgebung tatsächlich exportiert (Scratch: `.sb3`, MakeCode-Calliope: `.hex`). |
 | Wettbewerb gelöscht, ein Team sitzt noch davor | Mit dem Wettbewerb sind seine Teams weg. Das Team landet beim nächsten Klick auf der Startseite und meldet sich dort für den nächsten Wettbewerb neu an. |
-| Nach dem Update auf diese Fassung sind alle Teams abgemeldet | Einmalig und so gewollt: Anmeldungen aus der Zeit davor gelten nicht mehr. Teamname und Passwort bleiben, die Teams melden sich einmal neu an. Darum das Update besser vor dem Wettbewerb einspielen als mittendrin. |
+| Nach dem Update auf v1.1.0 waren alle Teams abgemeldet | Einmalig und so gewollt: Anmeldungen aus der Zeit davor galten nicht mehr. Teamname und Passwort blieben, die Teams meldeten sich einmal neu an. Spätere Updates melden niemanden ab. Ein Update spielt man trotzdem besser vor dem Wettbewerb ein als mittendrin. |
 | Versehentlich beendet | **🔓 Wieder öffnen** auf der Wettbewerbsseite. Die Endzeit wird gelöscht und muss neu gesetzt werden. |
-| Teams sehen die geänderte Zeit nicht | Sie müssen die Seite einmal neu laden. Die Uhr im Browser rechnet ab dem Stand, den der Server beim Laden geschickt hat, und erfährt von sich aus nichts von einer neuen Zeit. |
+| Teams sehen die geänderte Zeit nicht | Normalerweise kommt sie innerhalb von etwa 15 Sekunden von selbst an; die Teamseiten fragen den Server in diesem Takt nach dem Stand. Bleibt die alte Zeit stehen, hat das Gerät die Verbindung zum Server verloren oder das Tablet hat geschlafen. Einmal neu laden, dann stimmt sie wieder. |
 | Ein Gerät erreicht den Server nicht | Zuerst die Adresse auf der Startseite mit der im Terminal vergleichen. Dann Firewall. Dann, ob das Gerät im selben Netz hängt (nicht im Gast-WLAN). |
 | Auf der Startseite steht `127.0.0.1` | Das Netz hat kein Gateway, die Anwendung kann ihre eigene Adresse nicht erfragen – sie sagt das beim Start. Adresse am Server ablesen (`ip addr` bzw. `ipconfig`) und als `LAN_ADRESSE=192.168.…` in die `.env` eintragen, dann neu starten. |
 | Datenbank fehlt oder ist kaputt | Anwendung beenden. `data/challenge.db` zur Seite legen, die passende Sicherung `data/challenge-vor-…​.db` nach `data/challenge.db` umbenennen, neu starten. Die Sicherungen entstehen automatisch vor jeder Strukturänderung – eine regelmäßige Sicherung ersetzen sie nicht. |
