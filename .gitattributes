@@ -1,0 +1,6 @@
+# Die Windows-Startdatei braucht CRLF, die beiden anderen LF - sonst stolpert
+# das jeweilige System über die Zeilenenden. Gilt auch für das ZIP, das
+# GitHub aus dem Repository baut.
+*.bat      text eol=crlf
+*.sh       text eol=lf
+*.command  text eol=lf

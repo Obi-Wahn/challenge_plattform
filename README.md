@@ -129,30 +129,100 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
 ## 🚀 Installation & Setup
 
 Voraussetzung: Python 3.10 oder höher (fpdf2, das die Urkunden erzeugt, verlangt diese Version).
+Unter Windows beim Installieren von [python.org](https://www.python.org/downloads/)
+„Add python.exe to PATH“ ankreuzen.
 
-1.  **Repository klonen**
+### Der einfache Weg: Startdatei öffnen
+
+1.  **Herunterladen** – entweder als ZIP von der
+    [Release-Seite](https://github.com/Obi-Wahn/challenge_plattform/releases)
+    und entpacken, oder mit git:
     ```bash
     git clone https://github.com/Obi-Wahn/challenge_plattform.git
-    cd challenge_plattform
     ```
 
-2.  **Virtuelle Umgebung erstellen und aktivieren**
+2.  **Startdatei öffnen**
+
+    | System | Datei | So geht's |
+    |---|---|---|
+    | Windows | `start_windows.bat` | doppelklicken |
+    | macOS | `start_macos.command` | doppelklicken |
+    | Linux | `start_linux.sh` | im Terminal `./start_linux.sh` |
+
+Beim **ersten Start** richtet die Startdatei alles selbst ein: die virtuelle
+Umgebung `.venv`, die Pakete (dafür braucht es einmal **Internet** – also
+nicht erst am Wettbewerbstag im Schulnetz ausprobieren) und die `.env` mit
+einem zufälligen `SECRET_KEY`. Das Admin-Passwort fragt sie einmal ab. Danach
+startet die Plattform, und der Browser geht auf.
+
+Bei **jedem weiteren Start** prüft sie nur, ob noch alles da ist, und startet
+dann direkt. Fehlt etwas – ist etwa `.venv` gelöscht worden –, holt sie genau
+das nach. Eine vorhandene `.env` und die Datenbank fasst sie nie an.
+
+```text
+Coding-Wettbewerb-Plattform
+===========================
+
+Python ................. 3.13.1
+Virtuelle Umgebung ..... vorhanden
+Pakete ................. aktuell
+Konfiguration .......... vorhanden
+Datenbank .............. vorhanden
+```
+
+**Wenn sich die Datei nicht öffnen lässt:**
+
+*   **macOS** meldet bei einer heruntergeladenen Datei „nicht verifizierter
+    Entwickler“: einmal mit Rechtsklick → *Öffnen* starten, bei neueren
+    Fassungen unter *Systemeinstellungen → Datenschutz & Sicherheit →
+    Dennoch öffnen*. Heißt es „keine Berechtigung“, hat das Entpacken das
+    Ausführungsrecht verloren – im Terminal im Ordner
+    `chmod +x start_macos.command` eingeben.
+*   **Windows** warnt bei Dateien aus dem Internet mit „Der Computer wurde
+    durch Windows geschützt“: *Weitere Informationen → Trotzdem ausführen*.
+*   **Linux**: Ein Doppelklick öffnet die Datei je nach Oberfläche im Editor.
+    Darum im Terminal starten; fehlt das Ausführungsrecht,
+    `sh start_linux.sh`. Unter Debian und Ubuntu fehlt für die virtuelle
+    Umgebung manchmal ein Paket: `sudo apt install python3-venv`.
+
+Ohne Browserfenster, etwa auf einem Rechner ohne Bildschirm:
+`./start_linux.sh --ohne-browser`.
+
+### Aktualisieren
+
+*   **Mit git geholt:** die Startdatei mit `--aktualisieren` aufrufen, also
+    `./start_linux.sh --aktualisieren` bzw. `start_windows.bat --aktualisieren`
+    in der Eingabeaufforderung. Sie holt die neue Fassung mit
+    `git pull --ff-only`, installiert geänderte Pakete nach und startet.
+    Sind Dateien der Plattform von Hand geändert worden, bricht sie ab,
+    statt sie zu überschreiben.
+*   **Als ZIP geholt:** Plattform beenden, das neue ZIP in einen **neuen**
+    Ordner entpacken, aus dem alten `data/`, `uploads/` und `.env` hinüber-
+    kopieren (`.env` ist oft versteckt, weil sie mit einem Punkt beginnt),
+    Startdatei im neuen Ordner öffnen. `--aktualisieren` sagt dasselbe.
+
+In beiden Fällen passt die Plattform die Datenbank beim Start selbst an,
+siehe [Daten und Sicherungen](#-daten-und-sicherungen).
+
+### Von Hand, für Entwicklung
+
+1.  **Virtuelle Umgebung erstellen und aktivieren**
     ```bash
-    python -m venv venv
+    python -m venv .venv
     
     # Mac/Linux:
-    source venv/bin/activate
+    source .venv/bin/activate
     
     # Windows:
-    venv\Scripts\activate
+    .venv\Scripts\activate
     ```
 
-3.  **Abhängigkeiten installieren**
+2.  **Abhängigkeiten installieren**
     ```bash
     pip install -r requirements.txt
     ```
 
-4.  **Konfiguration**
+3.  **Konfiguration**
     Erstelle eine `.env` Datei im Hauptverzeichnis (siehe `.env.example`):
     ```ini
     SECRET_KEY=dein-geheimer-schluessel
@@ -161,10 +231,10 @@ Voraussetzung: Python 3.10 oder höher (fpdf2, das die Urkunden erzeugt, verlang
     ```
     `SECRET_KEY` und `ADMIN_PASSWORD` sind Pflicht — ohne echte Werte startet die Anwendung nicht. `FLASK_DEBUG` sollte in einem Netzwerk mit mehreren Nutzern (z. B. der Schul-LAN) immer auf `false` bleiben; der eingebaute Debugger erlaubt sonst beliebige Code-Ausführung auf dem Server.
 
-5.  **Datenbank vorbereiten**
+4.  **Datenbank vorbereiten**
     Beim ersten Start wird die Datenbank automatisch erstellt. Neu hinzugekommene Spalten (z. B. für die Hinweise-Funktion) werden bei bestehenden Datenbanken beim Start ebenfalls automatisch ergänzt, ohne Datenverlust.
 
-6.  **Anwendung starten**
+5.  **Anwendung starten**
     ```bash
     python app.py
     ```
@@ -412,6 +482,10 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 
 ```
 challenge_plattform/
+├── start_windows.bat     # Startdateien: doppelklicken, der Rest geht von selbst
+├── start_macos.command
+├── start_linux.sh
+├── starter.py            # was die Startdateien tun: einrichten, dann starten
 ├── app.py                # Einstiegspunkt
 ├── config.py              # Konfiguration
 ├── extensions.py          # Datenbank & Extensions
