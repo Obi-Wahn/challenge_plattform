@@ -131,6 +131,12 @@ Bei **jedem weiteren Start** prüft sie nur, ob noch alles da ist, und startet
 dann direkt. Fehlt etwas – ist etwa `.venv` gelöscht worden –, holt sie genau
 das nach. Eine vorhandene `.env` und die Datenbank fasst sie nie an.
 
+Die Umgebung bleibt an das Python gebunden, mit dem sie angelegt wurde; die
+Übersicht nennt es, etwa „Virtuelle Umgebung ..... vorhanden (Python 3.13)“.
+Wer auf ein neueres Python wechseln will, löscht den Ordner `.venv` und öffnet
+die Startdatei – dafür braucht es wieder einmal Internet. Wird das alte Python
+deinstalliert, merkt die Startdatei das und legt die Umgebung selbst neu an.
+
 **Beenden** mit STRG+C im Fenster. Unter Windows fragt die Eingabeaufforderung
 danach noch „Batchvorgang abbrechen (J/N)?“ – die Plattform ist da schon
 beendet, J und N führen beide zum selben Ergebnis.

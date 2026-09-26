@@ -8,6 +8,7 @@ nur mitschreibt, was aufgerufen worden wäre.
 import ast
 import os
 import subprocess
+import sys
 import types
 from pathlib import Path
 
@@ -99,8 +100,94 @@ class TestUmgebung:
     def test_vorhandene_umgebung_bleibt(self, ordner):
         umgebung_vortaeuschen(ordner)
         angelegt = []
-        assert starter.umgebung_sicherstellen(str(ordner), anlegen=angelegt.append) == "vorhanden"
+        stand = starter.umgebung_sicherstellen(
+            str(ordner), anlegen=angelegt.append, laeuft=lambda basis: True
+        )
+        assert stand == "vorhanden"
         assert angelegt == []
+
+    def test_uebersicht_nennt_das_python_der_umgebung(self, ordner):
+        # Sonst steht oben "Python 3.14" und niemand sieht, dass die
+        # Plattform noch im Python 3.13 läuft, mit dem .venv gebaut wurde.
+        umgebung_vortaeuschen(ordner)
+        (ordner / ".venv" / "pyvenv.cfg").write_text(
+            "home = /usr/bin\ninclude-system-site-packages = false\nversion = 3.13.15\n",
+            encoding="utf-8",
+        )
+        stand = starter.umgebung_sicherstellen(str(ordner), laeuft=lambda basis: True)
+        assert stand == "vorhanden (Python 3.13)"
+
+    def test_andere_version_wird_nicht_von_selbst_umgebaut(self, ordner):
+        # Neu anlegen braucht Internet - im Schulnetz am Wettbewerbstag
+        # wäre danach gar keine Umgebung mehr da.
+        umgebung_vortaeuschen(ordner)
+        (ordner / ".venv" / "pyvenv.cfg").write_text("version = 3.10.4\n", encoding="utf-8")
+        angelegt = []
+        starter.umgebung_sicherstellen(
+            str(ordner), anlegen=angelegt.append, laeuft=lambda basis: True
+        )
+        assert angelegt == []
+
+    @pytest.mark.parametrize("zeile, erwartet", [
+        ("version = 3.13.15", "3.13"),
+        ("version_info = 3.14.7.final.0", "3.14"),
+        ("home = /usr/bin", None),
+    ])
+    def test_version_aus_pyvenv_cfg(self, ordner, zeile, erwartet):
+        (ordner / ".venv").mkdir()
+        (ordner / ".venv" / "pyvenv.cfg").write_text(zeile + "\n", encoding="utf-8")
+        assert starter.umgebungs_version(str(ordner)) == erwartet
+
+    def test_ohne_umgebung_keine_version(self, ordner):
+        assert starter.umgebungs_version(str(ordner)) is None
+
+    def test_umgebung_die_nicht_mehr_laeuft_wird_neu_angelegt(self, ordner):
+        # Der Fall nach dem Deinstallieren des alten Pythons: Die Datei in
+        # .venv gibt es noch, starten lässt sie sich nicht mehr.
+        umgebung_vortaeuschen(ordner)
+        angelegt = []
+
+        def anlegen(pfad):
+            angelegt.append(pfad)
+            (ordner / ".venv" / "pyvenv.cfg").write_text("version = 3.14.7\n", encoding="utf-8")
+
+        stand = starter.umgebung_sicherstellen(
+            str(ordner), anlegen=anlegen, laeuft=lambda basis: False
+        )
+        assert angelegt == [os.path.join(str(ordner), ".venv")]
+        assert stand == "neu angelegt, die alte lief nicht mehr (Python 3.14)"
+
+    def test_verknuepfung_ins_leere_wird_neu_angelegt(self, ordner):
+        # Unter Linux und macOS ist das Python in .venv eine Verknüpfung.
+        # Nach dem Deinstallieren zeigt sie ins Leere.
+        python = Path(starter.umgebungs_python(str(ordner)))
+        python.parent.mkdir(parents=True)
+        try:
+            python.symlink_to(ordner / "gibt-es-nicht" / "python3.13")
+        except (OSError, NotImplementedError):
+            pytest.skip("keine symbolischen Verknüpfungen")
+
+        def anlegen(pfad):
+            python.unlink()
+            python.write_text("")
+
+        stand = starter.umgebung_sicherstellen(str(ordner), anlegen=anlegen)
+        assert stand.startswith("neu angelegt")
+
+    def test_nicht_startbares_python_gilt_als_kaputt(self, ordner):
+        # Eine leere Datei ist kein Python - wie ein Verweis auf ein
+        # deinstalliertes.
+        umgebung_vortaeuschen(ordner)
+        assert starter.umgebung_laeuft(str(ordner)) is False
+
+    def test_echtes_python_gilt_als_laufend(self, ordner):
+        python = Path(starter.umgebungs_python(str(ordner)))
+        python.parent.mkdir(parents=True)
+        try:
+            python.symlink_to(sys.executable)
+        except (OSError, NotImplementedError):
+            pytest.skip("keine symbolischen Verknüpfungen")
+        assert starter.umgebung_laeuft(str(ordner)) is True
 
     def test_fehlende_umgebung_wird_angelegt(self, ordner):
         def anlegen(pfad):

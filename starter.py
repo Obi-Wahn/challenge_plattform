@@ -96,17 +96,69 @@ def umgebungs_python(basis=BASIS, betriebssystem=None):
     return os.path.join(basis, UMGEBUNG, "bin", "python")
 
 
-def umgebung_sicherstellen(basis=BASIS, anlegen=None):
-    """Legt die virtuelle Umgebung an, wenn es sie nicht gibt.
+def umgebungs_version(basis=BASIS):
+    """Mit welchem Python die Umgebung gebaut ist, etwa "3.13" - oder None.
 
-    Gibt "vorhanden" oder "angelegt" zurück. Ein Ordner .venv ohne Python
-    darin - ein abgebrochener früherer Versuch - wird neu angelegt.
+    Das steht in .venv/pyvenv.cfg. Die Umgebung bleibt an dieses Python
+    gebunden, auch wenn der Starter selbst längst mit einem neueren läuft.
     """
-    if os.path.isfile(umgebungs_python(basis)):
-        return "vorhanden"
+    try:
+        with open(os.path.join(basis, UMGEBUNG, "pyvenv.cfg"), encoding="utf-8") as datei:
+            for eintrag in datei:
+                name, _, wert = eintrag.partition("=")
+                if name.strip() in ("version", "version_info"):
+                    teile = wert.strip().split(".")
+                    if len(teile) >= 2:
+                        return f"{teile[0]}.{teile[1]}"
+    except OSError:
+        pass
+    return None
+
+
+def umgebung_laeuft(basis=BASIS):
+    """Startet das Python der Umgebung überhaupt noch?
+
+    Nicht mehr, wenn das Python, mit dem sie gebaut wurde, deinstalliert
+    ist - die Datei in .venv gibt es dann trotzdem noch.
+    """
+    try:
+        return subprocess.run(
+            [umgebungs_python(basis), "-c", ""],
+            capture_output=True, timeout=60,
+        ).returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        return False
+
+
+def mit_version(stand, basis):
+    version = umgebungs_version(basis)
+    return f"{stand} (Python {version})" if version else stand
+
+
+def umgebung_sicherstellen(basis=BASIS, anlegen=None, laeuft=umgebung_laeuft):
+    """Legt die virtuelle Umgebung an, wenn es sie nicht gibt oder sie nicht läuft.
+
+    Eine laufende Umgebung bleibt, auch wenn sie mit einem älteren Python
+    gebaut ist: Neu anlegen braucht Internet, und am Wettbewerbstag im
+    Schulnetz würde sonst eine funktionierende durch eine kaputte ersetzt.
+    Die Übersicht nennt die Version, wer wechseln will, löscht .venv.
+
+    Eine, die nicht mehr läuft, ist ohnehin verloren und wird neu angelegt.
+    Ebenso ein Ordner .venv ohne Python darin - ein abgebrochener früherer
+    Versuch. Die Pakete folgen von selbst: Ihr Vermerk lag in der alten
+    Umgebung.
+    """
+    ordner = os.path.join(basis, UMGEBUNG)
+    ergebnis = "angelegt"
+
+    # lexists: Unter Linux und macOS ist das Python in .venv eine
+    # Verknüpfung, die nach dem Deinstallieren ins Leere zeigt.
+    if os.path.lexists(umgebungs_python(basis)):
+        if laeuft(basis):
+            return mit_version("vorhanden", basis)
+        ergebnis = "neu angelegt, die alte lief nicht mehr"
 
     anlegen = anlegen or (lambda pfad: venv.create(pfad, with_pip=True, clear=True))
-    ordner = os.path.join(basis, UMGEBUNG)
 
     try:
         anlegen(ordner)
@@ -128,7 +180,7 @@ def umgebung_sicherstellen(basis=BASIS, anlegen=None):
         shutil.rmtree(ordner, ignore_errors=True)
         raise Abbruch("Die virtuelle Umgebung wurde angelegt, enthält aber kein Python.")
 
-    return "angelegt"
+    return mit_version(ergebnis, basis)
 
 
 # --- Pakete -----------------------------------------------------------------
