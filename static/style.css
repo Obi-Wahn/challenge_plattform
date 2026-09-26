@@ -152,6 +152,13 @@ input::placeholder, textarea::placeholder {
   row-gap: 0.2rem;
 }
 
+/* Am Beamer steht die Leiste über einer mittigen Seite: links geklebt
+   wirkt die Zeit dort verloren, deshalb rückt sie in die Mitte. Auf der
+   Wettbewerbsseite bleibt sie links, dort steht sie über den Aufgaben. */
+.zeitleiste-mitte .zeitleiste-zeile {
+  justify-content: center;
+}
+
 .zeitleiste-stand {
   font-weight: 600;
   white-space: nowrap;

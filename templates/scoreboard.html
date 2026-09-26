@@ -10,7 +10,7 @@
          Rangliste den ganzen Tag am Beamer hängt, muss die Restzeit hier
          stehen - und sie muss dieselbe sein, die die Teams sehen. -->
     {% if challenge %}
-    {{ zeitleiste(challenge, status, seconds, url_for('public.scoreboard')) }}
+    {{ zeitleiste(challenge, status, seconds, url_for('public.scoreboard'), mitte=True) }}
     {% endif %}
 
     <div class="text-center mb-5">
