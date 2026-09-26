@@ -155,18 +155,49 @@ class TestAnzeige:
         assert "aufgabe-schwierigkeit-schwer" in html
         assert "schwer" in html
 
-    def test_punkte_und_stufe_stehen_ueber_dem_aufgabentext(
+    def test_sie_stehen_zwischen_einleitung_und_aufgabentext(
             self, make_challenge, make_task, logged_in_team):
-        """Die Teams sollen vor dem Lesen sehen, wie schwer eine Aufgabe ist."""
+        """Erst der Satz, worum es geht, dann die Angaben, dann der Rest.
+
+        So sehen die Teams beim Überfliegen, was eine Aufgabe bringt und wie
+        schwer sie ist, ohne den ganzen Text zu lesen.
+        """
         challenge = make_challenge()
         make_task(challenge, title="Würfel", difficulty="mittel",
-                  description="Baut einen Würfel.")
+                  description="Baut einen Würfel.\n\n**Das soll passieren:**\n\n* Er zeigt Augen.")
         client, _team = logged_in_team(challenge)
 
         html = client.get("/challenge").get_data(as_text=True)
 
-        assert html.index("Max. Punkte") < html.index("Baut einen Würfel.")
-        assert html.index("aufgabe-schwierigkeit") < html.index("Baut einen Würfel.")
+        assert (html.index("Baut einen Würfel.")
+                < html.index("Max. Punkte")
+                < html.index("Das soll passieren"))
+        assert (html.index("Baut einen Würfel.")
+                < html.index("aufgabe-schwierigkeit")
+                < html.index("Das soll passieren"))
+
+    def test_ohne_einleitenden_absatz_stehen_sie_unter_dem_titel(
+            self, make_challenge, make_task, logged_in_team):
+        """Fängt der Text mit einer Liste an, gibt es keinen Satz davor."""
+        challenge = make_challenge()
+        make_task(challenge, title="Würfel", difficulty="mittel",
+                  description="* Er zeigt Augen.\n* Er würfelt zufällig.")
+        client, _team = logged_in_team(challenge)
+
+        html = client.get("/challenge").get_data(as_text=True)
+
+        assert html.index("Max. Punkte") < html.index("Er zeigt Augen.")
+
+    def test_eine_aufgabe_ohne_text_zeigt_nur_die_angaben(
+            self, make_challenge, make_task, logged_in_team):
+        challenge = make_challenge()
+        make_task(challenge, title="Würfel", difficulty="mittel", description=None)
+        client, _team = logged_in_team(challenge)
+
+        antwort = client.get("/challenge")
+
+        assert antwort.status_code == 200
+        assert "Max. Punkte" in antwort.get_data(as_text=True)
 
     def test_ohne_angabe_steht_kein_leeres_schild_auf_der_teamseite(
             self, make_challenge, make_task, logged_in_team):

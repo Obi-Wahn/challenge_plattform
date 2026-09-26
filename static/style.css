@@ -286,3 +286,10 @@ input::placeholder, textarea::placeholder {
   border-color: rgba(248, 113, 113, 0.45);
   color: #fca5a5;
 }
+
+/* Der Einleitungssatz einer Aufgabe steht über Punkten und Schwierigkeit.
+   Sein Absatz bringt einen eigenen Abstand mit; ohne ihn stünden die beiden
+   Zeilen doppelt weit auseinander. */
+.task-einleitung p:last-child {
+  margin-bottom: 0.4rem;
+}

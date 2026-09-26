@@ -113,10 +113,19 @@
   <div class="col-md-6">
     <div class="event-card h-100">
 
+      {% set aufgabentext = task.description | aufgabentext %}
+
       <h5 class="mb-1">{{ task.title }}</h5>
 
-      <!-- Punkte und Schwierigkeit stehen direkt unter dem Titel: So sehen die
-           Teams vor dem Lesen, was eine Aufgabe bringt und wie schwer sie ist. -->
+      <!-- Erst der Satz, der sagt, worum es geht, dann Punkte und
+           Schwierigkeit, dann der ausführliche Teil: So sehen die Teams beim
+           Überfliegen, was eine Aufgabe bringt und wie schwer sie ist. -->
+      {% if aufgabentext.einleitung %}
+      <div class="text-secondary task-description task-einleitung">
+        {{ aufgabentext.einleitung }}
+      </div>
+      {% endif %}
+
       <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
         <small class="text-secondary">
           Max. Punkte: {{ task.max_points }}
@@ -124,10 +133,12 @@
         {{ schwierigkeit(task) }}
       </div>
 
+      {% if aufgabentext.rest %}
       <!-- Markdown Rendering -->
       <div class="text-secondary task-description">
-        {{ task.description | markdown }}
+        {{ aufgabentext.rest }}
       </div>
+      {% endif %}
 
       {% if task.hint_visible and task.hint %}
       <div class="mt-2 p-2 rounded bg-dark border border-info text-light small">
