@@ -161,11 +161,24 @@ def scoreboard():
 
     tasks, standings = get_standings(challenge)
 
+    # Dieselbe Rechnung wie auf der Wettbewerbsseite der Teams: vor dem Start
+    # bis zum Beginn, danach bis zum Ende. Die Rangliste hängt den ganzen Tag
+    # am Beamer, deshalb steht die Restzeit auch hier.
+    status = challenge.status()
+    if status == "upcoming":
+        seconds = challenge.seconds_until_start
+    elif status == "running":
+        seconds = challenge.remaining_seconds
+    else:
+        seconds = 0
+
     return render_template(
         "scoreboard.html",
         challenge=challenge,
         tasks=tasks,
-        teams=standings
+        teams=standings,
+        status=status,
+        seconds=seconds
     )
 
 @public_bp.route("/siegerehrung")
@@ -185,26 +198,8 @@ def siegerehrung():
 
 @public_bp.route("/start")
 def start():
-    # Same competition the teams see on their own page.
-    challenge = Challenge.current()
-
-    status = "not_scheduled"
-    seconds = 0
-
-    if challenge:
-        status = challenge.status()
-        if status == "upcoming":
-            seconds = challenge.seconds_until_start
-        elif status == "running":
-            # Stays 0 when no end time is set, which hides the countdown.
-            seconds = challenge.remaining_seconds
-
-    # The remaining seconds are counted down in the browser instead of passing
-    # an absolute timestamp, so a wrong clock or timezone on a viewer's device
-    # cannot skew the countdown.
-    return render_template(
-        "start.html",
-        challenge=challenge,
-        status=status,
-        seconds=seconds
-    )
+    # Die eigene Countdown-Seite gibt es nicht mehr: Die Restzeit steht auf der
+    # Wettbewerbsseite der Teams und über der Rangliste, und gestartet wird von
+    # Hand, nicht nach einer heruntergezählten Uhr. Die Adresse bleibt, damit
+    # ein altes Lesezeichen nicht ins Leere läuft.
+    return redirect(url_for("public.scoreboard"))

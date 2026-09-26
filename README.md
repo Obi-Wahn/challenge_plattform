@@ -67,7 +67,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 ### Für die Lehrkraft
 *   **Steuerzentrale**: Zustand, Teams, Aufgaben und offene Bewertungen auf einen Blick, die Kacheln nach Vorbereitung, Während des Wettbewerbs und Zum Abschluss sortiert.
 *   **Wettbewerbe verwalten**: anlegen, aktivieren, pausieren, beenden und wieder öffnen. Beim Anlegen lassen sich die Teams eines früheren Wettbewerbs übernehmen, mit Passwort und den Namen für die Urkunde.
-*   **Eigener Name je Wettbewerb**: Name und Untertitel stehen auf Startseite, Countdown, Teamseite und Urkunden und bleiben dort, wenn längst ein anderer läuft.
+*   **Eigener Name je Wettbewerb**: Name und Untertitel stehen auf Startseite, Rangliste, Teamseite und Urkunden und bleiben dort, wenn längst ein anderer läuft.
 *   **Aufgaben**: Beschreibung in Markdown, erlaubtes Dateiformat, optionaler Tipp. Aufgaben lassen sich als JSON sichern, weitergeben und in einen anderen Wettbewerb einlesen — ohne Abgaben und Punkte.
 *   **Zeit im Griff**: Start- und Endzeit oder eine Dauer in Minuten samt „Jetzt starten für … Minuten"; die Pause hält die Uhr an, „Fortsetzen" schiebt das Ende um die Pausendauer nach hinten.
 *   **Bewerten**: Abgaben mit Aufgabenbeschreibung daneben, Textformate direkt im Browser lesbar, Download für lokale Tests, Punkte und Feedback, Korrektur freigeben oder Abgabe löschen.
@@ -77,8 +77,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Eigene Fehlerseiten**: deutscher Satz und ein Weg zurück statt der englischen Seite des Webservers. Die gewöhnlichen Missgeschicke landen gar nicht dort, sondern als Meldung auf der Wettbewerbsseite des Teams.
 
 ### Für den Beamer
-*   **Countdown-Seite**: zeigt, wann es losgeht und wie viel Zeit noch bleibt.
-*   **Rangliste**: Punkte je Aufgabe und Gesamtstand, lädt sich alle 30 Sekunden selbst neu.
+*   **Rangliste**: Punkte je Aufgabe und Gesamtstand, lädt sich alle 30 Sekunden selbst neu. Oben läuft dieselbe Restzeit mit, die die Teams sehen — die Seite für den ganzen Wettbewerb.
 *   **Siegerehrung**: Podium der besten drei, Platz für Platz aufzudecken (Leertaste oder Knopf). Bei Gleichstand teilen sich Teams einen Platz, und der nächste rückt nach: 10, 10 und 8 Punkte ergeben zwei erste Plätze und einen zweiten, kein Platz bleibt leer.
 
 ### Ohne Installationsaufwand
@@ -437,7 +436,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 
 | Datei | prüft |
 | --- | --- |
-| `test_challenge_status.py` | geplant / läuft / pausiert / beendet, Countdown-Zeiten |
+| `test_challenge_status.py` | geplant / läuft / pausiert / beendet, Restzeiten |
 | `test_teams.py` | Registrierung, Anmeldung, Bindung ans Wettbewerb, Team-Verwaltung |
 | `test_submissions.py` | Abgabe, Korrektur nach Freigabe, Bewertung |
 | `test_scoring.py` | Rangliste und Podium, auch bei Gleichstand |

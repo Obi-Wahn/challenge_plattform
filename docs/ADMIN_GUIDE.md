@@ -34,7 +34,7 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 3. **Wettbewerb anlegen** unter `/admin` → *Neuer Wettbewerb*: Name,
    Startzeit, Endzeit. Der Name ist der, unter dem die Teams den Wettbewerb
    sehen – „Scratch-Wettbewerb der Klasse 6b“ etwa. Er steht auf der
-   Startseite, der Countdown-Seite und auf den Urkunden, und er bleibt bei
+   Startseite, der Rangliste und auf den Urkunden, und er bleibt bei
    diesem Wettbewerb, auch wenn später ein anderer läuft; seine Urkunden
    tragen ihn also auch nächstes Jahr noch. Einen eigenen Untertitel kannst
    du dazuschreiben; leer gelassen gilt der aus *Einstellungen*.
@@ -78,8 +78,8 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 - [ ] **Adresse notieren.** Sie steht auch auf der Startseite unter dem
       QR-Code und lässt sich abtippen – wichtig, weil an normalen PCs und
       Laptops ein QR-Code nichts nützt.
-- [ ] **Beamer testen** mit der Countdown-Seite `/start` und der Rangliste
-      `/scoreboard`.
+- [ ] **Beamer testen** mit der Rangliste `/scoreboard`. Die Restzeit steht
+      dort oben, dieselbe, die die Teams sehen.
 
 > **Aus der Praxis:** Welche Hürde gab es im Schulnetz?
 >
@@ -97,9 +97,12 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    Im Terminal stehen beide Adressen (lokal und fürs Netzwerk) und der Pfad
    der Protokolldatei. **Das Fenster offen lassen.**
 2. Wettbewerb unter `/admin` **aktivieren**.
-3. Countdown-Seite `/start` an die Wand werfen.
-4. Teams melden sich selbst auf der Startseite an: Teamname und ein
-   Passwort, das sie sich ausdenken. Jedes Team merkt sich beides.
+3. Rangliste `/scoreboard` an die Wand werfen. Oben läuft die Zeit, darunter
+   füllt sich die Tabelle, sobald du bewertest.
+4. Teams melden sich selbst auf der Startseite `/` an: Teamname und ein
+   Passwort, das sie sich ausdenken. Jedes Team merkt sich beides. Danach
+   landen sie auf ihrer Wettbewerbsseite `/challenge`, wo die Restzeit über
+   den Aufgaben steht.
 
 ### Die Zeit einstellen
 
@@ -137,12 +140,14 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   schiebt die Endzeit um die Dauer der Pause nach hinten. Den Teams geht also
   keine Arbeitszeit verloren, und du musst nichts nachrechnen. Auf den
   Teamseiten erscheint innerhalb von etwa 15 Sekunden von selbst ein Kasten
-  *⏸ Kurze Pause*, die Zeitleiste wird orange, und die Countdown-Seite am
-  Beamer zeigt dieselbe stillstehende Zeit. Beim Fortsetzen verschwindet der
+  *⏸ Kurze Pause*, die Zeitleiste wird orange, und die Rangliste am Beamer
+  zeigt dieselbe stillstehende Zeit. Beim Fortsetzen verschwindet der
   Kasten genauso von selbst wieder. Die Aufgaben bleiben in der Pause
   absichtlich lesbar – nachdenken und nachlesen darf ein Team, nur abgeben
   nicht.
-- **Rangliste** `/scoreboard` aktualisiert sich alle 30 Sekunden von selbst.
+- **Rangliste** `/scoreboard` aktualisiert sich alle 30 Sekunden von selbst und
+  trägt die Restzeit oben — sie ist die Seite für den Beamer, den ganzen
+  Wettbewerb über. Eine eigene Countdown-Seite gibt es nicht mehr.
 
 > **Aus der Praxis:** Ab wann die Rangliste zeigen? (Von Anfang an motiviert
 > sie – kurz vor Schluss kann sie auch lähmen.)

@@ -1,7 +1,7 @@
 """Der Name eines Wettbewerbs ist sein Titel, und er gilt dort, wo er gemeint ist.
 
 Die Einstellungen benennen die Anwendung: Browsertitel, Leiste oben, Fußzeile.
-Wo ein Wettbewerb gemeint ist - Startseite, Countdown-Seite, Teamseite,
+Wo ein Wettbewerb gemeint ist - Startseite, Rangliste, Teamseite,
 Urkunden -, steht sein eigener Name. Den Untertitel darf ein Wettbewerb
 überschreiben; lässt er ihn leer, gilt der aus den Einstellungen.
 """
@@ -89,11 +89,12 @@ class TestSeiten:
         assert "Scratch-Wettbewerb" in seite
         assert "Klasse 6b programmiert Spiele" in seite
 
-    def test_countdown_seite_zeigt_den_namen_des_wettbewerbs(self, einstellungen, client,
-                                                             make_challenge):
+    def test_rangliste_zeigt_den_namen_des_wettbewerbs(self, einstellungen, client,
+                                                       make_challenge):
+        """Die Rangliste ist die Beamerseite, seit es die Countdown-Seite nicht mehr gibt."""
         make_challenge(title="Calliope-Wettbewerb")
 
-        assert "Calliope-Wettbewerb" in client.get("/start").get_data(as_text=True)
+        assert "Calliope-Wettbewerb" in client.get("/scoreboard").get_data(as_text=True)
 
     def test_leiste_oben_behaelt_den_namen_der_anwendung(self, einstellungen, client,
                                                          make_challenge):

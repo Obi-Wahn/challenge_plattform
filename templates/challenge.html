@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_zeitleiste.html" import zeitleiste, zeitleiste_skript %}
 {% block content %}
 
 <h2 class="mb-3">🧩 {{ event.name }}</h2>
@@ -10,47 +11,13 @@
 
 <!-- Stand und Restzeit -->
 <!-- Die Leiste bleibt beim Scrollen durch die Aufgaben oben stehen: Die Zeit
-     soll im Blick sein, ohne dass ein Team dafür die Seite wechselt. Sie
-     ersetzt die frühere Statuskarte, die Seite wird dadurch nicht länger. -->
+     soll im Blick sein, ohne dass ein Team dafür die Seite wechselt. Dieselbe
+     Leiste steht über der Rangliste am Beamer, sie kommt aus
+     templates/_zeitleiste.html - beide Uhren müssen dasselbe zeigen. -->
 {% set offen = challenge.accepts_submissions %}
-<div class="zeitleiste mb-3 {% if status == 'finished' %}zeitleiste-ende{% elif challenge.paused %}zeitleiste-pause{% else %}zeitleiste-laeuft{% endif %}"
-  data-ende-stand="{% if status == 'upcoming' %}🟢 Läuft{% else %}🏁 Beendet{% endif %}"
-  data-ende-wort="{% if status == 'upcoming' %}Es geht los{% else %}Zeit ist um{% endif %}">
-  <div class="zeitleiste-zeile">
-
-    <span class="zeitleiste-stand" id="zeitleiste-stand">
-      {%- if status == "finished" %}🏁 Beendet
-      {%- elif challenge.paused %}⏸ Pausiert
-      {%- elif status == "upcoming" %}⏳ Startet in
-      {%- else %}🟢 Läuft{% endif -%}
-    </span>
-
-    {% if seconds %}
-    <!-- Bis das Skript zum ersten Mal zeichnet, steht hier keine falsche Zeit. -->
-    <span class="zeitleiste-uhr" id="restzeit">--:--</span>
-    {% endif %}
-
-    <span class="zeitleiste-wort" id="zeitleiste-wort">
-      {%- if status == "finished" %}Abgaben geschlossen
-      {%- elif challenge.paused and seconds %}verbleibend, die Uhr steht
-      {%- elif challenge.paused %}Abgaben sind gerade nicht möglich
-      {%- elif status == "running" and seconds %}verbleibend
-      {%- elif status == "running" %}Abgaben sind möglich{% endif -%}
-    </span>
-
-    <!-- Erscheint erst, wenn die Uhr bei null steht. -->
-    <a href="{{ url_for('challenge.view') }}" class="zeitleiste-neu" id="zeitleiste-neu" hidden>
-      ↻ Seite neu laden
-    </a>
-
-    {% if status == "finished" %}
-    <a href="{{ url_for('challenge.certificate') }}" class="btn btn-primary btn-sm zeitleiste-knopf">
-      📜 Urkunde
-    </a>
-    {% endif %}
-
-  </div>
-</div>
+{{ zeitleiste(challenge, status, seconds,
+              url_for('challenge.view'),
+              url_for('challenge.certificate')) }}
 
 {% if status == "finished" %}
 <p class="text-secondary mb-3">
@@ -220,85 +187,7 @@
 
 </div>
 
-{% if seconds %}
-<script>
-  // Der Server schickt die verbleibenden Sekunden, damit eine falsch gestellte
-  // Uhr auf einem Gerät die Zeit nicht verschiebt.
-  let rest = {{ seconds }};
-  let takt = null;
-
-  // Aus der Sekundenzahl des Servers wird einmal ein Endpunkt gebildet, und
-  // die Anzeige richtet sich danach, wie viel Zeit seitdem vergangen ist -
-  // nicht danach, wie oft der Takt geschlagen hat. Schläft das Gerät
-  // zwischendurch, ein gesperrtes Handy etwa, laufen die Zeitgeber nicht:
-  // Eine mitzählende Uhr bliebe danach stehen und zeigte mehr Restzeit an,
-  // als das Team noch hat. Die eingestellte Uhrzeit des Geräts spielt dabei
-  // weiterhin keine Rolle, es zählt allein der Abstand zu diesem Punkt.
-  const endpunkt = Date.now() + rest * 1000;
-
-  // Vor dem Start zählt die Uhr bis zum Beginn, danach bis zum Ende. Nur im
-  // zweiten Fall ist bei null der Wettbewerb vorbei.
-  const zaehltBisZumEnde = {{ "false" if status == "upcoming" else "true" }};
-
-  // In der Pause steht die Zeit still: Der Server rechnet ab dem Zeitpunkt der
-  // Pause, und die Uhr im Browser darf ihm nicht davonlaufen. Sie wird einmal
-  // gezeichnet und danach nicht mehr angefasst.
-  const laeuftDieUhr = {{ "false" if challenge.paused else "true" }};
-
-  const leiste = document.querySelector(".zeitleiste");
-  const stand = document.getElementById("zeitleiste-stand");
-  const uhr = document.getElementById("restzeit");
-  const wort = document.getElementById("zeitleiste-wort");
-  const neuLaden = document.getElementById("zeitleiste-neu");
-
-  function zeichne() {
-    // In der Pause bleibt es bei der Zahl vom Server: Dort steht die Uhr,
-    // und gezeichnet wird ohnehin nur ein einziges Mal.
-    if (laeuftDieUhr) {
-      rest = Math.round((endpunkt - Date.now()) / 1000);
-    }
-
-    if (rest <= 0) {
-      // Hier wird nicht neu geladen: Maßgeblich ist die Zeit des Servers, und
-      // ob der Wettbewerb wirklich vorbei ist, sagt die Standabfrage. Bis sie
-      // es tut, steht hier nur, dass es so weit ist, und daneben ein Link,
-      // den das Team selbst antippen kann.
-      uhr.innerText = "00:00";
-      stand.innerText = leiste.dataset.endeStand;
-      wort.innerText = leiste.dataset.endeWort;
-      if (zaehltBisZumEnde) {
-        leiste.classList.remove("zeitleiste-laeuft");
-        leiste.classList.add("zeitleiste-ende", "zeitleiste-gleich");
-      }
-      neuLaden.hidden = false;
-      if (takt) {
-        clearInterval(takt);
-      }
-      return;
-    }
-
-    const stunden = Math.floor(rest / 3600);
-    const minuten = Math.floor((rest % 3600) / 60);
-    const sekunden = rest % 60;
-
-    const teile = [minuten, sekunden].map(v => String(v).padStart(2, "0"));
-    if (stunden > 0) {
-      teile.unshift(String(stunden));
-    }
-
-    uhr.innerText = teile.join(":");
-    // Die letzten fünf Minuten färben die Uhr, die letzte Minute macht sie
-    // rot - aber nur vor dem Ende. Vor dem Start ist Warten kein Alarm.
-    leiste.classList.toggle("zeitleiste-knapp", zaehltBisZumEnde && rest <= 300);
-    leiste.classList.toggle("zeitleiste-gleich", zaehltBisZumEnde && rest <= 60);
-  }
-
-  zeichne();
-  if (laeuftDieUhr) {
-    takt = setInterval(zeichne, 1000);
-  }
-</script>
-{% endif %}
+{{ zeitleiste_skript(challenge, status, seconds) }}
 
 <!-- Die Uhr selbst lädt die Seite nie neu, auch nicht bei null: Sie weiß
      nichts davon, wie der Server die Zeit sieht. Neu geladen wird allein über

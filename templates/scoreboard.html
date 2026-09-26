@@ -1,9 +1,17 @@
 {% extends "base.html" %}
+{% from "_zeitleiste.html" import zeitleiste, zeitleiste_skript %}
 {% block container_class %}container-fluid px-4{% endblock %}
 {% block content %}
 
 <div class="row justify-content-center">
   <div class="col-12">
+
+    <!-- Dieselbe Leiste wie auf der Wettbewerbsseite der Teams. Seit die
+         Rangliste den ganzen Tag am Beamer hängt, muss die Restzeit hier
+         stehen - und sie muss dieselbe sein, die die Teams sehen. -->
+    {% if challenge %}
+    {{ zeitleiste(challenge, status, seconds, url_for('public.scoreboard')) }}
+    {% endif %}
 
     <div class="text-center mb-5">
       <h1 class="display-4 fw-bold">🏆 Rangliste</h1>
@@ -82,6 +90,8 @@
 
   </div>
 </div>
+
+{% if challenge %}{{ zeitleiste_skript(challenge, status, seconds) }}{% endif %}
 
 <!-- Auto Refresh alle 30 Sekunden -->
 <script>
