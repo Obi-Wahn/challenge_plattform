@@ -162,19 +162,23 @@ def create_app():
     # Site branding (name, tagline) is admin-editable, stored in the DB,
     # and injected into every template instead of being hardcoded.
     #
-    # "site_settings" ist dabei der Name der Installation: Er steht im
-    # Browsertitel, in der Navigationsleiste und in der Fußzeile, also auch
-    # auf Seiten, die zu keinem Wettbewerb gehören. "event" ist der Name der
-    # Veranstaltung, den der aktive Wettbewerb überschreiben darf - ihn
-    # zeigen die Seiten, die einen Wettbewerb meinen. Eine Seite, die einen
-    # anderen als den aktiven Wettbewerb zeigt, reicht ihr eigenes "event" an
-    # render_template weiter; das gewinnt gegen den Wert von hier.
+    # "event" ist Name und Untertitel des Wettbewerbs, den eine Seite meint.
+    # Eine Seite, die einen anderen als den aktiven Wettbewerb zeigt, reicht
+    # ihr eigenes "event" an render_template weiter; das gewinnt gegen den
+    # Wert von hier. "site_event" ist dasselbe für den aktiven Wettbewerb und
+    # bleibt davon unberührt: Browsertitel, Leiste oben und Fußzeile sollen
+    # sagen, was gerade läuft, auch auf einer Seite über einen älteren
+    # Wettbewerb. Läuft keiner, gelten die Standardwerte aus den
+    # Einstellungen. "site_settings" gibt es weiter für alles andere, was dort
+    # eingestellt wird.
     @app.context_processor
     def inject_site_settings():
         from models import Challenge, Settings, event_branding
+        branding = event_branding(Challenge.current())
         return {
             "site_settings": Settings.get(),
-            "event": event_branding(Challenge.current()),
+            "event": branding,
+            "site_event": branding,
         }
 
     @app.context_processor

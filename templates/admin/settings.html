@@ -7,21 +7,21 @@
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
   <div class="event-card mb-4">
-    <h3 class="mb-3">Veranstaltung</h3>
+    <h3 class="mb-3">Standardwerte</h3>
 
-    <label class="form-label">Name der Veranstaltung</label>
+    <label class="form-label">Name (Standard)</label>
     <input type="text" name="site_name" class="form-control form-control-lg mb-3"
       value="{{ settings.site_name }}" placeholder="z. B. Coding-Wettbewerb" required>
 
-    <label class="form-label">Untertitel</label>
+    <label class="form-label">Untertitel (Standard)</label>
     <input type="text" name="tagline" class="form-control form-control-lg"
       value="{{ settings.tagline }}" placeholder="Kurzer Beschreibungstext" required>
 
     <p class="text-secondary small mt-3 mb-0">
-      Beides gilt für die ganze Anwendung: Der Name steht im Browsertitel, in
-      der Leiste oben und in der Fußzeile, auch auf Seiten, die zu keinem
-      Wettbewerb gehören. Wo ein Wettbewerb gemeint ist – Startseite,
-      Countdown-Seite, Teamseite und Urkunden – steht sein eigener Name.
+      Beides gilt, solange kein Wettbewerb mit eigenem Namen läuft – auf der
+      Startseite, im Browsertitel, in der Leiste oben und in der Fußzeile.
+      Sobald ein Wettbewerb läuft, steht überall sein Name; der Untertitel aus
+      dem Wettbewerb darf leer bleiben, dann gilt der hier.
     </p>
   </div>
 
