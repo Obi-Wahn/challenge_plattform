@@ -53,96 +53,37 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 
 ## 🌟 Features
 
-### Für Teilnehmer
-*   **Team-Registrierung & Login**: Sichere Anmeldung mit Teamnamen und Passwort.
-*   **Wettbewerbsseite**: alle Aufgaben des laufenden Wettbewerbs mit Fortschrittsanzeige,
-    eigenen Punkten und dem Feedback der Lehrkraft.
-*   **Datei-Uploads je nach Aufgabe**: Processing (`.pde`), Scratch (`.sb`/`.sb3`), Python (`.py`), Java (`.java`), MakeCode/Calliope (`.hex`/`.mkcd`).
-*   **Hinweise pro Aufgabe**: Admins können während des Events optionale Tipps freischalten, falls ein Team nicht weiterkommt.
-*   **Rangliste**: Punkte pro Aufgabe und Gesamtstand, lädt sich alle 30 Sekunden selbst neu –
-    so kann sie während des Wettbewerbs am Beamer stehen bleiben.
-*   **Countdown-Seite**: zeigt, wann es losgeht oder wie viel Zeit noch bleibt –
-    ebenfalls zum Projizieren gedacht.
-*   **Siegerehrung**: Podium der besten drei, das sich Platz für Platz aufdecken lässt
-    (Leertaste oder Knopf) – für den Abschluss vor der Klasse.
-*   **Gleichstand kostet keinen Platz**: Teams mit gleicher Punktzahl teilen sich
-    einen Platz, und der nächste Platz rückt nach – bei 10, 10, 8, 8, 7 Punkten gibt
-    es also einen ersten, einen zweiten und einen dritten Platz, jeweils doppelt
-    besetzt bis auf den dritten. So bleibt bei Gleichstand kein Platz auf dem Podium
-    leer, und keine Reihenfolge wird willkürlich entschieden.
-*   **Korrektur nach Freigabe**: Gibt die Lehrkraft eine Abgabe frei, darf das Team sie
-    genau einmal ersetzen.
-*   **Eigene Urkunde als PDF**: Sobald der Wettbewerb beendet ist, kann jedes Team seine
-    Urkunde selbst herunterladen.
-*   **Namen für die Urkunde**: Hat die Lehrkraft es freigeschaltet, tragen die Schüler
-    ihre Namen selbst ein – einen pro Zeile. Auf die Urkunde kommen sie erst, wenn die
-    Lehrkraft sie kontrolliert und freigegeben hat; ändert das Team danach noch etwas,
-    muss sie erneut freigeben.
-*   **QR-Code auf der Startseite**: zum schnellen Beitreten per Smartphone, z. B. wenn die Seite beamt wird.
-*   **Responsive Design**: für Desktop, Tablet und Smartphone optimiert.
+### Für die Teams
+*   **Beitritt per QR-Code**: Der Code auf der Startseite führt das Smartphone direkt hin, sonst tippt man die Adresse aus dem Schulnetz ein. Die Seiten sind für Desktop, Tablet und Smartphone gemacht.
+*   **Anmeldung je Wettbewerb**: Teamname und Passwort; derselbe Teamname darf in mehreren Wettbewerben vorkommen.
+*   **Wettbewerbsseite**: alle Aufgaben mit Fortschritt, eigenen Punkten und dem Feedback der Lehrkraft, dazu die Restzeit als Leiste.
+*   **Aktualisiert sich selbst**: Die Seite fragt alle 15 Sekunden nach dem Stand — Pause, Fortsetzen, ein freigeschalteter Tipp und eine neue Dauer kommen an, ohne dass jemand neu laden muss.
+*   **Abgabe je Aufgabe**: Processing (`.pde`), Scratch (`.sb`/`.sb3`), Python (`.py`), Java (`.java`), MakeCode/Calliope (`.hex`/`.mkcd`) — welches Format erlaubt ist, legt die Aufgabe fest.
+*   **Tipps**: Kommt ein Team nicht weiter, schaltet die Lehrkraft den Hinweis zur Aufgabe frei.
+*   **Korrektur**: Gibt die Lehrkraft eine Abgabe frei, darf das Team sie genau einmal ersetzen.
+*   **Namen für die Urkunde**: Das Team trägt sie selbst ein, einen pro Zeile; auf die Urkunde kommen sie nach der Freigabe durch die Lehrkraft.
+*   **Eigene Urkunde als PDF**: nach dem Ende des Wettbewerbs selbst herunterladbar.
 
-### Für Administratoren
-*   **Steuerzentrale**: zeigt den aktuellen Wettbewerb mit Zustand, Teams, Aufgaben und
-    offenen Bewertungen; die Kacheln sind nach Vorbereitung, Während des Wettbewerbs
-    und Zum Abschluss sortiert.
-*   **Wettbewerbs-Seite**: alles zu einem Wettbewerb an einem Ort – Aufgaben, Teams,
-    Bewertungen, Countdown, Rangliste, Siegerehrung und Urkunden.
-*   **Wettbewerb beenden**: ein Knopf sperrt die Abgaben und macht den Weg frei für
-    Rangliste, Siegerehrung und Urkunden. „Wieder öffnen“ macht das rückgängig.
-*   **Wettbewerbs-Verwaltung**: Erstellen, Aktivieren, Pausieren und Beenden.
-*   **Teams gehören zu ihrem Wettbewerb**: derselbe Teamname darf in mehreren Wettbewerben
-    vorkommen; beim Anlegen eines neuen Wettbewerbs lassen sich die alten Teams übernehmen,
-    mit Passwort und den Namen für die Urkunde. Die Freigabe der Namen kommt nicht mit.
-*   **Aufgaben-Konfiguration**:
-    *   Erstellen von Aufgaben mit detaillierten Beschreibungen.
-    *   **Markdown Support**: Aufgabenbeschreibungen werden mit Markdown formatiert.
-    *   **Dateiformat-Wahl**: Festlegen des erlaubten Dateityps pro Aufgabe.
-    *   Optionale Hinweise, die während des Events sichtbar/unsichtbar geschaltet werden können.
-    *   **Sichern und Wiederverwenden**: Aufgaben lassen sich als JSON-Datei herunterladen –
-        einzeln oder alle zusammen – und in einen anderen Wettbewerb einlesen. Die Datei enthält nur die Aufgaben –
-        keine Abgaben und keine Punkte – und lässt sich in jedem Texteditor bearbeiten
-        oder an Kolleginnen und Kollegen weitergeben.
-*   **Review-System**:
-    *   Anzeige eingereichter Lösungen inklusive **Aufgabenbeschreibung**.
-    *   **In-Browser Code Preview**: Code direkt im Browser lesen – bei
-        Textformaten (`.pde`, `.py`, `.java`), und erst beim Aufklappen
-        nachgeladen, damit die Seite auch bei vielen Abgaben schnell bleibt.
-        Ein Scratch- oder MakeCode-Projekt ist eine gepackte Datei und lässt
-        sich nicht als Text lesen; dort führt der Weg über den Download.
-    *   Download-Option für lokale Tests.
-    *   Bewertung mit Punkten (automatisch auf 0–Max. begrenzt) und Feedback.
-    *   **Korrektur freigeben**: Eine Abgabe für das Team wieder öffnen; es darf dann genau
-        einmal neu hochladen. Die bisherige Bewertung wird dabei zurückgesetzt, die Abgabe
-        landet wieder in der Warteschlange.
-    *   **Abgabe löschen**: Möglichkeit, fehlerhafte Abgaben komplett zu entfernen, damit Teams neu einreichen können.
-*   **Team-Verwaltung**: Übersicht der Teams des aktuellen Wettbewerbs, inklusive
-    Passwort-Reset, falls ein Team sein Passwort vergisst. Hier werden auch die
-    **Namen der Teammitglieder kontrolliert**: berichtigen, freigeben oder die Freigabe
-    wieder zurücknehmen. Eine Zeile oben zeigt, wie viele Teams noch auf die Kontrolle
-    warten.
-*   **Urkunden**: Druckansicht und PDF für alle Teams, dazu eine Urkunde einzeln – auch
-    für einen längst beendeten Wettbewerb, mit den Punkten und dem Namen von damals.
-    Wer bei der Siegerehrung gefehlt hat, bekommt seine Urkunde so später noch.
-    Wahlweise im **Quer- oder Hochformat** (A4), einstellbar für PDF und Druckansicht
-    gemeinsam. Unter die Unterschriftslinie lässt sich ein Name eintragen – wahlweise
-    in einer von drei Handschriften (Caveat, Dancing Script, Great Vibes) oder in
-    Druckschrift. Ohne Eintrag steht dort wie bisher „Unterschrift“ zum
-    Unterschreiben von Hand. Sind für ein Team Namen freigegeben, stehen sie als
-    Aufzählung direkt unter dem Teamnamen.
-*   **Eigene Fehlerseiten**: Geht etwas schief – falsche Dateiart, zu große Datei,
-    abgelaufene Anmeldung, zu viele Anmeldeversuche –, steht dort ein deutscher Satz
-    und ein Weg zurück statt der englischen Seite des Webservers. Die gewöhnlichen
-    Missgeschicke einer Schulstunde landen gar nicht erst dort: Das Team bekommt eine
-    Meldung auf seiner Wettbewerbsseite.
-*   **Einstellungen**: Name und Beschreibung der Anwendung frei anpassbar, ohne Code
-    zu ändern; dort wird auch freigeschaltet, ob die Teams ihre Namen eintragen dürfen.
-*   **Jeder Wettbewerb heißt, wie er heißt**: Sein Name steht auf Startseite,
-    Countdown-Seite, Teamseite und auf seinen Urkunden – einmal „Scratch-Wettbewerb“,
-    in der nächsten Runde „Calliope-Wettbewerb“ – und bleibt dort auch, wenn längst
-    ein anderer läuft. Einen eigenen Untertitel darf ein Wettbewerb dazu tragen; lässt
-    er ihn leer, gilt der aus den Einstellungen. Der Name aus den Einstellungen benennt
-    die Anwendung selbst: Browsertitel, Leiste oben und Fußzeile, auch auf Seiten ohne
-    Wettbewerb.
+### Für die Lehrkraft
+*   **Steuerzentrale**: Zustand, Teams, Aufgaben und offene Bewertungen auf einen Blick, die Kacheln nach Vorbereitung, Während des Wettbewerbs und Zum Abschluss sortiert.
+*   **Wettbewerbe verwalten**: anlegen, aktivieren, pausieren, beenden und wieder öffnen. Beim Anlegen lassen sich die Teams eines früheren Wettbewerbs übernehmen, mit Passwort und den Namen für die Urkunde.
+*   **Eigener Name je Wettbewerb**: Name und Untertitel stehen auf Startseite, Countdown, Teamseite und Urkunden und bleiben dort, wenn längst ein anderer läuft.
+*   **Aufgaben**: Beschreibung in Markdown, erlaubtes Dateiformat, optionaler Tipp. Aufgaben lassen sich als JSON sichern, weitergeben und in einen anderen Wettbewerb einlesen — ohne Abgaben und Punkte.
+*   **Zeit im Griff**: Start- und Endzeit oder eine Dauer in Minuten samt „Jetzt starten für … Minuten"; die Pause hält die Uhr an, „Fortsetzen" schiebt das Ende um die Pausendauer nach hinten.
+*   **Bewerten**: Abgaben mit Aufgabenbeschreibung daneben, Textformate direkt im Browser lesbar, Download für lokale Tests, Punkte und Feedback, Korrektur freigeben oder Abgabe löschen.
+*   **Teams**: Passwort zurücksetzen, die eingetragenen Namen kontrollieren, freigeben oder die Freigabe zurücknehmen; eine Zeile oben zeigt, wie viele noch auf die Kontrolle warten.
+*   **Urkunden**: als PDF und Druckansicht, für alle Teams oder einzeln, im Quer- oder Hochformat, mit Namen und Handschrift unter der Unterschriftslinie — auch für einen längst beendeten Wettbewerb, mit den Punkten von damals.
+*   **Einstellungen**: Name und Beschreibung der Anwendung, und ob die Teams ihre Namen eintragen dürfen.
+*   **Eigene Fehlerseiten**: deutscher Satz und ein Weg zurück statt der englischen Seite des Webservers. Die gewöhnlichen Missgeschicke landen gar nicht dort, sondern als Meldung auf der Wettbewerbsseite des Teams.
+
+### Für den Beamer
+*   **Countdown-Seite**: zeigt, wann es losgeht und wie viel Zeit noch bleibt.
+*   **Rangliste**: Punkte je Aufgabe und Gesamtstand, lädt sich alle 30 Sekunden selbst neu.
+*   **Siegerehrung**: Podium der besten drei, Platz für Platz aufzudecken (Leertaste oder Knopf). Bei Gleichstand teilen sich Teams einen Platz, und der nächste rückt nach: 10, 10 und 8 Punkte ergeben zwei erste Plätze und einen zweiten, kein Platz bleibt leer.
+
+### Ohne Installationsaufwand
+*   **Startdateien** für Windows, macOS und Linux richten beim ersten Öffnen alles ein und starten die Plattform.
+*   **Läuft im Schul-LAN, ganz ohne Internet**; Port und angezeigte Netzwerkadresse lassen sich in der `.env` setzen.
 
 ## 🛠 Technologien
 
