@@ -243,6 +243,20 @@ class TestLeisteAufDerRangliste:
         assert "Beendet" in leiste
         assert "Urkunde" not in leiste
 
+    def test_am_beamer_steht_die_zeit_in_der_mitte(self, client, make_challenge,
+                                                   logged_in_team):
+        """Über einer mittigen Seite wirkt die Zeit links geklebt verloren.
+
+        Auf der Wettbewerbsseite bleibt sie links, dort steht sie über den
+        Aufgaben und läuft mit deren Rand.
+        """
+        challenge = make_challenge(start_time=datetime.now() - timedelta(minutes=5),
+                                   end_time=datetime.now() + timedelta(hours=1))
+        team_client, _team = logged_in_team(challenge)
+
+        assert "zeitleiste-mitte" in zeitleiste(client, "/scoreboard")
+        assert "zeitleiste-mitte" not in zeitleiste(team_client)
+
     def test_ohne_wettbewerb_keine_leiste(self, client, database):
         html = client.get("/scoreboard").get_data(as_text=True)
 

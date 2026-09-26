@@ -4,13 +4,15 @@
    Rangliste am Beamer. Beide Uhren müssen im selben Moment dasselbe zeigen,
    auch in der Pause - deshalb gibt es sie nur einmal, hier.
 
-   zeitleiste(challenge, status, seconds, neu_ziel, urkunde_url)
+   zeitleiste(challenge, status, seconds, neu_ziel, urkunde_url, mitte)
      neu_ziel    Adresse für den Link, der bei null erscheint.
      urkunde_url wenn gesetzt, steht nach dem Ende ein Urkunden-Knopf rechts.
+     mitte       rückt die Zeile in die Mitte - für den Beamer, wo die Leiste
+                 über einer zentrierten Seite steht und links verloren wirkt.
 #}
 
-{% macro zeitleiste(challenge, status, seconds, neu_ziel, urkunde_url=None) %}
-<div class="zeitleiste mb-3 {% if status == 'finished' %}zeitleiste-ende{% elif challenge.paused %}zeitleiste-pause{% else %}zeitleiste-laeuft{% endif %}"
+{% macro zeitleiste(challenge, status, seconds, neu_ziel, urkunde_url=None, mitte=False) %}
+<div class="zeitleiste mb-3 {% if mitte %}zeitleiste-mitte {% endif %}{% if status == 'finished' %}zeitleiste-ende{% elif challenge.paused %}zeitleiste-pause{% else %}zeitleiste-laeuft{% endif %}"
   data-ende-stand="{% if status == 'upcoming' %}🟢 Läuft{% else %}🏁 Beendet{% endif %}"
   data-ende-wort="{% if status == 'upcoming' %}Es geht los{% else %}Zeit ist um{% endif %}">
   <div class="zeitleiste-zeile">
