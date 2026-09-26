@@ -14,12 +14,12 @@ rückholbar.
 
 import os
 
-from flask import current_app, has_app_context
 from sqlalchemy import event
 from sqlalchemy.orm import object_session
 
 from extensions import db
 from models import Submission
+from protokoll import stoerung
 
 # Schlüssel, unter dem die Pfade bis zum Abschluss der Transaktion warten.
 VORGEMERKT = "abgaben_dateien_zum_loeschen"
@@ -55,10 +55,8 @@ def _melden(pfad, fehler):
     erführe davon. Gemeldet, nicht abgebrochen: Eine verwaiste Datei ist
     immer noch besser als eine Löschung, die auf halbem Weg scheitert.
     """
-    if has_app_context():
-        current_app.logger.warning(
-            "Datei einer gelöschten Abgabe konnte nicht entfernt werden: "
-            "%s (%s)", pfad, fehler)
+    stoerung("Datei einer gelöschten Abgabe konnte nicht entfernt werden: "
+             "%s (%s)", pfad, fehler)
 
 
 @event.listens_for(db.session, "after_commit")

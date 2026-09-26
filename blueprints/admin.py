@@ -12,6 +12,7 @@ from certificates import (build_certificates_for, certificate_entry, signature_f
                           certificate_orientation, CERTIFICATE_ORIENTATIONS,
                           DEFAULT_ORIENTATION, names_line)
 from task_exchange import export_bytes, parse_tasks, ImportError_
+from protokoll import ereignis, stoerung
 from datetime import datetime, timedelta
 import io
 import os
@@ -233,7 +234,12 @@ def challenge_new():
 
         db.session.commit()
 
+        ereignis("Wettbewerb angelegt: „%s“ (#%s)", challenge.title, challenge.id)
+
         if previous and request.form.get("copy_teams"):
+            ereignis("Teams übernommen aus „%s“: %s Team(s) nach „%s“ (#%s)",
+                     previous.title, len(previous.teams), challenge.title,
+                     challenge.id)
             flash(
                 f"Wettbewerb angelegt und {len(previous.teams)} Team(s) aus "
                 f"„{previous.title}“ übernommen.",
@@ -283,6 +289,10 @@ def challenge_edit(cid):
             challenge.paused_at = None
 
         db.session.commit()
+
+        ereignis("Wettbewerb bearbeitet: „%s“ (#%s), Start %s, Ende %s",
+                 challenge.title, challenge.id, challenge.start_time,
+                 challenge.end_time)
 
         if dauer:
             meldung = (f"Gespeichert. {dauer} Minuten ab "
@@ -336,6 +346,7 @@ def challenge_activate(cid):
     Challenge.query.update({Challenge.active: False})
     challenge.active = True
     db.session.commit()
+    ereignis("Wettbewerb aktiv geschaltet: „%s“ (#%s)", challenge.title, challenge.id)
     flash(
         f"„{challenge.title}“ ist jetzt der aktive Wettbewerb. Teams melden sich "
         "ab sofort für ihn an.",
@@ -354,8 +365,11 @@ def challenge_tasks(cid):
             flash(PROBLEM_MELDUNG[problem], "warning")
             return redirect(url_for('admin.challenge_tasks', cid=cid))
 
-        db.session.add(Task(challenge_id=cid, **werte))
+        task = Task(challenge_id=cid, **werte)
+        db.session.add(task)
         db.session.commit()
+        ereignis("Aufgabe angelegt: „%s“ (#%s) in Wettbewerb „%s“ (#%s)",
+                 task.title, task.id, challenge.title, cid)
 
         for hinweis in hinweise:
             flash(hinweis, "warning")
@@ -380,6 +394,9 @@ def tasks_export(cid):
         flash("Dieser Wettbewerb hat noch keine Aufgaben zum Sichern.", "warning")
         return redirect(url_for('admin.challenge_tasks', cid=cid))
 
+    ereignis("Aufgaben gesichert: %s aus Wettbewerb „%s“ (#%s)",
+             len(tasks), challenge.title, cid)
+
     return send_file(
         io.BytesIO(export_bytes(challenge, tasks)),
         mimetype="application/json",
@@ -391,6 +408,8 @@ def tasks_export(cid):
 def task_export(tid):
     """Downloads a single task, in the same format as a whole set."""
     task = db.get_or_404(Task, tid)
+
+    ereignis("Aufgabe gesichert: „%s“ (#%s)", task.title, task.id)
 
     return send_file(
         io.BytesIO(export_bytes(task.challenge, [task])),
@@ -419,6 +438,9 @@ def tasks_import(cid):
         # Hints always start hidden, whatever the source competition did.
         db.session.add(Task(challenge_id=cid, **values))
     db.session.commit()
+
+    ereignis("Aufgaben eingelesen: %s in Wettbewerb „%s“ (#%s), %s übersprungen "
+             "bzw. angepasst", len(tasks), challenge.title, cid, len(skipped))
 
     message = f"{len(tasks)} Aufgabe(n) zu „{challenge.title}“ hinzugefügt."
     if skipped:
@@ -511,16 +533,24 @@ def challenge_reopen(cid):
 @admin_bp.route("/challenges/<int:cid>/delete", methods=["POST"])
 def challenge_delete(cid):
     challenge = db.get_or_404(Challenge, cid)
+    # Name und Zahl der Teams vor dem Löschen merken: Danach sind sie weg, und
+    # gerade sie sagen im Nachhinein, was da verschwunden ist.
+    titel, teams, aufgaben = challenge.title, len(challenge.teams), len(challenge.tasks)
     db.session.delete(challenge)
     db.session.commit()
+    ereignis("Wettbewerb gelöscht: „%s“ (#%s), mit %s Team(s) und %s Aufgabe(n)",
+             titel, cid, teams, aufgaben)
     return redirect(url_for('admin.challenges_list'))
 
 @admin_bp.route("/tasks/<int:tid>/delete", methods=["POST"])
 def task_delete(tid):
     task = db.get_or_404(Task, tid)
     cid = task.challenge_id
+    titel, abgaben = task.title, len(task.submissions)
     db.session.delete(task)
     db.session.commit()
+    ereignis("Aufgabe gelöscht: „%s“ (#%s) aus Wettbewerb #%s, mit %s Abgabe(n)",
+             titel, tid, cid, abgaben)
     # Redirect back to tasks list
     return redirect(url_for('admin.challenge_tasks', cid=cid))
 
@@ -539,6 +569,7 @@ def task_edit(tid):
         for feld, wert in werte.items():
             setattr(task, feld, wert)
         db.session.commit()
+        ereignis("Aufgabe bearbeitet: „%s“ (#%s)", task.title, task.id)
 
         for hinweis in hinweise:
             flash(hinweis, "warning")
@@ -726,8 +757,10 @@ def submission_allow_resubmit(submission_id):
 @admin_bp.route("/reset/<int:submission_id>", methods=["POST"])
 def submission_reset(submission_id):
     submission = db.get_or_404(Submission, submission_id)
+    team, aufgabe = submission.team.name, submission.task.title
     db.session.delete(submission)
     db.session.commit()
+    ereignis("Abgabe zurückgesetzt: Team „%s“, Aufgabe „%s“", team, aufgabe)
     return redirect(url_for('admin.submissions'))
 
 def safe_name(text):
@@ -838,6 +871,9 @@ def team_reset_password(team_id):
         db.session.commit()
         # The password is deliberately not echoed back: the admin screen may be
         # projected during an event, and whoever typed it already knows it.
+        # Das Passwort selbst gehört nicht ins Protokoll - die Datei liegt
+        # offen im Installationsverzeichnis.
+        ereignis("Passwort von Team „%s“ (#%s) zurückgesetzt", team.name, team.id)
         flash(f"Neues Passwort für Team „{team.name}“ gespeichert.", "success")
 
     return redirect(url_for('admin.teams'))
@@ -845,8 +881,12 @@ def team_reset_password(team_id):
 @admin_bp.route("/team/delete/<int:team_id>", methods=["POST"])
 def team_delete(team_id):
     team = db.get_or_404(Team, team_id)
+    # Alles vor dem Löschen merken: Danach gibt das Objekt nichts mehr her.
+    name, cid, abgaben = team.name, team.challenge_id, len(team.submissions)
     db.session.delete(team)
     db.session.commit()
+    ereignis("Team gelöscht: „%s“ (#%s) aus Wettbewerb #%s, mit %s Abgabe(n)",
+             name, team_id, cid, abgaben)
     return redirect(url_for('admin.teams'))
 
 def _certificate_challenge():
@@ -869,6 +909,21 @@ def _certificate_data(challenge):
 
     tasks, standings = get_standings(challenge)
     return challenge, standings, len(tasks)
+
+def erzeugte_urkunden(challenge, entries, task_count, wer, ausrichtung):
+    """Das PDF - und bei einem Fehlschlag eine brauchbare Zeile im Protokoll.
+
+    Der Traceback allein sagt nicht, für wen gedruckt werden sollte. Gerade
+    das ist aber die Frage, wenn am Tag der Siegerehrung ein Team kein Blatt
+    bekommt: An welchem Namen scheitert es?
+    """
+    try:
+        return build_certificates_for(challenge, entries, task_count)
+    except Exception as fehler:
+        stoerung("Urkunde konnte nicht erzeugt werden: %s, Wettbewerb „%s“, %s - %s",
+                 wer, challenge.title if challenge else "-", ausrichtung, fehler)
+        raise
+
 
 @admin_bp.route("/urkunden")
 def certificates_print():
@@ -900,7 +955,13 @@ def certificates_pdf():
         flash("Es sind noch keine Teams registriert – es gibt nichts zu drucken.", "warning")
         return redirect(url_for('admin.certificates_print'))
 
-    pdf_bytes = build_certificates_for(challenge, standings, task_count)
+    ausrichtung = certificate_orientation(Settings.get().certificate_orientation)["kurz"]
+    pdf_bytes = erzeugte_urkunden(challenge, standings, task_count,
+                                  f"{len(standings)} Team(s)", ausrichtung)
+
+    ereignis("Urkunden erzeugt: %s Team(s), Wettbewerb „%s“ (#%s), %s",
+             len(standings), challenge.title, challenge.id, ausrichtung)
+
     return send_file(
         io.BytesIO(pdf_bytes),
         mimetype="application/pdf",
@@ -918,7 +979,13 @@ def certificate_pdf_single(team_id):
     challenge, standings, task_count = _certificate_data(team.challenge or Challenge.current())
 
     entry = certificate_entry(team, standings)
-    pdf_bytes = build_certificates_for(challenge, [entry], task_count)
+    ausrichtung = certificate_orientation(Settings.get().certificate_orientation)["kurz"]
+    pdf_bytes = erzeugte_urkunden(challenge, [entry], task_count,
+                                  f"Team „{team.name}“", ausrichtung)
+
+    ereignis("Urkunde erzeugt: Team „%s“ (#%s), Wettbewerb „%s“, %s",
+             team.name, team.id, challenge.title if challenge else "-", ausrichtung)
+
     return send_file(
         io.BytesIO(pdf_bytes),
         mimetype="application/pdf",
@@ -926,11 +993,26 @@ def certificate_pdf_single(team_id):
         download_name=f"Urkunde_{safe_name(team.name)}.pdf"
     )
 
+# Die Felder der Einstellungen, mit dem Namen, den sie auf der Seite tragen.
+# Ins Protokoll geht nur, was sich wirklich geändert hat: „Einstellungen
+# gespeichert“ allein sagt im Nachhinein nichts, und die Werte selbst - der
+# Name auf der Unterschrift etwa - haben dort nichts zu suchen.
+EINSTELLUNGSFELDER = {
+    "site_name": "Standardname",
+    "tagline": "Untertitel",
+    "signature_name": "Unterschrift",
+    "signature_font": "Schrift der Unterschrift",
+    "member_names_enabled": "Namen der Teammitglieder",
+    "certificate_orientation": "Ausrichtung der Urkunden",
+}
+
+
 @admin_bp.route("/settings", methods=["GET", "POST"])
 def settings():
     site_settings = Settings.get()
 
     if request.method == "POST":
+        vorher = {feld: getattr(site_settings, feld) for feld in EINSTELLUNGSFELDER}
         site_name = request.form.get("site_name", "").strip()[:MAX_SEITENNAME]
         tagline = request.form.get("tagline", "").strip()[:MAX_UNTERTITEL]
         if site_name:
@@ -954,6 +1036,12 @@ def settings():
         )
 
         db.session.commit()
+
+        geaendert = [name for feld, name in EINSTELLUNGSFELDER.items()
+                     if getattr(site_settings, feld) != vorher[feld]]
+        if geaendert:
+            ereignis("Einstellungen geändert: %s", ", ".join(geaendert))
+
         flash("Einstellungen gespeichert.", "success")
         return redirect(url_for('admin.settings'))
 

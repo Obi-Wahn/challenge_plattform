@@ -26,6 +26,7 @@ from flask import Flask
 from config import Config
 from extensions import db, csrf, limiter
 from network import FESTE_ADRESSE, lan_adresse, server_port
+from protokoll import ereignis
 from blueprints.auth import auth_bp
 from blueprints.public import public_bp
 from blueprints.challenge import challenge_bp
@@ -245,7 +246,7 @@ def create_app():
 
 def register_error_handlers(app):
     """Zeigt für jeden Fehler eine Seite der Anwendung statt der des Servers."""
-    from flask import render_template
+    from flask import render_template, request
 
     def fehlerseite(code):
         zeichen, ueberschrift, erklaerung = FEHLERSEITEN[code]
@@ -272,6 +273,15 @@ def register_error_handlers(app):
         # am Ende alle Handler auf dieselbe letzte Zahl.
         @app.errorhandler(code)
         def zeigen(error, code=code):
+            if code == 413:
+                # Eine zu große Datei bricht die Anfrage ab, bevor die Route
+                # läuft - hier ist die einzige Stelle, an der diese Ablehnung
+                # überhaupt noch festzuhalten ist. Team und Aufgabe stehen
+                # nicht zur Verfügung, die Adresse nennt die Aufgabe.
+                ereignis(
+                    "Abgabe abgelehnt: Datei zu groß (mehr als %s MB), %s von %s",
+                    app.config["MAX_CONTENT_LENGTH"] // (1024 * 1024),
+                    request.path, request.remote_addr or "unbekannt")
             if code == 500:
                 # Nach einem Fehler steht die Sitzung der Datenbank womöglich
                 # quer. Die Fehlerseite fragt aber selbst noch einmal nach dem

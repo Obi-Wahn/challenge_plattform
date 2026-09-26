@@ -5,6 +5,7 @@ from models import Team, Challenge
 from scoring import get_standings, get_podium
 from sitzung import team_abmelden, team_anmelden
 from network import join_url
+from protokoll import ereignis
 import base64
 import io
 import qrcode
@@ -116,6 +117,9 @@ def index():
             # bei einem schon vergebenen Namen.
             db.session.rollback()
             return mit_fehler("Teamname vergeben. Bitte einloggen oder anderen Namen wählen.")
+
+        ereignis("Team angelegt: „%s“ (#%s) in Wettbewerb „%s“ (#%s)",
+                 new_team.name, new_team.id, challenge.title, challenge.id)
 
         # Auto-login
         team_anmelden(new_team)

@@ -374,10 +374,30 @@ Fehler und wichtige Ereignisse landen in `logs/anwendung.log` – mit
 Zeitstempel und der Adresse der Seite, auf der es passiert ist:
 
 ```
+2026-09-20 09:14:02  INFO     Wettbewerb angelegt: „Scratch-Tag 6b“ (#7)
+2026-09-20 09:15:40  INFO     Team angelegt: „Die Pixelpiraten“ (#3) in Wettbewerb „Scratch-Tag 6b“ (#7)
+2026-09-20 10:02:11  INFO     Abgabe abgelehnt: Team „Die Pixelpiraten“, Aufgabe „Katze bewegen“ - falsche Endung: „loesung.docx“, erwartet .sb3
+2026-09-20 10:31:55  WARNING  Admin-Anmeldung fehlgeschlagen, von 192.168.1.44
 2026-09-20 14:32:07  ERROR    Exception on /scoreboard [GET]
 Traceback (most recent call last):
   ...
 ```
+
+Festgehalten wird, was etwas **anlegt, ändert oder wegnimmt** – und was
+**schiefgeht**:
+
+| Wann | Was im Protokoll steht |
+|---|---|
+| Aufbau | Wettbewerb angelegt, bearbeitet, aktiv geschaltet, gelöscht · Team angelegt, gelöscht, Passwort zurückgesetzt · übernommene Teams · Aufgabe angelegt, bearbeitet, gelöscht · Aufgaben gesichert und eingelesen · geänderte Einstellungen (nur welche Felder) |
+| Wettbewerbstag | abgelehnte Abgabe samt Grund (falsche Endung, zu groß, pausiert, beendet, schon abgegeben) · zurückgesetzte Abgabe · fehlgeschlagene Admin-Anmeldung mit Adresse |
+| Zum Abschluss | erzeugte Urkunden (Wettbewerb, Anzahl, Ausrichtung) · gesicherte Datenbank |
+| Störungen | eine Datei, die nicht gelöscht werden konnte · eine Urkunde, die nicht erzeugt werden konnte · jeder unbehandelte Fehler mit Traceback |
+
+Der gewöhnliche Betrieb bleibt **absichtlich still**: kein Seitenaufruf, keine
+An- und Abmeldung eines Teams, keine eingegangene Abgabe, keine einzelne
+Bewertung, kein Start und keine Pause. Sonst wäre die Datei nach einer
+Schulstunde nicht mehr zu lesen – und genau dann soll sie gebraucht werden
+können. Passwörter stehen nie darin, auch keine geratenen.
 
 Der Sinn: Ohne diese Datei stünde ein Traceback nur im Terminalfenster. Wer
 es schließt oder den Server als Dienst laufen lässt, hätte nach einer Störung
@@ -466,7 +486,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | --- | --- |
 | `test_starter.py` | die Schritte hinter den Startdateien, ohne echtes pip und git |
 | `test_netzwerk.py` | die Adresse, unter der die Teams den Server erreichen |
-| `test_protokoll.py` | `logs/anwendung.log` entsteht und füllt sich |
+| `test_protokoll.py` | `logs/anwendung.log` entsteht, hält die wichtigen Ereignisse fest und bleibt beim gewöhnlichen Betrieb still |
 | `test_migrations.py` | Datenbank aus einer älteren Version weiterbenutzen |
 | `test_task_exchange.py` | Aufgaben sichern und wiederverwenden |
 | `test_schwierigkeit.py` | die Schwierigkeit einer Aufgabe, von der Eingabe bis in die Datei |

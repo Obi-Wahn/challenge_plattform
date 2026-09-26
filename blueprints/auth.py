@@ -2,6 +2,7 @@ import secrets
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, current_app
 from extensions import limiter
+from protokoll import absender, stoerung
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -27,6 +28,9 @@ def admin_login():
             session["is_admin"] = True
             return redirect(url_for('admin.dashboard')) # Assuming admin blueprint has a dashboard route
         else:
+            # Im Schul-LAN ist das Protokoll der einzige Ort, an dem zu sehen
+            # ist, dass jemand das Admin-Passwort ausprobiert hat.
+            stoerung("Admin-Anmeldung fehlgeschlagen, von %s", absender())
             return render_template(
                 "admin/login.html",
                 error="Falsches Passwort"

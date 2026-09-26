@@ -6,6 +6,7 @@ from models import (Challenge, Task, Submission, Settings, MAX_MEMBERS,
 from sitzung import angemeldetes_team
 from uploads import zum_loeschen_vormerken
 from scoring import get_standings
+from protokoll import ereignis
 from certificates import build_certificates_for, certificate_entry, names_line
 from werkzeug.utils import secure_filename
 import io
@@ -260,6 +261,19 @@ def zurueck_mit_meldung(text, kategorie="warning"):
     return redirect(url_for("challenge.view"))
 
 
+def abgabe_abgelehnt(grund, text, team, task):
+    """Weist die Abgabe ab und hält den Grund im Protokoll fest.
+
+    Dass eine Abgabe angekommen ist, steht in der Bewertungsliste - dass eine
+    **nicht** angekommen ist, stand bisher nirgends. Genau danach wird aber
+    gefragt: „Wir haben doch abgegeben.“ Hier ist im Nachhinein zu sehen, wer
+    es wann versucht hat und woran es lag.
+    """
+    ereignis("Abgabe abgelehnt: Team „%s“, Aufgabe „%s“ - %s",
+             team.name, task.title, grund)
+    return zurueck_mit_meldung(text)
+
+
 @challenge_bp.route("/submit/<int:task_id>", methods=["POST"])
 def submit_task(task_id):
     # Submissions are only accepted for the active competition,
@@ -279,9 +293,11 @@ def submit_task(task_id):
 
     # Closed means closed: paused, or past the end time.
     if not challenge.accepts_submissions:
-        return zurueck_mit_meldung(
+        return abgabe_abgelehnt(
+            "pausiert oder beendet",
             "Abgaben sind gerade gesperrt - der Wettbewerb ist beendet oder "
-            "pausiert. Gespeichert wurde nichts."
+            "pausiert. Gespeichert wurde nichts.",
+            team, task
         )
 
     team_id = team.id
@@ -290,22 +306,30 @@ def submit_task(task_id):
     # released this submission for a correction.
     existing = Submission.query.filter_by(team_id=team_id, task_id=task_id).first()
     if existing and not existing.resubmit_allowed:
-        return zurueck_mit_meldung(
+        return abgabe_abgelehnt(
+            "schon abgegeben, keine Freigabe zum Ersetzen",
             f"„{task.title}“ habt ihr schon abgegeben. Soll die Abgabe ersetzt "
-            "werden, muss die Lehrkraft sie dafür freigeben."
+            "werden, muss die Lehrkraft sie dafür freigeben.",
+            team, task
         )
 
     if "file" not in request.files:
-        return zurueck_mit_meldung("Es war keine Datei dabei - gespeichert wurde nichts.")
+        return abgabe_abgelehnt(
+            "keine Datei dabei",
+            "Es war keine Datei dabei - gespeichert wurde nichts.", team, task)
 
     file = request.files["file"]
     if file.filename == "":
-        return zurueck_mit_meldung("Es war keine Datei ausgewählt - gespeichert wurde nichts.")
+        return abgabe_abgelehnt(
+            "keine Datei ausgewählt",
+            "Es war keine Datei ausgewählt - gespeichert wurde nichts.", team, task)
 
     if not allowed_file(file.filename, task.allowed_extension):
-        return zurueck_mit_meldung(
+        return abgabe_abgelehnt(
+            f"falsche Endung: „{file.filename}“, erwartet {task.allowed_extension}",
             f"„{task.title}“ nimmt nur Dateien mit der Endung "
-            f"{task.allowed_extension} an - gespeichert wurde nichts."
+            f"{task.allowed_extension} an - gespeichert wurde nichts.",
+            team, task
         )
 
     filename = gekuerzter_dateiname(secure_filename(file.filename))
