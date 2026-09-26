@@ -59,6 +59,25 @@
 </p>
 {% endif %}
 
+<!-- Pause -->
+<!-- Die Zeitleiste allein ist zu leise: Wer gerade auf eine Aufgabe schaut,
+     wundert sich bloß, warum der Abgabeknopf nicht mehr geht. Der Kasten sagt
+     es in der Sprache der Beamerseite. Die Aufgaben bleiben absichtlich
+     lesbar - in der Pause darf ein Team nachdenken und nachlesen, es darf nur
+     nichts abgeben. -->
+{% if challenge.paused %}
+<div class="event-card pause-kasten mb-4 text-center">
+  <h2 class="mb-2">⏸ Kurze Pause</h2>
+  <p class="mb-1">
+    Der Wettbewerb ist gerade pausiert. Abgeben geht erst wieder, wenn es weitergeht.
+  </p>
+  <p class="text-secondary mb-0">
+    {% if seconds %}Eure Restzeit steht still, es geht keine Zeit verloren.{% endif %}
+    Ihr müsst nichts tun - die Seite meldet sich von selbst.
+  </p>
+</div>
+{% endif %}
+
 <!-- Namen für die Urkunde -->
 {% if member_names_enabled %}
 <div class="event-card mb-3">
@@ -240,9 +259,10 @@
     }
 
     if (rest <= 0) {
-      // Bewusst kein automatisches Neuladen: Es würde eine laufende Abgabe
-      // abbrechen. Deshalb steht hier nur, dass es so weit ist, und daneben
-      // ein Link, den das Team selbst antippt.
+      // Hier wird nicht neu geladen: Maßgeblich ist die Zeit des Servers, und
+      // ob der Wettbewerb wirklich vorbei ist, sagt die Standabfrage. Bis sie
+      // es tut, steht hier nur, dass es so weit ist, und daneben ein Link,
+      // den das Team selbst antippen kann.
       uhr.innerText = "00:00";
       stand.innerText = leiste.dataset.endeStand;
       wort.innerText = leiste.dataset.endeWort;
@@ -280,8 +300,110 @@
 </script>
 {% endif %}
 
-<!-- Die Seite lädt sich bewusst nicht selbst neu: Das brach eine laufende
-     Abgabe ab. Steht die Uhr bei null, erscheint stattdessen der Link in der
-     Zeitleiste, den das Team selbst antippt. -->
+<!-- Die Uhr selbst lädt die Seite nie neu, auch nicht bei null: Sie weiß
+     nichts davon, wie der Server die Zeit sieht. Neu geladen wird allein über
+     die Standabfrage darunter, und die tut es nicht, während eine Abgabe
+     unterwegs ist. -->
+
+<script>
+  // Fragt im Takt, ob die Seite noch aktuell ist, und lädt sie neu, wenn nicht.
+  // Vorher merkte ein Team mit offener Seite nichts davon, dass die Lehrkraft
+  // pausiert, fortgesetzt oder einen Hinweis freigeschaltet hat - es musste
+  // selbst neu laden, ohne einen Anlass dazu zu haben.
+  //
+  // Verglichen wird nur eine kurze Kennung, siehe seitenstand() im Server. Die
+  // Seite selbst wird dabei nicht gestückelt: Ändert sich etwas, lädt sie
+  // vollständig neu und der Server baut sie wie beim ersten Aufruf.
+  (function () {
+    const STAND = {{ stand | tojson }};
+    const ZIEL = {{ url_for('challenge.stand') | tojson }};
+    const STARTSEITE = {{ url_for('public.index') | tojson }};
+    const TAKT = {{ stand_takt }};
+
+    const neuLadenLink = document.getElementById("zeitleiste-neu");
+    let abgabeLaeuft = false;
+    let schonAngeboten = false;
+
+    // Ein Neuladen mitten im Hochladen bräche die Abgabe ab. Sobald ein Team
+    // abschickt, wird also nicht mehr neu geladen; ob es klappt oder nicht,
+    // entscheidet ohnehin die nächste Seite, die der Server schickt.
+    document.querySelectorAll("form[enctype='multipart/form-data']").forEach(function (form) {
+      form.addEventListener("submit", function () { abgabeLaeuft = true; });
+    });
+
+    function darfNeuLaden() {
+      if (abgabeLaeuft) {
+        return false;
+      }
+
+      // Eine ausgewählte, noch nicht abgeschickte Datei wäre nach dem
+      // Neuladen weg - das Team müsste sie erneut suchen.
+      for (const feld of document.querySelectorAll("input[type='file']")) {
+        if (feld.files && feld.files.length > 0) {
+          return false;
+        }
+      }
+
+      // Getippte, noch nicht gespeicherte Namen ebenso.
+      const namen = document.getElementById("member-names");
+      if (namen && namen.value !== namen.defaultValue) {
+        return false;
+      }
+
+      return true;
+    }
+
+    // Wenn gerade nicht neu geladen werden darf, bleibt die Änderung nicht
+    // stumm: Der Link in der Zeitleiste, der sonst am Ende der Zeit erscheint,
+    // sagt es und wartet auf einen Tipp. Beim nächsten Takt wird es erneut
+    // versucht - hat das Team zwischenzeitlich gespeichert, lädt die Seite von
+    // selbst.
+    function neuLadenAnbieten() {
+      if (schonAngeboten || !neuLadenLink) {
+        return;
+      }
+      neuLadenLink.innerText = "↻ Es hat sich etwas geändert - neu laden";
+      neuLadenLink.hidden = false;
+      schonAngeboten = true;
+    }
+
+    async function frageNachDemStand() {
+      let antwort;
+      try {
+        antwort = await fetch(ZIEL, { cache: "no-store" });
+      } catch (fehler) {
+        // Keine Antwort heißt nicht "es läuft wieder": Es bleibt beim letzten
+        // Stand vom Server, und beim nächsten Takt wird erneut gefragt. Eine
+        // Pause, von der der Server weiß, verschwindet hier also nicht, bloß
+        // weil das WLAN kurz weg war.
+        return;
+      }
+
+      if (!antwort.ok) {
+        return;
+      }
+
+      const daten = await antwort.json();
+
+      if (daten.angemeldet === false) {
+        // Der Wettbewerb ist gelöscht oder die Anmeldung gilt nicht mehr -
+        // dann gehört diese Seite auf die Startseite. Gespeichert werden kann
+        // hier ohnehin nichts mehr.
+        window.location.href = STARTSEITE;
+        return;
+      }
+
+      if (daten.stand && daten.stand !== STAND) {
+        if (darfNeuLaden()) {
+          window.location.reload();
+        } else {
+          neuLadenAnbieten();
+        }
+      }
+    }
+
+    setInterval(frageNachDemStand, TAKT);
+  })();
+</script>
 
 {% endblock %}

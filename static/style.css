@@ -193,6 +193,20 @@ input::placeholder, textarea::placeholder {
 .zeitleiste-knapp .zeitleiste-uhr { color: #fbbf24; }
 .zeitleiste-gleich .zeitleiste-uhr { color: #f87171; }
 
+/* ====== Pausenkasten auf der Wettbewerbsseite ====== */
+.pause-kasten {
+  /* Deutlich sichtbar, aber keine Fehlermeldung: dieselbe Karte wie sonst,
+     nur im Orange der Zeitleiste statt in Rot. */
+  border: 1px solid rgba(251, 191, 36, 0.55);
+  background: rgba(251, 191, 36, 0.08);
+}
+
+.pause-kasten h2 {
+  color: #fbbf24;
+  /* Auf einem Handy soll die Überschrift in einer Zeile stehen bleiben. */
+  font-size: clamp(1.4rem, 6vw, 2.2rem);
+}
+
 /* ====== Aufgabenliste im Admin-Bereich ====== */
 
 /* Der Umschalter heißt mal "sichtbar", mal "verborgen". Wäre er nur so breit

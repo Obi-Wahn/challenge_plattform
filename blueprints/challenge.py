@@ -1,5 +1,5 @@
 from flask import (Blueprint, render_template, request, redirect, url_for,
-                   abort, current_app, send_file, flash)
+                   abort, current_app, send_file, flash, jsonify)
 from extensions import db
 from models import (Challenge, Task, Submission, Settings, MAX_MEMBERS,
                     MAX_MEMBER_TEXT_LENGTH, format_member_names, parse_member_names)
@@ -69,6 +69,75 @@ def freier_pfad(pfad):
         if not os.path.exists(kandidat):
             return kandidat
 
+# Wie oft die offene Seite eines Teams nach dem Stand fragt, in Millisekunden.
+# 15 Sekunden sind nah genug, dass eine Pause nicht als Stillstand missdeutet
+# wird, und selten genug, dass dreißig Tablets im Schul-LAN nichts davon
+# merken.
+STAND_TAKT_MS = 15000
+
+def seitenstand(challenge):
+    """Kurze Kennung dessen, was die Wettbewerbsseite eines Teams zeigt.
+
+    Die Seite bekommt sie beim Ausliefern mit und fragt sie danach im Takt
+    beim Server nach. Ist sie eine andere geworden, ist die offene Seite
+    veraltet und wird neu geladen.
+
+    Drin steht, was ein Team sofort sehen muss: welcher Wettbewerb läuft, ob
+    er pausiert oder beendet ist, wann er anfängt und aufhört, welche Hinweise
+    freigeschaltet sind und wie viele Aufgaben es gibt.
+
+    Die Zeiten gehören dazu, weil die Uhr im Browser nichts davon weiß, wenn
+    die Lehrkraft die Dauer mitten im Wettbewerb neu setzt - die Seite zeigte
+    sonst bis zum nächsten Neuladen eine Restzeit, die es nicht mehr gibt.
+
+    Eine Bewertung gehört bewusst nicht dazu: Sie ändert nichts daran, was ein
+    Team gerade tun darf, und ein Neuladen mitten im Arbeiten kostet mehr, als
+    die Punkte ein paar Minuten früher zu zeigen.
+    """
+    hinweise = (
+        db.session.query(Task.id)
+        .filter(Task.challenge_id == challenge.id, Task.hint_visible.is_(True))
+        .order_by(Task.id)
+        .all()
+    )
+    anzahl = db.session.query(Task.id).filter(Task.challenge_id == challenge.id).count()
+
+    return ":".join([
+        str(challenge.id),
+        challenge.status(),
+        "pause" if challenge.paused else "lauf",
+        challenge.start_time.isoformat() if challenge.start_time else "-",
+        challenge.end_time.isoformat() if challenge.end_time else "-",
+        str(anzahl),
+        ",".join(str(nummer) for (nummer,) in hinweise),
+    ])
+
+
+@challenge_bp.route("/challenge/stand")
+def stand():
+    """Der Stand als JSON, für die offene Seite eines Teams.
+
+    Bewusst eine schlanke Abfrage und kein zweiter Zustellweg: Es sind ein
+    paar Dutzend Geräte in einem Schul-LAN, und eine Anfrage alle 15 Sekunden
+    ist billiger zu haben und zu verstehen als WebSockets oder SSE.
+
+    "angemeldet": false heißt, dass die Seite dort nicht mehr hingehört - der
+    Wettbewerb ist gelöscht oder das Team abgemeldet.
+    """
+    challenge = Challenge.current()
+    team = angemeldetes_team(challenge)
+
+    if team is None:
+        antwort = jsonify({"angemeldet": False})
+    else:
+        antwort = jsonify({"angemeldet": True, "stand": seitenstand(challenge)})
+
+    # Eine zwischengespeicherte Antwort wäre hier das Gegenteil des Zwecks:
+    # Die Seite fragt ja gerade, weil sich etwas geändert haben kann.
+    antwort.headers["Cache-Control"] = "no-store"
+    return antwort
+
+
 @challenge_bp.route("/challenge")
 def view():
     # Teams always see the currently active competition.
@@ -110,7 +179,11 @@ def view():
         member_names_text=team.member_names or "",
         member_list=team.member_list,
         members_approved=team.members_approved,
-        max_members=MAX_MEMBERS
+        max_members=MAX_MEMBERS,
+        # Damit die Seite selbst merkt, wenn sie veraltet ist - siehe
+        # seitenstand().
+        stand=seitenstand(challenge),
+        stand_takt=STAND_TAKT_MS
     )
 
 
