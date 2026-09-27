@@ -104,6 +104,12 @@
   </div>
 </div>
 
+<div class="mb-4">
+  <a href="{{ url_for('admin.challenge_new') }}" class="btn btn-outline-light">
+    ➕ Neuer Wettbewerb
+  </a>
+</div>
+
 <!-- ===== VORBEREITUNG ===== -->
 <!-- Reihenfolge wie auf der Wettbewerbsseite: erst der Wettbewerb selbst,
      dann wer mitmacht, dann was zu tun ist. -->
@@ -174,12 +180,31 @@
   </div>
 </div>
 
+<!-- ===== WEITERE WETTBEWERBE ===== -->
+<!-- Getrennt nach dem, was man mit ihnen noch vorhat: einen offenen
+     aktiviert man weiter, einen beendeten holt man nur noch hervor. Die
+     beendeten wachsen über die Jahre und stehen deshalb zugeklappt. -->
+{% if offene %}
+<h5 class="text-secondary text-uppercase mb-3 section-label">Weitere Wettbewerbe</h5>
+<div class="mb-4">
+  {% for c in offene %}{% include "admin/_wettbewerbszeile.html" %}{% endfor %}
+</div>
+{% endif %}
+
+{% if beendete %}
+<details class="wettbewerbe-beendet mb-5">
+  <summary class="text-secondary text-uppercase section-label">
+    Beendet ({{ beendete | length }})
+  </summary>
+  <div class="mt-3">
+    {% for c in beendete %}{% include "admin/_wettbewerbszeile.html" %}{% endfor %}
+  </div>
+</details>
+{% endif %}
+
 {% endif %}
 
 <div class="d-flex flex-wrap align-items-center gap-3">
-  <a href="{{ url_for('admin.challenges_list') }}" class="btn btn-sm btn-outline-light">
-    🏁 Alle Wettbewerbe{% if challenge_count %} ({{ challenge_count }}){% endif %}
-  </a>
   <a href="{{ url_for('auth.admin_logout') }}" class="btn btn-sm btn-outline-secondary">
     🔓 Abmelden
   </a>
