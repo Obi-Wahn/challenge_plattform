@@ -34,9 +34,9 @@ import time
 import venv
 import webbrowser
 
-# Die älteste Fassung, mit der die Abhängigkeiten laufen (fpdf2 verlangt
-# sie). Dieselbe Zahl steht in der README und in der CI.
-MINDEST_PYTHON = (3, 10)
+# Die älteste Fassung, mit der die Abhängigkeiten laufen (Markdown verlangt
+# sie). Dieselbe Zahl steht in app.py, in der README und in der CI.
+MINDEST_PYTHON = (3, 11)
 
 BASIS = os.path.dirname(os.path.abspath(__file__))
 UMGEBUNG = ".venv"
@@ -143,6 +143,11 @@ def umgebung_sicherstellen(basis=BASIS, anlegen=None, laeuft=umgebung_laeuft):
     Schulnetz würde sonst eine funktionierende durch eine kaputte ersetzt.
     Die Übersicht nennt die Version, wer wechseln will, löscht .venv.
 
+    Ausgenommen ist eine Umgebung mit einem Python unter MINDEST_PYTHON: In
+    ihr lassen sich die Pakete nicht mehr installieren, sie wird also ohnehin
+    nicht mehr laufen. Das betrifft etwa eine .venv mit Python 3.10, die vor
+    der Anhebung auf 3.11 angelegt wurde.
+
     Eine, die nicht mehr läuft, ist ohnehin verloren und wird neu angelegt.
     Ebenso ein Ordner .venv ohne Python darin - ein abgebrochener früherer
     Versuch. Die Pakete folgen von selbst: Ihr Vermerk lag in der alten
@@ -154,9 +159,13 @@ def umgebung_sicherstellen(basis=BASIS, anlegen=None, laeuft=umgebung_laeuft):
     # lexists: Unter Linux und macOS ist das Python in .venv eine
     # Verknüpfung, die nach dem Deinstallieren ins Leere zeigt.
     if os.path.lexists(umgebungs_python(basis)):
-        if laeuft(basis):
+        version = umgebungs_version(basis)
+        if version and tuple(int(teil) for teil in version.split(".")) < MINDEST_PYTHON:
+            ergebnis = f"neu angelegt, die alte hatte Python {version}"
+        elif laeuft(basis):
             return mit_version("vorhanden", basis)
-        ergebnis = "neu angelegt, die alte lief nicht mehr"
+        else:
+            ergebnis = "neu angelegt, die alte lief nicht mehr"
 
     anlegen = anlegen or (lambda pfad: venv.create(pfad, with_pip=True, clear=True))
 

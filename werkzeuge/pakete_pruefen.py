@@ -16,9 +16,11 @@ Sicherheitskorrektur erschienen ist.
             pip install -r requirements.txt -r requirements-dev.txt
             pytest
 
-Gemeldet wird auch, wenn eine neue Fassung ein neueres Python verlangt, als
-die Anwendung voraussetzt - dann bringt das Aktualisieren nichts, solange
-der Schul-PC nicht mitzieht.
+Verlangt eine neue Fassung ein neueres Python, als die Anwendung voraussetzt,
+steht sie mit "nicht übernehmen" in der Liste und wird nicht vorgeschlagen.
+Auch --setzen lehnt sie ab: Auf einem Schul-PC mit dem ältesten erlaubten
+Python ließe sie sich nicht installieren, auch wenn es am eigenen Rechner mit
+einem neueren Python klappt.
 
 Das Skript braucht Internet. Also am heimischen Rechner ausführen, nicht
 während eines Wettbewerbs.
@@ -39,7 +41,7 @@ PYPI = "https://pypi.org/pypi"
 
 # Das Python, das die Anwendung voraussetzt. Steht auch in app.py - dort
 # bricht der Start darunter ab.
-MINDEST_PYTHON = (3, 10)
+MINDEST_PYTHON = (3, 11)
 
 # "Flask==3.0.0" oder "qrcode[pil]==8.2"
 ZEILE = re.compile(r"^([A-Za-z0-9._-]+)(\[[^\]]*\])?==([^\s#]+)")
@@ -56,8 +58,11 @@ def gepinnte_pakete(pfad):
     return pakete
 
 
-def pypi_daten(name):
+def pypi_daten(name, version=None):
+    """Die Angaben von PyPI zur neusten Fassung, oder zu der genannten."""
     url = f"{PYPI}/{urllib.parse.quote(name)}/json"
+    if version:
+        url = f"{PYPI}/{urllib.parse.quote(name)}/{urllib.parse.quote(version)}/json"
     with urllib.request.urlopen(url, timeout=30) as antwort:
         return json.loads(antwort.read())
 
@@ -80,6 +85,10 @@ def vorabfassung(version):
     return bool(re.search(r"(a|b|rc|dev)\d*$", version))
 
 
+def mindest_text():
+    return ".".join(map(str, MINDEST_PYTHON))
+
+
 def python_zu_neu(requires_python):
     """True, wenn die Fassung ein neueres Python verlangt, als wir voraussetzen."""
     if not requires_python:
@@ -95,6 +104,7 @@ def pruefen():
     """Zeigt für jedes gepinnte Paket, ob es etwas Neueres gibt."""
     print("Vergleich mit PyPI:\n")
     neueres = []
+    zu_neu = []
     fehler = []
 
     for name_datei in DATEIEN:
@@ -117,14 +127,16 @@ def pruefen():
                 print(f"    {name + extras:<22} {hier:>10}      aktuell")
                 continue
 
-            hinweise = []
-            if version_teile(neuste)[0] > version_teile(hier)[0]:
-                hinweise.append("neue Hauptversion - Änderungsliste lesen")
             if python_zu_neu(braucht):
-                hinweise.append(f"braucht Python {braucht} - die Anwendung "
-                                f"setzt {'.'.join(map(str, MINDEST_PYTHON))} voraus")
+                print(f"    {name + extras:<22} {hier:>10}  ->  {neuste}  "
+                      f"(nicht übernehmen: braucht Python {braucht}, die Anwendung "
+                      f"setzt {mindest_text()} voraus)")
+                zu_neu.append(name)
+                continue
 
-            anhang = f"  ({' · '.join(hinweise)})" if hinweise else ""
+            anhang = ""
+            if version_teile(neuste)[0] > version_teile(hier)[0]:
+                anhang = "  (neue Hauptversion - Änderungsliste lesen)"
             print(f"    {name + extras:<22} {hier:>10}  ->  {neuste}{anhang}")
             neueres.append((name, neuste))
         print()
@@ -140,10 +152,36 @@ def pruefen():
         print("  pytest")
         print("\nEines nach dem anderen deshalb, weil sich bei einem Fehlschlag "
               "sonst nicht sagen lässt, welches Paket ihn verursacht hat.")
+    elif zu_neu:
+        print("Nichts zu übernehmen: Das Neuere braucht ein neueres Python, "
+              "als die Anwendung voraussetzt.")
     else:
         print("Alles auf dem neusten Stand.")
 
     return bool(neueres)
+
+
+def python_passt(name, version):
+    """Fragt PyPI, ob die Fassung mit dem vorausgesetzten Python läuft.
+
+    Ohne Internet lässt sich das nicht prüfen - dann wird trotzdem gesetzt,
+    mit einem Hinweis, denn pip und pytest brauchen danach ohnehin das Netz.
+    """
+    try:
+        daten = pypi_daten(name, version)
+        braucht = daten["info"].get("requires_python") or ""
+    except (urllib.error.URLError, KeyError, ValueError) as problem:
+        print(f"Hinweis: Bei PyPI ließ sich nicht nachsehen, welches Python "
+              f"{name} {version} braucht ({problem}).\n")
+        return True
+
+    if python_zu_neu(braucht):
+        print(f"{name} {version} braucht Python {braucht}, die Anwendung setzt "
+              f"{mindest_text()} voraus. Nicht eingetragen.\n"
+              f"Am eigenen Rechner mit einem neueren Python liefe es, auf einem "
+              f"Schul-PC mit Python {mindest_text()} ließe es sich nicht installieren.")
+        return False
+    return True
 
 
 def setzen(angabe):
@@ -166,6 +204,8 @@ def setzen(angabe):
             if treffer and treffer.group(1).lower() == name.lower():
                 extras = treffer.group(2) or ""
                 alt = treffer.group(3)
+                if not python_passt(treffer.group(1), version):
+                    return 1
                 zeilen[stelle] = f"{treffer.group(1)}{extras}=={version}\n"
                 pfad.write_text("".join(zeilen), encoding="utf-8")
                 print(f"{treffer.group(1)}{extras}: {alt} -> {version} ({name_datei})")
