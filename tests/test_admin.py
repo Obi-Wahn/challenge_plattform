@@ -82,14 +82,41 @@ class TestSteuerzentrale:
         assert "Noch kein Wettbewerb angelegt" in html
         assert "Ersten Wettbewerb anlegen" in html
 
-    def test_listet_nicht_alle_wettbewerbe_auf(self, admin, make_challenge):
-        """Die doppelte Liste unten auf der Seite ist absichtlich weg."""
+    def test_listet_die_anderen_wettbewerbe_auf(self, admin, make_challenge):
+        """Die anderen Wettbewerbe stehen unten - der aktive nur oben.
+
+        Bis September 2026 gab es dafür eine eigene Seite unter
+        /admin/challenges. Sie trug nichts, was hier nicht auch Platz hat.
+        """
         make_challenge(title="Alter Wettbewerb", active=False)
         make_challenge(title="Aktueller Wettbewerb", active=True)
 
         html = admin.get("/admin/dashboard").get_data(as_text=True)
 
-        assert "Alter Wettbewerb" not in html
+        assert "Weitere Wettbewerbe" in html
+
+        unten = html.split("Weitere Wettbewerbe", 1)[1]
+        assert "Alter Wettbewerb" in unten
+        # Der aktive steht in der Statuszeile oben, nicht noch einmal unten.
+        assert "Aktueller Wettbewerb" not in unten.split("Abmelden", 1)[0]
+
+    def test_beendete_stehen_zugeklappt_fuer_sich(self, admin, make_challenge):
+        vergangen = datetime.now() - timedelta(days=7)
+        make_challenge(title="Alter Wettbewerb", active=False,
+                       start_time=vergangen, end_time=vergangen + timedelta(hours=1))
+        make_challenge(title="Aktueller Wettbewerb", active=True)
+
+        html = admin.get("/admin/dashboard").get_data(as_text=True)
+
+        assert "Beendet (1)" in html
+        # Ein beendeter Wettbewerb lässt sich nicht mehr aktivieren.
+        assert "Weitere Wettbewerbe" not in html
+
+    def test_alte_uebersichtsseite_leitet_auf_die_steuerzentrale(self, admin):
+        antwort = admin.get("/admin/challenges")
+
+        assert antwort.status_code == 302
+        assert antwort.headers["Location"].endswith("/admin/dashboard")
 
 
 class TestWettbewerbsSeite:

@@ -120,24 +120,26 @@ def index():
 
 @admin_bp.route("/dashboard")
 def dashboard():
-    # The control centre is about one competition: the current one. Everything
-    # else (older competitions) lives on the competition list.
+    # Die Steuerzentrale ist die eine Adminseite: oben der laufende
+    # Wettbewerb, unten alle anderen. Getrennt wird nach dem, was man mit
+    # ihnen noch vorhat - einen offenen aktiviert man weiter, einen beendeten
+    # holt man nur noch für Urkunden und Rangliste hervor.
     challenge = Challenge.current()
+    andere = [c for c in Challenge.query.order_by(Challenge.id.desc()).all()
+              if not challenge or c.id != challenge.id]
     return render_template(
         "admin/dashboard.html",
         challenge=challenge,
         overview=challenge_overview(challenge),
-        challenge_count=Challenge.query.count()
+        offene=[c for c in andere if c.status() != "finished"],
+        beendete=[c for c in andere if c.status() == "finished"]
     )
 
 @admin_bp.route("/challenges")
 def challenges_list():
-    challenges = Challenge.query.order_by(Challenge.id.desc()).all()
-    return render_template(
-        "admin/challenges.html",
-        challenges=challenges,
-        current=Challenge.current()
-    )
+    """Die eigene Übersichtsseite gibt es nicht mehr - ihr Inhalt steht in der
+    Steuerzentrale. Die Adresse bleibt für alte Lesezeichen."""
+    return redirect(url_for('admin.dashboard'))
 
 @admin_bp.route("/wettbewerb/<int:cid>")
 def challenge_detail(cid):

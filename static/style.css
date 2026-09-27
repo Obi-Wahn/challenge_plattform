@@ -293,3 +293,24 @@ input::placeholder, textarea::placeholder {
 .task-einleitung p:last-child {
   margin-bottom: 0.4rem;
 }
+
+/* ====== Weitere Wettbewerbe in der Steuerzentrale ====== */
+/* Schmaler als eine .event-card: Das sind Zeilen einer Liste, keine Karten,
+   und sie sollen unter den Kacheln nicht schwerer wiegen als diese. */
+.wettbewerbszeile {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 0.9rem 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.wettbewerbe-beendet > summary {
+  cursor: pointer;
+  letter-spacing: 1px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.wettbewerbe-beendet > summary:hover {
+  color: #fff;
+}
