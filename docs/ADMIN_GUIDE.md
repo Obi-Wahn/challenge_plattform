@@ -21,6 +21,10 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    Das braucht Internet – also zu Hause oder am Lehrerrechner, nicht am
    Wettbewerbstag.
 
+   Welche Fassung danach läuft, steht in der Startübersicht in der Zeile
+   **Version**, etwa „1.5.1 (Stand 27.09.2026)“. Mit der Nummer des neuesten
+   Releases auf GitHub vergleichen.
+
 2. **Tests laufen lassen**, wenn eine Entwicklungsumgebung eingerichtet ist:
    ```bash
    pip install -r requirements.txt -r requirements-dev.txt
@@ -217,6 +221,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Wann wurde der Tipp freigegeben? | Steht in `logs/anwendung.log`, mit Zeitstempel und Aufgabe – auch, wenn er wieder verborgen wurde. |
 | „Wir haben doch abgegeben!“ | In `logs/anwendung.log` steht jede **abgelehnte** Abgabe mit Team, Aufgabe und Grund – falsche Endung, Datei zu groß, Wettbewerb pausiert oder beendet, oder schon abgegeben. Eine angekommene Abgabe steht dort nicht, die sieht man unter **Bewertungen**. |
 | Nach STRG+C fragt Windows „Batchvorgang abbrechen (J/N)?“ | Die Frage stellt Windows bei jeder `.bat`-Datei. Die Plattform ist da schon beendet – J oder N, beides schließt das Fenster. |
+| Welche Fassung läuft hier? | Steht beim Start in der Übersicht in der Zeile **Version** und bei jedem Start in `logs/anwendung.log`. „+ 3 Änderungen“ heißt: drei Änderungen nach diesem Release. „unbekannt“ heißt nur, dass weder git noch die `stand.txt` aus dem ZIP es verraten – etwa bei einem von Hand kopierten Ordner. Dann auf GitHub das aktuelle Release als ZIP holen. |
 | Die Anwendung startet nicht | Meldung lesen: Fehlt `SECRET_KEY` oder `ADMIN_PASSWORD` in der `.env`, sagt sie das. Bricht sie beim Sichern der Datenbank ab, ist meist die Platte voll. |
 
 > **Aus der Praxis:** Was ist dir tatsächlich passiert, das hier noch fehlt?
