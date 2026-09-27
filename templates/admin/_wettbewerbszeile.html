@@ -4,14 +4,16 @@
     <a href="{{ url_for('admin.challenge_detail', cid=c.id) }}"
       class="text-light text-decoration-none fw-semibold">{{ c.title }}</a>
 
-    {# Beendete stehen unter ihrer eigenen Überschrift - ein Abzeichen, das
-       dasselbe noch einmal sagt, braucht die Zeile dort nicht. #}
+    {# Kein grünes „läuft" hier: Diese Wettbewerbe sind nicht der aktive,
+       für die Teams läuft keiner von ihnen. Das Abzeichen meinte nur die
+       Uhr und las sich neben der Statuszeile wie ein zweiter laufender
+       Wettbewerb. „pausiert" und „geplant" bleiben - das will man wissen,
+       bevor man einen aktiviert. Beendete stehen unter ihrer eigenen
+       Überschrift und brauchen dort kein Abzeichen. #}
     {% if c.paused %}
     <span class="badge bg-warning text-dark">⏸ pausiert</span>
     {% elif c.status() == "upcoming" %}
     <span class="badge bg-info text-dark">🕒 geplant</span>
-    {% elif c.status() != "finished" %}
-    <span class="badge bg-success">🟢 läuft</span>
     {% endif %}
 
     <div class="text-secondary small mt-1">
