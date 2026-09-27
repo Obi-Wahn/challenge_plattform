@@ -65,8 +65,8 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Eigene Urkunde als PDF**: nach dem Ende des Wettbewerbs selbst herunterladbar.
 
 ### Für die Lehrkraft
-*   **Steuerzentrale**: Zustand, Teams, Aufgaben und offene Bewertungen auf einen Blick, die Kacheln nach Vorbereitung, Während des Wettbewerbs und Zum Abschluss sortiert.
-*   **Wettbewerbe verwalten**: anlegen, aktivieren, pausieren, beenden und wieder öffnen. Beim Anlegen lassen sich die Teams eines früheren Wettbewerbs übernehmen, mit Passwort und den Namen für die Urkunde.
+*   **Steuerzentrale**: Zustand, Teams, Aufgaben und offene Bewertungen auf einen Blick, die Kacheln nach Vorbereitung, Während des Wettbewerbs und Zum Abschluss sortiert. Darunter stehen die anderen Wettbewerbe, die beendeten zugeklappt für sich.
+*   **Wettbewerbe verwalten**: anlegen, aktivieren, pausieren, beenden und wieder öffnen – alles auf der Steuerzentrale. Beim Anlegen lassen sich die Teams eines früheren Wettbewerbs übernehmen, mit Passwort und den Namen für die Urkunde.
 *   **Eigener Name je Wettbewerb**: Name und Untertitel stehen überall – Startseite, Rangliste, Teamseite, Urkunden, Browsertitel, Leiste oben und Fußzeile – und bleiben beim Wettbewerb, wenn längst ein anderer läuft.
 *   **Aufgaben**: Beschreibung in Markdown, erlaubtes Dateiformat, Schwierigkeit (einfach, mittel, schwer oder keine Angabe), optionaler Tipp. Aufgaben lassen sich als JSON sichern, weitergeben und in einen anderen Wettbewerb einlesen — ohne Abgaben und Punkte. Fertige Sätze für Scratch und Calliope liegen unter `beispiele/` und sind mit einem Klick eingelesen.
 *   **Zeit im Griff**: Start- und Endzeit oder eine Dauer in Minuten samt „Jetzt starten für … Minuten"; die Pause hält die Uhr an, „Fortsetzen" schiebt das Ende um die Pausendauer nach hinten.
