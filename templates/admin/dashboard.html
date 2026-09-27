@@ -1,7 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2 class="mb-4">🎛 Steuerzentrale</h2>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+  <h2 class="mb-0">🎛 Steuerzentrale</h2>
+  {% if challenge %}
+  <a href="{{ url_for('admin.challenge_new') }}" class="btn btn-outline-light">
+    ➕ Neuer Wettbewerb
+  </a>
+  {% endif %}
+</div>
 
 {% if not challenge %}
 
@@ -31,7 +38,9 @@
 {% set here = url_for('admin.dashboard') %}
 
 <!-- ===== STATUSZEILE: der aktuelle Wettbewerb ===== -->
-<div class="event-card mb-5">
+<!-- Knapper Abstand nach unten: Die Kachelgruppen darunter gehoeren zu
+     diesem Wettbewerb und sollen an der Statuszeile haengen. -->
+<div class="event-card mb-4">
   <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
 
     <div>
@@ -104,11 +113,11 @@
   </div>
 </div>
 
-<div class="mb-4">
-  <a href="{{ url_for('admin.challenge_new') }}" class="btn btn-outline-light">
-    ➕ Neuer Wettbewerb
-  </a>
-</div>
+<!-- ===== DER LAUFENDE WETTBEWERB =====
+     Die Linie am linken Rand haengt die drei Gruppen sichtbar an die
+     Statuszeile darueber: Alles hier drin meint diesen einen Wettbewerb.
+     Was darunter folgt, gilt fuer die ganze Installation. -->
+<div class="wettbewerb-bereich mb-5">
 
 <!-- ===== VORBEREITUNG ===== -->
 <!-- Reihenfolge wie auf der Wettbewerbsseite: erst der Wettbewerb selbst,
@@ -131,12 +140,6 @@
     <a href="{{ url_for('admin.challenge_tasks', cid=challenge.id) }}" class="btn btn-outline-light w-100 h-100 py-4">
       📋<br><strong>Aufgaben</strong>
       <div class="small text-secondary">{{ overview.tasks }} angelegt</div>
-    </a>
-  </div>
-  <div class="col-md-3 col-6">
-    <a href="{{ url_for('admin.settings') }}" class="btn btn-outline-light w-100 h-100 py-4">
-      ⚙️<br><strong>Einstellungen</strong>
-      <div class="small text-secondary">Standardname, Urkunden</div>
     </a>
   </div>
 </div>
@@ -176,6 +179,24 @@
     <a href="{{ url_for('admin.certificates_print') }}" class="btn btn-outline-light w-100 h-100 py-4">
       📜<br><strong>Urkunden</strong>
       <div class="small text-secondary">für alle Teams</div>
+    </a>
+  </div>
+</div>
+
+</div><!-- /.wettbewerb-bereich -->
+
+<hr class="bereich-trenner mb-5">
+
+<!-- ===== ALLGEMEIN ===== -->
+<!-- Die Einstellungen gelten der ganzen Installation - Standardname,
+     Urkundenformat, Unterschrift. In der Reihe mit Teams und Aufgaben
+     las sie sich, als gehoerte sie zum laufenden Wettbewerb. -->
+<h5 class="text-secondary text-uppercase mb-3 section-label">Allgemein</h5>
+<div class="row g-3 mb-5">
+  <div class="col-md-3 col-6">
+    <a href="{{ url_for('admin.settings') }}" class="btn btn-outline-light w-100 h-100 py-4">
+      ⚙️<br><strong>Einstellungen</strong>
+      <div class="small text-secondary">Standardname, Urkunden</div>
     </a>
   </div>
 </div>
