@@ -1,14 +1,14 @@
 import sys
 
-# fpdf2 (Urkunden) und Flask-Limiter setzen Python 3.10 voraus. Ohne diese
-# Prüfung endet ein Start unter einer älteren Fassung in einem ImportError,
-# der nicht verrät, woran es wirklich liegt.
-if sys.version_info < (3, 10):
+# Markdown (die Aufgabentexte) setzt seit 3.11 Python 3.11 voraus, und
+# Python 3.10 bekommt ab Oktober 2026 keine Sicherheitskorrekturen mehr. Ohne
+# diese Prüfung endet ein Start unter einer älteren Fassung in einem
+# ImportError, der nicht verrät, woran es wirklich liegt.
+if sys.version_info < (3, 11):
     raise SystemExit(
-        "Python 3.10 oder neuer wird gebraucht, gefunden: "
+        "Python 3.11 oder neuer wird gebraucht, gefunden: "
         f"{sys.version_info.major}.{sys.version_info.minor}.\n"
-        "Die Urkunden (fpdf2) und die Anmeldebremse (Flask-Limiter) laufen "
-        "unter älteren Fassungen nicht."
+        "Die Aufgabentexte (Markdown) laufen unter älteren Fassungen nicht."
     )
 
 import logging

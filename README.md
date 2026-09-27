@@ -3,14 +3,14 @@
 Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programmier-Wettbewerbe an Schulen — läuft komplett lokal im eigenen Netzwerk, **ganz ohne Internetzugriff**.
 
 ![Status](https://img.shields.io/badge/Status-Active-success)
-![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
+![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)
 [![Tests](https://github.com/Obi-Wahn/challenge_plattform/actions/workflows/tests.yml/badge.svg)](https://github.com/Obi-Wahn/challenge_plattform/actions/workflows/tests.yml)
 ![Flask](https://img.shields.io/badge/Flask-3.x-green.svg)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple.svg)
 
 ## ⚡ Schnellstart
 
-1.  [Python 3.10 oder höher](https://www.python.org/downloads/) installieren
+1.  [Python 3.11 oder höher](https://www.python.org/downloads/) installieren
     (unter Windows „Add python.exe to PATH“ ankreuzen).
 2.  Das Projekt als ZIP von der
     [Release-Seite](https://github.com/Obi-Wahn/challenge_plattform/releases)
@@ -103,7 +103,8 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 
 ## 🚀 Installation & Setup
 
-Voraussetzung: Python 3.10 oder höher (fpdf2, das die Urkunden erzeugt, verlangt diese Version).
+Voraussetzung: Python 3.11 oder höher (Markdown, das die Aufgabentexte darstellt, verlangt diese Version).
+Ubuntu 22.04 und Linux Mint 21 bringen noch Python 3.10 mit, dort reicht es nicht.
 Unter Windows beim Installieren von [python.org](https://www.python.org/downloads/)
 „Add python.exe to PATH“ ankreuzen.
 
@@ -139,6 +140,8 @@ Die Umgebung bleibt an das Python gebunden, mit dem sie angelegt wurde; die
 Wer auf ein neueres Python wechseln will, löscht den Ordner `.venv` und öffnet
 die Startdatei – dafür braucht es wieder einmal Internet. Wird das alte Python
 deinstalliert, merkt die Startdatei das und legt die Umgebung selbst neu an.
+Ebenso eine Umgebung mit Python 3.10 von vor der Anhebung auf 3.11: Die Pakete
+ließen sich darin nicht mehr installieren.
 
 **Beenden** mit STRG+C im Fenster. Unter Windows fragt die Eingabeaufforderung
 danach noch „Batchvorgang abbrechen (J/N)?“ – die Plattform ist da schon
@@ -317,6 +320,7 @@ python werkzeuge/pakete_pruefen.py
     Flask                       3.0.0  ->  3.1.3
     Flask-SQLAlchemy            3.1.1      aktuell
     Flask-Limiter                3.12  ->  4.1.1  (neue Hauptversion - Änderungsliste lesen)
+    Markdown                   3.10.3  ->  3.11  (nicht übernehmen: braucht Python >=3.11, die Anwendung setzt 3.10 voraus)
 ```
 
 Eine Fassung übernehmen:
@@ -330,10 +334,14 @@ pytest
 **Eines nach dem anderen**, nicht alle auf einmal: Sonst lässt sich bei einem
 fehlgeschlagenen Test nicht sagen, welches Paket ihn verursacht hat.
 
-Gemeldet wird auch, wenn eine neue Fassung ein neueres Python verlangt als die
-Anwendung voraussetzt – dann bringt das Aktualisieren nichts, solange der
-Schul-PC nicht mitzieht. Vorabfassungen (alpha, beta, rc) werden gar nicht erst
-vorgeschlagen.
+Verlangt eine neue Fassung ein neueres Python, als die Anwendung voraussetzt,
+steht sie mit **„nicht übernehmen“** in der Liste und wird nicht vorgeschlagen;
+auch `--setzen` lehnt sie ab. Am eigenen Rechner mit einem neueren Python liefe
+sie zwar, auf einem Schul-PC mit dem ältesten erlaubten Python ließe sie sich
+aber nicht installieren. Soll sie trotzdem her, muss erst die Grenze steigen –
+in `app.py`, `starter.py`, dem Werkzeug, `ruff.toml`, der CI und hier in der
+README; `tests/test_pakete.py` passt auf, dass alle dieselbe Zahl nennen.
+Vorabfassungen (alpha, beta, rc) werden gar nicht erst vorgeschlagen.
 
 Das Skript braucht Internet – also am heimischen Rechner ausführen, nicht
 während eines Wettbewerbs.
@@ -446,7 +454,7 @@ ruff check .
 ```
 
 Beides läuft auch automatisch: Bei jedem Push und jedem Pull Request führt
-GitHub dieselben zwei Befehle aus, auf Python 3.10, 3.13 und 3.14. Am Pull Request
+GitHub dieselben zwei Befehle aus, auf Python 3.11, 3.13 und 3.14. Am Pull Request
 steht dann ein grünes Häkchen oder ein rotes Kreuz – man muss also nicht
 daran denken, selbst zu testen. Die Einstellungen dazu stehen in
 `.github/workflows/tests.yml`.

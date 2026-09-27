@@ -59,7 +59,7 @@ class TestPython:
         with pytest.raises(starter.Abbruch) as fehler:
             starter.python_pruefen((3, 9, 6))
         assert "3.9.6" in str(fehler.value)
-        assert "3.10" in str(fehler.value)
+        assert "3.11" in str(fehler.value)
         assert "python.org" in str(fehler.value)
 
     def test_passendes_python_wird_genannt(self):
@@ -121,12 +121,29 @@ class TestUmgebung:
         # Neu anlegen braucht Internet - im Schulnetz am Wettbewerbstag
         # wäre danach gar keine Umgebung mehr da.
         umgebung_vortaeuschen(ordner)
-        (ordner / ".venv" / "pyvenv.cfg").write_text("version = 3.10.4\n", encoding="utf-8")
+        (ordner / ".venv" / "pyvenv.cfg").write_text("version = 3.12.4\n", encoding="utf-8")
         angelegt = []
         starter.umgebung_sicherstellen(
             str(ordner), anlegen=angelegt.append, laeuft=lambda basis: True
         )
         assert angelegt == []
+
+    def test_zu_altes_python_in_der_umgebung_wird_neu_angelegt(self, ordner):
+        # Eine .venv mit Python 3.10 von vor der Anhebung läuft zwar, aber
+        # Markdown 3.11 lässt sich darin nicht installieren.
+        umgebung_vortaeuschen(ordner)
+        (ordner / ".venv" / "pyvenv.cfg").write_text("version = 3.10.4\n", encoding="utf-8")
+        angelegt = []
+
+        def anlegen(pfad):
+            angelegt.append(pfad)
+            (ordner / ".venv" / "pyvenv.cfg").write_text("version = 3.14.7\n", encoding="utf-8")
+
+        stand = starter.umgebung_sicherstellen(
+            str(ordner), anlegen=anlegen, laeuft=lambda basis: True
+        )
+        assert angelegt == [os.path.join(str(ordner), ".venv")]
+        assert stand == "neu angelegt, die alte hatte Python 3.10 (Python 3.14)"
 
     @pytest.mark.parametrize("zeile, erwartet", [
         ("version = 3.13.15", "3.13"),
