@@ -114,7 +114,9 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    `python app.py` in der aktivierten Umgebung.
    Im Terminal stehen beide Adressen (lokal und fürs Netzwerk) und der Pfad
    der Protokolldatei. **Das Fenster offen lassen.**
-2. Wettbewerb unter `/admin` **aktivieren**.
+2. Wettbewerb unter `/admin` **aktivieren**: Steht der richtige schon oben in
+   der Statuszeile, ist nichts zu tun. Sonst steht er weiter unten unter
+   *Weitere Wettbewerbe* – dort **✅ Aktivieren**.
 3. Rangliste `/scoreboard` an die Wand werfen. Oben läuft die Zeit, darunter
    füllt sich die Tabelle, sobald du bewertest.
 4. Teams melden sich selbst auf der Startseite `/` an: Teamname und ein
@@ -183,10 +185,11 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
    Die Teams können ihre eigene Urkunde nach dem Beenden selbst
    herunterladen. Unter *Einstellungen* stellst du ein: Quer- oder Hochformat,
    den Namen unter der Unterschriftslinie und die Handschrift.
-5. **Eine Urkunde nachreichen**, wenn jemand gefehlt hat: Die Urkunden-Kachel
-   auf der Seite des betreffenden Wettbewerbs führt auch dann noch zu seinen
-   Urkunden, wenn längst ein anderer aktiv ist. Punkte, Namen und der Name
-   des Wettbewerbs sind die von damals.
+5. **Eine Urkunde nachreichen**, wenn jemand gefehlt hat: Auf der
+   Steuerzentrale unten *Beendet* aufklappen, beim gesuchten Wettbewerb
+   **Öffnen →**, dort die Urkunden-Kachel. Das geht auch dann noch, wenn
+   längst ein anderer Wettbewerb aktiv ist. Punkte, Namen und der Name des
+   Wettbewerbs sind die von damals.
 
 ---
 
