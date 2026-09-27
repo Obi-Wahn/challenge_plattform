@@ -125,9 +125,12 @@
 <h5 class="text-secondary text-uppercase mb-3 section-label">Vorbereitung</h5>
 <div class="row g-3 mb-5">
   <div class="col-md-3 col-6">
+    <!-- Der Untertitel nennt, was es nur hinter dieser Kachel gibt. „Alles
+         auf einen Blick" sagte nichts, und wer den Wettbewerb loeschen
+         wollte, suchte. -->
     <a href="{{ url_for('admin.challenge_detail', cid=challenge.id) }}" class="btn btn-outline-light w-100 h-100 py-4">
       🏁<br><strong>Wettbewerb</strong>
-      <div class="small text-secondary">alles auf einen Blick</div>
+      <div class="small text-secondary">Name, Zeiten, Löschen</div>
     </a>
   </div>
   <div class="col-md-3 col-6">

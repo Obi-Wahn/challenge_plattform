@@ -82,8 +82,9 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 
 - [ ] **Probedurchlauf**: einen Testwettbewerb anlegen, ein Team anmelden,
       eine Datei hochladen, bewerten, Rangliste und Urkunde ansehen. Danach
-      den Testwettbewerb löschen – mit ihm verschwinden seine Teams und
-      Abgaben.
+      den Testwettbewerb löschen: Steuerzentrale → Kachel **Wettbewerb**
+      (*Name, Zeiten, Löschen*) → ganz unten im roten Kasten **🗑 Löschen**.
+      Mit ihm verschwinden seine Teams und Abgaben.
 - [ ] **`data/` und `uploads/` auf einen USB-Stick kopieren.** Beide: In
       `data/` steckt die Datenbank, in `uploads/` die abgegebenen Dateien.
       Die Datenbank merkt sich zu jeder Abgabe nur den Pfad, nicht die Datei.
