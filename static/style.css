@@ -314,3 +314,23 @@ input::placeholder, textarea::placeholder {
 .wettbewerbe-beendet > summary:hover {
   color: #fff;
 }
+
+/* ====== Der laufende Wettbewerb in der Steuerzentrale ====== */
+/* Die Linie hängt die drei Kachelgruppen sichtbar an die Statuszeile: Alles
+   dahinter meint den einen Wettbewerb, der oben steht. Alles darunter -
+   Einstellungen, weitere Wettbewerbe - gilt der ganzen Installation. */
+.wettbewerb-bereich {
+  border-left: 3px solid rgba(255, 255, 255, 0.12);
+  padding-left: 1.5rem;
+}
+
+@media (max-width: 576px) {
+  .wettbewerb-bereich {
+    padding-left: 0.9rem;
+  }
+}
+
+.bereich-trenner {
+  border-color: rgba(255, 255, 255, 0.12);
+  opacity: 1;
+}

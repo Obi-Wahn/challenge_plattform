@@ -141,6 +141,29 @@ class TestSteuerzentrale:
         assert "⏸ pausiert" in unten
         assert "🕒 geplant" in unten
 
+    def test_einstellungen_stehen_unter_allgemein(self, admin, make_challenge):
+        """Die Einstellungen gelten der Installation, nicht diesem Wettbewerb.
+
+        In der Reihe mit Wettbewerb, Teams und Aufgaben las sich die Kachel,
+        als gehörte sie zum laufenden Wettbewerb.
+        """
+        make_challenge(title="Aktueller Wettbewerb", active=True)
+
+        html = admin.get("/admin/dashboard").get_data(as_text=True)
+
+        oben, unten = html.split("Allgemein", 1)
+        assert "/admin/settings" not in oben.split("Vorbereitung", 1)[1]
+        assert "/admin/settings" in unten
+
+    def test_neuer_wettbewerb_steht_ueber_dem_laufenden(self, admin, make_challenge):
+        """Der Knopf gilt allgemein und steht deshalb in der Kopfzeile."""
+        make_challenge(title="Aktueller Wettbewerb", active=True)
+
+        html = admin.get("/admin/dashboard").get_data(as_text=True)
+
+        # Die erste event-card auf der Seite ist die Statuszeile.
+        assert html.index("/admin/challenges/new") < html.index("event-card")
+
     def test_alte_uebersichtsseite_leitet_auf_die_steuerzentrale(self, admin):
         antwort = admin.get("/admin/challenges")
 
