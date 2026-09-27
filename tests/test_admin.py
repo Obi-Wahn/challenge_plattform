@@ -141,6 +141,19 @@ class TestSteuerzentrale:
         assert "⏸ pausiert" in unten
         assert "🕒 geplant" in unten
 
+    def test_wettbewerbs_kachel_nennt_was_dahinter_liegt(self, admin, make_challenge):
+        """„Alles auf einen Blick" sagte nicht, wo man den Wettbewerb löscht.
+
+        Name, Zeiten und das Löschen gibt es nur auf der Wettbewerbsseite.
+        Wer löschen wollte, musste raten - der Untertitel nennt sie deshalb.
+        """
+        make_challenge(title="Aktueller Wettbewerb", active=True)
+
+        html = admin.get("/admin/dashboard").get_data(as_text=True)
+
+        assert "Name, Zeiten, Löschen" in html
+        assert "alles auf einen Blick" not in html
+
     def test_einstellungen_stehen_unter_allgemein(self, admin, make_challenge):
         """Die Einstellungen gelten der Installation, nicht diesem Wettbewerb.
 
