@@ -112,6 +112,35 @@ class TestSteuerzentrale:
         # Ein beendeter Wettbewerb lässt sich nicht mehr aktivieren.
         assert "Weitere Wettbewerbe" not in html
 
+    def test_nur_der_aktive_wettbewerb_laeuft(self, admin, make_challenge):
+        """„läuft" steht genau einmal auf der Seite: oben in der Statuszeile.
+
+        Ein Wettbewerb ohne Zeiten trug in der Liste dasselbe grüne Abzeichen
+        wie der aktive und las sich wie ein zweiter laufender.
+        """
+        make_challenge(title="Test 2", active=False)
+        make_challenge(title="Aktueller Wettbewerb", active=True)
+
+        html = admin.get("/admin/dashboard").get_data(as_text=True)
+
+        assert html.count("🟢 läuft") == 1
+        assert "Test 2" in html.split("Weitere Wettbewerbe", 1)[1]
+
+    def test_pausierte_und_geplante_behalten_ihr_abzeichen(
+            self, admin, make_challenge):
+        """Beides will man wissen, bevor man so einen aktiviert."""
+        kuenftig = datetime.now() + timedelta(days=1)
+        make_challenge(title="Probelauf", active=False, paused=True)
+        make_challenge(title="Nächste Woche", active=False,
+                       start_time=kuenftig, end_time=kuenftig + timedelta(hours=1))
+        make_challenge(title="Aktueller Wettbewerb", active=True)
+
+        html = admin.get("/admin/dashboard").get_data(as_text=True)
+
+        unten = html.split("Weitere Wettbewerbe", 1)[1]
+        assert "⏸ pausiert" in unten
+        assert "🕒 geplant" in unten
+
     def test_alte_uebersichtsseite_leitet_auf_die_steuerzentrale(self, admin):
         antwort = admin.get("/admin/challenges")
 
