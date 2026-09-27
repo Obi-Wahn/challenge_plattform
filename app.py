@@ -27,6 +27,7 @@ from config import Config
 from extensions import db, csrf, limiter
 from network import FESTE_ADRESSE, lan_adresse, server_port
 from protokoll import ereignis
+import stand
 from blueprints.auth import auth_bp
 from blueprints.public import public_bp
 from blueprints.challenge import challenge_bp
@@ -580,13 +581,15 @@ if __name__ == "__main__":
             print(zeile)
 
         # Der Start gehört ins Protokoll: Danach lässt sich später zuordnen,
-        # welche Meldungen zu welchem Wettbewerbstag gehören.
+        # welche Meldungen zu welchem Wettbewerbstag gehören - und mit der
+        # Version, welche Fassung dabei lief.
+        version = stand.ermitteln()
         if adresse:
-            app.logger.info("Server gestartet auf http://%s:%s", adresse, port)
+            app.logger.info("Server gestartet auf http://%s:%s, Version %s", adresse, port, version)
         else:
             app.logger.warning(
-                "Server gestartet auf Port %s, die Netzwerkadresse ist unbekannt "
-                "(%s in der .env setzen).", port, FESTE_ADRESSE
+                "Server gestartet auf Port %s, Version %s, die Netzwerkadresse ist unbekannt "
+                "(%s in der .env setzen).", port, version, FESTE_ADRESSE
             )
 
         serve(app, host="0.0.0.0", port=port)

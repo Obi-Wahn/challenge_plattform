@@ -389,6 +389,20 @@ def aktualisieren(basis=BASIS, ausfuehren=subprocess.run):
     return "aktualisiert"
 
 
+# --- Version ----------------------------------------------------------------
+
+def version_ermitteln(basis=BASIS):
+    """Welcher Stand hier liegt, etwa "1.5.1 (Stand 27.09.2026)".
+
+    stand.py ist wie network.py nur Standardbibliothek und wird erst hier
+    geholt, damit starter.py oben nichts Eigenes importiert.
+    """
+    sys.path.insert(0, basis)
+    import stand
+
+    return stand.ermitteln(basis)
+
+
 # --- Start ------------------------------------------------------------------
 
 def port_ermitteln(basis=BASIS):
@@ -479,9 +493,14 @@ def main(argumente=None):
     print()
 
     try:
+        # Oben, damit man als Erstes sieht, welcher Stand läuft - nach einem
+        # Update erst danach, sonst stünde dort noch der alte.
+        if not optionen.aktualisieren:
+            zeile("Version", version_ermitteln())
         zeile("Python", python_pruefen())
         if optionen.aktualisieren:
             zeile("Aktualisieren", aktualisieren())
+            zeile("Version", version_ermitteln())
         zeile("Virtuelle Umgebung", umgebung_sicherstellen())
         zeile("Pakete", pakete_sicherstellen())
         zeile("Konfiguration", konfiguration_sicherstellen())

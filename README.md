@@ -83,6 +83,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 
 ### Ohne Installationsaufwand
 *   **Startdateien** für Windows, macOS und Linux richten beim ersten Öffnen alles ein und starten die Plattform.
+*   **Version beim Start**: Die Übersicht nennt, welcher Stand läuft, etwa „1.5.1 (Stand 27.09.2026)“ – bei einem ZIP genauso wie bei git.
 *   **Läuft im Schul-LAN, ganz ohne Internet**; Port und angezeigte Netzwerkadresse lassen sich in der `.env` setzen.
 
 ## 🛠 Technologien
@@ -147,12 +148,21 @@ beendet, J und N führen beide zum selben Ergebnis.
 Coding-Wettbewerb-Plattform
 ===========================
 
+Version ................ 1.5.1 (Stand 27.09.2026)
 Python ................. 3.13.1
 Virtuelle Umgebung ..... vorhanden
 Pakete ................. aktuell
 Konfiguration .......... vorhanden
 Datenbank .............. vorhanden
 ```
+
+Die erste Zeile sagt, **welche Fassung** hier liegt. Die Nummer kommt aus
+dem Release, von Hand gepflegt wird sie nirgends: Bei git fragt die
+Startdatei git, bei einem ZIP hat GitHub sie beim Packen in `stand.txt`
+eingetragen. Enthält der Stand Änderungen nach dem letzten Release, steht
+das dabei, etwa „1.5.1 + 3 Änderungen (Stand 30.09.2026)“. Steht dort
+„unbekannt“ – etwa bei einem von Hand kopierten Ordner –, läuft die
+Plattform trotzdem. Die Zeile steht auch im Protokoll.
 
 **Wenn sich die Datei nicht öffnen lässt:**
 
@@ -389,7 +399,7 @@ Festgehalten wird, was etwas **anlegt, ändert oder wegnimmt** – und was
 
 | Wann | Was im Protokoll steht |
 |---|---|
-| Start | der Server ist hochgefahren, mit Adresse und Port |
+| Start | der Server ist hochgefahren, mit Adresse, Port und Version |
 | Aufbau | Wettbewerb angelegt, bearbeitet, aktiv geschaltet, gelöscht · Team angelegt, gelöscht, Passwort zurückgesetzt · übernommene Teams · Aufgabe angelegt, bearbeitet, gelöscht · Aufgaben gesichert und eingelesen · geänderte Einstellungen (nur welche Felder) |
 | Wettbewerbstag | freigeschalteter oder wieder verborgener Tipp · abgelehnte Abgabe samt Grund (falsche Endung, zu groß, pausiert, beendet, schon abgegeben) · zurückgesetzte Abgabe · fehlgeschlagene Admin-Anmeldung mit Adresse |
 | Zum Abschluss | erzeugte Urkunden (Wettbewerb, Anzahl, Ausrichtung) · gesicherte Datenbank |
@@ -487,6 +497,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | Datei | prüft |
 | --- | --- |
 | `test_starter.py` | die Schritte hinter den Startdateien, ohne echtes pip und git |
+| `test_stand.py` | die Version beim Start, aus git oder aus der `stand.txt` eines ZIPs |
 | `test_netzwerk.py` | die Adresse, unter der die Teams den Server erreichen |
 | `test_protokoll.py` | `logs/anwendung.log` entsteht, hält die wichtigen Ereignisse fest und bleibt beim gewöhnlichen Betrieb still |
 | `test_migrations.py` | Datenbank aus einer älteren Version weiterbenutzen |
@@ -511,6 +522,8 @@ challenge_plattform/
 ├── start_macos.command
 ├── start_linux.sh
 ├── starter.py            # was die Startdateien tun: einrichten, dann starten
+├── stand.py              # welche Version läuft, aus git oder stand.txt
+├── stand.txt             # von GitHub im ZIP ausgefüllt, im Repository nur Platzhalter
 ├── app.py                # Einstiegspunkt
 ├── config.py              # Konfiguration
 ├── extensions.py          # Datenbank & Extensions

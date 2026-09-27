@@ -4,3 +4,7 @@
 *.bat      text eol=crlf
 *.sh       text eol=lf
 *.command  text eol=lf
+
+# In stand.txt trägt GitHub beim Packen eines ZIPs Version und Datum ein,
+# damit auch eine ZIP-Installation weiß, welcher Stand sie ist.
+stand.txt  export-subst

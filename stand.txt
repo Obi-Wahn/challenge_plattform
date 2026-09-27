@@ -1,0 +1,5 @@
+# Welcher Stand das ist. Im Repository stehen hier nur Platzhalter; beim
+# Packen eines ZIPs setzt GitHub die Werte ein (export-subst in
+# .gitattributes). Gelesen wird die Datei von stand.py.
+beschreibung: $Format:%(describe:tags=true,match=v[0-9]*)$
+datum: $Format:%cs$
