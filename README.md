@@ -83,7 +83,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 
 ### Ohne Installationsaufwand
 *   **Startdateien** für Windows, macOS und Linux richten beim ersten Öffnen alles ein und starten die Plattform.
-*   **Version beim Start**: Die Übersicht nennt, welcher Stand läuft, etwa „1.5.1 (Stand 27.09.2026)“ – bei einem ZIP genauso wie bei git.
+*   **Version beim Start**: Die Übersicht nennt, welcher Stand läuft, etwa „1.7.0 (Stand 27.09.2026)“ – bei einem ZIP genauso wie bei git.
 *   **Läuft im Schul-LAN, ganz ohne Internet**; Port und angezeigte Netzwerkadresse lassen sich in der `.env` setzen.
 
 ## 🛠 Technologien
@@ -151,7 +151,7 @@ beendet, J und N führen beide zum selben Ergebnis.
 Coding-Wettbewerb-Plattform
 ===========================
 
-Version ................ 1.5.1 (Stand 27.09.2026)
+Version ................ 1.7.0 (Stand 27.09.2026)
 Python ................. 3.13.1
 Virtuelle Umgebung ..... vorhanden
 Pakete ................. aktuell
@@ -163,7 +163,7 @@ Die erste Zeile sagt, **welche Fassung** hier liegt. Die Nummer kommt aus
 dem Release, von Hand gepflegt wird sie nirgends: Bei git fragt die
 Startdatei git, bei einem ZIP hat GitHub sie beim Packen in `stand.txt`
 eingetragen. Enthält der Stand Änderungen nach dem letzten Release, steht
-das dabei, etwa „1.5.1 + 3 Änderungen (Stand 30.09.2026)“. Steht dort
+das dabei, etwa „1.7.0 + 3 Änderungen (Stand 30.09.2026)“. Steht dort
 „unbekannt“ – etwa bei einem von Hand kopierten Ordner –, läuft die
 Plattform trotzdem. Die Zeile steht auch im Protokoll.
 
@@ -257,8 +257,8 @@ Der Weg hinein: `/admin` aufrufen – der Link steht auch in der Fußzeile jeder
 Seite – und mit dem Passwort anmelden, das die Startdatei beim ersten Mal
 abgefragt und als `ADMIN_PASSWORD` in die `.env` geschrieben hat. Den Namen,
 unter dem die Teams ihren Wettbewerb sehen, trägt man beim Anlegen des
-Wettbewerbs ein, nicht unter *Einstellungen* – dort steht der Name der
-Anwendung selbst.
+Wettbewerbs ein. Unter *Einstellungen* steht nur der Standardname für die
+Zeit, in der kein Wettbewerb läuft.
 
 Wie ein Wettbewerb **abläuft** – was eine Woche vorher, am Vortag, während
 des Wettbewerbs und danach zu tun ist, und was zu tun ist, wenn etwas klemmt –
@@ -317,16 +317,18 @@ python werkzeuge/pakete_pruefen.py
 
 ```
   requirements.txt
-    Flask                       3.0.0  ->  3.1.3
-    Flask-SQLAlchemy            3.1.1      aktuell
-    Flask-Limiter                3.12  ->  4.1.1  (neue Hauptversion - Änderungsliste lesen)
-    Markdown                   3.10.3  ->  3.11  (nicht übernehmen: braucht Python >=3.11, die Anwendung setzt 3.10 voraus)
+    Flask                       3.1.3      aktuell
+    Werkzeug                    3.1.8  ->  3.1.9
+    Flask-Limiter               4.1.1  ->  5.0.0  (neue Hauptversion - Änderungsliste lesen)
+    fpdf2                       2.8.8  ->  2.9.0  (nicht übernehmen: braucht Python >=3.12, die Anwendung setzt 3.11 voraus)
 ```
+
+Gekürzt; welche Fassungen dort erscheinen, hängt vom Tag ab.
 
 Eine Fassung übernehmen:
 
 ```bash
-python werkzeuge/pakete_pruefen.py --setzen Flask=3.1.3
+python werkzeuge/pakete_pruefen.py --setzen Werkzeug=3.1.9
 pip install -r requirements.txt -r requirements-dev.txt
 pytest
 ```
@@ -496,7 +498,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | --- | --- |
 | `test_startseite.py` | QR-Code und abtippbare Adresse |
 | `test_navigation.py` | die obere Leiste, je nach Stand des Wettbewerbs |
-| `test_fusszeile.py` | Name der Anwendung, Admin-Anmeldung, Link auf das Repository |
+| `test_fusszeile.py` | Name in der Fußzeile, Admin-Anmeldung, Link auf das Repository |
 | `test_admin.py` | Steuerzentrale, Wettbewerbs-Seite, Beenden, Aktivieren |
 | `test_fehlerseiten.py` | eigene deutsche Seiten für 400/403/404/413/429/500 |
 

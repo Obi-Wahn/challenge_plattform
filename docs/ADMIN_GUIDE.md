@@ -22,7 +22,7 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    Wettbewerbstag.
 
    Welche Fassung danach läuft, steht in der Startübersicht in der Zeile
-   **Version**, etwa „1.5.1 (Stand 27.09.2026)“. Mit der Nummer des neuesten
+   **Version**, etwa „1.7.0 (Stand 27.09.2026)“. Mit der Nummer des neuesten
    Releases auf GitHub vergleichen.
 
 2. **Tests laufen lassen**, wenn eine Entwicklungsumgebung eingerichtet ist:
@@ -155,7 +155,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 
 ### Während des Wettbewerbs
 
-- **Abgaben bewerten** unter `/admin` → *Abgaben*. Punkte und ein kurzes
+- **Abgaben bewerten** unter `/admin` → *Bewertungen*. Punkte und ein kurzes
   Feedback pro Abgabe.
 - **Hinweis freischalten**, wenn eine Aufgabe zu schwer ist: auf der
   Aufgaben-Seite umschalten. Der Hinweis erscheint bei allen Teams innerhalb
@@ -205,8 +205,8 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Team tippt seinen Namen anders geschrieben | Beim **Anmelden** ist das in Ordnung: „die pixelpiraten“ findet „Die Pixelpiraten“, solange es nur ein Team dieses Namens gibt. Nur wenn zwei Teams nebeneinander existieren, die sich allein in der Schreibweise unterscheiden, muss die Schreibweise stimmen. |
 | Zwei Teams mit fast gleichem Namen | Beim **Registrieren** zählt die Schreibweise: „Die Hacker“ und „die hacker“ werden zwei verschiedene Teams. Umgebende Leerzeichen werden dagegen entfernt, `„ Team A “` wird zu `„Team A“`. Wenn das stört, Team löschen und neu anmelden lassen. |
 | Ein Team kommt nicht mehr rein | Passwort vergessen. `/admin` → *Teams* → neues Passwort setzen und dem Team sagen. Das alte wird nicht angezeigt – auch nicht dir. |
-| Ein Team hat die falsche Datei hochgeladen | `/admin` → *Abgaben* → **🔓 Erneut abgeben erlauben**. Das gilt **einmal**; die bisherige Bewertung wird dabei gelöscht und die Abgabe landet wieder in der Warteschlange. |
-| „Abgabe nicht möglich" bei einem Team | Wettbewerb pausiert, Endzeit überschritten, oder das Team gehört zu einem anderen Wettbewerb. Der Grund steht seit Neuestem als Meldung auf der Wettbewerbsseite des Teams. |
+| Ein Team hat die falsche Datei hochgeladen | `/admin` → *Bewertungen* → **🔓 Erneut abgeben erlauben**. Das gilt **einmal**; die bisherige Bewertung wird dabei gelöscht und die Abgabe landet wieder in der Warteschlange. |
+| „Abgabe nicht möglich" bei einem Team | Wettbewerb pausiert, Endzeit überschritten, oder das Team gehört zu einem anderen Wettbewerb. Der Grund steht als Meldung auf der Wettbewerbsseite des Teams. |
 | Falsches Dateiformat wird abgewiesen | Das erlaubte Format steht pro Aufgabe und in der Meldung, die das Team bekommt. Prüfen, ob es zu dem passt, was die Umgebung tatsächlich exportiert (Scratch: `.sb3`, MakeCode-Calliope: `.hex`). |
 | Ein Team will sich noch anmelden, der Wettbewerb ist beendet oder pausiert | Die Startseite nimmt dann keine neuen Teams an – sonst stünde das Team mit null Punkten in der Rangliste am Beamer. Soll es doch noch mitmachen: **🔓 Wieder öffnen** bzw. **▶ Fortsetzen** auf der Wettbewerbsseite, dann anmelden lassen. |
 | Wettbewerb gelöscht, ein Team sitzt noch davor | Mit dem Wettbewerb sind seine Teams weg. Das Team landet beim nächsten Klick auf der Startseite und meldet sich dort für den nächsten Wettbewerb neu an. |
