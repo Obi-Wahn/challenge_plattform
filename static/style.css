@@ -246,6 +246,17 @@ input::placeholder, textarea::placeholder {
   visibility: hidden;
 }
 
+/* Nach ▲ oder ▼ leuchtet die verschobene Aufgabe kurz auf, damit man sieht,
+   wo sie gelandet ist. */
+.aufgaben-zeile-verschoben {
+  animation: aufgabe-verschoben 1.6s ease-out;
+}
+
+@keyframes aufgabe-verschoben {
+  from { background-color: rgba(251, 191, 36, 0.25); }
+  to { background-color: transparent; }
+}
+
 /* Aufgaben ohne Tipp haben nichts umzuschalten. Statt den Knopf wegzulassen
    und die übrigen nach rechts rutschen zu lassen, hält ein unsichtbarer
    Platzhalter die Lücke. */
@@ -333,4 +344,19 @@ input::placeholder, textarea::placeholder {
 .bereich-trenner {
   border-color: rgba(255, 255, 255, 0.12);
   opacity: 1;
+}
+
+/* Spaltenköpfe der Rangliste: „A1: Titel“, höchstens zwei Zeilen, danach
+   gekürzt. Die Nummer folgt der Reihenfolge, die der Admin festlegt; der
+   Titel sagt am Beamer, welche Aufgabe gemeint ist - auch nach dem
+   Umsortieren. Den vollen Titel zeigt das title-Attribut der Zelle. */
+.ranglisten-aufgabe {
+  width: 7.5em;
+  margin: 0 auto;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  line-height: 1.25;
 }

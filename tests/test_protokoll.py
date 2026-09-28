@@ -522,6 +522,21 @@ class TestWasStillBleibt:
         assert self.abgeben(client, task).status_code == 302
         assert protokoll.neu().strip() == ""
 
+    def test_reihenfolge_der_aufgaben(self, admin, protokoll, make_challenge, make_task):
+        """Tobias am 28.09.2026: Umsortieren legt nichts an und nimmt nichts weg."""
+        challenge = make_challenge()
+        make_task(challenge, title="Erste")
+        zweite = make_task(challenge, title="Zweite")
+        protokoll.neu()
+
+        admin.post(f"/admin/tasks/{zweite.id}/move", data={
+            "csrf_token": csrf_token(admin, f"/admin/challenges/{challenge.id}/tasks"),
+            "richtung": "hoch",
+        })
+
+        assert zweite.position == 1
+        assert protokoll.neu().strip() == ""
+
     def test_anmeldung_eines_teams(self, flask_app, protokoll, make_challenge, make_team):
         challenge = make_challenge()
         make_team(challenge, name="Team Blitz", password="geheim")

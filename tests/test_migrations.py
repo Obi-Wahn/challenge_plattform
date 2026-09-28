@@ -171,6 +171,16 @@ class TestNachtraeglicheSpalten:
         assert "difficulty" in spalten
         assert lies(pfad, "SELECT difficulty FROM tasks") == [("",)]
 
+    def test_position_wird_ergaenzt_und_steht_auf_null(self, alte_datenbank):
+        """Alle auf 0 heißt: Die Reihenfolge bleibt die des Anlegens."""
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
+
+        ensure_added_columns()
+
+        spalten = {zeile[1] for zeile in lies(pfad, "PRAGMA table_info(tasks)")}
+        assert "position" in spalten
+        assert lies(pfad, "SELECT position FROM tasks") == [(0,)]
+
     def test_korrektur_spalte_wird_ergaenzt(self, alte_datenbank):
         pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
 

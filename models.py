@@ -117,7 +117,8 @@ class Challenge(db.Model):
     # steht still, und die Endzeit rückt beim Fortsetzen um die Dauer der
     # Pause nach hinten. Leer heißt: keine Pause im Gang.
     paused_at = db.Column(db.DateTime, nullable=True)
-    tasks = db.relationship('Task', backref='challenge', lazy=True, cascade="all, delete-orphan")
+    tasks = db.relationship('Task', backref='challenge', lazy=True, cascade="all, delete-orphan",
+                            order_by="(Task.position, Task.id)")
     teams = db.relationship('Team', backref='challenge', lazy=True, cascade="all, delete-orphan")
 
     @classmethod
@@ -290,6 +291,10 @@ class Task(db.Model):
     hint_visible = db.Column(db.Boolean, default=False)
     # Leer heißt: keine Angabe. Sonst ein Schlüssel aus TASK_DIFFICULTIES.
     difficulty = db.Column(db.String(10), nullable=False, default=NO_TASK_DIFFICULTY)
+    # Platz in der Reihenfolge des Wettbewerbs, kleiner steht weiter oben.
+    # Aufgaben aus der Zeit vor dem Feld stehen alle auf 0 und behalten
+    # damit die Reihenfolge, in der sie angelegt wurden (siehe geordnet()).
+    position = db.Column(db.Integer, nullable=False, default=0)
     submissions = db.relationship('Submission', backref='task', lazy=True, cascade="all, delete-orphan")
 
     @property
@@ -300,6 +305,24 @@ class Task(db.Model):
         dieselben drei Stufen kennt wie die Prüfung der Eingaben.
         """
         return TASK_DIFFICULTIES.get(self.difficulty or "", "")
+
+    @classmethod
+    def geordnet(cls, challenge_id):
+        """Die Aufgaben eines Wettbewerbs in der Reihenfolge, die der Admin festlegt.
+
+        Überall, wo Aufgaben der Reihe nach stehen - Teamseite, Rangliste,
+        Sicherung -, gilt diese eine Reihenfolge. Bei gleicher Position
+        entscheidet die Nummer, also das Anlegen.
+        """
+        return (cls.query.filter_by(challenge_id=challenge_id)
+                .order_by(cls.position, cls.id))
+
+    @classmethod
+    def naechste_position(cls, challenge_id):
+        """Die Position für eine neue Aufgabe: hinter allen vorhandenen."""
+        hoechste = (db.session.query(db.func.max(cls.position))
+                    .filter(cls.challenge_id == challenge_id).scalar())
+        return (hoechste or 0) + 1
 
 class Submission(db.Model):
     __tablename__ = 'submissions'
