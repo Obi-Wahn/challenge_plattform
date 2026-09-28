@@ -132,6 +132,12 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    `python app.py` in der aktivierten Umgebung.
    Im Terminal stehen beide Adressen (lokal und fürs Netzwerk) und der Pfad
    der Protokolldatei. **Das Fenster offen lassen.**
+
+   Läuft die Plattform auf einem Rechner ohne Bildschirm, etwa einem
+   Raspberry Pi, vorher per SSH mit `timedatectl` die Uhrzeit prüfen: Ohne
+   Internet stimmt sie dort nach dem Einschalten oft nicht, und die Restzeit
+   richtet sich nach ihr. Wie man sie setzt, steht in der README unter
+   [Auf einem Rechner ohne Bildschirm](../README.md#auf-einem-rechner-ohne-bildschirm-etwa-raspberry-pi).
 2. Wettbewerb unter `/admin` **aktivieren**: Steht der richtige schon oben in
    der Statuszeile, ist nichts zu tun. Sonst steht er weiter unten unter
    *Weitere Wettbewerbe* – dort **✅ Aktivieren**. „▶ Jetzt starten“ auf einem
@@ -228,6 +234,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Teams sehen die geänderte Zeit nicht | Normalerweise kommt sie innerhalb von etwa 15 Sekunden von selbst an; die Teamseiten fragen den Server in diesem Takt nach dem Stand. Bleibt die alte Zeit stehen, hat das Gerät die Verbindung zum Server verloren oder das Tablet hat geschlafen. Einmal neu laden, dann stimmt sie wieder. |
 | Ein Gerät erreicht den Server nicht | Zuerst die Adresse auf der Startseite mit der im Terminal vergleichen. Dann Firewall. Dann, ob das Gerät im selben Netz hängt (nicht im Gast-WLAN). |
 | „Die Adresse für andere Geräte konnte nicht ermittelt werden“ beim Start, oder auf der Startseite steht `127.0.0.1` | Das Netz hat kein Gateway, die Anwendung kann ihre eigene Adresse nicht erfragen – sie sagt das beim Start. Adresse am Server ablesen (`ip addr` bzw. `ipconfig`) und als `LAN_ADRESSE=192.168.…` in die `.env` eintragen, dann neu starten. |
+| Restzeit oder Uhrzeiten liegen weit daneben | Die Uhr des Servers geht falsch – typisch für einen Raspberry Pi ohne Internet, der keine Uhr mit Batterie hat. Plattform beenden, mit `timedatectl` nachsehen, Zeit und Zeitzone setzen (siehe README, [Auf einem Rechner ohne Bildschirm](../README.md#auf-einem-rechner-ohne-bildschirm-etwa-raspberry-pi)), neu starten und die Zeit des Wettbewerbs neu einstellen. |
 | Datenbank fehlt oder ist kaputt | Anwendung beenden. `data/challenge.db` zur Seite legen, die passende Sicherung `data/challenge-vor-…​.db` nach `data/challenge.db` umbenennen, neu starten. Die Sicherungen entstehen automatisch vor jeder Strukturänderung – eine regelmäßige Sicherung ersetzen sie nicht. |
 | Ein gesicherter Wettbewerb soll zurück | **➕ Neuer Wettbewerb** → unten **Oder aus einer Sicherung einlesen**, die ZIP wählen. Es entsteht ein neuer Wettbewerb, nicht aktiv – auch dann nicht, wenn gerade keiner aktiv ist. Der alte bleibt, wie er ist. Soll er weiterlaufen, ihn aktivieren. Waren die Passwörter mitgesichert, melden sich die Teams wie gewohnt an; sonst haben sie kein Passwort und bekommen nach dem Aktivieren unter **Teams** neue. Für Rangliste und Urkunden braucht es keins. Meldet die Seite, die ZIP sei beschädigt, ist nichts angelegt – eine andere Kopie der Datei nehmen. |
 | Hochgeladene Dateien fehlen | Der Download sagt dann „liegt nicht mehr auf dem Server“. Die Abgaben liegen unter `uploads/<Team-Nummer>/`. Aus der letzten Sicherung dieses Verzeichnisses zurückkopieren; die Datenbank zeigt auf genau diese Pfade. Ohne Sicherung bleiben Punkte und Bewertungen erhalten, nur die Programme sind weg. |
