@@ -5,16 +5,24 @@ Dateien, die die Teams hochgeladen haben. In der JSON steht alles, was zum
 Wettbewerb gehört: Name, Untertitel, Zeiten, die Aufgaben samt Hinweis und
 Schwierigkeit, die Teams und ihre Abgaben mit Punkten und Feedback.
 
-Was bewusst nicht mitkommt:
+Was nur auf ausdrücklichen Wunsch mitkommt:
 
-* Die Passwörter der Teams, auch nicht als Hash, und die Kennzeichen der
-  Anmeldung. Eine Sicherung ist eine Datei, die weitergegeben und auf
-  USB-Sticks kopiert wird; was sich damit anmelden ließe, gehört nicht
-  hinein. Ein eingelesener Wettbewerb ist zum Nachschauen und für Urkunden
-  da. Wer ihn fortsetzen will, vergibt auf der Teamseite neue Passwörter.
-* Die Namen der Teammitglieder - außer die Lehrkraft wählt ausdrücklich
-  „mit Namen“. Sie sind die einzigen Angaben, die eine Schülerin oder einen
-  Schüler direkt benennen, und für Rangliste und Punkte braucht es sie nicht.
+* Die Namen der Teammitglieder („mit Namen“). Sie sind die einzigen
+  Angaben, die eine Schülerin oder einen Schüler direkt benennen, und für
+  Rangliste und Punkte braucht es sie nicht.
+* Die Passwörter der Teams („mit Passwörtern“), und auch dann nur als der
+  Hash, den die Datenbank ohnehin hält. Eine Sicherung ist eine Datei, die
+  weitergegeben und auf USB-Sticks kopiert wird, und aus einem Hash lässt
+  sich ein schwaches Passwort wie „1234“ zurückraten - schlimm, sobald ein
+  Kind dasselbe Passwort auch anderswo benutzt. Gebraucht werden sie nur,
+  wenn der Wettbewerb auf einem anderen Rechner weiterlaufen soll. Für
+  Rangliste und Urkunden braucht es kein Passwort; ohne sie vergibt die
+  Lehrkraft auf der Teamseite neue.
+
+Was nie mitkommt:
+
+* Die Kennzeichen der Anmeldung (Team.uid). Beim Einlesen bekommt jedes
+  Team ein neues, eine Sitzung aus der alten Installation passt also nicht.
 * Die Einstellungen der Installation (Standardname, Unterschrift). Sie
   gehören nicht zu einem Wettbewerb.
 
@@ -26,6 +34,7 @@ abgelegt hätte. Ein Pfad aus der ZIP wird nie als Ziel benutzt.
 
 import json
 import os
+import re
 import tempfile
 import zipfile
 from datetime import datetime
@@ -71,7 +80,7 @@ def _zeit(wert):
     return wert.isoformat(timespec="seconds") if wert else None
 
 
-def sicherung_bauen(challenge, mit_namen):
+def sicherung_bauen(challenge, mit_namen, mit_passwoertern=False):
     """Schreibt die ZIP in eine temporäre Datei und gibt (datei, zahlen) zurück.
 
     Die Datei liegt nicht im Verzeichnis der Anwendung und verschwindet,
@@ -121,6 +130,7 @@ def sicherung_bauen(challenge, mit_namen):
             "version": FORMAT_VERSION,
             "gesichert_am": _zeit(datetime.now()),
             "mit_namen": bool(mit_namen),
+            "mit_passwoertern": bool(mit_passwoertern),
             "wettbewerb": {
                 "titel": challenge.title,
                 "untertitel": challenge.tagline or "",
@@ -143,7 +153,8 @@ def sicherung_bauen(challenge, mit_namen):
                 for task in tasks
             ],
             "teams": [
-                _team_eintrag(team, team_nr[team.id], mit_namen) for team in teams
+                _team_eintrag(team, team_nr[team.id], mit_namen, mit_passwoertern)
+                for team in teams
             ],
             "abgaben": abgaben,
         }
@@ -155,15 +166,33 @@ def sicherung_bauen(challenge, mit_namen):
                    "abgaben": len(abgaben), "fehlend": fehlend}
 
 
-def _team_eintrag(team, nr, mit_namen):
+def _team_eintrag(team, nr, mit_namen, mit_passwoertern):
     eintrag = {"nr": nr, "name": team.name}
     if mit_namen:
         eintrag["namen"] = team.member_list
         eintrag["namen_freigegeben"] = bool(team.members_approved)
+    if mit_passwoertern and team.password_hash:
+        eintrag["passwort_hash"] = team.password_hash
     return eintrag
 
 
 # ------------------------------------------------------------------ Einlesen
+
+# Die Form, in der werkzeug einen Hash schreibt: Verfahren mit Parametern,
+# Salz, Prüfwert. Was nicht so aussieht, wird verworfen - ein Hash, den
+# check_password_hash nicht versteht, ließe die Anmeldung dieses Teams mit
+# einem Serverfehler enden, und riesige Parameter ließen sie hängen.
+PASSWORT_HASH = re.compile(
+    r"(scrypt:\d{1,6}:\d{1,2}:\d{1,2}|pbkdf2:sha256:\d{1,7})"
+    r"\$[A-Za-z0-9]{1,64}\$[0-9a-f]{1,256}")
+
+
+def _passwort_hash(wert):
+    """Der Hash aus der Datei, wenn er wie einer von werkzeug aussieht."""
+    if isinstance(wert, str) and PASSWORT_HASH.fullmatch(wert):
+        return wert
+    return None
+
 
 def _datum(wert):
     if not wert:
@@ -321,6 +350,7 @@ def _anlegen(zf, daten, upload_ordner, geschrieben):
             liste = parse_member_names("\n".join(str(n) for n in namen))[:MAX_MEMBERS]
             team.member_names = format_member_names(liste) or None
             team.members_approved = bool(eintrag.get("namen_freigegeben")) and bool(liste)
+        team.password_hash = _passwort_hash(eintrag.get("passwort_hash"))
         db.session.add(team)
         team_zu[_ganzzahl(eintrag.get("nr"))] = team
 
@@ -330,7 +360,8 @@ def _anlegen(zf, daten, upload_ordner, geschrieben):
     namen_in_zip = set(zf.namelist())
     belegt = set()
     zahlen = {"teams": len(team_zu), "aufgaben": len(task_zu), "abgaben": 0,
-              "ohne_datei": 0}
+              "ohne_datei": 0,
+              "mit_passwort": sum(1 for t in team_zu.values() if t.password_hash)}
 
     for eintrag in abgaben:
         team = team_zu.get(_ganzzahl(eintrag.get("team")))

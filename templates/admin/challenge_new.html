@@ -71,9 +71,10 @@
   <p class="text-secondary small mb-3">
     Die ZIP-Datei von <strong>💾 Wettbewerb sichern</strong>. Daraus entsteht ein neuer
     Wettbewerb mit Aufgaben, Teams, Abgaben, Punkten und Feedback. Er ist zunächst nicht
-    aktiv, und die Teams haben kein Passwort – für Rangliste und Urkunden braucht es keins.
-    Soll er weiterlaufen, aktivierst du ihn und vergibst auf der Seite <strong>Teams</strong>
-    neue Passwörter.
+    aktiv. Soll er weiterlaufen, aktivierst du ihn: Waren die Passwörter mitgesichert,
+    melden sich die Teams wie gewohnt an. Sonst haben sie kein Passwort – für Rangliste
+    und Urkunden braucht es keins, zum Weitermachen vergibst du auf der Seite
+    <strong>Teams</strong> neue.
   </p>
   <form method="post" action="{{ url_for('admin.challenge_restore') }}"
     enctype="multipart/form-data" class="d-flex flex-wrap gap-2">
