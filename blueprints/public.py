@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from extensions import db, limiter
 from sqlalchemy.exc import IntegrityError
-from models import Team, Challenge
+from models import Challenge, Settings, Team
 from scoring import get_standings, get_podium
 from sitzung import team_abmelden, team_anmelden
 from network import join_url
@@ -234,7 +234,8 @@ def scoreboard():
         tasks=tasks,
         teams=standings,
         status=status,
-        seconds=seconds
+        seconds=seconds,
+        aufgabentitel=Settings.get().scoreboard_task_titles,
     )
 
 @public_bp.route("/siegerehrung")

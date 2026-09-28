@@ -299,6 +299,7 @@ class TestAufbauUndVerwaltung:
             "signature_name": vorhanden.signature_name,
             "signature_font": vorhanden.signature_font,
             "certificate_orientation": vorhanden.certificate_orientation,
+            "scoreboard_task_titles": "1",
         })
 
         assert "Einstellungen geändert" not in protokoll.neu()

@@ -74,12 +74,12 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Bewerten**: Abgaben mit Aufgabenbeschreibung daneben, Textformate direkt im Browser lesbar, Download für lokale Tests, Punkte und Feedback, Korrektur freigeben oder Abgabe löschen.
 *   **Teams**: Passwort zurücksetzen, die eingetragenen Namen kontrollieren, freigeben oder die Freigabe zurücknehmen; eine Zeile oben zeigt, wie viele noch auf die Kontrolle warten.
 *   **Urkunden**: als PDF und Druckansicht, für alle Teams oder einzeln, im Quer- oder Hochformat, mit Namen und Handschrift unter der Unterschriftslinie — auch für einen längst beendeten Wettbewerb, mit den Punkten von damals.
-*   **Einstellungen**: Standardname und -untertitel für eine Installation, in der noch kein Wettbewerb angelegt oder keiner aktiv ist, Quer- oder Hochformat der Urkunden, Name und Handschrift unter der Unterschriftslinie, und ob die Teams ihre Namen eintragen dürfen.
+*   **Einstellungen**: Standardname und -untertitel für eine Installation, in der noch kein Wettbewerb angelegt oder keiner aktiv ist, Quer- oder Hochformat der Urkunden, Name und Handschrift unter der Unterschriftslinie, ob die Teams ihre Namen eintragen dürfen und ob über den Spalten der Rangliste die Aufgabentitel stehen.
 *   **Protokolldatei**: Was anlegt, ändert oder wegnimmt, steht mit Zeitstempel in `logs/anwendung.log` – samt jeder **abgewiesenen** Abgabe mit Grund. Damit ist „Wir haben doch abgegeben!“ nach dem Wettbewerbstag beantwortbar.
 *   **Eigene Fehlerseiten**: deutscher Satz und ein Weg zurück statt der englischen Seite des Webservers. Die gewöhnlichen Missgeschicke landen gar nicht dort, sondern als Meldung auf der Wettbewerbsseite des Teams.
 
 ### Für den Beamer
-*   **Rangliste**: Punkte je Aufgabe und Gesamtstand, über jeder Spalte Nummer und Titel der Aufgabe („A1: Die Katze läuft im Kreis“), lädt sich alle 30 Sekunden selbst neu. Oben läuft dieselbe Restzeit mit, die die Teams sehen — die Seite für den ganzen Wettbewerb.
+*   **Rangliste**: Punkte je Aufgabe und Gesamtstand, über jeder Spalte Nummer und Titel der Aufgabe („A1: Die Katze läuft im Kreis“, der Titel lässt sich abschalten), auch mit fünfzehn Aufgaben ohne seitliches Schieben, lädt sich alle 30 Sekunden selbst neu. Oben läuft dieselbe Restzeit mit, die die Teams sehen — die Seite für den ganzen Wettbewerb.
 *   **Siegerehrung**: Podium der besten drei, Platz für Platz aufzudecken (Leertaste oder Knopf). Bei Gleichstand teilen sich Teams einen Platz, und der nächste rückt nach: 10, 10 und 8 Punkte ergeben zwei erste Plätze und einen zweiten, kein Platz bleibt leer.
 
 ### Ohne Installationsaufwand

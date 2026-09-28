@@ -181,6 +181,23 @@ class TestNachtraeglicheSpalten:
         assert "position" in spalten
         assert lies(pfad, "SELECT position FROM tasks") == [(0,)]
 
+    def test_titel_in_der_rangliste_sind_nach_dem_update_an(self, alte_datenbank):
+        """Wer aktualisiert, sieht die Rangliste so wie vorher: mit Titeln."""
+        pfad = alte_datenbank("""
+            DROP TABLE IF EXISTS settings;
+            CREATE TABLE settings (
+                id INTEGER NOT NULL PRIMARY KEY,
+                site_name VARCHAR(100) NOT NULL,
+                tagline VARCHAR(300) NOT NULL
+            );
+            INSERT INTO settings (id, site_name, tagline)
+                VALUES (1, 'Alter Name', 'Alter Untertitel');
+        """)
+
+        ensure_added_columns()
+
+        assert lies(pfad, "SELECT scoreboard_task_titles FROM settings") == [(1,)]
+
     def test_korrektur_spalte_wird_ergaenzt(self, alte_datenbank):
         pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
 

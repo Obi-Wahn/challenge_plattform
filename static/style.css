@@ -109,6 +109,7 @@ input::placeholder, textarea::placeholder {
      ("Programmierwettbewerb") ist auf dem Handy breiter als die Seite und
      schöbe sie sonst zur Seite, statt umzubrechen. */
   overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 /* In der Leiste oben steht der Name des Wettbewerbs, und der kann lang sein.
@@ -358,5 +359,41 @@ input::placeholder, textarea::placeholder {
   -webkit-line-clamp: 2;
   line-clamp: 2;
   overflow: hidden;
+  overflow-wrap: anywhere;
+  hyphens: auto;
   line-height: 1.25;
+  /* Großbuchstaben brauchen deutlich mehr Breite - in normaler Schreibweise
+     passt vom Titel mehr in die Spalte. */
+  text-transform: none;
+}
+
+.ranglisten-platz {
+  width: 80px;
+}
+
+/* Am Beamer müssen Platz und Gesamtpunkte ohne Schieben zu sehen sein, auch
+   bei vierzehn Aufgaben. Deshalb teilt sich die Tabelle ab Laptopbreite die
+   Breite der Seite: Platz, Team und Gesamt haben feste Spalten, die Aufgaben
+   bekommen den Rest zu gleichen Teilen. Werden sie schmal, kürzt sich der
+   Titel stärker - die Nummer vorne bleibt. Auf dem Handy lässt sich die
+   Tabelle wie bisher seitlich schieben. */
+@media (min-width: 992px) {
+  .ranglisten-tabelle {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  .ranglisten-team {
+    width: 13rem;
+  }
+
+  .ranglisten-gesamt {
+    width: 7rem;
+  }
+
+  .ranglisten-aufgabe {
+    width: auto;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
 }

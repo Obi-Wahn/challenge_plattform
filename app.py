@@ -341,6 +341,7 @@ ADDED_COLUMNS = {
         "signature_font": "VARCHAR(30) NOT NULL DEFAULT 'caveat'",
         "certificate_orientation": "VARCHAR(10) NOT NULL DEFAULT 'landscape'",
         "member_names_enabled": "BOOLEAN NOT NULL DEFAULT 0",
+        "scoreboard_task_titles": "BOOLEAN NOT NULL DEFAULT 1",
     },
 }
 
