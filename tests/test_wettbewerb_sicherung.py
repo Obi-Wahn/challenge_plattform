@@ -47,11 +47,13 @@ def wettbewerb(flask_app, make_challenge, make_task, make_team, database):
     return challenge
 
 
-def sichern(admin, challenge, namen=False):
-    adresse = f"/admin/challenges/{challenge.id}/sichern"
+def sichern(admin, challenge, namen=False, passwoerter=False):
+    wahl = {}
     if namen:
-        adresse += "?namen=mit"
-    return admin.get(adresse)
+        wahl["namen"] = "mit"
+    if passwoerter:
+        wahl["passwoerter"] = "mit"
+    return admin.get(f"/admin/challenges/{challenge.id}/sichern", query_string=wahl)
 
 
 def zip_lesen(antwort):
@@ -108,8 +110,8 @@ class TestSichern:
         assert zf.read(erste["datei"]) == b"scratch-blitz"
 
     def test_ohne_passwoerter_und_kennzeichen(self, admin, wettbewerb):
-        """Was sich zum Anmelden eignet, gehört nicht in eine Datei, die
-        weitergegeben wird."""
+        """Was sich zum Anmelden eignet, kommt ohne Häkchen nicht in eine
+        Datei, die weitergegeben wird."""
         team = Team.query.filter_by(name="Team Blitz").one()
 
         text = zip_lesen(sichern(admin, wettbewerb, namen=True))[0] \
@@ -117,7 +119,31 @@ class TestSichern:
 
         assert team.password_hash not in text
         assert team.uid not in text
-        assert "passwort" not in text.lower()
+        assert "passwort_hash" not in text
+        assert json.loads(text)["mit_passwoertern"] is False
+
+    def test_passwoerter_nur_wenn_gewaehlt(self, admin, wettbewerb):
+        team = Team.query.filter_by(name="Team Blitz").one()
+
+        _, mit = zip_lesen(sichern(admin, wettbewerb, passwoerter=True))
+
+        assert mit["mit_passwoertern"] is True
+        assert mit["teams"][0]["passwort_hash"] == team.password_hash
+        # Nur der Hash, nie das Passwort selbst - und das Kennzeichen der
+        # Anmeldung auch dann nicht.
+        assert "geheim" not in json.dumps(mit)
+        assert team.uid not in json.dumps(mit)
+        # Die Namen hängen an ihrem eigenen Häkchen.
+        assert "namen" not in mit["teams"][0]
+
+    def test_team_ohne_passwort_bekommt_keinen_eintrag(self, admin, wettbewerb, database):
+        team = Team.query.filter_by(name="Team Donner").one()
+        team.password_hash = None
+        database.session.commit()
+
+        _, mit = zip_lesen(sichern(admin, wettbewerb, passwoerter=True))
+
+        assert "passwort_hash" not in mit["teams"][1]
 
     def test_namen_nur_wenn_gewaehlt(self, admin, wettbewerb):
         _, ohne = zip_lesen(sichern(admin, wettbewerb))
@@ -135,6 +161,8 @@ class TestSichern:
         assert "Wettbewerb sichern" in html
         assert 'name="namen" value="mit"' in html
         assert 'value="mit" id="sichern-namen" checked' not in html
+        assert 'name="passwoerter" value="mit"' in html
+        assert 'value="mit" id="sichern-passwoerter" checked' not in html
 
     def test_fehlende_datei_bricht_nicht_ab(self, admin, wettbewerb):
         submission = Submission.query.filter(Submission.points == 6).one()
@@ -151,7 +179,13 @@ class TestSichern:
             sichern(admin, wettbewerb)
 
         assert "Wettbewerb gesichert: „Scratch-Cup“" in caplog.text
-        assert "ohne Namen" in caplog.text
+        assert "ohne Namen, ohne Passwörter" in caplog.text
+
+    def test_protokoll_nennt_die_wahl(self, admin, wettbewerb, caplog):
+        with caplog.at_level("INFO"):
+            sichern(admin, wettbewerb, namen=True, passwoerter=True)
+
+        assert "mit Namen, mit Passwörtern" in caplog.text
 
     def test_nur_fuer_die_lehrkraft(self, client, wettbewerb):
         antwort = client.get(f"/admin/challenges/{wettbewerb.id}/sichern")
@@ -212,6 +246,39 @@ class TestHinUndZurueck:
         blitz = Team.query.filter_by(challenge_id=neu.id, name="Team Blitz").one()
         assert blitz.member_list == []
         assert blitz.members_approved is False
+
+    def test_mit_passwoertern_meldet_sich_das_team_wieder_an(self, admin, wettbewerb,
+                                                            flask_app, database):
+        """Der Fall, für den es das Häkchen gibt: Weitermachen auf einem
+        anderen Rechner, mit den Passwörtern von vorher."""
+        inhalt = sichern(admin, wettbewerb, passwoerter=True).data
+        # Auf dem anderen Rechner gibt es den alten Wettbewerb nicht.
+        database.session.delete(database.session.get(Challenge, wettbewerb.id))
+        database.session.commit()
+
+        antwort = einlesen(admin, inhalt)
+        assert "kein Passwort" not in antwort.get_data(as_text=True)
+
+        neu = Challenge.query.one()
+        admin.post(f"/admin/challenge/{neu.id}/activate", data={
+            "csrf_token": csrf_token(admin, f"/admin/wettbewerb/{neu.id}")})
+
+        team_client = flask_app.test_client()
+        antwort = team_client.post("/login", data={
+            "csrf_token": csrf_token(team_client, "/login"),
+            "team": "Team Blitz",
+            "password": "geheim",
+        })
+        assert antwort.status_code == 302
+
+        blitz = Team.query.filter_by(name="Team Blitz").one()
+        assert blitz.check_password("geheim")
+        assert blitz.uid
+
+    def test_ohne_passwoerter_meldet_die_seite_es(self, admin, wettbewerb):
+        antwort = einlesen(admin, sichern(admin, wettbewerb).data)
+
+        assert "die Teams haben kein Passwort" in antwort.get_data(as_text=True)
 
     def test_urkunden_lassen_sich_drucken(self, admin, wettbewerb):
         einlesen(admin, sichern(admin, wettbewerb, namen=True).data)
@@ -301,6 +368,22 @@ class TestEinlesenPrueft:
 
         assert Submission.query.one().points == 3
         assert "fehlte die Datei" in antwort.get_data(as_text=True)
+
+    @pytest.mark.parametrize("wert", [
+        "geheim",
+        "md5$abc$def",
+        "scrypt:99999999:8:1$salz$abcdef",
+        "scrypt:32768:8:1$salz$KEINHEX",
+        12345,
+    ])
+    def test_unbrauchbarer_hash_wird_verworfen(self, admin, wert):
+        """Ein Klartext oder ein Hash, den werkzeug nicht versteht, würde die
+        Anmeldung dieses Teams mit einem Serverfehler enden lassen."""
+        daten = rahmen(teams=[{"nr": 1, "name": "Team", "passwort_hash": wert}])
+
+        einlesen(admin, zip_aus(daten))
+
+        assert Team.query.one().password_hash is None
 
     def test_doppelte_teamnamen_werden_uebersprungen(self, admin):
         daten = rahmen(teams=[{"nr": 1, "name": "Team"}, {"nr": 2, "name": "Team"}])

@@ -459,19 +459,21 @@ def tasks_import(cid):
 def challenge_backup(cid):
     """Lädt den ganzen Wettbewerb als ZIP herunter, mit allen Abgaben.
 
-    Die Namen der Teammitglieder kommen nur mit, wenn sie ausdrücklich
-    gewählt sind - voreingestellt ist „ohne“. Mehr dazu in
-    wettbewerb_sicherung.py.
+    Die Namen der Teammitglieder und die Passwörter der Teams kommen nur
+    mit, wenn sie ausdrücklich gewählt sind - voreingestellt ist beides
+    „ohne“. Mehr dazu in wettbewerb_sicherung.py.
     """
     challenge = db.get_or_404(Challenge, cid)
     mit_namen = request.args.get("namen") == "mit"
+    mit_passwoertern = request.args.get("passwoerter") == "mit"
 
-    datei, zahlen = sicherung_bauen(challenge, mit_namen)
+    datei, zahlen = sicherung_bauen(challenge, mit_namen, mit_passwoertern)
 
     ereignis("Wettbewerb gesichert: „%s“ (#%s), %s Team(s), %s Aufgabe(n), "
-             "%s Abgabe(n), %s", challenge.title, cid, zahlen["teams"],
+             "%s Abgabe(n), %s, %s", challenge.title, cid, zahlen["teams"],
              zahlen["aufgaben"], zahlen["abgaben"],
-             "mit Namen" if mit_namen else "ohne Namen")
+             "mit Namen" if mit_namen else "ohne Namen",
+             "mit Passwörtern" if mit_passwoertern else "ohne Passwörter")
     if zahlen["fehlend"]:
         stoerung("Beim Sichern von „%s“ (#%s) fehlten %s Datei(en) von Abgaben",
                  challenge.title, cid, zahlen["fehlend"])
@@ -507,8 +509,14 @@ def challenge_restore():
 
     meldung = (f"„{challenge.title}“ eingelesen: {zahlen['teams']} Team(s), "
                f"{zahlen['aufgaben']} Aufgabe(n), {zahlen['abgaben']} Abgabe(n). "
-               "Der Wettbewerb ist nicht aktiv, und die Teams haben kein "
-               "Passwort.")
+               "Der Wettbewerb ist nicht aktiv")
+    ohne_passwort = zahlen["teams"] - zahlen["mit_passwort"]
+    if not zahlen["teams"] or not ohne_passwort:
+        meldung += "."
+    elif not zahlen["mit_passwort"]:
+        meldung += ", und die Teams haben kein Passwort."
+    else:
+        meldung += f", und {ohne_passwort} Team(s) haben kein Passwort."
     if zahlen["ohne_datei"]:
         meldung += f" Bei {zahlen['ohne_datei']} Abgabe(n) fehlte die Datei."
     if hinweise:
