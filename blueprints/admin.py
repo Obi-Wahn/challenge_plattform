@@ -1158,6 +1158,7 @@ EINSTELLUNGSFELDER = {
     "signature_name": "Unterschrift",
     "signature_font": "Schrift der Unterschrift",
     "member_names_enabled": "Namen der Teammitglieder",
+    "scoreboard_task_titles": "Aufgabentitel in der Rangliste",
     "certificate_orientation": "Ausrichtung der Urkunden",
 }
 
@@ -1184,6 +1185,7 @@ def settings():
         # Ein Häkchen schickt nichts mit, wenn es nicht gesetzt ist - das
         # Fehlen des Feldes ist also die Antwort "nein".
         site_settings.member_names_enabled = bool(request.form.get("member_names_enabled"))
+        site_settings.scoreboard_task_titles = bool(request.form.get("scoreboard_task_titles"))
 
         ausrichtung = request.form.get("certificate_orientation", "")
         site_settings.certificate_orientation = (

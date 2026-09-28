@@ -361,6 +361,10 @@ class Settings(db.Model):
     # Aus, bis die Lehrkraft es freischaltet: Vorher soll auf der Team-Seite
     # kein Feld stehen, das noch niemand ausfüllen soll.
     member_names_enabled = db.Column(db.Boolean, nullable=False, default=False)
+    # Ob über den Spalten der Rangliste „A1: Titel“ steht oder nur „A1“.
+    # An ist die Voreinstellung; aus lohnt sich bei vielen Aufgaben mit
+    # langen Titeln, wenn am Beamer ohnehin nur Wortanfänge übrig blieben.
+    scoreboard_task_titles = db.Column(db.Boolean, nullable=False, default=True)
 
     @classmethod
     def get(cls):

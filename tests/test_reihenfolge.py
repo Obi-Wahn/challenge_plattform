@@ -7,6 +7,7 @@ heruntergeladenen Abgabe und in beiden Sicherungen.
 
 import io
 import json
+import re
 import zipfile
 
 import pytest
@@ -198,3 +199,51 @@ class TestUeberall:
 
         kopie = Challenge.query.filter(Challenge.id != umsortiert.id).one()
         assert titel(kopie) == ["Katze", "Punkte", "Gespräch"]
+
+
+class TestTitelInDerRangliste:
+    """Unter Einstellungen → Rangliste lassen sich die Titel abschalten."""
+
+    def einstellen(self, admin, an):
+        from models import Settings
+
+        vorhanden = Settings.get()
+        daten = {
+            "csrf_token": csrf_token(admin, "/admin/settings"),
+            "site_name": vorhanden.site_name,
+            "certificate_orientation": vorhanden.certificate_orientation,
+        }
+        if an:
+            daten["scoreboard_task_titles"] = "1"
+        admin.post("/admin/settings", data=daten)
+
+    def test_voreingestellt_stehen_die_titel_da(self, client, drei, make_team):
+        make_team(drei, name="Team Blitz")
+
+        html = client.get("/scoreboard").get_data(as_text=True)
+
+        assert "A1: Katze" in html
+
+    def test_abgeschaltet_steht_nur_die_nummer(self, admin, client, drei, make_team):
+        make_team(drei, name="Team Blitz")
+        self.einstellen(admin, an=False)
+
+        html = client.get("/scoreboard").get_data(as_text=True)
+
+        assert ">A1: Katze<" not in html
+        assert "ranglisten-aufgabe" not in html
+        assert re.search(r">\s*A1\s*</th>", html)
+        assert re.search(r">\s*A3\s*</th>", html)
+
+    def test_wieder_eingeschaltet(self, admin, client, drei, make_team):
+        make_team(drei, name="Team Blitz")
+        self.einstellen(admin, an=False)
+        self.einstellen(admin, an=True)
+
+        assert "A2: Gespräch" in client.get("/scoreboard").get_data(as_text=True)
+
+    def test_der_schalter_steht_in_den_einstellungen(self, admin):
+        html = admin.get("/admin/settings").get_data(as_text=True)
+
+        assert 'name="scoreboard_task_titles"' in html
+        assert "Aufgabentitel über den Spalten zeigen" in html

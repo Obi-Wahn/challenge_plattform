@@ -39,7 +39,7 @@
               <th class="ranglisten-team p-4">Team</th>
               {% for task in tasks %}
               <th class="py-4 px-2 text-center" title="A{{ loop.index }}: {{ task.title }}">
-                <span class="ranglisten-aufgabe">A{{ loop.index }}: {{ task.title }}</span>
+                {% if aufgabentitel %}<span class="ranglisten-aufgabe">A{{ loop.index }}: {{ task.title }}</span>{% else %}A{{ loop.index }}{% endif %}
               </th>
               {% endfor %}
               <th class="ranglisten-gesamt p-4 text-end">Gesamt</th>

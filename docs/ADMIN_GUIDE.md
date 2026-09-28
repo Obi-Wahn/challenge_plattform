@@ -71,6 +71,14 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    optional einen Hinweis. Der Hinweis bleibt verborgen, bis er
    freigeschaltet wird.
 
+   **Titel möglichst kurz halten**, zwei, drei Wörter wie „Ballon-Jagd“
+   oder „Geheimes Passwort“. Über den Spalten der Rangliste steht
+   „A1: Titel“, und die Spalten teilen sich die Breite des Beamers: Bei
+   fünfzehn Aufgaben bleiben von einem langen Titel nur Wortanfänge. Was
+   die Teams genau tun sollen, gehört in den Aufgabentext. Reicht am Beamer
+   die Nummer, schaltest du die Titel unter *Einstellungen* → *Rangliste*
+   ab.
+
    Die Schwierigkeit ist *einfach*, *mittel* oder *schwer*; „keine Angabe“
    ist auch eine Antwort, dann steht bei der Aufgabe nichts. Die Teams sehen
    sie als farbiges Schild unter dem ersten Satz der Aufgabe, gleich neben
@@ -131,7 +139,8 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    dass die Teams ihn erst nach dem Aktivieren sehen.
 3. Rangliste `/scoreboard` an die Wand werfen. Oben läuft die Zeit, darunter
    füllt sich die Tabelle, sobald du bewertest. Über jeder Spalte stehen
-   Nummer und Titel der Aufgabe, ein langer Titel gekürzt.
+   Nummer und Titel der Aufgabe, ein langer Titel gekürzt; ab Laptopbreite
+   passt die Tabelle mit „Gesamt“ immer ganz auf die Seite.
 4. Teams registrieren sich selbst auf der Startseite `/`: Teamname und ein
    Passwort, das sie sich ausdenken. Jedes Team merkt sich beides. Danach
    landen sie auf ihrer Wettbewerbsseite `/challenge`, wo die Restzeit über
