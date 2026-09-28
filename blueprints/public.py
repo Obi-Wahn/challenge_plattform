@@ -30,8 +30,14 @@ ANMELDUNG_ZU = {
     "paused": "Der Wettbewerb ist gerade pausiert. Sobald es weitergeht, "
               "könnt ihr euch hier registrieren.",
     "keiner": "Gerade ist kein Wettbewerb aktiv. Sobald die Lehrkraft einen "
-              "aktiviert, könnt ihr euch hier registrieren.",
+              "aktiviert, könnt ihr euch hier registrieren oder anmelden.",
 }
+
+# Was die Anmeldeseite sagt, solange kein Wettbewerb aktiv ist. Sie suchte das
+# Team sonst in keinem Wettbewerb, fand es nicht und meldete „Ungültiger
+# Teamname oder Passwort“ - obwohl beides stimmte.
+KEIN_AKTIVER = ("Gerade ist kein Wettbewerb aktiv, deshalb kann sich kein Team "
+                "anmelden. Sobald die Lehrkraft einen aktiviert, geht es hier weiter.")
 
 
 def bereinigter_teamname(wert):
@@ -112,7 +118,8 @@ def index():
         def mit_fehler(text):
             return render_template("index.html", error=text,
                                    qr_code_data=qr_code_data, beitritt=beitritt,
-                                   anmeldung_zu=anmeldung_zu)
+                                   anmeldung_zu=anmeldung_zu,
+                                   anmelden_offen=challenge is not None)
 
         if not challenge:
             return mit_fehler("Aktuell läuft kein Wettbewerb. Bitte wartet, "
@@ -161,13 +168,22 @@ def index():
         return redirect(url_for("challenge.view"))
 
     return render_template("index.html", qr_code_data=qr_code_data, beitritt=beitritt,
-                           anmeldung_zu=anmeldung_zu)
+                           anmeldung_zu=anmeldung_zu,
+                           # Ohne aktiven Wettbewerb führt „Hier anmelden“
+                           # ins Leere - der Link fällt dann weg.
+                           anmelden_offen=challenge is not None)
 
 @public_bp.route("/login", methods=["GET", "POST"])
 # Only actual login attempts count towards the limit - merely opening or
 # reloading the login page must not lock anyone out.
 @limiter.limit("5 per minute", methods=["POST"])
 def login():
+    # Teams gehören zu einem Wettbewerb. Ist keiner aktiv, gibt es nichts,
+    # wofür man sich anmelden könnte - das sagt die Seite, statt ein Formular
+    # anzubieten, das nur mit „Ungültiger Teamname oder Passwort“ endet.
+    if Challenge.current() is None:
+        return render_template("login.html", kein_wettbewerb=KEIN_AKTIVER)
+
     if request.method == "POST":
         # Genauso bereinigt wie bei der Registrierung - sonst käme ein Team,
         # das sich mit einem versehentlichen Leerzeichen angemeldet hat, nie

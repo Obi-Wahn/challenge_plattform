@@ -108,9 +108,10 @@ class TestLoeschenDesAktiven:
         loeschen(admin, aktiv)
 
         # Das Formular steht dann nicht mehr auf der Seite - hier ein von
-        # Hand abgeschicktes, das Token kommt von der Anmeldeseite.
+        # Hand abgeschicktes. Auch die Anmeldeseite zeigt keins, das Token
+        # kommt von der Admin-Anmeldung.
         antwort = client.post("/", data={
-            "csrf_token": csrf_token(client, "/login"),
+            "csrf_token": csrf_token(client, "/admin/login"),
             "team": "Nachzügler", "password": "geheim",
         })
 
@@ -217,5 +218,58 @@ class TestStartseiteOhneAktiven:
 
     def test_frische_installation_zeigt_das_formular_weiter(self, client, database):
         seite = client.get("/").get_data(as_text=True)
+
+        assert 'name="password"' in seite
+
+    def test_der_link_zur_anmeldung_faellt_weg(self, client, make_challenge):
+        make_challenge(title="Alt", active=False)
+
+        seite = client.get("/").get_data(as_text=True)
+
+        assert "Hier anmelden" not in seite
+
+    def test_nach_dem_ende_bleibt_der_link_fuer_die_urkunde(self, client, make_challenge):
+        from datetime import datetime, timedelta
+        make_challenge(end_time=datetime.now() - timedelta(minutes=5))
+
+        seite = client.get("/").get_data(as_text=True)
+
+        assert "Registrierung geschlossen" in seite
+        assert "Hier anmelden" in seite
+
+
+class TestAnmeldungOhneAktiven:
+    """Die Anmeldeseite suchte das Team sonst in keinem Wettbewerb und
+    meldete „Ungültiger Teamname oder Passwort“ - obwohl beides stimmte."""
+
+    def test_die_seite_sagt_warum_statt_ein_formular_zu_zeigen(self, client, make_challenge):
+        make_challenge(title="Alt", active=False)
+
+        seite = client.get("/login").get_data(as_text=True)
+
+        assert "Gerade ist kein Wettbewerb aktiv" in seite
+        assert 'name="password"' not in seite
+
+    def test_richtige_angaben_bekommen_keinen_falschen_vorwurf(
+            self, client, make_challenge, make_team):
+        from models import Challenge
+        alt = make_challenge(title="Alt")
+        make_team(alt, name="Pixel", password="geheim")
+        alt.active = False
+        Challenge.query.session.commit()
+
+        antwort = client.post("/login", data={
+            "csrf_token": csrf_token(client, "/admin/login"),
+            "team": "Pixel", "password": "geheim",
+        })
+        seite = antwort.get_data(as_text=True)
+
+        assert "Ungültiger Teamname" not in seite
+        assert "Gerade ist kein Wettbewerb aktiv" in seite
+
+    def test_mit_aktivem_bleibt_das_formular(self, client, make_challenge):
+        make_challenge()
+
+        seite = client.get("/login").get_data(as_text=True)
 
         assert 'name="password"' in seite

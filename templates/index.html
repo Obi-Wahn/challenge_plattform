@@ -42,16 +42,19 @@
       {# Ist die Anmeldung zu, steht hier der Grund statt des Formulars. Ein
          beendeter Wettbewerb soll kein neues Team mehr aufnehmen - es stünde
          mit null Punkten in der Rangliste am Beamer -, ein pausierter auch
-         nicht. Der Weg über „Hier anmelden" bleibt in jedem Fall offen: Nach
-         dem Ende holen die Teams dort ihre Urkunde. #}
+         nicht. Der Weg über „Hier anmelden" bleibt dabei offen: Nach dem
+         Ende holen die Teams dort ihre Urkunde. Nur ohne aktiven Wettbewerb
+         fällt er weg - dann gibt es nichts, wofür man sich anmelden könnte. #}
       {% if anmeldung_zu %}
       <h2 class="h4 text-secondary mb-3">Registrierung geschlossen</h2>
 
       <p class="text-secondary mb-0">{{ anmeldung_zu }}</p>
 
+      {% if anmelden_offen %}
       <p class="mt-3 mb-0 text-secondary">
         Schon ein Team? <a href="{{ url_for('public.login') }}">Hier anmelden</a>
       </p>
+      {% endif %}
       {% else %}
       {% if error %}
       <div class="alert alert-danger" role="alert">
