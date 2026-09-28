@@ -278,7 +278,10 @@ class TestHinUndZurueck:
     def test_ohne_passwoerter_meldet_die_seite_es(self, admin, wettbewerb):
         antwort = einlesen(admin, sichern(admin, wettbewerb).data)
 
-        assert "die Teams haben kein Passwort" in antwort.get_data(as_text=True)
+        seite = antwort.get_data(as_text=True)
+        assert "Die Teams haben kein Passwort" in seite
+        # Neue gibt es erst nach dem Aktivieren - die Teamseite zeigt nur den aktiven.
+        assert "nach dem Aktivieren" in seite
 
     def test_urkunden_lassen_sich_drucken(self, admin, wettbewerb):
         einlesen(admin, sichern(admin, wettbewerb, namen=True).data)
@@ -438,3 +441,32 @@ class TestEinlesenPrueft:
 
         assert "Oder aus einer Sicherung einlesen" in html
         assert 'action="/admin/challenges/einlesen"' in html
+
+
+class TestKaputteZip:
+    def test_beschaedigte_daten_ergeben_eine_meldung(self, admin, wettbewerb):
+        """Ein einziges falsches Byte - ein zu früh abgezogener USB-Stick."""
+        daten = bytearray(sichern(admin, wettbewerb).data)
+        info = zipfile.ZipFile(io.BytesIO(bytes(daten))).getinfo("wettbewerb.json")
+        daten[info.header_offset + 30 + len(info.filename) + len(info.extra) + 5] ^= 0xFF
+
+        antwort = einlesen(admin, bytes(daten))
+
+        assert antwort.status_code == 200
+        assert "beschädigt" in antwort.get_data(as_text=True)
+        assert Challenge.query.count() == 1
+
+    def test_zu_grosse_sicherung_nennt_die_grenze_der_sicherung(self, admin, flask_app,
+                                                                monkeypatch):
+        import app as anwendung
+        monkeypatch.setattr(anwendung, "MAX_ZIP_BYTES", 1024)
+
+        antwort = admin.post("/admin/challenges/einlesen", data={
+            "csrf_token": csrf_token(admin, "/admin/challenges/new"),
+            "file": (io.BytesIO(b"x" * 5000), "Sicherung.zip"),
+        }, content_type="multipart/form-data")
+        seite = antwort.get_data(as_text=True)
+
+        assert antwort.status_code == 413
+        assert "Sicherung" in seite
+        assert "Scratch" not in seite

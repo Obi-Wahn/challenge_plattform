@@ -259,8 +259,9 @@ def register_error_handlers(app):
     """Zeigt für jeden Fehler eine Seite der Anwendung statt der des Servers."""
     from flask import render_template, request
 
-    def fehlerseite(code):
-        zeichen, ueberschrift, erklaerung = FEHLERSEITEN[code]
+    def fehlerseite(code, erklaerung=None):
+        zeichen, ueberschrift, standard = FEHLERSEITEN[code]
+        erklaerung = erklaerung or standard
 
         # Ein angemeldetes Team kommt mit einem Klick zurück an die Arbeit,
         # statt sich über die Startseite neu durchklicken zu müssen.
@@ -284,6 +285,16 @@ def register_error_handlers(app):
         # am Ende alle Handler auf dieselbe letzte Zahl.
         @app.errorhandler(code)
         def zeigen(error, code=code):
+            if (code == 413 and request.endpoint == "admin.challenge_restore"
+                    and session.get("is_admin")):
+                # Keine Abgabe, sondern eine Sicherung über der Grenze für
+                # Sicherungen - der Satz über Scratch-Klänge passte nicht.
+                ereignis("Sicherung abgelehnt: Datei zu groß (mehr als %s MB), von %s",
+                         MAX_ZIP_BYTES // (1024 * 1024), request.remote_addr or "unbekannt")
+                return fehlerseite(code, erklaerung=(
+                    f"Eine Sicherung darf bis zu {MAX_ZIP_BYTES // (1024 * 1024)} MB "
+                    "groß sein. Diese ist größer - sie ist wohl keine Sicherung "
+                    "eines einzelnen Wettbewerbs."))
             if code == 413:
                 # Eine zu große Datei bricht die Anfrage ab, bevor die Route
                 # läuft - hier ist die einzige Stelle, an der diese Ablehnung
@@ -524,6 +535,32 @@ def ensure_team_uids():
             conn.execute(text("UPDATE teams SET uid = :uid WHERE id = :id"),
                          {"uid": secrets.token_hex(16), "id": team_id})
 
+def ensure_active_challenge():
+    """Macht den Wettbewerb ausdrücklich aktiv, der bisher nur einsprang.
+
+    Bis v1.9.0 galt ohne aktivierten Wettbewerb der neueste. Seitdem gilt
+    ohne Aktivierung keiner. Damit ein Update nicht plötzlich die Startseite
+    leert, wird genau der Wettbewerb aktiv geschaltet, der vorher angezeigt
+    wurde. Danach greift das nie wieder: Es gibt dann einen aktiven.
+    """
+    from sqlalchemy import inspect, text
+
+    if "challenges" not in set(inspect(db.engine).get_table_names()):
+        return
+
+    with db.engine.begin() as conn:
+        if conn.execute(text("SELECT 1 FROM challenges WHERE active = 1")).first():
+            return
+        neuester = conn.execute(text(
+            "SELECT id, title FROM challenges ORDER BY id DESC LIMIT 1")).first()
+        if neuester is None:
+            return
+        conn.execute(text("UPDATE challenges SET active = 1 WHERE id = :id"),
+                     {"id": neuester.id})
+
+    app.logger.info("Wettbewerb beim Start aktiv geschaltet, er galt bisher ohne "
+                    "Aktivierung: „%s“ (#%s)", neuester.title, neuester.id)
+
 def startmeldung(adresse, port, protokoll):
     """Die Zeilen, die beim Start im Fenster stehen.
 
@@ -553,13 +590,15 @@ def run_startup_migrations():
     Zeit gab. Liefe er hinterher, fielen alle später ergänzten Spalten - die
     Namen der Teammitglieder etwa - stillschweigend wieder heraus.
 
-    Der Zeitpunkt der Pause und die Kennzeichen der Teams kommen zuletzt:
-    Sie füllen Spalten, die der Schritt davor überhaupt erst anlegt.
+    Der Zeitpunkt der Pause und die Kennzeichen der Teams kommen danach:
+    Sie füllen Spalten, die der Schritt davor überhaupt erst anlegt. Zuletzt
+    bekommt ein Bestand ohne aktiven Wettbewerb seinen aktiven.
     """
     ensure_team_challenge_binding()
     ensure_added_columns()
     ensure_pause_timestamp()
     ensure_team_uids()
+    ensure_active_challenge()
 
 if __name__ == "__main__":
     with app.app_context():

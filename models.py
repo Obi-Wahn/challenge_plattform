@@ -122,13 +122,19 @@ class Challenge(db.Model):
 
     @classmethod
     def current(cls):
-        """The competition everything refers to: the activated one.
+        """Der Wettbewerb, auf den sich alles bezieht: der aktivierte.
 
-        Falls back to the newest competition while none has been activated,
-        so a fresh installation works without pressing "aktivieren" first.
+        Ist keiner aktiv, gibt es keinen - auch wenn andere Wettbewerbe
+        angelegt sind. Früher sprang hier der neueste ein. Dann wurde nach
+        dem Löschen des aktiven still irgendein alter zum aktuellen, und
+        eine eingelesene Sicherung stand ohne Aktivieren auf der Startseite.
+        Welcher gilt, entscheidet die Lehrkraft mit „Aktivieren“.
+
+        Damit eine frische Installation ohne diesen Schritt auskommt, wird
+        ein neu angelegter Wettbewerb von selbst aktiv, wenn gerade keiner
+        aktiv ist - siehe admin.challenge_new.
         """
-        return (cls.query.filter_by(active=True).first()
-                or cls.query.order_by(cls.id.desc()).first())
+        return cls.query.filter_by(active=True).first()
 
     @property
     def reference_time(self):

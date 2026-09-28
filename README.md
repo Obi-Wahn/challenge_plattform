@@ -54,7 +54,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 
 ### Für die Teams
 *   **Beitritt per QR-Code**: Der Code auf der Startseite führt das Smartphone direkt hin, sonst tippt man die Adresse aus dem Schulnetz ein. Die Seiten sind für Desktop, Tablet und Smartphone gemacht.
-*   **Registrierung je Wettbewerb**: Teamname und Passwort; derselbe Teamname darf in mehreren Wettbewerben vorkommen. Ist der Wettbewerb beendet oder pausiert, nimmt die Startseite keine neuen Teams mehr an – wer schon dabei ist, kommt weiter hinein.
+*   **Registrierung je Wettbewerb**: Teamname und Passwort; derselbe Teamname darf in mehreren Wettbewerben vorkommen. Ist der Wettbewerb beendet oder pausiert oder gerade keiner aktiv, nimmt die Startseite keine neuen Teams an – wer schon dabei ist, kommt weiter hinein.
 *   **Wettbewerbsseite**: alle Aufgaben mit Fortschritt, eigenen Punkten und dem Feedback der Lehrkraft, dazu die Restzeit als Leiste.
 *   **Schwierigkeit auf einen Blick**: Unter dem einleitenden Satz jeder Aufgabe stehen Punkte und Stufe — 🟢 einfach, 🟡 mittel, 🔴 schwer.
 *   **Aktualisiert sich selbst**: Die Seite fragt alle 15 Sekunden nach dem Stand — Pause, Fortsetzen, ein freigeschalteter Tipp und eine neue Dauer kommen an, ohne dass jemand neu laden muss.
@@ -66,7 +66,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 
 ### Für die Lehrkraft
 *   **Steuerzentrale**: Zustand, Teams, Aufgaben und offene Bewertungen auf einen Blick, die Kacheln nach Vorbereitung, Während des Wettbewerbs und Zum Abschluss sortiert. Eine Linie am Rand hält zusammen, was zum laufenden Wettbewerb gehört; darunter stehen abgesetzt die Einstellungen der Installation und die anderen Wettbewerbe, die beendeten zugeklappt für sich.
-*   **Wettbewerbe verwalten**: anlegen, aktivieren, pausieren, beenden, wieder öffnen und löschen – alles auf der Steuerzentrale. Beim Anlegen lassen sich die Teams eines früheren Wettbewerbs übernehmen, mit Passwort und den Namen für die Urkunde.
+*   **Wettbewerbe verwalten**: anlegen, aktivieren, pausieren, beenden, wieder öffnen und löschen – alles auf der Steuerzentrale. Welcher Wettbewerb gilt, entscheidet die Lehrkraft mit „Aktivieren“; nur ein neu angelegter wird von selbst aktiv, wenn gerade keiner es ist. Beim Anlegen lassen sich die Teams eines früheren Wettbewerbs übernehmen, mit Passwort und den Namen für die Urkunde.
 *   **Eigener Name je Wettbewerb**: Name und Untertitel stehen überall – Startseite, Rangliste, Teamseite, Urkunden, Browsertitel, Leiste oben und Fußzeile – und bleiben beim Wettbewerb, wenn längst ein anderer läuft.
 *   **Aufgaben**: Beschreibung in Markdown, erlaubtes Dateiformat, Schwierigkeit (einfach, mittel, schwer oder keine Angabe), optionaler Tipp. Aufgaben lassen sich als JSON sichern, weitergeben und in einen anderen Wettbewerb einlesen — ohne Abgaben und Punkte. Fertige Sätze für Scratch und Calliope liegen unter `beispiele/` und sind mit einem Klick eingelesen.
 *   **Wettbewerb sichern**: ein ganzer Wettbewerb als ZIP – Aufgaben, Teams, Abgaben samt Dateien, Punkte und Feedback. Unter „Neuer Wettbewerb“ wieder eingelesen, entsteht daraus ein neuer, inaktiver Wettbewerb, etwa auf einem anderen Rechner. Die Namen für die Urkunde und die Passwörter der Teams kommen nur auf ausdrücklichen Wunsch mit, die Passwörter nie im Klartext.
@@ -74,7 +74,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Bewerten**: Abgaben mit Aufgabenbeschreibung daneben, Textformate direkt im Browser lesbar, Download für lokale Tests, Punkte und Feedback, Korrektur freigeben oder Abgabe löschen.
 *   **Teams**: Passwort zurücksetzen, die eingetragenen Namen kontrollieren, freigeben oder die Freigabe zurücknehmen; eine Zeile oben zeigt, wie viele noch auf die Kontrolle warten.
 *   **Urkunden**: als PDF und Druckansicht, für alle Teams oder einzeln, im Quer- oder Hochformat, mit Namen und Handschrift unter der Unterschriftslinie — auch für einen längst beendeten Wettbewerb, mit den Punkten von damals.
-*   **Einstellungen**: Standardname und -untertitel für die Zeit, in der kein Wettbewerb läuft, Quer- oder Hochformat der Urkunden, Name und Handschrift unter der Unterschriftslinie, und ob die Teams ihre Namen eintragen dürfen.
+*   **Einstellungen**: Standardname und -untertitel für eine Installation, in der noch kein Wettbewerb angelegt oder keiner aktiv ist, Quer- oder Hochformat der Urkunden, Name und Handschrift unter der Unterschriftslinie, und ob die Teams ihre Namen eintragen dürfen.
 *   **Protokolldatei**: Was anlegt, ändert oder wegnimmt, steht mit Zeitstempel in `logs/anwendung.log` – samt jeder **abgewiesenen** Abgabe mit Grund. Damit ist „Wir haben doch abgegeben!“ nach dem Wettbewerbstag beantwortbar.
 *   **Eigene Fehlerseiten**: deutscher Satz und ein Weg zurück statt der englischen Seite des Webservers. Die gewöhnlichen Missgeschicke landen gar nicht dort, sondern als Meldung auf der Wettbewerbsseite des Teams.
 
@@ -154,7 +154,7 @@ Coding-Wettbewerb-Plattform
 
 Version ................ 1.7.0 (Stand 27.09.2026)
 Python ................. 3.13.1
-Virtuelle Umgebung ..... vorhanden
+Virtuelle Umgebung ..... vorhanden (Python 3.13)
 Pakete ................. aktuell
 Konfiguration .......... vorhanden
 Datenbank .............. vorhanden
@@ -259,7 +259,7 @@ Seite – und mit dem Passwort anmelden, das die Startdatei beim ersten Mal
 abgefragt und als `ADMIN_PASSWORD` in die `.env` geschrieben hat. Den Namen,
 unter dem die Teams ihren Wettbewerb sehen, trägt man beim Anlegen des
 Wettbewerbs ein. Unter *Einstellungen* steht nur der Standardname für die
-Zeit, in der kein Wettbewerb läuft.
+Zeit, in der kein Wettbewerb aktiv ist.
 
 Wie ein Wettbewerb **abläuft** – was eine Woche vorher, am Vortag, während
 des Wettbewerbs und danach zu tun ist, und was zu tun ist, wenn etwas klemmt –
@@ -418,7 +418,8 @@ Mit Blick auf den Datenschutz ist die Datei so knapp wie möglich:
   „1234“ aber mit etwas Rechenzeit zurückraten – ein Problem, sobald ein Kind
   dasselbe Passwort auch anderswo benutzt. Ohne das Häkchen haben die Teams
   nach dem Einlesen kein Passwort; für Rangliste und Urkunden braucht es
-  keins, zum Weitermachen gibt es unter **Teams** neue.
+  keins. Zum Weitermachen den Wettbewerb aktivieren und unter **Teams** neue
+  vergeben – die Teamseite zeigt nur den aktiven Wettbewerb.
 - **Nie das Kennzeichen der Anmeldung.** Jedes eingelesene Team bekommt ein
   neues, eine Sitzung von der alten Installation gilt also nicht.
 - **Keine Einstellungen der Installation** (Standardname, Unterschrift): Die
@@ -426,21 +427,21 @@ Mit Blick auf den Datenschutz ist die Datei so knapp wie möglich:
 
 Mit Namen oder Passwörtern gehört die Datei nicht auf private Geräte oder in
 eine Cloud.
-- **Keine Einstellungen der Installation** (Standardname, Unterschrift): Die
-  gehören nicht zu einem Wettbewerb.
 
 Die ZIP entsteht beim Klick und bleibt nicht auf dem Server liegen. Sichern und
-Einlesen stehen im Protokoll.
+Einlesen stehen im Protokoll. Ist die ZIP beschädigt – etwa weil der USB-Stick
+zu früh abgezogen wurde –, sagt die Seite das, und es wird nichts angelegt.
 
 **Was sie nicht ersetzt:** Fällt der Rechner mitten im Wettbewerb aus, bleibt
 die Kopie von `data/` und `uploads/` der sichere Weg – nur sie enthält alle
-Wettbewerbe, die Einstellungen und die Passwörter der Teams, sodass nach dem
-Zurückkopieren alle einfach weitermachen.
+Wettbewerbe und die Einstellungen auf einmal, sodass nach dem Zurückkopieren
+alle einfach weitermachen.
 
 ## 📋 Protokolldatei
 
 Fehler und wichtige Ereignisse landen in `logs/anwendung.log` – mit
-Zeitstempel und der Adresse der Seite, auf der es passiert ist:
+Zeitstempel, bei einem Absturz auch mit der Adresse der Seite, auf der es
+passiert ist:
 
 ```
 2026-09-20 09:14:02  INFO     Wettbewerb angelegt: „Scratch-Tag 6b“ (#7)
@@ -457,10 +458,10 @@ Festgehalten wird, was etwas **anlegt, ändert oder wegnimmt** – und was
 
 | Wann | Was im Protokoll steht |
 |---|---|
-| Start | der Server ist hochgefahren, mit Adresse, Port und Version |
+| Start | der Server ist hochgefahren, mit Adresse, Port und Version · gesicherte Datenbank vor einem Umbau · ein Wettbewerb, den das Update aktiv geschaltet hat, weil bisher keiner ausdrücklich aktiviert war |
 | Aufbau | Wettbewerb angelegt, bearbeitet, aktiv geschaltet, gelöscht · Team angelegt, gelöscht, Passwort zurückgesetzt · übernommene Teams · Aufgabe angelegt, bearbeitet, gelöscht · Aufgaben gesichert und eingelesen · Wettbewerb gesichert (mit oder ohne Namen und Passwörter) und eingelesen · geänderte Einstellungen (nur welche Felder) |
-| Wettbewerbstag | freigeschalteter oder wieder verborgener Tipp · abgelehnte Abgabe samt Grund (falsche Endung, zu groß, pausiert, beendet, schon abgegeben) · zurückgesetzte Abgabe · fehlgeschlagene Admin-Anmeldung mit Adresse |
-| Zum Abschluss | erzeugte Urkunden (Wettbewerb, Anzahl, Ausrichtung) · gesicherte Datenbank |
+| Wettbewerbstag | freigeschalteter oder wieder verborgener Tipp · abgelehnte Abgabe samt Grund (falsche Endung, zu groß, pausiert, beendet, schon abgegeben) · zu große Sicherung · zurückgesetzte Abgabe · fehlgeschlagene Admin-Anmeldung mit Adresse |
+| Zum Abschluss | erzeugte Urkunden (Wettbewerb, Anzahl, Ausrichtung) |
 | Störungen | eine Datei, die nicht gelöscht werden konnte · eine Urkunde, die nicht erzeugt werden konnte · jeder unbehandelte Fehler mit Traceback |
 
 Der gewöhnliche Betrieb bleibt **absichtlich still**: kein Seitenaufruf, keine
@@ -468,6 +469,12 @@ An- und Abmeldung eines Teams, keine eingegangene Abgabe, keine einzelne
 Bewertung, und vom Wettbewerb selbst weder Start noch Pause. Sonst wäre die
 Datei nach einer Schulstunde nicht mehr zu lesen – und genau dann soll sie gebraucht werden
 können. Passwörter stehen nie darin, auch keine geratenen.
+
+**Datenschutz:** Die Datei nennt Teamnamen und bei fehlgeschlagenen
+Admin-Anmeldungen die IP-Adresse des Geräts – auch dann noch, wenn der
+Wettbewerb längst gelöscht ist. Kinder nennen ihr Team gern nach sich selbst.
+Nach dem Wettbewerb, sobald nichts mehr nachzufragen ist, den Ordner `logs/`
+leeren.
 
 Der Sinn: Ohne diese Datei stünde ein Traceback nur im Terminalfenster. Wer
 es schließt oder den Server als Dienst laufen lässt, hätte nach einer Störung
@@ -526,6 +533,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_zeitleiste.py` | die Restzeit-Leiste auf Wettbewerbsseite und Rangliste |
 | `test_aktualisierung.py` | die Teamseite holt sich den Stand von selbst |
 | `test_veranstaltungsname.py` | eigener Name je Wettbewerb, Urkunden für ältere Wettbewerbe |
+| `test_aktiver_wettbewerb.py` | welcher Wettbewerb gilt, wird ausdrücklich gewählt – auch nach dem Löschen und Einlesen |
 
 **Teams, Abgaben, Bewertung**
 

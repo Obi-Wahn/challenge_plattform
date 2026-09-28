@@ -115,7 +115,7 @@ class TestSeiten:
         seite = client.get("/login").get_data(as_text=True)
 
         assert "<title>Scratch-Wettbewerb</title>" in seite
-        assert "&copy; Scratch-Wettbewerb" in seite
+        assert "<small>Scratch-Wettbewerb</small>" in seite
 
     def test_leiste_oben_bleibt_beim_aktiven_wettbewerb(self, einstellungen, admin,
                                                         make_challenge):

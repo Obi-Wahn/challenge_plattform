@@ -12,6 +12,11 @@
         </div>
         {% endif %}
 
+        {% if kein_wettbewerb %}
+        <div class="event-card">
+            <p class="text-secondary mb-0">{{ kein_wettbewerb }}</p>
+        </div>
+        {% else %}
         <div class="event-card">
 
             <form method="post">
@@ -35,6 +40,7 @@
         <p class="mt-4 text-secondary">
             Noch kein Team? <a href="{{ url_for('public.index') }}">Hier registrieren</a>
         </p>
+        {% endif %}
 
     </div>
 </div>
