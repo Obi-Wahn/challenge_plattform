@@ -29,6 +29,8 @@ ANMELDUNG_ZU = {
                 "„Anmelden“ an seine Urkunde.",
     "paused": "Der Wettbewerb ist gerade pausiert. Sobald es weitergeht, "
               "könnt ihr euch hier registrieren.",
+    "keiner": "Gerade ist kein Wettbewerb aktiv. Sobald die Lehrkraft einen "
+              "aktiviert, könnt ihr euch hier registrieren.",
 }
 
 
@@ -95,7 +97,11 @@ def index():
     # frischen Installation, in der noch keiner angelegt ist, und die Lehrkraft
     # soll dort ausprobieren können, wie die Anmeldung aussieht.
     anmeldung_zu = None
-    if challenge and not challenge.accepts_registrations:
+    if not challenge and Challenge.query.first():
+        # Es gibt Wettbewerbe, aber keiner ist aktiv - etwa nach dem Löschen
+        # des aktiven. Das Formular führte nur zu einer Fehlermeldung.
+        anmeldung_zu = ANMELDUNG_ZU["keiner"]
+    elif challenge and not challenge.accepts_registrations:
         anmeldung_zu = ANMELDUNG_ZU[
             "finished" if challenge.status() == "finished" else "paused"]
 

@@ -146,7 +146,11 @@
 
       <div class="col-md-12 mt-2">
         <div class="d-flex flex-wrap justify-content-end gap-2">
-          <button type="submit"
+          {# formnovalidate: Die Knöpfe teilen sich das Formular mit dem
+             Punktefeld, und das ist ein Pflichtfeld. Ohne das Attribut hielt
+             der Browser beide an, solange die Abgabe noch keine Punkte hatte -
+             also genau dann, wenn ein Team die falsche Datei erwischt hat. #}
+          <button type="submit" formnovalidate
             formaction="{{ url_for('admin.submission_allow_resubmit', submission_id=submission.id) }}"
             class="btn btn-sm {% if submission.resubmit_allowed %}btn-info{% else %}btn-outline-info{% endif %}">
             {% if submission.resubmit_allowed %}
@@ -156,7 +160,7 @@
             {% endif %}
           </button>
 
-          <button type="submit" formaction="{{ url_for('admin.submission_reset', submission_id=submission.id) }}"
+          <button type="submit" formnovalidate formaction="{{ url_for('admin.submission_reset', submission_id=submission.id) }}"
             class="btn btn-outline-danger btn-sm"
             onclick="return confirm('Abgabe wirklich unwiderruflich löschen? Das Team kann dann neu abgeben.');">
             🗑️ Abgabe vollständig löschen

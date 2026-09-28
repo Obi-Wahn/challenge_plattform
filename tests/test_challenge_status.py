@@ -100,9 +100,11 @@ class TestAktuellerWettbewerb:
         make_challenge(title="Neuer, aber nicht aktiv", active=False)
         assert Challenge.current().id == aktiv.id
 
-    def test_ohne_aktivierung_der_neueste(self, make_challenge):
-        """Damit eine frische Installation ohne „aktivieren“ funktioniert."""
+    def test_ohne_aktivierung_keiner(self, make_challenge):
+        """Früher sprang der neueste ein - dann wurde nach dem Löschen des
+        aktiven still irgendein alter zum aktuellen. Welcher gilt, wird jetzt
+        ausdrücklich gewählt."""
         from models import Challenge
         make_challenge(title="Erster", active=False)
-        neuester = make_challenge(title="Zweiter", active=False)
-        assert Challenge.current().id == neuester.id
+        make_challenge(title="Zweiter", active=False)
+        assert Challenge.current() is None

@@ -196,3 +196,62 @@ class TestPunkteEintragen:
         assert antwort.status_code == 200
         assert "muss eine Zahl sein" in antwort.get_data(as_text=True)
         assert Submission.query.one().points is None
+
+
+class TestKnoepfeOhneBewertung:
+    """Die Knöpfe unter einer Abgabe teilen sich das Formular mit dem
+    Punktefeld, und das ist ein Pflichtfeld. Ohne formnovalidate hält der
+    Browser „Erneut abgeben erlauben“ und „Abgabe löschen“ an, solange die
+    Abgabe keine Punkte hat - der Test-Client merkt davon nichts, deshalb
+    steht es hier als Prüfung auf das Attribut."""
+
+    def test_beide_knoepfe_umgehen_die_pflichtfeldpruefung(
+            self, admin, make_challenge, make_task, logged_in_team):
+        import re
+        challenge = make_challenge()
+        task = make_task(challenge, allowed_extension=".py")
+        client, _team = logged_in_team(challenge)
+        abgeben(client, task, "loesung.py")
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        knoepfe = re.findall(r"<button[^>]*formaction=[^>]*>", html)
+        assert len(knoepfe) == 2
+        assert all("formnovalidate" in knopf for knopf in knoepfe)
+
+
+class TestDownload:
+    def test_eine_fehlende_datei_meldet_die_bewertungsseite(
+            self, admin, make_challenge, make_task, logged_in_team):
+        import os
+        from models import Submission
+        challenge = make_challenge()
+        task = make_task(challenge, title="Katze", allowed_extension=".py")
+        client, _team = logged_in_team(challenge)
+        abgeben(client, task, "loesung.py")
+        abgabe = Submission.query.one()
+        os.remove(abgabe.filename)
+
+        antwort = admin.get(f"/admin/download/{abgabe.id}", follow_redirects=True)
+        seite = antwort.get_data(as_text=True)
+
+        assert antwort.status_code == 200
+        assert "liegt nicht mehr auf dem Server" in seite
+        assert "Tippfehler" not in seite
+
+    def test_der_name_nennt_die_aufgabe_wie_die_rangliste(
+            self, admin, make_challenge, make_task, logged_in_team):
+        from models import Submission
+        # Ein früherer Wettbewerb treibt die Nummern der Datenbank hoch.
+        alt = make_challenge(title="Alt", active=False)
+        make_task(alt, title="Alt 1")
+        make_task(alt, title="Alt 2")
+        challenge = make_challenge()
+        make_task(challenge, title="Erste", allowed_extension=".py")
+        zweite = make_task(challenge, title="Zweite", allowed_extension=".py")
+        client, _team = logged_in_team(challenge, name="Pixel")
+        abgeben(client, zweite, "loesung.py")
+
+        antwort = admin.get(f"/admin/download/{Submission.query.one().id}")
+
+        assert "Pixel_A2.py" in antwort.headers["Content-Disposition"]

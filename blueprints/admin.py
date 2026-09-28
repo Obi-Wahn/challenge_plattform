@@ -213,11 +213,17 @@ def challenge_new():
             flash("Der Wettbewerb braucht einen Namen - nichts angelegt.", "warning")
             return redirect(url_for('admin.challenge_new'))
 
+        # Ist gerade keiner aktiv - auf einer frischen Installation oder nach
+        # dem Löschen des aktiven -, wird der neue es. Sonst bliebe die
+        # Startseite leer, bis jemand „Aktivieren“ findet. Läuft schon einer,
+        # löst ihn der neue nicht ab.
+        wird_aktiv = Challenge.current() is None
         challenge = Challenge(
             title=title,
             tagline=request.form.get("tagline", "").strip()[:MAX_UNTERTITEL],
             start_time=parse_datetime_local(request.form.get("start_time")),
-            end_time=parse_datetime_local(request.form.get("end_time"))
+            end_time=parse_datetime_local(request.form.get("end_time")),
+            active=wird_aktiv
         )
         db.session.add(challenge)
         db.session.flush() # assigns the id the copied teams are bound to
@@ -238,7 +244,11 @@ def challenge_new():
 
         db.session.commit()
 
-        ereignis("Wettbewerb angelegt: „%s“ (#%s)", challenge.title, challenge.id)
+        ereignis("Wettbewerb angelegt: „%s“ (#%s)%s", challenge.title, challenge.id,
+                 ", aktiv geschaltet" if wird_aktiv else "")
+        if wird_aktiv:
+            flash(f"„{challenge.title}“ ist angelegt und der aktive Wettbewerb - "
+                  "es war gerade keiner aktiv.", "success")
 
         if previous and request.form.get("copy_teams"):
             ereignis("Teams übernommen aus „%s“: %s Team(s) nach „%s“ (#%s)",
@@ -334,12 +344,22 @@ def challenge_start_now(cid):
     challenge.paused_at = None
     db.session.commit()
 
-    flash(
-        f"„{challenge.title}“ läuft – {dauer} Minuten, bis "
-        f"{zeitpunkt_text(challenge.end_time, jetzt)}. Die Teams sehen die "
-        "neue Zeit innerhalb von etwa 15 Sekunden von selbst.",
-        "success"
-    )
+    if challenge.active:
+        flash(
+            f"„{challenge.title}“ läuft – {dauer} Minuten, bis "
+            f"{zeitpunkt_text(challenge.end_time, jetzt)}. Die Teams sehen die "
+            "neue Zeit innerhalb von etwa 15 Sekunden von selbst.",
+            "success"
+        )
+    else:
+        # Die Uhr läuft, aber für einen Wettbewerb, den kein Team erreicht.
+        # Das soll niemand erst merken, wenn die Klasse wartet.
+        flash(
+            f"Die Zeit von „{challenge.title}“ läuft – {dauer} Minuten, bis "
+            f"{zeitpunkt_text(challenge.end_time, jetzt)}. Er ist aber nicht der "
+            "aktive Wettbewerb: Die Teams sehen ihn erst, wenn du ihn aktivierst.",
+            "warning"
+        )
     return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))
 
 # Activating changes which competition everything refers to, so it is a POST
@@ -509,14 +529,15 @@ def challenge_restore():
 
     meldung = (f"„{challenge.title}“ eingelesen: {zahlen['teams']} Team(s), "
                f"{zahlen['aufgaben']} Aufgabe(n), {zahlen['abgaben']} Abgabe(n). "
-               "Der Wettbewerb ist nicht aktiv")
+               "Der Wettbewerb ist nicht aktiv – soll er weiterlaufen, aktiviere ihn.")
     ohne_passwort = zahlen["teams"] - zahlen["mit_passwort"]
-    if not zahlen["teams"] or not ohne_passwort:
-        meldung += "."
-    elif not zahlen["mit_passwort"]:
-        meldung += ", und die Teams haben kein Passwort."
-    else:
-        meldung += f", und {ohne_passwort} Team(s) haben kein Passwort."
+    # Neue Passwörter gibt es auf der Teamseite, und die zeigt nur den
+    # aktiven Wettbewerb - deshalb steht die Reihenfolge mit in der Meldung.
+    if zahlen["teams"] and ohne_passwort:
+        wer = ("Die Teams haben" if not zahlen["mit_passwort"]
+               else f"{ohne_passwort} Team(s) haben")
+        meldung += (f" {wer} kein Passwort; neue vergibst du nach dem Aktivieren "
+                    "unter Teams.")
     if zahlen["ohne_datei"]:
         meldung += f" Bei {zahlen['ohne_datei']} Abgabe(n) fehlte die Datei."
     if hinweise:
@@ -534,6 +555,11 @@ def challenge_pause(cid):
     Endzeit nach hinten.
     """
     challenge = db.get_or_404(Challenge, cid)
+    # Schon pausiert - ein Doppelklick oder ein zweiter offener Tab. Der
+    # Zeitpunkt bleibt, wie er ist: Neu gesetzt, rückte die Endzeit beim
+    # Fortsetzen um weniger nach hinten, als die Uhr stand.
+    if challenge.paused and challenge.paused_at:
+        return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))
     challenge.paused = True
     challenge.paused_at = datetime.now()
     db.session.commit()
@@ -610,11 +636,19 @@ def challenge_delete(cid):
     # Name und Zahl der Teams vor dem Löschen merken: Danach sind sie weg, und
     # gerade sie sagen im Nachhinein, was da verschwunden ist.
     titel, teams, aufgaben = challenge.title, len(challenge.teams), len(challenge.tasks)
+    war_aktiv = challenge.active
     db.session.delete(challenge)
     db.session.commit()
     ereignis("Wettbewerb gelöscht: „%s“ (#%s), mit %s Team(s) und %s Aufgabe(n)",
              titel, cid, teams, aufgaben)
-    return redirect(url_for('admin.challenges_list'))
+    # Welcher an seine Stelle tritt, sucht die Lehrkraft aus - die
+    # Steuerzentrale zeigt dafür die übrigen mit „Aktivieren“.
+    if war_aktiv and Challenge.query.first():
+        flash(f"„{titel}“ ist gelöscht. Jetzt ist kein Wettbewerb aktiv – wähle unten, "
+              "welcher gelten soll.", "warning")
+    else:
+        flash(f"„{titel}“ ist gelöscht.", "success")
+    return redirect(url_for('admin.dashboard'))
 
 @admin_bp.route("/tasks/<int:tid>/delete", methods=["POST"])
 def task_delete(tid):
@@ -855,10 +889,22 @@ def download_submission(submission_id):
     filepath = submission.filename
     directory = os.path.dirname(filepath)
     original_filename = os.path.basename(filepath)
-    
+
+    # Fehlt die Datei - eine eingelesene Sicherung ohne sie, ein verlorenes
+    # uploads/ -, sagt das die Bewertungsseite. Die 404-Seite spräche von
+    # einem Tippfehler in der Adresse.
+    if not os.path.isfile(filepath):
+        flash(f"Die Datei der Abgabe von Team „{submission.team.name}“ zu "
+              f"„{submission.task.title}“ liegt nicht mehr auf dem Server.", "warning")
+        return redirect(url_for('admin.submissions'))
+
     team_clean = safe_name(submission.team.name)
     ext = os.path.splitext(original_filename)[1]  # z.B. ".sb3" oder ".pde"
-    download_name = f"{team_clean}_Aufgabe_{submission.task_id}{ext}"
+    # Die Nummer, unter der die Aufgabe in der Rangliste steht (A1, A2 …),
+    # nicht die der Datenbank - die zählt über alle Wettbewerbe weiter.
+    nummern = [t.id for t in Task.query.filter_by(challenge_id=submission.task.challenge_id)
+               .order_by(Task.id)]
+    download_name = f"{team_clean}_A{nummern.index(submission.task_id) + 1}{ext}"
     
     return send_from_directory(
         directory,

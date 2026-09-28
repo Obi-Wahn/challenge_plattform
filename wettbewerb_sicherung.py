@@ -37,6 +37,7 @@ import os
 import re
 import tempfile
 import zipfile
+import zlib
 from datetime import datetime
 
 from werkzeug.utils import secure_filename
@@ -264,8 +265,18 @@ def sicherung_einlesen(dateiobjekt, upload_ordner):
     geschrieben = []
     try:
         with zf:
-            daten = _inhalt_lesen(zf)
-            ergebnis = _anlegen(zf, daten, upload_ordner, geschrieben)
+            try:
+                daten = _inhalt_lesen(zf)
+                ergebnis = _anlegen(zf, daten, upload_ordner, geschrieben)
+            except (zipfile.BadZipFile, zlib.error, EOFError, NotImplementedError,
+                    RuntimeError) as fehler:
+                # Beim Auspacken zeigt sich, was das Inhaltsverzeichnis nicht
+                # verrät: falsche Prüfsumme, kaputte Daten (ein zu früh
+                # abgezogener USB-Stick), eine verschlüsselte ZIP oder eine
+                # unbekannte Kompression. Das ist eine Meldung, kein Absturz.
+                raise SicherungFehler(
+                    "Die ZIP ist beschädigt oder lässt sich nicht auspacken "
+                    "(verschlüsselt oder unbekannt gepackt).") from fehler
         db.session.commit()
         return ergebnis
     except BaseException:

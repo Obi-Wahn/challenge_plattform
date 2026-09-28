@@ -152,12 +152,12 @@ def view():
         return redirect(url_for("public.index"))
 
     team_id = team.id
-    tasks = Task.query.filter_by(challenge_id=challenge.id).all()
+    tasks = Task.query.filter_by(challenge_id=challenge.id).order_by(Task.id).all()
     
     submissions = Submission.query.filter_by(team_id=team_id).join(Task).filter(Task.challenge_id == challenge.id).all()
     submission_map = {s.task_id: s for s in submissions}
 
-    # Dieselbe Rechnung wie auf der Countdown-Seite: vor dem Start bis zum
+    # Dieselbe Rechnung wie auf der Rangliste: vor dem Start bis zum
     # Beginn, danach bis zum Ende. Ohne gesetzte Zeit bleibt es bei 0, dann
     # zeigt die Leiste nur den Stand und keine Uhr.
     status = challenge.status()

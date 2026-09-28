@@ -51,7 +51,10 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    wenn später ein anderer läuft; seine Urkunden tragen ihn also auch nächstes
    Jahr noch. Einen eigenen Untertitel kannst du dazuschreiben; leer gelassen
    gilt der aus *Einstellungen*. Die Werte dort sind nur die Vorgabe für die
-   Zeit, in der noch kein Wettbewerb angelegt ist.
+   Zeit, in der noch kein Wettbewerb angelegt oder keiner aktiv ist.
+
+   Ist gerade kein Wettbewerb aktiv, wird der neue es von selbst. Läuft schon
+   einer, bleibt der aktiv; den neuen aktivierst du dann am Wettbewerbstag.
 
 5. **Aufgaben anlegen oder einlesen.** Fertige Sätze liegen unter
    `beispiele/` (Scratch, Calliope) und werden auf der Aufgaben-Seite mit
@@ -83,7 +86,9 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
       eine Datei hochladen, bewerten, Rangliste und Urkunde ansehen. Danach
       den Testwettbewerb löschen: Steuerzentrale → Kachel **Wettbewerb**
       (*Name, Zeiten, Löschen*) → ganz unten im roten Kasten **🗑 Löschen**.
-      Mit ihm verschwinden seine Teams und Abgaben.
+      Mit ihm verschwinden seine Teams und Abgaben. War er der aktive, ist
+      danach keiner mehr aktiv: Die Steuerzentrale sagt das und zeigt die
+      übrigen Wettbewerbe mit **✅ Aktivieren** – dort den richtigen wählen.
 - [ ] **`data/` und `uploads/` auf einen USB-Stick kopieren.** Beide: In
       `data/` steckt die Datenbank, in `uploads/` die abgegebenen Dateien.
       Die Datenbank merkt sich zu jeder Abgabe nur den Pfad, nicht die Datei.
@@ -112,7 +117,9 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    der Protokolldatei. **Das Fenster offen lassen.**
 2. Wettbewerb unter `/admin` **aktivieren**: Steht der richtige schon oben in
    der Statuszeile, ist nichts zu tun. Sonst steht er weiter unten unter
-   *Weitere Wettbewerbe* – dort **✅ Aktivieren**.
+   *Weitere Wettbewerbe* – dort **✅ Aktivieren**. „▶ Jetzt starten“ auf einem
+   nicht aktiven Wettbewerb startet nur seine Uhr; die Meldung danach sagt,
+   dass die Teams ihn erst nach dem Aktivieren sehen.
 3. Rangliste `/scoreboard` an die Wand werfen. Oben läuft die Zeit, darunter
    füllt sich die Tabelle, sobald du bewertest.
 4. Teams registrieren sich selbst auf der Startseite `/`: Teamname und ein
@@ -191,8 +198,8 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Team tippt seinen Namen anders geschrieben | Beim **Anmelden** ist das in Ordnung: „die pixelpiraten“ findet „Die Pixelpiraten“, solange es nur ein Team dieses Namens gibt. Nur wenn zwei Teams nebeneinander existieren, die sich allein in der Schreibweise unterscheiden, muss die Schreibweise stimmen. |
 | Zwei Teams mit fast gleichem Namen | Beim **Registrieren** zählt die Schreibweise: „Die Hacker“ und „die hacker“ werden zwei verschiedene Teams. Umgebende Leerzeichen werden dagegen entfernt, `„ Team A “` wird zu `„Team A“`. Wenn das stört, Team löschen und neu anmelden lassen. |
 | Ein Team kommt nicht mehr rein | Passwort vergessen. `/admin` → *Teams* → neues Passwort setzen und dem Team sagen. Das alte wird nicht angezeigt – auch nicht dir. |
-| Ein Team hat die falsche Datei hochgeladen | `/admin` → *Bewertungen* → **🔓 Erneut abgeben erlauben**. Das gilt **einmal**; die bisherige Bewertung wird dabei gelöscht und die Abgabe landet wieder in der Warteschlange. |
-| „Abgabe nicht möglich" bei einem Team | Wettbewerb pausiert, Endzeit überschritten, oder das Team gehört zu einem anderen Wettbewerb. Der Grund steht als Meldung auf der Wettbewerbsseite des Teams. |
+| Ein Team hat die falsche Datei hochgeladen | `/admin` → *Bewertungen* → **🔓 Erneut abgeben erlauben** – das geht auch, bevor die Abgabe Punkte hat. Die Freigabe gilt **einmal**. Sobald das Team neu abgibt, verschwindet die bisherige Bewertung und die Abgabe landet wieder in der Warteschlange; bis dahin bleibt alles, wie es ist. |
+| „Abgaben sind gerade gesperrt“ bei einem Team | Wettbewerb pausiert oder Endzeit überschritten. Die Meldung steht auf der Wettbewerbsseite des Teams. Gehört das Team zu einem anderen als dem aktiven Wettbewerb, landet es gar nicht erst dort, sondern auf der Startseite. |
 | Falsches Dateiformat wird abgewiesen | Das erlaubte Format steht pro Aufgabe und in der Meldung, die das Team bekommt. Prüfen, ob es zu dem passt, was die Umgebung tatsächlich exportiert (Scratch: `.sb3`, MakeCode-Calliope: `.hex`). |
 | Ein Team will sich noch registrieren, der Wettbewerb ist beendet oder pausiert | Die Startseite nimmt dann keine neuen Teams an – sonst stünde das Team mit null Punkten in der Rangliste am Beamer. Soll es doch noch mitmachen: **🔓 Wieder öffnen** bzw. **▶ Fortsetzen** auf der Wettbewerbsseite, dann registrieren lassen. |
 | Wettbewerb gelöscht, ein Team sitzt noch davor | Mit dem Wettbewerb sind seine Teams weg. Das Team landet beim nächsten Klick auf der Startseite und registriert sich dort für den nächsten Wettbewerb neu. |
@@ -200,10 +207,10 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Versehentlich beendet | **🔓 Wieder öffnen** auf der Wettbewerbsseite. Die Endzeit wird gelöscht und muss neu gesetzt werden. |
 | Teams sehen die geänderte Zeit nicht | Normalerweise kommt sie innerhalb von etwa 15 Sekunden von selbst an; die Teamseiten fragen den Server in diesem Takt nach dem Stand. Bleibt die alte Zeit stehen, hat das Gerät die Verbindung zum Server verloren oder das Tablet hat geschlafen. Einmal neu laden, dann stimmt sie wieder. |
 | Ein Gerät erreicht den Server nicht | Zuerst die Adresse auf der Startseite mit der im Terminal vergleichen. Dann Firewall. Dann, ob das Gerät im selben Netz hängt (nicht im Gast-WLAN). |
-| Auf der Startseite steht `127.0.0.1` | Das Netz hat kein Gateway, die Anwendung kann ihre eigene Adresse nicht erfragen – sie sagt das beim Start. Adresse am Server ablesen (`ip addr` bzw. `ipconfig`) und als `LAN_ADRESSE=192.168.…` in die `.env` eintragen, dann neu starten. |
+| „Die Adresse für andere Geräte konnte nicht ermittelt werden“ beim Start, oder auf der Startseite steht `127.0.0.1` | Das Netz hat kein Gateway, die Anwendung kann ihre eigene Adresse nicht erfragen – sie sagt das beim Start. Adresse am Server ablesen (`ip addr` bzw. `ipconfig`) und als `LAN_ADRESSE=192.168.…` in die `.env` eintragen, dann neu starten. |
 | Datenbank fehlt oder ist kaputt | Anwendung beenden. `data/challenge.db` zur Seite legen, die passende Sicherung `data/challenge-vor-…​.db` nach `data/challenge.db` umbenennen, neu starten. Die Sicherungen entstehen automatisch vor jeder Strukturänderung – eine regelmäßige Sicherung ersetzen sie nicht. |
-| Ein gesicherter Wettbewerb soll zurück | **➕ Neuer Wettbewerb** → unten **Oder aus einer Sicherung einlesen**, die ZIP wählen. Es entsteht ein neuer Wettbewerb, nicht aktiv, der alte bleibt, wie er ist. Soll er weiterlaufen, ihn aktivieren. Waren die Passwörter mitgesichert, melden sich die Teams wie gewohnt an; sonst haben sie kein Passwort und bekommen unter **Teams** neue. Für Rangliste und Urkunden braucht es keins. |
-| Hochgeladene Dateien fehlen | Die Abgaben liegen unter `uploads/<Team-Nummer>/`. Aus der letzten Sicherung dieses Verzeichnisses zurückkopieren; die Datenbank zeigt auf genau diese Pfade. Ohne Sicherung bleiben Punkte und Bewertungen erhalten, nur die Programme sind weg. |
+| Ein gesicherter Wettbewerb soll zurück | **➕ Neuer Wettbewerb** → unten **Oder aus einer Sicherung einlesen**, die ZIP wählen. Es entsteht ein neuer Wettbewerb, nicht aktiv – auch dann nicht, wenn gerade keiner aktiv ist. Der alte bleibt, wie er ist. Soll er weiterlaufen, ihn aktivieren. Waren die Passwörter mitgesichert, melden sich die Teams wie gewohnt an; sonst haben sie kein Passwort und bekommen nach dem Aktivieren unter **Teams** neue. Für Rangliste und Urkunden braucht es keins. Meldet die Seite, die ZIP sei beschädigt, ist nichts angelegt – eine andere Kopie der Datei nehmen. |
+| Hochgeladene Dateien fehlen | Der Download sagt dann „liegt nicht mehr auf dem Server“. Die Abgaben liegen unter `uploads/<Team-Nummer>/`. Aus der letzten Sicherung dieses Verzeichnisses zurückkopieren; die Datenbank zeigt auf genau diese Pfade. Ohne Sicherung bleiben Punkte und Bewertungen erhalten, nur die Programme sind weg. |
 | Etwas ist abgestürzt | In `logs/anwendung.log` steht der Fehler mit Zeitstempel und Adresse der Seite. Diese Datei ist auch nach dem Schließen des Terminals noch da. |
 | Wann wurde der Tipp freigegeben? | Steht in `logs/anwendung.log`, mit Zeitstempel und Aufgabe – auch, wenn er wieder verborgen wurde. |
 | „Wir haben doch abgegeben!“ | In `logs/anwendung.log` steht jede **abgelehnte** Abgabe mit Team, Aufgabe und Grund – falsche Endung, Datei zu groß, Wettbewerb pausiert oder beendet, oder schon abgegeben. Eine angekommene Abgabe steht dort nicht, die sieht man unter **Bewertungen**. |
@@ -237,7 +244,11 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 - [ ] **Protokolldatei durchsehen**, falls etwas hakte – und die Erkenntnis
       unten unter **💡 Aus der Praxis** eintragen.
 - [ ] Alte Sicherungskopien in `data/` (`challenge-vor-…​.db`) löschen,
-      sobald klar ist, dass alles passt.
+      sobald klar ist, dass alles passt. Sie enthalten alles, auch die Namen
+      für die Urkunde – aus Datenschutzgründen nicht länger aufheben als nötig.
+- [ ] **`logs/` leeren**, sobald keine Nachfrage mehr zu erwarten ist. Die
+      Protokolldatei nennt Teamnamen und bei fehlgeschlagenen
+      Admin-Anmeldungen IP-Adressen, auch nach dem Löschen des Wettbewerbs.
 
 ---
 

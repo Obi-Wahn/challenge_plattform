@@ -91,6 +91,19 @@ class TestPauseUndFortsetzenImAdmin:
         assert challenge.paused is True
         assert challenge.paused_at is not None
 
+    def test_ein_zweiter_klick_verschiebt_den_zeitpunkt_nicht(self, admin, make_challenge):
+        """Ein Doppelklick oder ein zweiter Tab - neu gesetzt, rückte die
+        Endzeit beim Fortsetzen um weniger nach hinten, als die Uhr stand."""
+        from extensions import db
+        vorher = datetime.now() - timedelta(minutes=5)
+        challenge = make_challenge(paused=True, paused_at=vorher,
+                                   end_time=datetime.now() + timedelta(minutes=30))
+
+        anmelden_und_posten(admin, f"/admin/challenges/{challenge.id}/pause", {})
+        db.session.expire_all()
+
+        assert frisch(challenge).paused_at == vorher
+
     def test_fortsetzen_schiebt_die_endzeit_um_die_pause_nach_hinten(
             self, admin, make_challenge):
         ende = datetime.now() + timedelta(minutes=25)

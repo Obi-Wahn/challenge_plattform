@@ -12,6 +12,22 @@
 
 {% if not challenge %}
 
+{% if offene or beendete %}
+<!-- Es gibt Wettbewerbe, aber keiner ist aktiv - etwa nach dem Löschen des
+     aktiven. Welcher jetzt gilt, entscheidet die Lehrkraft, nicht die
+     Reihenfolge in der Datenbank. -->
+<div class="event-card border-warning mb-5">
+  <h4 class="mb-2">Kein Wettbewerb ist aktiv</h4>
+  <p class="text-secondary mb-3">
+    Startseite, Rangliste und die Seiten der Teams zeigen gerade keinen Wettbewerb, und
+    kein Team kann sich registrieren. Wähle unten mit <strong>✅ Aktivieren</strong>, welcher
+    gelten soll, oder lege einen neuen an.
+  </p>
+  <a href="{{ url_for('admin.challenge_new') }}" class="btn btn-outline-light">
+    ➕ Neuer Wettbewerb
+  </a>
+</div>
+{% else %}
 <div class="event-card mb-5">
   <h4 class="mb-2">Noch kein Wettbewerb angelegt</h4>
   <p class="text-secondary">
@@ -22,6 +38,7 @@
     ➕ Ersten Wettbewerb anlegen
   </a>
 </div>
+{% endif %}
 
 <div class="row g-3 mb-5">
   <div class="col-md-3 col-6">
@@ -204,19 +221,22 @@
   </div>
 </div>
 
+
+{% endif %}
+
 <!-- ===== WEITERE WETTBEWERBE ===== -->
 <!-- Getrennt nach dem, was man mit ihnen noch vorhat: einen offenen
      aktiviert man weiter, einen beendeten holt man nur noch hervor. Die
      beendeten wachsen über die Jahre und stehen deshalb zugeklappt. -->
 {% if offene %}
-<h5 class="text-secondary text-uppercase mb-3 section-label">Weitere Wettbewerbe</h5>
+<h5 class="text-secondary text-uppercase mb-3 section-label">{% if challenge %}Weitere Wettbewerbe{% else %}Wettbewerbe{% endif %}</h5>
 <div class="mb-4">
   {% for c in offene %}{% include "admin/_wettbewerbszeile.html" %}{% endfor %}
 </div>
 {% endif %}
 
 {% if beendete %}
-<details class="wettbewerbe-beendet mb-5">
+<details class="wettbewerbe-beendet mb-5"{% if not challenge %} open{% endif %}>
   <summary class="text-secondary text-uppercase section-label">
     Beendet ({{ beendete | length }})
   </summary>
@@ -224,8 +244,6 @@
     {% for c in beendete %}{% include "admin/_wettbewerbszeile.html" %}{% endfor %}
   </div>
 </details>
-{% endif %}
-
 {% endif %}
 
 <div class="d-flex flex-wrap align-items-center gap-3">
