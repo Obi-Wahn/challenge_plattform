@@ -362,6 +362,9 @@ input::placeholder, textarea::placeholder {
   overflow-wrap: anywhere;
   hyphens: auto;
   line-height: 1.25;
+  /* Großbuchstaben brauchen deutlich mehr Breite - in normaler Schreibweise
+     passt vom Titel mehr in die Spalte. */
+  text-transform: none;
 }
 
 .ranglisten-platz {
