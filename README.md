@@ -69,6 +69,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Wettbewerbe verwalten**: anlegen, aktivieren, pausieren, beenden, wieder öffnen und löschen – alles auf der Steuerzentrale. Beim Anlegen lassen sich die Teams eines früheren Wettbewerbs übernehmen, mit Passwort und den Namen für die Urkunde.
 *   **Eigener Name je Wettbewerb**: Name und Untertitel stehen überall – Startseite, Rangliste, Teamseite, Urkunden, Browsertitel, Leiste oben und Fußzeile – und bleiben beim Wettbewerb, wenn längst ein anderer läuft.
 *   **Aufgaben**: Beschreibung in Markdown, erlaubtes Dateiformat, Schwierigkeit (einfach, mittel, schwer oder keine Angabe), optionaler Tipp. Aufgaben lassen sich als JSON sichern, weitergeben und in einen anderen Wettbewerb einlesen — ohne Abgaben und Punkte. Fertige Sätze für Scratch und Calliope liegen unter `beispiele/` und sind mit einem Klick eingelesen.
+*   **Wettbewerb sichern**: ein ganzer Wettbewerb als ZIP – Aufgaben, Teams, Abgaben samt Dateien, Punkte und Feedback. Unter „Neuer Wettbewerb“ wieder eingelesen, entsteht daraus ein neuer, inaktiver Wettbewerb, etwa auf einem anderen Rechner. Passwörter kommen nie mit, die Namen für die Urkunde nur auf ausdrücklichen Wunsch.
 *   **Zeit im Griff**: Start- und Endzeit oder eine Dauer in Minuten samt „Jetzt starten für … Minuten"; die Pause hält die Uhr an, „Fortsetzen" schiebt das Ende um die Pausendauer nach hinten.
 *   **Bewerten**: Abgaben mit Aufgabenbeschreibung daneben, Textformate direkt im Browser lesbar, Download für lokale Tests, Punkte und Feedback, Korrektur freigeben oder Abgabe löschen.
 *   **Teams**: Passwort zurücksetzen, die eingetragenen Namen kontrollieren, freigeben oder die Freigabe zurücknehmen; eine Zeile oben zeigt, wie viele noch auf die Kontrolle warten.
@@ -389,6 +390,41 @@ oder wird das Verzeichnis gelöscht, ist sie mit weg, und die abgegebenen
 Dateien waren ohnehin nie darin. Vor einem echten Wettbewerb gehören deshalb
 **`data/` und `uploads/`** auf einen USB-Stick.
 
+### Einen einzelnen Wettbewerb sichern
+
+Auf der Seite eines Wettbewerbs steht unten **💾 Wettbewerb sichern**. Der
+Knopf lädt eine ZIP-Datei herunter:
+
+| In der ZIP | Inhalt |
+|---|---|
+| `wettbewerb.json` | Name, Untertitel, Zeiten, Aufgaben mit Tipp und Schwierigkeit, Teams, Abgaben mit Punkten, Feedback und Zeitpunkt |
+| `abgaben/team_<n>/` | die abgegebenen Dateien, je Team ein Ordner |
+
+Eingelesen wird sie unter **➕ Neuer Wettbewerb → Oder aus einer Sicherung
+einlesen**. Daraus entsteht immer ein **neuer, inaktiver** Wettbewerb; ein
+vorhandener wird nie überschrieben. Rangliste und Urkunden gehen danach wie bei
+jedem anderen Wettbewerb.
+
+Mit Blick auf den Datenschutz ist die Datei so knapp wie möglich:
+
+- **Keine Passwörter**, auch nicht verschlüsselt, und nichts, womit sich ein
+  Team anmelden könnte. Soll ein eingelesener Wettbewerb weiterlaufen,
+  bekommen die Teams unter **Teams** neue Passwörter.
+- **Die Namen der Teammitglieder nur auf Wunsch.** Das Häkchen dafür ist
+  zunächst aus. Nötig ist es nur, wenn die Urkunden mit Namen später aus der
+  Sicherung gedruckt werden sollen – die Datei gehört dann nicht auf private
+  Geräte oder in eine Cloud.
+- **Keine Einstellungen der Installation** (Standardname, Unterschrift): Die
+  gehören nicht zu einem Wettbewerb.
+
+Die ZIP entsteht beim Klick und bleibt nicht auf dem Server liegen. Sichern und
+Einlesen stehen im Protokoll.
+
+**Was sie nicht ersetzt:** Fällt der Rechner mitten im Wettbewerb aus, bleibt
+die Kopie von `data/` und `uploads/` der sichere Weg – nur sie enthält alle
+Wettbewerbe, die Einstellungen und die Passwörter der Teams, sodass nach dem
+Zurückkopieren alle einfach weitermachen.
+
 ## 📋 Protokolldatei
 
 Fehler und wichtige Ereignisse landen in `logs/anwendung.log` – mit
@@ -410,7 +446,7 @@ Festgehalten wird, was etwas **anlegt, ändert oder wegnimmt** – und was
 | Wann | Was im Protokoll steht |
 |---|---|
 | Start | der Server ist hochgefahren, mit Adresse, Port und Version |
-| Aufbau | Wettbewerb angelegt, bearbeitet, aktiv geschaltet, gelöscht · Team angelegt, gelöscht, Passwort zurückgesetzt · übernommene Teams · Aufgabe angelegt, bearbeitet, gelöscht · Aufgaben gesichert und eingelesen · geänderte Einstellungen (nur welche Felder) |
+| Aufbau | Wettbewerb angelegt, bearbeitet, aktiv geschaltet, gelöscht · Team angelegt, gelöscht, Passwort zurückgesetzt · übernommene Teams · Aufgabe angelegt, bearbeitet, gelöscht · Aufgaben gesichert und eingelesen · Wettbewerb gesichert (mit oder ohne Namen) und eingelesen · geänderte Einstellungen (nur welche Felder) |
 | Wettbewerbstag | freigeschalteter oder wieder verborgener Tipp · abgelehnte Abgabe samt Grund (falsche Endung, zu groß, pausiert, beendet, schon abgegeben) · zurückgesetzte Abgabe · fehlgeschlagene Admin-Anmeldung mit Adresse |
 | Zum Abschluss | erzeugte Urkunden (Wettbewerb, Anzahl, Ausrichtung) · gesicherte Datenbank |
 | Störungen | eine Datei, die nicht gelöscht werden konnte · eine Urkunde, die nicht erzeugt werden konnte · jeder unbehandelte Fehler mit Traceback |
@@ -512,6 +548,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_protokoll.py` | `logs/anwendung.log` entsteht, hält die wichtigen Ereignisse fest und bleibt beim gewöhnlichen Betrieb still |
 | `test_migrations.py` | Datenbank aus einer älteren Version weiterbenutzen |
 | `test_task_exchange.py` | Aufgaben sichern und wiederverwenden |
+| `test_wettbewerb_sicherung.py` | einen ganzen Wettbewerb als ZIP sichern und als neuen einlesen, ohne Passwörter, Namen nur auf Wunsch |
 | `test_schwierigkeit.py` | die Schwierigkeit einer Aufgabe, von der Eingabe bis in die Datei |
 | `test_leitfaden.py` | der Leitfaden nennt nur Seiten und Dateien, die es gibt |
 | `test_vendor.py` | Versionsliste und `static/vendor/` bleiben deckungsgleich |
@@ -541,6 +578,7 @@ challenge_plattform/
 ├── scoring.py             # Rangliste und Podium
 ├── certificates.py        # Urkunden als PDF
 ├── task_exchange.py       # Aufgaben sichern und einlesen
+├── wettbewerb_sicherung.py # einen ganzen Wettbewerb als ZIP sichern und einlesen
 ├── network.py             # Adresse, unter der die Teams beitreten
 ├── sitzung.py             # Anmeldung eines Teams und ihre Gültigkeit
 ├── protokoll.py           # die Zeilen, die in logs/anwendung.log gehen

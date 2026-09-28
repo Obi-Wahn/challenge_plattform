@@ -1,5 +1,5 @@
 from flask import (Blueprint, render_template, request, redirect, url_for, session,
-                   send_from_directory, send_file, flash, jsonify)
+                   send_from_directory, send_file, flash, jsonify, current_app)
 from extensions import db
 from models import (Team, Challenge, Task, Submission, Settings, TASK_FORMATS,
                     TEXT_FORMATS, TASK_DIFFICULTIES, MAX_MEMBERS,
@@ -12,6 +12,8 @@ from certificates import (build_certificates_for, certificate_entry, signature_f
                           certificate_orientation, CERTIFICATE_ORIENTATIONS,
                           DEFAULT_ORIENTATION, names_line)
 from task_exchange import export_bytes, parse_tasks, ImportError_
+from wettbewerb_sicherung import (sicherung_bauen, sicherung_einlesen,
+                                  SicherungFehler)
 from protokoll import ereignis, stoerung
 from datetime import datetime, timedelta
 import io
@@ -452,6 +454,68 @@ def tasks_import(cid):
     flash(message, "warning" if skipped else "success")
 
     return redirect(url_for('admin.challenge_tasks', cid=cid))
+
+@admin_bp.route("/challenges/<int:cid>/sichern")
+def challenge_backup(cid):
+    """Lädt den ganzen Wettbewerb als ZIP herunter, mit allen Abgaben.
+
+    Die Namen der Teammitglieder kommen nur mit, wenn sie ausdrücklich
+    gewählt sind - voreingestellt ist „ohne“. Mehr dazu in
+    wettbewerb_sicherung.py.
+    """
+    challenge = db.get_or_404(Challenge, cid)
+    mit_namen = request.args.get("namen") == "mit"
+
+    datei, zahlen = sicherung_bauen(challenge, mit_namen)
+
+    ereignis("Wettbewerb gesichert: „%s“ (#%s), %s Team(s), %s Aufgabe(n), "
+             "%s Abgabe(n), %s", challenge.title, cid, zahlen["teams"],
+             zahlen["aufgaben"], zahlen["abgaben"],
+             "mit Namen" if mit_namen else "ohne Namen")
+    if zahlen["fehlend"]:
+        stoerung("Beim Sichern von „%s“ (#%s) fehlten %s Datei(en) von Abgaben",
+                 challenge.title, cid, zahlen["fehlend"])
+
+    stempel = datetime.now().strftime("%Y-%m-%d")
+    return send_file(
+        datei,
+        mimetype="application/zip",
+        as_attachment=True,
+        download_name=f"Wettbewerb_{safe_name(challenge.title)}_{stempel}.zip"
+    )
+
+@admin_bp.route("/challenges/einlesen", methods=["POST"])
+def challenge_restore():
+    """Legt aus einer Sicherung einen neuen, inaktiven Wettbewerb an."""
+    # Die höhere Grenze für die Datei setzt app.grenze_fuer_sicherung.
+    upload = request.files.get("file")
+
+    if not upload or not upload.filename:
+        flash("Es wurde keine Datei ausgewählt.", "warning")
+        return redirect(url_for('admin.challenge_new'))
+
+    try:
+        challenge, zahlen, hinweise = sicherung_einlesen(
+            upload.stream, current_app.config["UPLOAD_FOLDER"])
+    except SicherungFehler as fehler:
+        flash(f"Einlesen nicht möglich: {fehler}", "danger")
+        return redirect(url_for('admin.challenge_new'))
+
+    ereignis("Wettbewerb eingelesen: „%s“ (#%s), %s Team(s), %s Aufgabe(n), "
+             "%s Abgabe(n)", challenge.title, challenge.id, zahlen["teams"],
+             zahlen["aufgaben"], zahlen["abgaben"])
+
+    meldung = (f"„{challenge.title}“ eingelesen: {zahlen['teams']} Team(s), "
+               f"{zahlen['aufgaben']} Aufgabe(n), {zahlen['abgaben']} Abgabe(n). "
+               "Der Wettbewerb ist nicht aktiv, und die Teams haben kein "
+               "Passwort.")
+    if zahlen["ohne_datei"]:
+        meldung += f" Bei {zahlen['ohne_datei']} Abgabe(n) fehlte die Datei."
+    if hinweise:
+        meldung += " Angepasst: " + " · ".join(hinweise[:5])
+    flash(meldung, "warning" if hinweise or zahlen["ohne_datei"] else "success")
+
+    return redirect(url_for('admin.challenge_detail', cid=challenge.id))
 
 @admin_bp.route("/challenges/<int:cid>/pause", methods=["POST"])
 def challenge_pause(cid):

@@ -64,6 +64,25 @@
 
 </div>
 
+<!-- Ein eingelesener Wettbewerb entsteht immer neu und inaktiv - er
+     überschreibt nichts, auch keinen gleichnamigen. -->
+<div class="event-card mt-4">
+  <h5 class="mb-2">📂 Oder aus einer Sicherung einlesen</h5>
+  <p class="text-secondary small mb-3">
+    Die ZIP-Datei von <strong>💾 Wettbewerb sichern</strong>. Daraus entsteht ein neuer
+    Wettbewerb mit Aufgaben, Teams, Abgaben, Punkten und Feedback. Er ist zunächst nicht
+    aktiv, und die Teams haben kein Passwort – für Rangliste und Urkunden braucht es keins.
+    Soll er weiterlaufen, aktivierst du ihn und vergibst auf der Seite <strong>Teams</strong>
+    neue Passwörter.
+  </p>
+  <form method="post" action="{{ url_for('admin.challenge_restore') }}"
+    enctype="multipart/form-data" class="d-flex flex-wrap gap-2">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="file" name="file" accept=".zip" class="form-control" style="max-width: 28rem;" required>
+    <button class="btn btn-outline-light">📂 Einlesen</button>
+  </form>
+</div>
+
 <a href="{{ url_for('admin.dashboard') }}" class="text-secondary mt-4 d-block">
   ← zurück zur Steuerzentrale
 </a>
