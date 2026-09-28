@@ -93,7 +93,7 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
       Adresse aufrufen, die im Terminal steht. Klappt das nicht, liegt es
       meist an der Firewall des Schul-PCs (Port 8000 eingehend erlauben,
       bzw. den Port aus `PORT` in der `.env`).
-- [ ] **Adresse notieren.** Sie steht auch auf der Startseite unter dem
+- [ ] **Adresse notieren.** Sie steht auch auf der Startseite über dem
       QR-Code und lässt sich abtippen – wichtig, weil an normalen PCs und
       Laptops ein QR-Code nichts nützt.
 - [ ] **Beamer testen** mit der Rangliste `/scoreboard`. Die Restzeit steht

@@ -17,22 +17,22 @@
      zu sehen sein. Darunter stapeln sich die beiden Spalten wie bisher. -->
 <div class="row g-4 g-lg-5 justify-content-center align-items-stretch">
 
-  <!-- Beitreten: erst der QR-Code fürs Handy, dann die Adresse zum
-       Abtippen - am PC oder Laptop nützt ein QR-Code nichts. -->
+  <!-- Beitreten: erst die Adresse zum Abtippen - am PC oder Laptop nützt
+       ein QR-Code nichts -, darunter der QR-Code fürs Handy. -->
   {% if beitritt %}
   <div class="col-lg-6 col-xl-5">
     <div class="event-card text-center h-100 d-flex flex-column justify-content-center">
-      {% if qr_code_data %}
-      <img src="data:image/png;base64,{{ qr_code_data }}" alt="QR-Code zu dieser Seite" class="qr-code mx-auto">
-      <p class="text-secondary small mt-2 mb-3">
-        📱 Mit dem Handy scannen
-      </p>
-      {% endif %}
-
       <p class="text-secondary small mb-1">
         💻 Am Computer diese Adresse eintippen:
       </p>
-      <p class="beitritt-adresse mb-0">{{ beitritt }}</p>
+      <p class="beitritt-adresse {{ 'mb-4' if qr_code_data else 'mb-0' }}">{{ beitritt }}</p>
+
+      {% if qr_code_data %}
+      <img src="data:image/png;base64,{{ qr_code_data }}" alt="QR-Code zu dieser Seite" class="qr-code mx-auto">
+      <p class="text-secondary small mt-2 mb-0">
+        📱 Mit dem Handy scannen
+      </p>
+      {% endif %}
     </div>
   </div>
   {% endif %}
@@ -45,11 +45,11 @@
          nicht. Der Weg über „Hier einloggen" bleibt in jedem Fall offen: Nach
          dem Ende holen die Teams dort ihre Urkunde. #}
       {% if anmeldung_zu %}
-      <h2 class="h5 text-secondary mb-3">Anmeldung geschlossen</h2>
+      <h2 class="h4 text-secondary mb-3">Anmeldung geschlossen</h2>
 
       <p class="text-secondary mb-0">{{ anmeldung_zu }}</p>
 
-      <p class="mt-3 mb-0 text-secondary small">
+      <p class="mt-3 mb-0 text-secondary">
         Schon ein Team? <a href="{{ url_for('public.login') }}">Hier einloggen</a>
       </p>
       {% else %}
@@ -59,7 +59,7 @@
       </div>
       {% endif %}
 
-      <h2 class="h5 text-secondary mb-3">Neues Team anmelden</h2>
+      <h2 class="h4 text-secondary mb-3">Neues Team anmelden</h2>
 
       <form method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -74,7 +74,7 @@
         </button>
       </form>
 
-      <p class="mt-3 mb-0 text-secondary small">
+      <p class="mt-3 mb-0 text-secondary">
         Bereits registriert? <a href="{{ url_for('public.login') }}">Hier einloggen</a>
       </p>
       {% endif %}
