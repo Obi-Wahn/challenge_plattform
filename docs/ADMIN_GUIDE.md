@@ -139,8 +139,10 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    dass die Teams ihn erst nach dem Aktivieren sehen.
 3. Rangliste `/scoreboard` an die Wand werfen. Oben läuft die Zeit, darunter
    füllt sich die Tabelle, sobald du bewertest. Über jeder Spalte stehen
-   Nummer und Titel der Aufgabe, ein langer Titel gekürzt; ab Laptopbreite
-   passt die Tabelle mit „Gesamt“ immer ganz auf die Seite.
+   Nummer und Titel der Aufgabe, ein langer Titel gekürzt; senkrechte
+   Striche trennen die Aufgaben, damit man auch hinten im Raum in der
+   richtigen Spalte bleibt. Ab Laptopbreite passt die Tabelle mit „Gesamt“
+   immer ganz auf die Seite.
 4. Teams registrieren sich selbst auf der Startseite `/`: Teamname und ein
    Passwort, das sie sich ausdenken. Jedes Team merkt sich beides. Danach
    landen sie auf ihrer Wettbewerbsseite `/challenge`, wo die Restzeit über

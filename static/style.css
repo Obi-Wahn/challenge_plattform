@@ -371,6 +371,15 @@ input::placeholder, textarea::placeholder {
   width: 80px;
 }
 
+/* Senkrechte Linien vor jeder Aufgabe und vor „Gesamt“: Am Beamer liest
+   man eine Zeile quer über viele schmale Spalten, ohne Linien rutscht das
+   Auge leicht in die Nachbarspalte. Platz und Team bleiben ohne Linie, sie
+   gehören zusammen. */
+.ranglisten-tabelle .ranglisten-spalte,
+.ranglisten-tabelle .ranglisten-gesamt {
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+}
+
 /* Am Beamer müssen Platz und Gesamtpunkte ohne Schieben zu sehen sein, auch
    bei vierzehn Aufgaben. Deshalb teilt sich die Tabelle ab Laptopbreite die
    Breite der Seite: Platz, Team und Gesamt haben feste Spalten, die Aufgaben
