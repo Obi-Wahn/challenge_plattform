@@ -25,10 +25,10 @@ MAX_PASSWORT = 128
 # als Antwort auf ein von Hand abgeschicktes Formular -, deshalb hier.
 ANMELDUNG_ZU = {
     "finished": "Der Wettbewerb ist beendet - neue Teams können sich nicht "
-                "mehr anmelden. Wer schon angemeldet ist, kommt über "
+                "mehr registrieren. Wer schon registriert ist, kommt über "
                 "„Anmelden“ an seine Urkunde.",
     "paused": "Der Wettbewerb ist gerade pausiert. Sobald es weitergeht, "
-              "könnt ihr euch hier anmelden.",
+              "könnt ihr euch hier registrieren.",
 }
 
 
@@ -130,7 +130,7 @@ def index():
         # A team name only has to be free within the current competition.
         existing_team = Team.query.filter_by(challenge_id=challenge.id, name=team_name).first()
         if existing_team:
-            return mit_fehler("Teamname vergeben. Bitte einloggen oder anderen Namen wählen.")
+            return mit_fehler("Teamname vergeben. Bitte anmelden oder anderen Namen wählen.")
 
         # Create new team for the current competition
         new_team = Team(name=team_name, challenge_id=challenge.id)
@@ -145,7 +145,7 @@ def index():
             # aber nur eines durch. Das zweite bekommt dieselbe Auskunft wie
             # bei einem schon vergebenen Namen.
             db.session.rollback()
-            return mit_fehler("Teamname vergeben. Bitte einloggen oder anderen Namen wählen.")
+            return mit_fehler("Teamname vergeben. Bitte anmelden oder anderen Namen wählen.")
 
         ereignis("Team angelegt: „%s“ (#%s) in Wettbewerb „%s“ (#%s)",
                  new_team.name, new_team.id, challenge.title, challenge.id)

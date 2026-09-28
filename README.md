@@ -54,7 +54,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 
 ### Für die Teams
 *   **Beitritt per QR-Code**: Der Code auf der Startseite führt das Smartphone direkt hin, sonst tippt man die Adresse aus dem Schulnetz ein. Die Seiten sind für Desktop, Tablet und Smartphone gemacht.
-*   **Anmeldung je Wettbewerb**: Teamname und Passwort; derselbe Teamname darf in mehreren Wettbewerben vorkommen. Ist der Wettbewerb beendet oder pausiert, nimmt die Startseite keine neuen Teams mehr an – wer schon dabei ist, kommt weiter hinein.
+*   **Registrierung je Wettbewerb**: Teamname und Passwort; derselbe Teamname darf in mehreren Wettbewerben vorkommen. Ist der Wettbewerb beendet oder pausiert, nimmt die Startseite keine neuen Teams mehr an – wer schon dabei ist, kommt weiter hinein.
 *   **Wettbewerbsseite**: alle Aufgaben mit Fortschritt, eigenen Punkten und dem Feedback der Lehrkraft, dazu die Restzeit als Leiste.
 *   **Schwierigkeit auf einen Blick**: Unter dem einleitenden Satz jeder Aufgabe stehen Punkte und Stufe — 🟢 einfach, 🟡 mittel, 🔴 schwer.
 *   **Aktualisiert sich selbst**: Die Seite fragt alle 15 Sekunden nach dem Stand — Pause, Fortsetzen, ein freigeschalteter Tipp und eine neue Dauer kommen an, ohne dass jemand neu laden muss.
@@ -482,7 +482,7 @@ einstellen.
 ## ✅ Tests
 
 Das Projekt bringt automatische Tests mit. Sie prüfen den ganzen Ablauf – vom
-Anmelden eines Teams über Abgabe, Bewertung und Rangliste bis zu Urkunden,
+Registrieren eines Teams über Abgabe, Bewertung und Rangliste bis zu Urkunden,
 Aufgaben-Export und den Datenbank-Änderungen beim Start. Nach jeder Änderung am
 Code lohnt sich ein Durchlauf, besonders vor einem echten Wettbewerb.
 
