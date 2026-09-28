@@ -247,3 +247,29 @@ class TestTitelInDerRangliste:
 
         assert 'name="scoreboard_task_titles"' in html
         assert "Aufgabentitel über den Spalten zeigen" in html
+
+
+class TestSpaltenlinien:
+    """Senkrechte Striche trennen am Beamer die Aufgaben voneinander."""
+
+    def test_jede_aufgabe_und_gesamt_haben_eine_linie(self, client, drei, make_team):
+        make_team(drei, name="Team Blitz")
+
+        html = client.get("/scoreboard").get_data(as_text=True)
+
+        # drei Köpfe und drei Zellen je Team, dazu Kopf und Zelle für Gesamt
+        assert html.count('class="ranglisten-spalte ') == 6
+        assert html.count('class="ranglisten-gesamt ') == 2
+
+    def test_platz_und_team_ohne_linie(self):
+        from pathlib import Path
+
+        css = (Path(__file__).parent.parent / "static" / "style.css").read_text(encoding="utf-8")
+        regel = re.search(r"([^{}]*)\{[^}]*border-left: 1px solid rgba\(255, 255, 255, 0\.3\)", css)
+
+        assert regel, "Regel für die Spaltenlinien fehlt"
+        auswahl = regel.group(1)
+        assert ".ranglisten-spalte" in auswahl
+        assert ".ranglisten-gesamt" in auswahl
+        assert ".ranglisten-team" not in auswahl
+        assert ".ranglisten-platz" not in auswahl

@@ -38,7 +38,7 @@
               <th class="ranglisten-platz p-4 text-center">#</th>
               <th class="ranglisten-team p-4">Team</th>
               {% for task in tasks %}
-              <th class="py-4 px-2 text-center" title="A{{ loop.index }}: {{ task.title }}">
+              <th class="ranglisten-spalte py-4 px-2 text-center" title="A{{ loop.index }}: {{ task.title }}">
                 {% if aufgabentitel %}<span class="ranglisten-aufgabe">A{{ loop.index }}: {{ task.title }}</span>{% else %}A{{ loop.index }}{% endif %}
               </th>
               {% endfor %}
@@ -60,7 +60,7 @@
               </td>
 
               {% for task in tasks %}
-              <td class="py-4 px-2 text-center">
+              <td class="ranglisten-spalte py-4 px-2 text-center">
                 {% set points = team.task_points[task.id] %}
                 {% if points %}
                 <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25">
@@ -75,7 +75,7 @@
               </td>
               {% endfor %}
 
-              <td class="p-4 text-end fw-bold text-primary">
+              <td class="ranglisten-gesamt p-4 text-end fw-bold text-primary">
                 {{ team.total }}
               </td>
 
