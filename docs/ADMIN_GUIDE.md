@@ -4,8 +4,8 @@ Die README erklärt, **wie** die Anwendung installiert wird und **welche**
 Funktionen es gibt. Dieser Leitfaden beschreibt den **Ablauf**: was wann zu
 tun ist, und was zu tun ist, wenn etwas klemmt.
 
-Die Kästen mit **Aus der Praxis** sind absichtlich leer oder knapp gehalten –
-sie sind zum Selberfüllen gedacht, nach dem ersten und zweiten Durchlauf.
+Die Kästen unter **💡 Aus der Praxis** am Ende sind absichtlich leer oder knapp
+gehalten – sie sind zum Selberfüllen gedacht, nach dem ersten und zweiten Durchlauf.
 Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 
 ---
@@ -75,11 +75,6 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    sie in der JSON-Datei mit; ältere Dateien ohne diese Angabe lassen sich
    unverändert einlesen.
 
-> **Aus der Praxis:** Wie viele Aufgaben passen in die zur Verfügung stehende
-> Zeit? Welche Punktverteilung hat sich bewährt?
->
-> _(hier eintragen, wenn du es weißt)_
-
 ---
 
 ## 🌙 Am Vortag
@@ -103,10 +98,6 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
       Laptops ein QR-Code nichts nützt.
 - [ ] **Beamer testen** mit der Rangliste `/scoreboard`. Die Restzeit steht
       dort oben, dieselbe, die die Teams sehen.
-
-> **Aus der Praxis:** Welche Hürde gab es im Schulnetz?
->
-> _(hier eintragen)_
 
 ---
 
@@ -174,11 +165,6 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   trägt die Restzeit oben — sie ist die Seite für den Beamer, den ganzen
   Wettbewerb über. Eine eigene Countdown-Seite gibt es nicht mehr.
 
-> **Aus der Praxis:** Ab wann die Rangliste zeigen? (Von Anfang an motiviert
-> sie – kurz vor Schluss kann sie auch lähmen.)
->
-> _(hier eintragen)_
-
 ### Schluss und Siegerehrung
 
 1. **🏁 Wettbewerb beenden** auf der Wettbewerbsseite. Das setzt die Endzeit
@@ -225,10 +211,6 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | „Gefunden wurde Python 3.10, die Plattform braucht 3.11“ | Seit der Anhebung auf Python 3.11 reicht das Python von Ubuntu 22.04 und Linux Mint 21 nicht mehr (Mint 22 und Ubuntu 24.04 haben 3.12). Dort `sudo apt install python3.11 python3.11-venv` und dann `python3.11 starter.py` statt der Startdatei, oder den Rechner auf ein neueres System bringen. Unter Windows und macOS das aktuelle Python von python.org installieren. |
 | Die Anwendung startet nicht | Meldung lesen: Fehlt `SECRET_KEY` oder `ADMIN_PASSWORD` in der `.env`, sagt sie das. Bricht sie beim Sichern der Datenbank ab, ist meist die Platte voll. |
 
-> **Aus der Praxis:** Was ist dir tatsächlich passiert, das hier noch fehlt?
->
-> _(hier eintragen)_
-
 ---
 
 ## 📦 Nach dem Wettbewerb
@@ -241,10 +223,42 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
       die Datei aufheben. Beim nächsten Mal wieder einlesen – Punkte,
       Dateiformat, Schwierigkeit und Hinweis kommen mit.
 - [ ] **Protokolldatei durchsehen**, falls etwas hakte – und die Erkenntnis
-      oben in den Kasten eintragen.
+      unten unter **💡 Aus der Praxis** eintragen.
 - [ ] Alte Sicherungskopien in `data/` (`challenge-vor-…​.db`) löschen,
       sobald klar ist, dass alles passt.
 
-> **Aus der Praxis:** Was würdest du beim nächsten Mal anders machen?
+---
+
+## 💡 Aus der Praxis
+
+### Eine Woche vorher
+
+> Wie viele Aufgaben passen in die zur Verfügung stehende
+> Zeit? Welche Punktverteilung hat sich bewährt?
+>
+> _(hier eintragen, wenn du es weißt)_
+
+### Am Vortag
+
+> Welche Hürde gab es im Schulnetz?
+>
+> _(hier eintragen)_
+
+### Während des Wettbewerbs
+
+> Ab wann die Rangliste zeigen? (Von Anfang an motiviert
+> sie – kurz vor Schluss kann sie auch lähmen.)
+>
+> _(hier eintragen)_
+
+### Wenn etwas klemmt
+
+> Was ist dir tatsächlich passiert, das hier noch fehlt?
+>
+> _(hier eintragen)_
+
+### Nach dem Wettbewerb
+
+> Was würdest du beim nächsten Mal anders machen?
 >
 > _(hier eintragen)_
