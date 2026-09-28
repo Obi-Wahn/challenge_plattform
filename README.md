@@ -222,7 +222,10 @@ Bookworm ein passendes Python mit (3.11, bei Trixie 3.13).
     erspart das.
 
 4.  **Weiterlaufen lassen.** Schließt man das SSH-Fenster, endet auch die
-    Plattform. Der einfache Weg ist `tmux` (`sudo apt install tmux`):
+    Plattform. Der einfache Weg ist `tmux`. Es läuft **auf dem Rechner mit
+    der Plattform**, also auf dem Raspberry Pi, nicht auf dem Gerät, von dem
+    aus man sich per SSH verbindet. Dort einmal `sudo apt install tmux`,
+    dann in der SSH-Sitzung:
     ```bash
     tmux new -s wettbewerb
     ./start_linux.sh --ohne-browser
