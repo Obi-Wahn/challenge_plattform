@@ -22,9 +22,10 @@ from logging.handlers import RotatingFileHandler
 from dotenv import load_dotenv
 load_dotenv()
 
-from flask import Flask
+from flask import Flask, request, session
 from config import Config
 from extensions import db, csrf, limiter
+from wettbewerb_sicherung import MAX_ZIP_BYTES
 from network import FESTE_ADRESSE, lan_adresse, server_port
 from protokoll import ereignis
 import stand
@@ -128,6 +129,15 @@ def create_app():
     app.config.from_object(Config)
 
     configure_logging(app)
+
+    # Eine Sicherung eines ganzen Wettbewerbs ist größer als eine einzelne
+    # Abgabe. Die höhere Grenze muss vor der CSRF-Prüfung stehen: Die liest
+    # das Formular als Erstes und bräche sonst schon bei 16 MB ab. Sie gilt
+    # nur für die angemeldete Lehrkraft - ohne Anmeldung bleibt es bei 16 MB.
+    @app.before_request
+    def grenze_fuer_sicherung():
+        if request.endpoint == "admin.challenge_restore" and session.get("is_admin"):
+            request.max_content_length = MAX_ZIP_BYTES
 
     # Initialize Extensions
     db.init_app(app)

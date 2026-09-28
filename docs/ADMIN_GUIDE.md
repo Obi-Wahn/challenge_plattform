@@ -202,6 +202,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Ein Gerät erreicht den Server nicht | Zuerst die Adresse auf der Startseite mit der im Terminal vergleichen. Dann Firewall. Dann, ob das Gerät im selben Netz hängt (nicht im Gast-WLAN). |
 | Auf der Startseite steht `127.0.0.1` | Das Netz hat kein Gateway, die Anwendung kann ihre eigene Adresse nicht erfragen – sie sagt das beim Start. Adresse am Server ablesen (`ip addr` bzw. `ipconfig`) und als `LAN_ADRESSE=192.168.…` in die `.env` eintragen, dann neu starten. |
 | Datenbank fehlt oder ist kaputt | Anwendung beenden. `data/challenge.db` zur Seite legen, die passende Sicherung `data/challenge-vor-…​.db` nach `data/challenge.db` umbenennen, neu starten. Die Sicherungen entstehen automatisch vor jeder Strukturänderung – eine regelmäßige Sicherung ersetzen sie nicht. |
+| Ein gesicherter Wettbewerb soll zurück | **➕ Neuer Wettbewerb** → unten **Oder aus einer Sicherung einlesen**, die ZIP wählen. Es entsteht ein neuer Wettbewerb, nicht aktiv, der alte bleibt, wie er ist. Die Teams haben danach kein Passwort: Für Rangliste und Urkunden braucht es keins; soll er weiterlaufen, ihn aktivieren und unter **Teams** neue Passwörter vergeben. |
 | Hochgeladene Dateien fehlen | Die Abgaben liegen unter `uploads/<Team-Nummer>/`. Aus der letzten Sicherung dieses Verzeichnisses zurückkopieren; die Datenbank zeigt auf genau diese Pfade. Ohne Sicherung bleiben Punkte und Bewertungen erhalten, nur die Programme sind weg. |
 | Etwas ist abgestürzt | In `logs/anwendung.log` steht der Fehler mit Zeitstempel und Adresse der Seite. Diese Datei ist auch nach dem Schließen des Terminals noch da. |
 | Wann wurde der Tipp freigegeben? | Steht in `logs/anwendung.log`, mit Zeitstempel und Aufgabe – auch, wenn er wieder verborgen wurde. |
@@ -218,6 +219,14 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 - [ ] **`data/` und `uploads/` sichern**, solange noch alles frisch ist –
       dieselben zwei Verzeichnisse wie am Vortag. In `data/` stecken Punkte
       und Bewertungen, in `uploads/` die Programme der Teams.
+- [ ] **Den Wettbewerb als ZIP sichern**, wenn er aufgehoben oder auf einen
+      anderen Rechner gebracht werden soll: auf seiner Seite unten
+      **💾 Wettbewerb sichern** → **⬇️ Sichern**. In der Datei stecken
+      Aufgaben, Teams, Abgaben, Punkte und Feedback, aber keine Passwörter.
+      Die Namen der Teammitglieder kommen nur mit, wenn das Häkchen darüber
+      gesetzt ist – das braucht es nur, wenn die Urkunden später aus der
+      Sicherung gedruckt werden sollen. Mit Namen gehört die Datei nicht auf
+      private Geräte oder in eine Cloud.
 - [ ] **Gut gelaufene Aufgaben exportieren** (Aufgaben-Seite: **⬇️ Alle Aufgaben sichern**, oder das ⬇️ neben einer
       einzelnen Aufgabe) und
       die Datei aufheben. Beim nächsten Mal wieder einlesen – Punkte,
