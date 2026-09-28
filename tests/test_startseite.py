@@ -45,17 +45,17 @@ class TestBeitrittsAdresse:
 
 
 class TestSeitenaufbau:
-    def test_reihenfolge_willkommen_qr_adresse_anmeldung(self, client, make_challenge):
+    def test_reihenfolge_willkommen_adresse_qr_anmeldung(self, client, make_challenge):
         """Von oben nach unten, wie im Unterricht gebraucht."""
         make_challenge()
         html = client.get("/").get_data(as_text=True)
 
         willkommen = html.index("Willkommen!")
-        qr = html.index("data:image/png;base64")
         adresse = html.index("Adresse eintippen")
+        qr = html.index("data:image/png;base64")
         anmeldung = html.index('name="team"')
 
-        assert willkommen < qr < adresse < anmeldung
+        assert willkommen < adresse < qr < anmeldung
 
     def test_die_adresse_steht_zum_abtippen_da(self, client, make_challenge):
         make_challenge()
