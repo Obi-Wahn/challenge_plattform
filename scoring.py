@@ -12,7 +12,7 @@ def get_standings(challenge):
     being skipped (1, 2, 2, 3), so a tie never leaves a place on the podium
     empty and a tie is never resolved arbitrarily.
     """
-    tasks = Task.query.filter_by(challenge_id=challenge.id).order_by(Task.id).all()
+    tasks = Task.geordnet(challenge.id).all()
     teams = Team.query.filter_by(challenge_id=challenge.id).order_by(Team.name).all()
     submissions = Submission.query.join(Task).filter(Task.challenge_id == challenge.id).all()
 

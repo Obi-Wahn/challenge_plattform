@@ -23,7 +23,7 @@
 
   <ul class="list-group list-group-flush">
     {% for t in tasks %}
-    <li class="list-group-item bg-transparent text-light d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <li class="{% if verschoben == t.id %}aufgaben-zeile-verschoben {% endif %}list-group-item bg-transparent text-light d-flex flex-wrap justify-content-between align-items-center gap-2">
       <div>
         <strong>{{ t.title }}</strong>
         <span class="text-secondary ms-2">
@@ -33,6 +33,19 @@
       </div>
 
       <div class="d-flex flex-wrap gap-2">
+        {# Hoch und runter stehen auch bei der ersten und letzten Aufgabe da,
+           nur abgeschaltet - sonst fluchtet die Knopfreihe nicht mehr. #}
+        <form method="post" action="{{ url_for('admin.task_move', tid=t.id) }}"
+          class="btn-group aufgabe-verschieben">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button name="richtung" value="hoch" class="btn btn-outline-light btn-sm"
+            title="Eine Stelle nach oben" aria-label="„{{ t.title }}“ eine Stelle nach oben"
+            {% if loop.first %}disabled{% endif %}>▲</button>
+          <button name="richtung" value="runter" class="btn btn-outline-light btn-sm"
+            title="Eine Stelle nach unten" aria-label="„{{ t.title }}“ eine Stelle nach unten"
+            {% if loop.last %}disabled{% endif %}>▼</button>
+        </form>
+
         <a href="{{ url_for('admin.task_edit', tid=t.id) }}" class="btn btn-outline-info btn-sm"
           title="Aufgabe bearbeiten">
           ✏️
@@ -185,6 +198,25 @@
     // on the offline machine this runs on.
     toolbar: ["bold", "italic", "heading", "|", "quote", "code", "unordered-list", "ordered-list", "|", "preview"]
   });
+
+  // Nach ▲ oder ▼ lädt die Seite neu. Sie soll dort stehen bleiben, wo sie
+  // war - sonst fängt eine lange Liste nach jedem Klick wieder oben an.
+  // Gemerkt wird nur die Scrollhöhe, und nur bis zum nächsten Laden.
+  (function () {
+    var schluessel = "aufgabenliste-scroll";
+    document.querySelectorAll("form.aufgabe-verschieben").forEach(function (form) {
+      form.addEventListener("submit", function () {
+        try { sessionStorage.setItem(schluessel, String(window.scrollY)); } catch (e) {}
+      });
+    });
+    try {
+      var hoehe = sessionStorage.getItem(schluessel);
+      if (hoehe !== null) {
+        sessionStorage.removeItem(schluessel);
+        window.scrollTo(0, Number(hoehe));
+      }
+    } catch (e) {}
+  })();
 </script>
 
 <a href="{{ url_for('admin.challenge_detail', cid=challenge.id) }}" class="text-secondary mt-4 d-block">

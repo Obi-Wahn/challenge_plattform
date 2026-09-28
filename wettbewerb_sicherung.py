@@ -89,7 +89,7 @@ def sicherung_bauen(challenge, mit_namen, mit_passwoertern=False):
     dict mit teams, aufgaben, abgaben und fehlend (Abgaben, deren Datei auf
     der Platte nicht mehr lag).
     """
-    tasks = Task.query.filter_by(challenge_id=challenge.id).order_by(Task.id).all()
+    tasks = Task.geordnet(challenge.id).all()
     teams = Team.query.filter_by(challenge_id=challenge.id).order_by(Team.name).all()
 
     aufgabe_nr = {task.id: nr for nr, task in enumerate(tasks, start=1)}
@@ -341,7 +341,8 @@ def _anlegen(zf, daten, upload_ordner, geschrieben):
             hinweise.append(f"Aufgabe {eintrag.get('nr')}: übersprungen")
             continue
         hinweise.extend(meldungen)
-        task = Task(challenge_id=challenge.id,
+        # Die Reihenfolge der Datei ist die des gesicherten Wettbewerbs.
+        task = Task(challenge_id=challenge.id, position=len(task_zu) + 1,
                     hint_visible=bool(eintrag.get("hinweis_sichtbar")), **werte)
         db.session.add(task)
         task_zu[_ganzzahl(eintrag.get("nr"))] = task

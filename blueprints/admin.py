@@ -148,7 +148,7 @@ def challenge_detail(cid):
     """Everything about one competition on a single page."""
     challenge = db.get_or_404(Challenge, cid)
 
-    tasks = Task.query.filter_by(challenge_id=cid).order_by(Task.id).all()
+    tasks = Task.geordnet(cid).all()
     teams = Team.query.filter_by(challenge_id=cid).order_by(Team.name).all()
 
     # The public pages (scoreboard, award ceremony, certificates) always show
@@ -389,7 +389,7 @@ def challenge_tasks(cid):
             flash(PROBLEM_MELDUNG[problem], "warning")
             return redirect(url_for('admin.challenge_tasks', cid=cid))
 
-        task = Task(challenge_id=cid, **werte)
+        task = Task(challenge_id=cid, position=Task.naechste_position(cid), **werte)
         db.session.add(task)
         db.session.commit()
         ereignis("Aufgabe angelegt: „%s“ (#%s) in Wettbewerb „%s“ (#%s)",
@@ -399,20 +399,21 @@ def challenge_tasks(cid):
             flash(hinweis, "warning")
         return redirect(url_for('admin.challenge_tasks', cid=cid))
 
-    tasks = Task.query.filter_by(challenge_id=cid).order_by(Task.id).all()
+    tasks = Task.geordnet(cid).all()
     return render_template(
         "admin/challenge_tasks.html",
         challenge=challenge,
         tasks=tasks,
         task_formats=TASK_FORMATS,
         task_difficulties=TASK_DIFFICULTIES,
+        verschoben=request.args.get("verschoben", type=int),
     )
 
 @admin_bp.route("/challenges/<int:cid>/tasks/export")
 def tasks_export(cid):
     """Downloads the tasks of this competition as a reusable JSON file."""
     challenge = db.get_or_404(Challenge, cid)
-    tasks = Task.query.filter_by(challenge_id=cid).order_by(Task.id).all()
+    tasks = Task.geordnet(cid).all()
 
     if not tasks:
         flash("Dieser Wettbewerb hat noch keine Aufgaben zum Sichern.", "warning")
@@ -458,9 +459,11 @@ def tasks_import(cid):
         flash(f"Import nicht möglich: {error}", "danger")
         return redirect(url_for('admin.challenge_tasks', cid=cid))
 
-    for values in tasks:
+    # Eingelesene Aufgaben kommen hinten an, in der Reihenfolge der Datei.
+    position = Task.naechste_position(cid)
+    for nummer, values in enumerate(tasks):
         # Hints always start hidden, whatever the source competition did.
-        db.session.add(Task(challenge_id=cid, **values))
+        db.session.add(Task(challenge_id=cid, position=position + nummer, **values))
     db.session.commit()
 
     ereignis("Aufgaben eingelesen: %s in Wettbewerb „%s“ (#%s), %s übersprungen "
@@ -704,6 +707,32 @@ def task_toggle_hint(tid):
              task.title, task.id)
     return redirect(url_for('admin.challenge_tasks', cid=task.challenge_id))
 
+@admin_bp.route("/tasks/<int:tid>/move", methods=["POST"])
+def task_move(tid):
+    """Rückt eine Aufgabe um einen Platz nach oben oder unten.
+
+    Danach bekommen alle Aufgaben des Wettbewerbs frische Positionen 1, 2, 3 …
+    So gibt es keine Lücken und keine gleichen Werte, auch nicht bei
+    Aufgaben, die noch aus der Zeit vor der Reihenfolge stammen.
+
+    Kein Eintrag im Protokoll (Tobias): Die Reihenfolge legt nichts an und
+    nimmt nichts weg.
+    """
+    task = db.get_or_404(Task, tid)
+    cid = task.challenge_id
+    aufgaben = Task.geordnet(cid).all()
+
+    platz = aufgaben.index(task)
+    ziel = platz - 1 if request.form.get("richtung") == "hoch" else platz + 1
+    if 0 <= ziel < len(aufgaben):
+        aufgaben[platz], aufgaben[ziel] = aufgaben[ziel], aufgaben[platz]
+        for position, aufgabe in enumerate(aufgaben, start=1):
+            aufgabe.position = position
+        db.session.commit()
+
+    # Die Liste hebt die verschobene Aufgabe kurz hervor.
+    return redirect(url_for('admin.challenge_tasks', cid=cid, verschoben=tid))
+
 # Wie viel von einer Abgabe im Anzeigefeld steht. Mehr liest niemand am
 # Bildschirm, und die Seite soll auch bei einer versehentlich riesigen Datei
 # schnell bleiben.
@@ -902,8 +931,7 @@ def download_submission(submission_id):
     ext = os.path.splitext(original_filename)[1]  # z.B. ".sb3" oder ".pde"
     # Die Nummer, unter der die Aufgabe in der Rangliste steht (A1, A2 …),
     # nicht die der Datenbank - die zählt über alle Wettbewerbe weiter.
-    nummern = [t.id for t in Task.query.filter_by(challenge_id=submission.task.challenge_id)
-               .order_by(Task.id)]
+    nummern = [t.id for t in Task.geordnet(submission.task.challenge_id)]
     download_name = f"{team_clean}_A{nummern.index(submission.task_id) + 1}{ext}"
     
     return send_from_directory(

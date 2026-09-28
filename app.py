@@ -331,6 +331,7 @@ ADDED_COLUMNS = {
         "hint": "TEXT",
         "hint_visible": "BOOLEAN DEFAULT 0",
         "difficulty": "VARCHAR(10) NOT NULL DEFAULT ''",
+        "position": "INTEGER NOT NULL DEFAULT 0",
     },
     "submissions": {
         "resubmit_allowed": "BOOLEAN DEFAULT 0",

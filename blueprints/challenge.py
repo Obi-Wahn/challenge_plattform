@@ -152,7 +152,7 @@ def view():
         return redirect(url_for("public.index"))
 
     team_id = team.id
-    tasks = Task.query.filter_by(challenge_id=challenge.id).order_by(Task.id).all()
+    tasks = Task.geordnet(challenge.id).all()
     
     submissions = Submission.query.filter_by(team_id=team_id).join(Task).filter(Task.challenge_id == challenge.id).all()
     submission_map = {s.task_id: s for s in submissions}

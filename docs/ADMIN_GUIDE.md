@@ -78,6 +78,14 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    sie in der JSON-Datei mit; ältere Dateien ohne diese Angabe lassen sich
    unverändert einlesen.
 
+   Die **Reihenfolge** änderst du in der Aufgabenliste mit ▲ und ▼ – je
+   Klick rückt die Aufgabe eine Stelle. In dieser Reihenfolge stehen die
+   Aufgaben auf der Seite der Teams, in der Rangliste (A1, A2 …) und in den
+   Sicherungen. Neue und eingelesene Aufgaben kommen ans Ende. Am besten
+   vor dem Start sortieren: Wer mitten im Wettbewerb umstellt, ändert auch
+   die Nummern über den Spalten der Rangliste am Beamer – die Punkte bleiben
+   dabei, wo sie hingehören.
+
 ---
 
 ## 🌙 Am Vortag
@@ -122,7 +130,8 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    nicht aktiven Wettbewerb startet nur seine Uhr; die Meldung danach sagt,
    dass die Teams ihn erst nach dem Aktivieren sehen.
 3. Rangliste `/scoreboard` an die Wand werfen. Oben läuft die Zeit, darunter
-   füllt sich die Tabelle, sobald du bewertest.
+   füllt sich die Tabelle, sobald du bewertest. Über jeder Spalte stehen
+   Nummer und Titel der Aufgabe, ein langer Titel gekürzt.
 4. Teams registrieren sich selbst auf der Startseite `/`: Teamname und ein
    Passwort, das sie sich ausdenken. Jedes Team merkt sich beides. Danach
    landen sie auf ihrer Wettbewerbsseite `/challenge`, wo die Restzeit über
