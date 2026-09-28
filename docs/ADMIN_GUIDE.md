@@ -30,8 +30,8 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    pip install -r requirements.txt -r requirements-dev.txt
    pytest
    ```
-   Wenn `pytest` durchläuft, funktionieren Anmeldung, Abgabe, Bewertung,
-   Rangliste und Urkunden.
+   Wenn `pytest` durchläuft, funktionieren Registrierung, Anmeldung, Abgabe,
+   Bewertung, Rangliste und Urkunden.
 
 3. **Auf Updates sehen:**
    ```bash
@@ -79,7 +79,7 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 
 ## 🌙 Am Vortag
 
-- [ ] **Probedurchlauf**: einen Testwettbewerb anlegen, ein Team anmelden,
+- [ ] **Probedurchlauf**: einen Testwettbewerb anlegen, ein Team registrieren,
       eine Datei hochladen, bewerten, Rangliste und Urkunde ansehen. Danach
       den Testwettbewerb löschen: Steuerzentrale → Kachel **Wettbewerb**
       (*Name, Zeiten, Löschen*) → ganz unten im roten Kasten **🗑 Löschen**.
@@ -115,7 +115,7 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    *Weitere Wettbewerbe* – dort **✅ Aktivieren**.
 3. Rangliste `/scoreboard` an die Wand werfen. Oben läuft die Zeit, darunter
    füllt sich die Tabelle, sobald du bewertest.
-4. Teams melden sich selbst auf der Startseite `/` an: Teamname und ein
+4. Teams registrieren sich selbst auf der Startseite `/`: Teamname und ein
    Passwort, das sie sich ausdenken. Jedes Team merkt sich beides. Danach
    landen sie auf ihrer Wettbewerbsseite `/challenge`, wo die Restzeit über
    den Aufgaben steht.
@@ -194,8 +194,8 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Ein Team hat die falsche Datei hochgeladen | `/admin` → *Bewertungen* → **🔓 Erneut abgeben erlauben**. Das gilt **einmal**; die bisherige Bewertung wird dabei gelöscht und die Abgabe landet wieder in der Warteschlange. |
 | „Abgabe nicht möglich" bei einem Team | Wettbewerb pausiert, Endzeit überschritten, oder das Team gehört zu einem anderen Wettbewerb. Der Grund steht als Meldung auf der Wettbewerbsseite des Teams. |
 | Falsches Dateiformat wird abgewiesen | Das erlaubte Format steht pro Aufgabe und in der Meldung, die das Team bekommt. Prüfen, ob es zu dem passt, was die Umgebung tatsächlich exportiert (Scratch: `.sb3`, MakeCode-Calliope: `.hex`). |
-| Ein Team will sich noch anmelden, der Wettbewerb ist beendet oder pausiert | Die Startseite nimmt dann keine neuen Teams an – sonst stünde das Team mit null Punkten in der Rangliste am Beamer. Soll es doch noch mitmachen: **🔓 Wieder öffnen** bzw. **▶ Fortsetzen** auf der Wettbewerbsseite, dann anmelden lassen. |
-| Wettbewerb gelöscht, ein Team sitzt noch davor | Mit dem Wettbewerb sind seine Teams weg. Das Team landet beim nächsten Klick auf der Startseite und meldet sich dort für den nächsten Wettbewerb neu an. |
+| Ein Team will sich noch registrieren, der Wettbewerb ist beendet oder pausiert | Die Startseite nimmt dann keine neuen Teams an – sonst stünde das Team mit null Punkten in der Rangliste am Beamer. Soll es doch noch mitmachen: **🔓 Wieder öffnen** bzw. **▶ Fortsetzen** auf der Wettbewerbsseite, dann registrieren lassen. |
+| Wettbewerb gelöscht, ein Team sitzt noch davor | Mit dem Wettbewerb sind seine Teams weg. Das Team landet beim nächsten Klick auf der Startseite und registriert sich dort für den nächsten Wettbewerb neu. |
 | Nach dem Update auf v1.1.0 waren alle Teams abgemeldet | Einmalig und so gewollt: Anmeldungen aus der Zeit davor galten nicht mehr. Teamname und Passwort blieben, die Teams meldeten sich einmal neu an. Spätere Updates melden niemanden ab. Ein Update spielt man trotzdem besser vor dem Wettbewerb ein als mittendrin. |
 | Versehentlich beendet | **🔓 Wieder öffnen** auf der Wettbewerbsseite. Die Endzeit wird gelöscht und muss neu gesetzt werden. |
 | Teams sehen die geänderte Zeit nicht | Normalerweise kommt sie innerhalb von etwa 15 Sekunden von selbst an; die Teamseiten fragen den Server in diesem Takt nach dem Stand. Bleibt die alte Zeit stehen, hat das Gerät die Verbindung zum Server verloren oder das Tablet hat geschlafen. Einmal neu laden, dann stimmt sie wieder. |

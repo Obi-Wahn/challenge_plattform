@@ -191,11 +191,11 @@ class TestAnmeldungGeschlossen:
 
         html = client.get("/").get_data(as_text=True)
 
-        assert "Anmeldung geschlossen" in html
+        assert "Registrierung geschlossen" in html
         assert "Der Wettbewerb ist beendet" in html
         assert 'name="team"' not in html
         # Der Weg zur eigenen Urkunde muss offen bleiben.
-        assert "Hier einloggen" in html
+        assert "Hier anmelden" in html
 
     def test_die_startseite_zeigt_in_der_pause_kein_formular(
             self, client, make_challenge, database):
@@ -205,7 +205,7 @@ class TestAnmeldungGeschlossen:
 
         html = client.get("/").get_data(as_text=True)
 
-        assert "Anmeldung geschlossen" in html
+        assert "Registrierung geschlossen" in html
         assert "pausiert" in html
         assert 'name="team"' not in html
 
@@ -267,7 +267,7 @@ class TestAnmeldungGeschlossen:
         """Frische Installation: Die Lehrkraft soll die Anmeldung ansehen können."""
         html = client.get("/").get_data(as_text=True)
 
-        assert "Anmeldung geschlossen" not in html
+        assert "Registrierung geschlossen" not in html
         assert 'name="team"' in html
 
     def test_ein_angemeldetes_team_kommt_nach_dem_ende_weiter_hinein(
