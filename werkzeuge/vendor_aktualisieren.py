@@ -28,7 +28,6 @@ import base64
 import hashlib
 import io
 import json
-import shutil
 import sys
 import tarfile
 import urllib.error
@@ -79,6 +78,20 @@ def pruefsumme(pfad):
     if not pfad.exists():
         return None
     return hashlib.sha256(pfad.read_bytes()).hexdigest()[:12]
+
+
+def nur_zeilenenden_anders(pfad, inhalt):
+    """Ob die Datei schon so dasteht, höchstens mit CRLF statt LF.
+
+    Git für Windows checkt Textdateien meist mit CRLF aus (core.autocrlf).
+    Würde das Werkzeug sie dann mit dem LF aus dem npm-Paket überschreiben,
+    hielte git sie für verändert, und die Startdatei verweigerte
+    --aktualisieren. Schriften enthalten Nullbytes und werden nie so
+    verglichen.
+    """
+    if not pfad.exists() or b"\0" in inhalt:
+        return False
+    return pfad.read_bytes().replace(b"\r\n", b"\n") == inhalt.replace(b"\r\n", b"\n")
 
 
 def version_teile(version):
@@ -153,10 +166,13 @@ def hole_paket(paket):
                 raise RuntimeError(f"{quelle} steckt nicht in {paket['npm']}")
 
             zielpfad = VENDOR / ziel
+            inhalt = eintrag.read()
+            if nur_zeilenenden_anders(zielpfad, inhalt):
+                continue
+
             vorher = pruefsumme(zielpfad)
             zielpfad.parent.mkdir(parents=True, exist_ok=True)
-            with open(zielpfad, "wb") as f:
-                shutil.copyfileobj(eintrag, f)
+            zielpfad.write_bytes(inhalt)
 
             nachher = pruefsumme(zielpfad)
             if vorher != nachher:

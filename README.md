@@ -283,7 +283,8 @@ danach in der Schublade liegt, wird genauso aufgeräumt wie jeder andere.
     in der Eingabeaufforderung. Sie holt die neue Fassung mit
     `git pull --ff-only`, installiert geänderte Pakete nach und startet.
     Sind Dateien der Plattform von Hand geändert worden, bricht sie ab,
-    statt sie zu überschreiben.
+    statt sie zu überschreiben. Was dann zu tun ist, steht im Leitfaden
+    unter [Wenn etwas klemmt](docs/ADMIN_GUIDE.md#-wenn-etwas-klemmt).
 *   **Als ZIP geholt:** Plattform beenden, das neue ZIP in einen **neuen**
     Ordner entpacken, aus dem alten `data/`, `uploads/` und `.env` hinüber-
     kopieren (`.env` ist oft versteckt, weil sie mit einem Punkt beginnt),

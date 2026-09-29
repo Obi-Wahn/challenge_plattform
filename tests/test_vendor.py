@@ -147,3 +147,66 @@ class TestNamenDieManEintippenKann:
         geaendert = {k for k in vorher if vorher[k] != nachher[k]}
         assert geaendert == {"Font Awesome Free"}
         assert nachher["Font Awesome Free"] == ziel
+
+
+class TestZeilenendenUnterWindows:
+    """Das Werkzeug überschreibt keine Datei, die nur CRLF statt LF hat.
+
+    Git für Windows checkt Textdateien mit CRLF aus. Schrieb das Werkzeug
+    danach die LF-Fassung aus dem npm-Paket hin, hielt git die Dateien für
+    verändert, und die Startdatei verweigerte --aktualisieren.
+    """
+
+    def werkzeug(self, tmp_path, monkeypatch, dateien):
+        import io
+        import sys
+        import tarfile
+
+        sys.path.insert(0, str(WURZEL / "werkzeuge"))
+        import vendor_aktualisieren as w
+
+        puffer = io.BytesIO()
+        with tarfile.open(fileobj=puffer, mode="w:gz") as archiv:
+            for name, inhalt in dateien.items():
+                info = tarfile.TarInfo(f"package/{name}")
+                info.size = len(inhalt)
+                archiv.addfile(info, io.BytesIO(inhalt))
+
+        monkeypatch.setattr(w, "VENDOR", tmp_path)
+        monkeypatch.setattr(w, "paketdaten", lambda *_: {"dist": {"tarball": "x"}})
+        monkeypatch.setattr(w, "hole", lambda _url: puffer.getvalue())
+        return w
+
+    def paket(self, *namen):
+        return {"npm": "test", "version": "1.0.0", "dateien": {n: n for n in namen}}
+
+    def test_nur_andere_zeilenenden_bleiben_unberuehrt(self, tmp_path, monkeypatch):
+        w = self.werkzeug(tmp_path, monkeypatch, {"a.css": b"x {}\ny {}\n"})
+        ziel = tmp_path / "a.css"
+        ziel.write_bytes(b"x {}\r\ny {}\r\n")
+
+        assert w.hole_paket(self.paket("a.css")) == []
+        assert ziel.read_bytes() == b"x {}\r\ny {}\r\n"
+
+    def test_neuer_inhalt_wird_geschrieben(self, tmp_path, monkeypatch):
+        w = self.werkzeug(tmp_path, monkeypatch, {"a.css": b"x {}\nz {}\n"})
+        ziel = tmp_path / "a.css"
+        ziel.write_bytes(b"x {}\r\ny {}\r\n")
+
+        assert w.hole_paket(self.paket("a.css")) == ["a.css"]
+        assert ziel.read_bytes() == b"x {}\nz {}\n"
+
+    def test_fehlende_datei_wird_angelegt(self, tmp_path, monkeypatch):
+        w = self.werkzeug(tmp_path, monkeypatch, {"neu/a.txt": b"eins\n"})
+
+        assert w.hole_paket(self.paket("neu/a.txt")) == ["neu/a.txt"]
+        assert (tmp_path / "neu" / "a.txt").read_bytes() == b"eins\n"
+
+    def test_schriften_werden_nie_nach_zeilenenden_verglichen(self, tmp_path, monkeypatch):
+        """Mit Nullbytes ist es keine Textdatei, jedes Byte zählt."""
+        w = self.werkzeug(tmp_path, monkeypatch, {"s.ttf": b"\0\1\n"})
+        ziel = tmp_path / "s.ttf"
+        ziel.write_bytes(b"\0\1\r\n")
+
+        assert w.hole_paket(self.paket("s.ttf")) == ["s.ttf"]
+        assert ziel.read_bytes() == b"\0\1\n"
