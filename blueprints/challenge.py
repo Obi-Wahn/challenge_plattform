@@ -85,7 +85,9 @@ def seitenstand(challenge):
 
     Drin steht, was ein Team sofort sehen muss: welcher Wettbewerb läuft, ob
     er pausiert oder beendet ist, wann er anfängt und aufhört, welche Hinweise
-    freigeschaltet sind und wie viele Aufgaben es gibt.
+    freigeschaltet sind, wie viele Aufgaben es gibt und ob die Urkunde schon
+    zu haben ist - nach dem Auflösen der Rangliste erscheint ihr Knopf so,
+    ohne dass jemand neu lädt.
 
     Die Zeiten gehören dazu, weil die Uhr im Browser nichts davon weiß, wenn
     die Lehrkraft die Dauer mitten im Wettbewerb neu setzt - die Seite zeigte
@@ -111,6 +113,7 @@ def seitenstand(challenge):
         challenge.end_time.isoformat() if challenge.end_time else "-",
         str(anzahl),
         ",".join(str(nummer) for (nummer,) in hinweise),
+        "urkunde" if challenge.certificates_open else "-",
     ])
 
 
@@ -400,7 +403,8 @@ def certificate():
         return redirect(url_for("public.index"))
 
     # Before the end the result is not final, so there is nothing to hand out.
-    if challenge.status() != "finished":
+    # Neither while the scoreboard is frozen: the certificate names the place.
+    if not challenge.certificates_open:
         abort(403)
 
     tasks, standings = get_standings(challenge)

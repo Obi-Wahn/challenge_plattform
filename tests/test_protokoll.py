@@ -67,7 +67,7 @@ class TestInhalt:
         """
         make_challenge(active=True)
 
-        def kaputt(challenge):
+        def kaputt(challenge, **_):
             raise RuntimeError("Absicht: kaputte Rangliste")
 
         monkeypatch.setattr("blueprints.public.get_standings", kaputt)

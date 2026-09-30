@@ -229,7 +229,8 @@ def create_app():
 
         Die Leiste steht in base.html und kennt von sich aus weder den
         Wettbewerb noch das angemeldete Team. Sie wächst um höchstens einen
-        Eintrag: die Urkunde, sobald der Wettbewerb beendet ist. Vorher war
+        Eintrag: die Urkunde, sobald der Wettbewerb beendet und die Rangliste
+        nicht mehr eingefroren ist. Vorher war
         hier auch ein Countdown-Eintrag; die Restzeit steht inzwischen auf
         der Wettbewerbsseite selbst.
         """
@@ -237,7 +238,6 @@ def create_app():
         from sitzung import angemeldetes_team
 
         challenge = Challenge.current()
-        status = challenge.status() if challenge else None
 
         # Das Team kommt aus der Datenbank, nicht aus der Sitzung: Nach dem
         # Löschen des Wettbewerbs steht der Name noch im Cookie, das Team
@@ -247,7 +247,7 @@ def create_app():
 
         return {
             "nav_team": team.name if team else None,
-            "nav_urkunde": status == "finished",
+            "nav_urkunde": bool(challenge and challenge.certificates_open),
         }
 
     register_error_handlers(app)
@@ -321,6 +321,10 @@ ADDED_COLUMNS = {
     "challenges": {
         "tagline": "VARCHAR(300) NOT NULL DEFAULT ''",
         "paused_at": "DATETIME",
+        "freeze_enabled": "BOOLEAN NOT NULL DEFAULT 0",
+        "freeze_minutes": "INTEGER NOT NULL DEFAULT 15",
+        "frozen_since": "DATETIME",
+        "scoreboard_revealed": "BOOLEAN NOT NULL DEFAULT 0",
     },
     "teams": {
         "member_names": "TEXT",

@@ -18,12 +18,15 @@
 {% set offen = challenge.accepts_submissions %}
 {{ zeitleiste(challenge, status, seconds,
               url_for('challenge.view'),
-              url_for('challenge.certificate')) }}
+              url_for('challenge.certificate') if challenge.certificates_open else None) }}
 
 {% if status == "finished" %}
 <p class="text-secondary mb-3">
   Abgaben sind nicht mehr möglich. Schaut euch die
   <a href="{{ url_for('public.scoreboard') }}">Rangliste</a> an.
+  {% if challenge.scoreboard_frozen %}
+  Eure Urkunde gibt es nach der Siegerehrung.
+  {% endif %}
 </p>
 {% endif %}
 

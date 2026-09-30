@@ -24,6 +24,17 @@
       </p>
     </div>
 
+    {% if eingefroren %}
+    <!-- Nur der Vergleich steht still: Bewertet wird weiter, und jedes Team
+         sieht seine eigenen Punkte auf seiner Seite wie immer. -->
+    <div class="event-card rangliste-eingefroren text-center mb-4">
+      <strong>❄️ Eingefroren seit {{ challenge.freeze_point.strftime('%H:%M') }} Uhr</strong>
+      <span class="text-secondary d-block d-md-inline ms-md-2">
+        Was danach abgegeben wurde, zählt – die Siegerehrung zeigt es.
+      </span>
+    </div>
+    {% endif %}
+
     {% if not teams %}
     <div class="event-card text-center p-5">
       <h3 class="text-secondary">Noch keine Teams registriert.</h3>
