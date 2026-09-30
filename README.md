@@ -699,6 +699,7 @@ challenge_plattform/
 ├── certificates.py        # Urkunden als PDF
 ├── task_exchange.py       # Aufgaben sichern und einlesen
 ├── wettbewerb_sicherung.py # einen ganzen Wettbewerb als ZIP sichern und einlesen
+├── datenschutz.py         # aufräumen: Teams und Abgaben, Protokolldatei, Sicherungskopien
 ├── network.py             # Adresse, unter der die Teams beitreten
 ├── sitzung.py             # Anmeldung eines Teams und ihre Gültigkeit
 ├── protokoll.py           # die Zeilen, die in logs/anwendung.log gehen
