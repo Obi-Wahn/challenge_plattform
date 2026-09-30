@@ -254,9 +254,24 @@ input::placeholder, textarea::placeholder {
   margin-bottom: 0.25rem;
 }
 
+/* Über die ganze Breite: So endet „Senden“ bündig mit „Wettbewerb beenden“
+   darüber, statt knapp neben „Jetzt starten für“. */
 .durchsage-feld {
   flex: 1 1 16rem;
-  max-width: 36rem;
+}
+
+.jetzt-starten {
+  flex-wrap: nowrap;
+  width: auto;
+}
+
+.jetzt-starten .form-control {
+  width: 4.5rem;
+  flex: 0 0 4.5rem;
+}
+
+.jetzt-starten .btn {
+  white-space: nowrap;
 }
 
 .durchsage-text {
