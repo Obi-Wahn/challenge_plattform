@@ -180,6 +180,13 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 
 - **Abgaben bewerten** unter `/admin` → *Bewertungen*. Punkte und ein kurzes
   Feedback pro Abgabe.
+- **Durchsage an alle Teams**, etwa „Noch 10 Minuten, bitte speichern“:
+  einmal unter *Name & Zeiten* das Häkchen **📢 Durchsagen an die Teams**
+  setzen, dann steht auf der Wettbewerbsseite oben ein Feld mit
+  **📢 Senden**. Der Satz erscheint innerhalb von etwa 15 Sekunden oben auf
+  jeder Teamseite und über der Rangliste am Beamer. Es gilt immer nur eine
+  Durchsage – eine neue ersetzt die alte, **Entfernen** nimmt sie weg. Ins
+  Protokoll kommt nur, dass es eine gab, nicht ihr Text.
 - **Hinweis freischalten**, wenn eine Aufgabe zu schwer ist: auf der
   Aufgaben-Seite umschalten. Der Hinweis erscheint bei allen Teams innerhalb
   von etwa 15 Sekunden, ohne dass jemand neu laden muss.

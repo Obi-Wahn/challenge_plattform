@@ -85,9 +85,9 @@ def seitenstand(challenge):
 
     Drin steht, was ein Team sofort sehen muss: welcher Wettbewerb läuft, ob
     er pausiert oder beendet ist, wann er anfängt und aufhört, welche Hinweise
-    freigeschaltet sind, wie viele Aufgaben es gibt und ob die Urkunde schon
-    zu haben ist - nach dem Auflösen der Rangliste erscheint ihr Knopf so,
-    ohne dass jemand neu lädt.
+    freigeschaltet sind, wie viele Aufgaben es gibt, welche Durchsage gilt
+    und ob die Urkunde schon zu haben ist - nach dem Auflösen der Rangliste
+    erscheint ihr Knopf so, ohne dass jemand neu lädt.
 
     Die Zeiten gehören dazu, weil die Uhr im Browser nichts davon weiß, wenn
     die Lehrkraft die Dauer mitten im Wettbewerb neu setzt - die Seite zeigte
@@ -114,6 +114,8 @@ def seitenstand(challenge):
         str(anzahl),
         ",".join(str(nummer) for (nummer,) in hinweise),
         "urkunde" if challenge.certificates_open else "-",
+        challenge.announcement_at.isoformat()
+        if challenge.announcement and challenge.announcement_at else "-",
     ])
 
 

@@ -240,6 +240,30 @@ input::placeholder, textarea::placeholder {
   color: #7dd3fc;
 }
 
+/* Die Durchsage der Lehrkraft: gelb wie ein Aushang, nicht rot wie ein
+   Fehler. Der Text ist groß genug, um ihn am Beamer von hinten zu lesen. */
+.durchsage-kasten {
+  border: 1px solid rgba(250, 204, 21, 0.6);
+  background: rgba(250, 204, 21, 0.1);
+  padding: 1rem 1.25rem;
+}
+
+.durchsage-kopf {
+  color: #facc15;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.durchsage-feld {
+  flex: 1 1 16rem;
+  max-width: 36rem;
+}
+
+.durchsage-text {
+  font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+  overflow-wrap: anywhere;
+}
+
 /* ====== Aufgabenliste im Admin-Bereich ====== */
 
 /* Der Umschalter heißt mal "sichtbar", mal "verborgen". Wäre er nur so breit

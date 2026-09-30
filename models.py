@@ -129,7 +129,13 @@ class Challenge(db.Model):
     frozen_since = db.Column(db.DateTime, nullable=True)
     # Mit „Rangliste auflösen“ zeigt die Rangliste wieder den echten Stand.
     scoreboard_revealed = db.Column(db.Boolean, nullable=False, default=False)
-    tasks =db.relationship('Task', backref='challenge', lazy=True, cascade="all, delete-orphan",
+    # Durchsagen an die Teams, je Wettbewerb einzuschalten. Es gibt immer nur
+    # eine: Eine neue ersetzt die alte, einen Verlauf gibt es nicht - was
+    # nicht gespeichert ist, muss auch niemand wieder löschen.
+    announcements_enabled = db.Column(db.Boolean, nullable=False, default=False)
+    announcement_text = db.Column(db.String(200), nullable=False, default="")
+    announcement_at = db.Column(db.DateTime, nullable=True)
+    tasks = db.relationship('Task', backref='challenge', lazy=True, cascade="all, delete-orphan",
                             order_by="(Task.position, Task.id)")
     teams = db.relationship('Team', backref='challenge', lazy=True, cascade="all, delete-orphan")
 
@@ -241,6 +247,17 @@ class Challenge(db.Model):
             return 0
         remaining = (self.end_time - self.reference_time).total_seconds()
         return max(0, int(remaining))
+
+    @property
+    def announcement(self):
+        """Die Durchsage, die gerade gilt, oder None."""
+        if self.announcements_enabled and self.announcement_text:
+            return self.announcement_text
+        return None
+
+    def clear_announcement(self):
+        self.announcement_text = ""
+        self.announcement_at = None
 
     @property
     def duration_minutes(self):

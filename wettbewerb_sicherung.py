@@ -143,6 +143,9 @@ def sicherung_bauen(challenge, mit_namen, mit_passwoertern=False):
                 "einfrieren_minuten": challenge.freeze_minutes or 15,
                 "eingefroren_seit": _zeit(challenge.frozen_since),
                 "rangliste_aufgeloest": bool(challenge.scoreboard_revealed),
+                # Nur ob es Durchsagen gibt, nicht ihr Text: Der gilt für den
+                # Augenblick, nicht für eine Sicherung.
+                "durchsagen": bool(challenge.announcements_enabled),
             },
             "aufgaben": [
                 {
@@ -343,6 +346,7 @@ def _anlegen(zf, daten, upload_ordner, geschrieben):
         freeze_minutes=_einfrierminuten(wettbewerb.get("einfrieren_minuten")),
         frozen_since=_datum(wettbewerb.get("eingefroren_seit")),
         scoreboard_revealed=bool(wettbewerb.get("rangliste_aufgeloest")),
+        announcements_enabled=bool(wettbewerb.get("durchsagen")),
     )
     if challenge.paused and not challenge.paused_at:
         challenge.paused = False

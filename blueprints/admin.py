@@ -33,6 +33,8 @@ STANDARD_DAUER_MINUTEN = 45
 MAX_TITEL = 200
 MAX_SEITENNAME = 100
 MAX_UNTERTITEL = 300
+# Eine Durchsage ist ein Satz, kein Aufsatz - so lang wie die Spalte.
+MAX_DURCHSAGE = 200
 
 def gelesene_dauer(value):
     """Die eingetippte Dauer in Minuten, als (Minuten, Fehlermeldung).
@@ -339,6 +341,11 @@ def challenge_edit(cid):
         if vorher != (challenge.start_time, challenge.end_time,
                       challenge.freeze_enabled, challenge.freeze_minutes):
             challenge.reset_freeze()
+        challenge.announcements_enabled = bool(request.form.get("announcements_enabled"))
+        # Ausgeschaltet bleibt auch keine alte Durchsage liegen, die beim
+        # nächsten Einschalten unverhofft wieder auftauchte.
+        if not challenge.announcements_enabled:
+            challenge.clear_announcement()
 
         db.session.commit()
 
@@ -677,6 +684,47 @@ def challenge_finish(cid):
         "jetzt könnt ihr Rangliste, Siegerehrung und Urkunden zeigen.",
         "success"
     )
+    return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))
+
+@admin_bp.route("/challenges/<int:cid>/durchsage", methods=["POST"])
+def challenge_announce(cid):
+    """Schickt eine Durchsage an alle Teams - und ersetzt damit die alte.
+
+    Die Teamseiten holen sie über die Standabfrage, die Rangliste beim
+    nächsten Neuladen. Ins Protokoll kommt nur, dass es eine gab, nicht der
+    Text: Der kann Namen enthalten, und die Datei lebt länger als der Tag.
+    """
+    challenge = db.get_or_404(Challenge, cid)
+    ziel = safe_redirect_target(url_for('admin.challenge_detail', cid=cid))
+    if not challenge.announcements_enabled:
+        flash("Durchsagen sind für diesen Wettbewerb ausgeschaltet – "
+              "einschalten lassen sie sich unter „Name & Zeiten“.", "warning")
+        return redirect(ziel)
+
+    text = " ".join(request.form.get("text", "").split())
+    if not text:
+        flash("Die Durchsage ist leer.", "warning")
+        return redirect(ziel)
+
+    challenge.announcement_text = text[:MAX_DURCHSAGE]
+    challenge.announcement_at = datetime.now()
+    db.session.commit()
+    ereignis("Durchsage gesendet in „%s“ (#%s)", challenge.title, challenge.id)
+
+    meldung = "Die Durchsage ist unterwegs – die Teams sehen sie innerhalb von etwa 15 Sekunden."
+    if len(text) > MAX_DURCHSAGE:
+        meldung += f" Sie war zu lang und wurde auf {MAX_DURCHSAGE} Zeichen gekürzt."
+    flash(meldung, "success")
+    return redirect(ziel)
+
+@admin_bp.route("/challenges/<int:cid>/durchsage/entfernen", methods=["POST"])
+def challenge_announce_clear(cid):
+    challenge = db.get_or_404(Challenge, cid)
+    if challenge.announcement_text:
+        challenge.clear_announcement()
+        db.session.commit()
+        ereignis("Durchsage entfernt in „%s“ (#%s)", challenge.title, challenge.id)
+    flash("Die Durchsage ist entfernt.", "success")
     return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))
 
 @admin_bp.route("/challenges/<int:cid>/reopen", methods=["POST"])

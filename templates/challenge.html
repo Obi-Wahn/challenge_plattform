@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% from "_zeitleiste.html" import zeitleiste, zeitleiste_skript %}
 {% from "_schwierigkeit.html" import schwierigkeit %}
+{% from "_durchsage.html" import durchsage %}
 {% block content %}
 
 <h2 class="mb-3">🧩 {{ event.name }}</h2>
@@ -29,6 +30,8 @@
   {% endif %}
 </p>
 {% endif %}
+
+{{ durchsage(challenge) }}
 
 <!-- Pause -->
 <!-- Die Zeitleiste allein ist zu leise: Wer gerade auf eine Aufgabe schaut,

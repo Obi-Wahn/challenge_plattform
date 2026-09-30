@@ -325,6 +325,9 @@ ADDED_COLUMNS = {
         "freeze_minutes": "INTEGER NOT NULL DEFAULT 15",
         "frozen_since": "DATETIME",
         "scoreboard_revealed": "BOOLEAN NOT NULL DEFAULT 0",
+        "announcements_enabled": "BOOLEAN NOT NULL DEFAULT 0",
+        "announcement_text": "VARCHAR(200) NOT NULL DEFAULT ''",
+        "announcement_at": "DATETIME",
     },
     "teams": {
         "member_names": "TEXT",

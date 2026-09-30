@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "_zeitleiste.html" import zeitleiste, zeitleiste_skript %}
+{% from "_durchsage.html" import durchsage %}
 {% block container_class %}container-fluid px-4{% endblock %}
 {% block content %}
 
@@ -34,6 +35,7 @@
       </span>
     </div>
     {% endif %}
+    {{ durchsage(challenge) }}
 
     {% if not teams %}
     <div class="event-card text-center p-5">
