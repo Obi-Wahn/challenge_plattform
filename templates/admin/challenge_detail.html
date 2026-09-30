@@ -92,6 +92,28 @@
     </div>
   </div>
 
+  {% if challenge.scoreboard_frozen %}
+  <!-- Der Knopf steht auch am Ende der Siegerehrung. Hier ist er für den
+       Fall, dass es ohne Siegerehrung weitergehen soll. -->
+  <form method="post" action="{{ url_for('admin.challenge_reveal', cid=challenge.id) }}"
+    class="d-flex flex-wrap align-items-center gap-2 mt-3 mb-0">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="next" value="{{ here }}">
+    <span class="text-info">
+      ❄️ Die Rangliste ist seit {{ challenge.freeze_point.strftime('%H:%M') }} Uhr eingefroren.
+    </span>
+    <span class="text-secondary small">
+      Die Siegerehrung zeigt dir den echten Stand, den Teams erst nach dem Auflösen.
+    </span>
+    <button class="btn btn-outline-info btn-sm">❄️ Rangliste auflösen</button>
+  </form>
+  {% elif challenge.freeze_point and not challenge.scoreboard_revealed and not finished %}
+  <p class="text-info small mt-3 mb-0">
+    ❄️ Die Rangliste friert um {{ challenge.freeze_point.strftime('%H:%M') }} Uhr ein,
+    {{ challenge.freeze_minutes }} Minuten vor Schluss.
+  </p>
+  {% endif %}
+
   {% if challenge.announcements_enabled %}
   <!-- Die Durchsage steht bei den Knöpfen für Pause und Ende: Sie gehört
        zu dem, was man mitten im Wettbewerb schnell tun will. -->

@@ -1,6 +1,6 @@
 import re
 import secrets
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from extensions import db
 
@@ -117,6 +117,18 @@ class Challenge(db.Model):
     # steht still, und die Endzeit rückt beim Fortsetzen um die Dauer der
     # Pause nach hinten. Leer heißt: keine Pause im Gang.
     paused_at = db.Column(db.DateTime, nullable=True)
+    # Die Rangliste vor Schluss einfrieren: Ab freeze_minutes vor dem Ende
+    # zeigt sie nur noch, was bis dahin abgegeben war. Die Punkte eines Teams
+    # auf seiner eigenen Seite bleiben davon unberührt.
+    freeze_enabled = db.Column(db.Boolean, nullable=False, default=False)
+    freeze_minutes = db.Column(db.Integer, nullable=False, default=15)
+    # Festgehaltener Zeitpunkt des Einfrierens. Leer heißt: er ergibt sich
+    # aus der Endzeit. Festgehalten wird er, wenn sich die Endzeit nach dem
+    # Einfrieren noch bewegt (Fortsetzen nach einer Pause, Beenden) - sonst
+    # tauchten Abgaben wieder auf, die der Beamer schon verborgen hatte.
+    frozen_since = db.Column(db.DateTime, nullable=True)
+    # Mit „Rangliste auflösen“ zeigt die Rangliste wieder den echten Stand.
+    scoreboard_revealed = db.Column(db.Boolean, nullable=False, default=False)
     # Durchsagen an die Teams, je Wettbewerb einzuschalten. Es gibt immer nur
     # eine: Eine neue ersetzt die alte, einen Verlauf gibt es nicht - was
     # nicht gespeichert ist, muss auch niemand wieder löschen.
@@ -259,6 +271,76 @@ class Challenge(db.Model):
             return None
         minutes = int((self.end_time - self.start_time).total_seconds() // 60)
         return minutes if minutes > 0 else None
+
+    @property
+    def freeze_point(self):
+        """Ab wann die Rangliste eingefroren ist, oder None.
+
+        Ohne Endzeit gibt es kein „vor Schluss“ und damit nichts einzufrieren.
+        Eine Pause vor dem Einfrieren schiebt den Zeitpunkt mit der Endzeit
+        nach hinten - die Teams haben dann ja auch länger Zeit.
+        """
+        if not self.freeze_enabled:
+            return None
+        if self.frozen_since:
+            return self.frozen_since
+        if not self.end_time:
+            return None
+        return self.end_time - timedelta(minutes=self.freeze_minutes or 0)
+
+    @property
+    def scoreboard_frozen(self):
+        """Ob die Rangliste gerade den eingefrorenen Stand zeigt.
+
+        Das bleibt auch nach dem Ende so, bis die Lehrkraft die Rangliste
+        auflöst - sonst stünde das Ergebnis am Beamer, bevor die
+        Siegerehrung es verkündet.
+        """
+        punkt = self.freeze_point
+        if punkt is None or self.scoreboard_revealed:
+            return False
+        return self.reference_time >= punkt
+
+    @property
+    def certificates_open(self):
+        """Ob ein Team seine Urkunde herunterladen darf.
+
+        Nach dem Ende - aber nicht, solange die Rangliste eingefroren ist:
+        Auf der Urkunde steht der Platz, und den soll die Siegerehrung
+        verkünden, nicht das Handy eines Teams.
+        """
+        return self.status() == "finished" and not self.scoreboard_frozen
+
+    def pin_freeze(self, jetzt):
+        """Hält den Zeitpunkt des Einfrierens fest, bevor sich die Endzeit bewegt.
+
+        `jetzt` ist die Zeit, nach der sich der Wettbewerb in diesem Moment
+        richtet - beim Fortsetzen der Beginn der Pause. Ist die Rangliste da
+        noch nicht eingefroren, bleibt alles, wie es ist.
+        """
+        punkt = self.freeze_point
+        if self.frozen_since or punkt is None or self.scoreboard_revealed:
+            return
+        if jetzt >= punkt:
+            self.frozen_since = punkt
+
+    def freeze_on_finish(self, jetzt):
+        """Beim Beenden: Nichts, was bis eben am Beamer stand, verschwindet.
+
+        Endet der Wettbewerb vor dem geplanten Einfrieren, friert die
+        Rangliste mit dem Ende ein. Die Siegerehrung bleibt so die Stelle, an
+        der das Ergebnis herauskommt, und die Endzeit von jetzt zieht keine
+        Abgaben der letzten Minuten nachträglich wieder vom Beamer.
+        """
+        if not self.freeze_enabled or self.frozen_since or self.scoreboard_revealed:
+            return
+        punkt = self.freeze_point
+        self.frozen_since = min(punkt, jetzt) if punkt else jetzt
+
+    def reset_freeze(self):
+        """Neue Zeiten, neues Einfrieren: Festgehaltenes und Auflösen fallen weg."""
+        self.frozen_since = None
+        self.scoreboard_revealed = False
 
 # File formats a task can ask for, as {extension: label}. Kept in one place so
 # the task forms and the import agree on what is allowed.

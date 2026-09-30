@@ -203,6 +203,16 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 - **Rangliste** `/scoreboard` aktualisiert sich alle 30 Sekunden von selbst und
   trägt die Restzeit oben — sie ist die Seite für den Beamer, den ganzen
   Wettbewerb über. Eine eigene Countdown-Seite gibt es nicht mehr.
+- **Rangliste einfrieren**, wenn es am Ende spannend bleiben soll: unter
+  *Name & Zeiten* das Häkchen **❄️ Rangliste vor Schluss einfrieren** setzen
+  und die Minuten vor Schluss eintragen (vorgeschlagen sind 15). Ab dann
+  zeigt die Rangliste nur noch, was bis dahin abgegeben war, mit dem Hinweis
+  *❄️ Eingefroren seit …*. Du bewertest weiter wie immer; eine Abgabe von
+  davor zählt auch, wenn du sie erst danach bewertest. Jedes Team sieht seine
+  eigenen Punkte auf seiner Seite weiter aktuell – nur den Vergleich mit den
+  anderen nicht mehr. Eine Pause vor dem Einfrieren schiebt es mit dem Ende
+  nach hinten, eine Pause danach nicht. Die Einstellung gilt je Wettbewerb
+  und ist bei einem neuen aus.
 
 ### Schluss und Siegerehrung
 
@@ -211,9 +221,15 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 2. **Letzte Abgaben zu Ende bewerten** – das geht nach dem Beenden weiter.
 3. **Siegerehrung** `/siegerehrung` an die Wand werfen. Gleichstände teilen
    sich einen Platz, niemand fällt durch eine willkürliche Reihung heraus.
+   Ist die Rangliste eingefroren, zeigt die Siegerehrung nur dir als
+   angemeldeter Lehrkraft den echten Stand; wer die Adresse am Handy
+   aufruft, sieht bloß *❄️ Die Rangliste ist eingefroren*. Nach dem letzten
+   Platz **❄️ Rangliste auflösen und ansehen** drücken (der Knopf steht auch
+   auf der Wettbewerbsseite), dann zeigt die Rangliste wieder alles.
 4. **Urkunden**: als Sammel-PDF über `/admin/urkunden.pdf` oder einzeln.
    Die Teams können ihre eigene Urkunde nach dem Beenden selbst
-   herunterladen. Unter *Einstellungen* stellst du ein: Quer- oder Hochformat,
+   herunterladen – bei eingefrorener Rangliste erst nach dem Auflösen, denn
+   auf der Urkunde steht der Platz. Unter *Einstellungen* stellst du ein: Quer- oder Hochformat,
    den Namen unter der Unterschriftslinie und die Handschrift.
 5. **Eine Urkunde nachreichen**, wenn jemand gefehlt hat: Auf der
    Steuerzentrale unten *Beendet* aufklappen, beim gesuchten Wettbewerb

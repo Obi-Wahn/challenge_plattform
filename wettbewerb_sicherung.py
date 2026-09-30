@@ -139,6 +139,10 @@ def sicherung_bauen(challenge, mit_namen, mit_passwoertern=False):
                 "ende": _zeit(challenge.end_time),
                 "pausiert": bool(challenge.paused),
                 "pausiert_seit": _zeit(challenge.paused_at),
+                "rangliste_einfrieren": bool(challenge.freeze_enabled),
+                "einfrieren_minuten": challenge.freeze_minutes or 15,
+                "eingefroren_seit": _zeit(challenge.frozen_since),
+                "rangliste_aufgeloest": bool(challenge.scoreboard_revealed),
                 # Nur ob es Durchsagen gibt, nicht ihr Text: Der gilt für den
                 # Augenblick, nicht für eine Sicherung.
                 "durchsagen": bool(challenge.announcements_enabled),
@@ -214,6 +218,14 @@ def _ganzzahl(wert):
         return int(wert)
     except (TypeError, ValueError):
         return None
+
+
+def _einfrierminuten(wert):
+    """Die Minuten vor Schluss aus einer Sicherung, im erlaubten Bereich."""
+    minuten = _ganzzahl(wert)
+    if minuten is None or minuten <= 0:
+        return 15
+    return min(minuten, 24 * 60)  # wie MAX_DAUER_MINUTEN in blueprints/admin.py
 
 
 def _liste(daten, schluessel):
@@ -328,6 +340,12 @@ def _anlegen(zf, daten, upload_ordner, geschrieben):
         active=False,
         paused=bool(wettbewerb.get("pausiert")),
         paused_at=_datum(wettbewerb.get("pausiert_seit")),
+        # Fehlen die Angaben, stammt die Sicherung aus der Zeit vor dem
+        # Einfrieren - dann friert nichts ein, wie damals.
+        freeze_enabled=bool(wettbewerb.get("rangliste_einfrieren")),
+        freeze_minutes=_einfrierminuten(wettbewerb.get("einfrieren_minuten")),
+        frozen_since=_datum(wettbewerb.get("eingefroren_seit")),
+        scoreboard_revealed=bool(wettbewerb.get("rangliste_aufgeloest")),
         announcements_enabled=bool(wettbewerb.get("durchsagen")),
     )
     if challenge.paused and not challenge.paused_at:

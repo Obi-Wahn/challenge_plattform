@@ -228,6 +228,18 @@ input::placeholder, textarea::placeholder {
   font-size: clamp(1.4rem, 6vw, 2.2rem);
 }
 
+/* Die eingefrorene Rangliste: dieselbe Karte, im Eisblau statt im Orange
+   der Pause - der Wettbewerb läuft ja weiter. */
+.rangliste-eingefroren {
+  border: 1px solid rgba(125, 211, 252, 0.55);
+  background: rgba(125, 211, 252, 0.08);
+  padding: 0.9rem 1.2rem;
+}
+
+.rangliste-eingefroren strong {
+  color: #7dd3fc;
+}
+
 /* Die Durchsage der Lehrkraft: gelb wie ein Aushang, nicht rot wie ein
    Fehler. Der Text ist groß genug, um ihn am Beamer von hinten zu lesen. */
 .durchsage-kasten {

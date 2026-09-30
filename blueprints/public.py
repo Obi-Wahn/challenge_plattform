@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, session
 from extensions import db, limiter
 from sqlalchemy.exc import IntegrityError
 from models import Challenge, Settings, Team
@@ -215,7 +215,11 @@ def scoreboard():
     if not challenge:
         return render_template("scoreboard.html", challenge=None)
 
-    tasks, standings = get_standings(challenge)
+    # Eingefroren zählen nur die Abgaben bis zum Einfrieren - für alle, auch
+    # am Beamer der Lehrkraft. Den echten Stand zeigt ihr die Siegerehrung.
+    eingefroren = challenge.scoreboard_frozen
+    tasks, standings = get_standings(
+        challenge, bis=challenge.freeze_point if eingefroren else None)
 
     # Dieselbe Rechnung wie auf der Wettbewerbsseite der Teams: vor dem Start
     # bis zum Beginn, danach bis zum Ende. Die Rangliste hängt den ganzen Tag
@@ -236,6 +240,7 @@ def scoreboard():
         status=status,
         seconds=seconds,
         aufgabentitel=Settings.get().scoreboard_task_titles,
+        eingefroren=eingefroren,
     )
 
 @public_bp.route("/siegerehrung")
@@ -245,12 +250,20 @@ def siegerehrung():
     if not challenge:
         return render_template("siegerehrung.html", challenge=None, podium=[])
 
+    # Solange die Rangliste eingefroren ist, sieht nur die angemeldete
+    # Lehrkraft das Podium. Ein Team, das die Adresse am Handy aufruft,
+    # bekommt es nicht vorab - auch nicht im Quelltext der Seite.
+    if challenge.scoreboard_frozen and not session.get("is_admin"):
+        return render_template("siegerehrung.html", challenge=challenge,
+                               podium=[], eingefroren=True)
+
     _tasks, standings = get_standings(challenge)
 
     return render_template(
         "siegerehrung.html",
         challenge=challenge,
-        podium=get_podium(standings)
+        podium=get_podium(standings),
+        eingefroren=challenge.scoreboard_frozen,
     )
 
 @public_bp.route("/start")
