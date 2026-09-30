@@ -139,6 +139,9 @@ def sicherung_bauen(challenge, mit_namen, mit_passwoertern=False):
                 "ende": _zeit(challenge.end_time),
                 "pausiert": bool(challenge.paused),
                 "pausiert_seit": _zeit(challenge.paused_at),
+                # Nur ob es Durchsagen gibt, nicht ihr Text: Der gilt für den
+                # Augenblick, nicht für eine Sicherung.
+                "durchsagen": bool(challenge.announcements_enabled),
             },
             "aufgaben": [
                 {
@@ -325,6 +328,7 @@ def _anlegen(zf, daten, upload_ordner, geschrieben):
         active=False,
         paused=bool(wettbewerb.get("pausiert")),
         paused_at=_datum(wettbewerb.get("pausiert_seit")),
+        announcements_enabled=bool(wettbewerb.get("durchsagen")),
     )
     if challenge.paused and not challenge.paused_at:
         challenge.paused = False

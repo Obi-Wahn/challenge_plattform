@@ -65,6 +65,21 @@
       {% endif %}
     </p>
 
+    <!-- Je Wettbewerb: Nicht jede Lehrkraft will am Wettbewerbstag noch
+         ein Textfeld mehr auf der Seite haben. -->
+    <div class="form-check mt-4">
+      <input class="form-check-input" type="checkbox" name="announcements_enabled"
+        id="announcements_enabled" {% if challenge.announcements_enabled %}checked{% endif %}>
+      <label class="form-check-label" for="announcements_enabled">
+        📢 Durchsagen an die Teams
+      </label>
+    </div>
+    <p class="text-secondary small mt-2 mb-0">
+      Auf der Wettbewerbsseite steht dann ein Feld für einen kurzen Satz, etwa
+      „Noch 10 Minuten, bitte speichern“. Er erscheint oben auf jeder Teamseite und über
+      der Rangliste. Es gilt immer nur eine Durchsage; ausschalten entfernt sie.
+    </p>
+
     <button class="btn btn-primary mt-4">
       💾 Speichern
     </button>

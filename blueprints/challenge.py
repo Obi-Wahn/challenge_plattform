@@ -85,7 +85,7 @@ def seitenstand(challenge):
 
     Drin steht, was ein Team sofort sehen muss: welcher Wettbewerb läuft, ob
     er pausiert oder beendet ist, wann er anfängt und aufhört, welche Hinweise
-    freigeschaltet sind und wie viele Aufgaben es gibt.
+    freigeschaltet sind, wie viele Aufgaben es gibt und welche Durchsage gilt.
 
     Die Zeiten gehören dazu, weil die Uhr im Browser nichts davon weiß, wenn
     die Lehrkraft die Dauer mitten im Wettbewerb neu setzt - die Seite zeigte
@@ -111,6 +111,8 @@ def seitenstand(challenge):
         challenge.end_time.isoformat() if challenge.end_time else "-",
         str(anzahl),
         ",".join(str(nummer) for (nummer,) in hinweise),
+        challenge.announcement_at.isoformat()
+        if challenge.announcement and challenge.announcement_at else "-",
     ])
 
 

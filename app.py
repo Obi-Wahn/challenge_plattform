@@ -321,6 +321,9 @@ ADDED_COLUMNS = {
     "challenges": {
         "tagline": "VARCHAR(300) NOT NULL DEFAULT ''",
         "paused_at": "DATETIME",
+        "announcements_enabled": "BOOLEAN NOT NULL DEFAULT 0",
+        "announcement_text": "VARCHAR(200) NOT NULL DEFAULT ''",
+        "announcement_at": "DATETIME",
     },
     "teams": {
         "member_names": "TEXT",

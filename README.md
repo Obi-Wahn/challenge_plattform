@@ -57,7 +57,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Registrierung je Wettbewerb**: Teamname und Passwort; derselbe Teamname darf in mehreren Wettbewerben vorkommen. Ist der Wettbewerb beendet oder pausiert oder gerade keiner aktiv, nimmt die Startseite keine neuen Teams an – wer schon dabei ist, kommt weiter hinein.
 *   **Wettbewerbsseite**: alle Aufgaben mit Fortschritt, eigenen Punkten und dem Feedback der Lehrkraft, dazu die Restzeit als Leiste.
 *   **Schwierigkeit auf einen Blick**: Unter dem einleitenden Satz jeder Aufgabe stehen Punkte und Stufe — 🟢 einfach, 🟡 mittel, 🔴 schwer.
-*   **Aktualisiert sich selbst**: Die Seite fragt alle 15 Sekunden nach dem Stand — Pause, Fortsetzen, ein freigeschalteter Tipp und eine neue Dauer kommen an, ohne dass jemand neu laden muss.
+*   **Aktualisiert sich selbst**: Die Seite fragt alle 15 Sekunden nach dem Stand — Pause, Fortsetzen, ein freigeschalteter Tipp, eine Durchsage und eine neue Dauer kommen an, ohne dass jemand neu laden muss.
 *   **Abgabe je Aufgabe**: Processing (`.pde`), Scratch (`.sb`/`.sb3`), Python (`.py`), Java (`.java`), MakeCode/Calliope (`.hex`/`.mkcd`) — welches Format erlaubt ist, legt die Aufgabe fest.
 *   **Tipps**: Kommt ein Team nicht weiter, schaltet die Lehrkraft den Hinweis zur Aufgabe frei.
 *   **Korrektur**: Gibt die Lehrkraft eine Abgabe frei, darf das Team sie genau einmal ersetzen.
@@ -71,6 +71,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Aufgaben**: Beschreibung in Markdown, erlaubtes Dateiformat, Schwierigkeit (einfach, mittel, schwer oder keine Angabe), optionaler Tipp; die Reihenfolge lässt sich mit ▲ und ▼ ändern. Aufgaben lassen sich als JSON sichern, weitergeben und in einen anderen Wettbewerb einlesen — ohne Abgaben und Punkte. Fertige Sätze für Scratch und Calliope liegen unter `beispiele/` und sind mit einem Klick eingelesen.
 *   **Wettbewerb sichern**: ein ganzer Wettbewerb als ZIP – Aufgaben, Teams, Abgaben samt Dateien, Punkte und Feedback. Unter „Neuer Wettbewerb“ wieder eingelesen, entsteht daraus ein neuer, inaktiver Wettbewerb, etwa auf einem anderen Rechner. Die Namen für die Urkunde und die Passwörter der Teams kommen nur auf ausdrücklichen Wunsch mit, die Passwörter nie im Klartext.
 *   **Zeit im Griff**: Start- und Endzeit oder eine Dauer in Minuten samt „Jetzt starten für … Minuten"; die Pause hält die Uhr an, „Fortsetzen" schiebt das Ende um die Pausendauer nach hinten.
+*   **Durchsagen**: je Wettbewerb einschaltbar – ein kurzer Satz wie „Noch 10 Minuten, bitte speichern“ erscheint oben auf jeder Teamseite und über der Rangliste. Es gilt immer nur einer; ins Protokoll und in die Sicherung kommt der Text nicht.
 *   **Bewerten**: Abgaben mit Aufgabenbeschreibung daneben, Textformate direkt im Browser lesbar, Download für lokale Tests, Punkte und Feedback, Korrektur freigeben oder Abgabe löschen.
 *   **Teams**: Passwort zurücksetzen, die eingetragenen Namen kontrollieren, freigeben oder die Freigabe zurücknehmen; eine Zeile oben zeigt, wie viele noch auf die Kontrolle warten.
 *   **Urkunden**: als PDF und Druckansicht, für alle Teams oder einzeln, im Quer- oder Hochformat, mit Namen und Handschrift unter der Unterschriftslinie — auch für einen längst beendeten Wettbewerb, mit den Punkten von damals.
@@ -622,6 +623,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_challenge_status.py` | geplant / läuft / pausiert / beendet, Restzeiten |
 | `test_dauer_und_pause.py` | Dauer in Minuten, „Jetzt starten“, Pause hält die Uhr an |
 | `test_zeitleiste.py` | die Restzeit-Leiste auf Wettbewerbsseite und Rangliste |
+| `test_durchsage.py` | Durchsagen an alle Teams, vom Schalter im Formular bis auf Teamseite und Rangliste |
 | `test_aktualisierung.py` | die Teamseite holt sich den Stand von selbst |
 | `test_veranstaltungsname.py` | eigener Name je Wettbewerb, Urkunden für ältere Wettbewerbe |
 | `test_aktiver_wettbewerb.py` | welcher Wettbewerb gilt, wird ausdrücklich gewählt – auch nach dem Löschen und Einlesen |

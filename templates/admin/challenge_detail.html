@@ -92,6 +92,32 @@
     </div>
   </div>
 
+  {% if challenge.announcements_enabled %}
+  <!-- Die Durchsage steht bei den Knöpfen für Pause und Ende: Sie gehört
+       zu dem, was man mitten im Wettbewerb schnell tun will. -->
+  <form method="post" action="{{ url_for('admin.challenge_announce', cid=challenge.id) }}"
+    class="d-flex flex-wrap align-items-center gap-2 mt-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="next" value="{{ here }}">
+    <label for="durchsage-text" class="visually-hidden">Durchsage an alle Teams</label>
+    <input type="text" name="text" id="durchsage-text" class="form-control durchsage-feld"
+      maxlength="200" required placeholder="Durchsage an alle Teams, z. B. Noch 10 Minuten!">
+    <button class="btn btn-warning">📢 Senden</button>
+  </form>
+  {% if challenge.announcement %}
+  <form method="post" action="{{ url_for('admin.challenge_announce_clear', cid=challenge.id) }}"
+    class="d-flex flex-wrap align-items-center gap-2 mt-2">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="next" value="{{ here }}">
+    <span class="text-warning small">
+      📢 Gerade zu sehen ({{ challenge.announcement_at.strftime('%H:%M') }} Uhr):
+      „{{ challenge.announcement }}“
+    </span>
+    <button class="btn btn-outline-light btn-sm">Entfernen</button>
+  </form>
+  {% endif %}
+  {% endif %}
+
   {% if finished %}
   <p class="text-secondary small mt-3 mb-0">
     🏁 Abgaben sind gesperrt. Mit „Wieder öffnen“ läuft der Wettbewerb weiter, falls

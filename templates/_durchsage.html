@@ -1,0 +1,16 @@
+{#
+   Die Durchsage der Lehrkraft, auf der Teamseite und über der Rangliste.
+
+   Ein Makro für beide Seiten: Was die Teams am Platz lesen, soll dasselbe
+   sein, was an der Wand steht. Gilt keine Durchsage, erscheint nichts.
+#}
+{% macro durchsage(challenge) %}
+{% if challenge and challenge.announcement %}
+<div class="event-card durchsage-kasten mb-4" role="status">
+  <div class="durchsage-kopf">
+    📢 Durchsage{% if challenge.announcement_at %} · {{ challenge.announcement_at.strftime('%H:%M') }} Uhr{% endif %}
+  </div>
+  <div class="durchsage-text">{{ challenge.announcement }}</div>
+</div>
+{% endif %}
+{% endmacro %}
