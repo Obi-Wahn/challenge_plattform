@@ -493,7 +493,7 @@ Knopf lädt eine ZIP-Datei herunter:
 
 | In der ZIP | Inhalt |
 |---|---|
-| `wettbewerb.json` | Name, Untertitel, Zeiten, Aufgaben mit Tipp und Schwierigkeit, Teams, Abgaben mit Punkten, Feedback und Zeitpunkt |
+| `wettbewerb.json` | Name, Untertitel, Zeiten, ob die Rangliste einfriert und ob Durchsagen eingeschaltet sind (ohne deren Text), Aufgaben mit Tipp und Schwierigkeit, Teams, Abgaben mit Punkten, Feedback und Zeitpunkt |
 | `abgaben/team_<n>/` | die abgegebenen Dateien, je Team ein Ordner |
 
 Eingelesen wird sie unter **➕ Neuer Wettbewerb → Oder aus einer Sicherung
@@ -556,8 +556,8 @@ Festgehalten wird, was etwas **anlegt, ändert oder wegnimmt** – und was
 |---|---|
 | Start | der Server ist hochgefahren, mit Adresse, Port und Version · gesicherte Datenbank vor einem Umbau · ein Wettbewerb, den das Update aktiv geschaltet hat, weil bisher keiner ausdrücklich aktiviert war |
 | Aufbau | Wettbewerb angelegt, bearbeitet, aktiv geschaltet, gelöscht · Team angelegt, gelöscht, Passwort zurückgesetzt · übernommene Teams · Aufgabe angelegt, bearbeitet, gelöscht · Aufgaben gesichert und eingelesen · Wettbewerb gesichert (mit oder ohne Namen und Passwörter) und eingelesen · geänderte Einstellungen (nur welche Felder) |
-| Wettbewerbstag | freigeschalteter oder wieder verborgener Tipp · abgelehnte Abgabe samt Grund (falsche Endung, zu groß, pausiert, beendet, schon abgegeben) · zu große Sicherung · zurückgesetzte Abgabe · fehlgeschlagene Admin-Anmeldung mit Adresse |
-| Zum Abschluss | erzeugte Urkunden (Wettbewerb, Anzahl, Ausrichtung) |
+| Wettbewerbstag | freigeschalteter oder wieder verborgener Tipp · gesendete oder entfernte Durchsage (ohne ihren Text) · abgelehnte Abgabe samt Grund (falsche Endung, zu groß, pausiert, beendet, schon abgegeben) · zu große Sicherung · zurückgesetzte Abgabe · fehlgeschlagene Admin-Anmeldung mit Adresse |
+| Zum Abschluss | erzeugte Urkunden (Wettbewerb, Anzahl, Ausrichtung) · aufgeräumter Wettbewerb (wie viele Teams und Abgaben gelöscht) · geleerte Protokolldatei · gelöschte Sicherungskopien |
 | Störungen | eine Datei, die nicht gelöscht werden konnte · eine Urkunde, die nicht erzeugt werden konnte · jeder unbehandelte Fehler mit Traceback |
 
 Der gewöhnliche Betrieb bleibt **absichtlich still**: kein Seitenaufruf, keine
