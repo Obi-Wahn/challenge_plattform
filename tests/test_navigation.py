@@ -105,6 +105,45 @@ class TestReihenfolge:
         assert nav.index("Team Blitz") < nav.index("Abmelden")
 
 
+
+class TestSymbole:
+    """Jeder Eintrag trägt ein Zeichen, das Auge findet ihn daran schneller.
+
+    Wo es geht, dasselbe wie über der Seite, zu der er führt: 🔐 steht auch
+    über der Team-Anmeldung, 🔓 am Abmelde-Knopf der Steuerzentrale und 👥
+    über „Teams verwalten".
+    """
+
+    def test_ohne_anmeldung(self, client, make_challenge):
+        make_challenge(end_time=datetime.now() + timedelta(hours=1))
+
+        nav = leiste(client)
+
+        assert "🏆 Rangliste" in nav
+        assert "🔐 Anmelden" in nav
+
+    def test_mit_anmeldung(self, make_challenge, logged_in_team):
+        challenge = make_challenge(end_time=datetime.now() + timedelta(hours=1))
+        client, _team = logged_in_team(challenge)
+
+        nav = leiste(client)
+
+        assert "🧩 Wettbewerb" in nav
+        assert "👥 Team Blitz" in nav
+        assert "🔓 Abmelden" in nav
+
+    def test_anmeldeknoepfe(self, client, make_challenge):
+        """Auch der Knopf, der die Anmeldung abschickt, trägt das Schloss."""
+        # Ohne aktiven Wettbewerb zeigt die Team-Anmeldung kein Formular.
+        make_challenge(end_time=datetime.now() + timedelta(hours=1))
+
+        for pfad in ("/login", "/admin/login"):
+            html = client.get(pfad).get_data(as_text=True)
+            knopf = html[html.index('<button type="submit"'):]
+            knopf = knopf[:knopf.index("</button>")]
+
+            assert "🔐 Anmelden" in knopf, pfad
+
 class TestKlappmenue:
     def test_der_abmelde_knopf_ist_im_stapel_nicht_eingerueckt(self, make_challenge,
                                                                logged_in_team):
