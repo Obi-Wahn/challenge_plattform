@@ -28,6 +28,11 @@ from extensions import db, csrf, limiter
 from wettbewerb_sicherung import MAX_ZIP_BYTES
 from network import FESTE_ADRESSE, lan_adresse, server_port
 from protokoll import ereignis
+# Name des Handlers, damit ein zweiter Aufruf von create_app() - in den
+# Tests kommt das vor - nicht ein zweites Mal in dieselbe Datei schreibt.
+# Er steht in datenschutz.py, weil „Protokolldatei leeren“ den Handler
+# darüber wiederfindet.
+from datenschutz import LOG_HANDLER_NAME
 import stand
 from blueprints.auth import auth_bp
 from blueprints.public import public_bp
@@ -48,10 +53,6 @@ UNSICHERE_ZIELE = re.compile(
 # sich wie ein Untertitel. Punkte und Schwierigkeit stehen auf der
 # Wettbewerbsseite dahinter, also vor dem ausfuehrlichen Teil.
 ERSTER_ABSATZ = re.compile(r"\s*<p>.*?</p>", re.DOTALL)
-
-# Name des Handlers, damit ein zweiter Aufruf von create_app() - in den
-# Tests kommt das vor - nicht ein zweites Mal in dieselbe Datei schreibt.
-LOG_HANDLER_NAME = "protokolldatei"
 
 # Was auf einer Fehlerseite steht, je Fehlerart: ein Zeichen, eine
 # Überschrift und ein Satz, der sagt, was zu tun ist.

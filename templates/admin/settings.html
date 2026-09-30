@@ -115,6 +115,62 @@
   </button>
 </form>
 
+<!-- Außerhalb des Formulars oben: Diese Knöpfe speichern nichts, sie
+     löschen. Was hier liegt, gehört zu keinem einzelnen Wettbewerb - Teams
+     und Abgaben räumt die Seite des Wettbewerbs auf. -->
+<div class="event-card mb-4" id="aufraeumen">
+  <h3 class="mb-3">🧹 Aufräumen</h3>
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+      <strong>Protokolldatei</strong>
+      <span class="text-secondary small">
+        {% if protokoll_groesse %}({{ protokoll_groesse }}){% else %}(leer){% endif %}
+      </span>
+      <div class="text-secondary small">
+        In <code>logs/anwendung.log</code> stehen Teamnamen und bei fehlgeschlagenen
+        Admin-Anmeldungen IP-Adressen – auch nach dem Löschen eines Wettbewerbs.
+        Leeren, sobald keine Nachfrage mehr zu erwarten ist.
+      </div>
+    </div>
+    <form method="post" action="{{ url_for('admin.protocol_clear') }}"
+      onsubmit="return confirm('Protokolldatei wirklich leeren? Das lässt sich nicht rückgängig machen.');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-outline-warning" {% if not protokoll_groesse %}disabled{% endif %}>
+        🧹 Protokoll leeren
+      </button>
+    </form>
+  </div>
+
+  <hr>
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+      <strong>Sicherungskopien der Datenbank</strong>
+      <span class="text-secondary small">({{ kopien | length }})</span>
+      <div class="text-secondary small">
+        Vor einem Umbau der Datenbank legt der Start eine Kopie in <code>data/</code> an.
+        Sie enthält alles, auch Namen und Passwörter – löschen, sobald klar ist, dass
+        nach dem Update alles passt.
+      </div>
+      {% if kopien %}
+      <ul class="text-secondary small mb-0 mt-1">
+        {% for name, groesse in kopien %}
+        <li><code>{{ name }}</code> ({{ groesse }})</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    <form method="post" action="{{ url_for('admin.backups_delete') }}"
+      onsubmit="return confirm('Alle Sicherungskopien wirklich löschen? Das lässt sich nicht rückgängig machen.');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-outline-warning" {% if not kopien %}disabled{% endif %}>
+        🧹 Kopien löschen
+      </button>
+    </form>
+  </div>
+</div>
+
 <a href="{{ url_for('admin.dashboard') }}" class="text-secondary mt-4 d-block">
   ← zurück zur Steuerzentrale
 </a>

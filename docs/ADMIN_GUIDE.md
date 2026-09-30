@@ -294,12 +294,21 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
       Dateiformat, Schwierigkeit und Hinweis kommen mit.
 - [ ] **Protokolldatei durchsehen**, falls etwas hakte – und die Erkenntnis
       unten unter **💡 Aus der Praxis** eintragen.
-- [ ] Alte Sicherungskopien in `data/` (`challenge-vor-…​.db`) löschen,
-      sobald klar ist, dass alles passt. Sie enthalten alles, auch die Namen
-      für die Urkunde – aus Datenschutzgründen nicht länger aufheben als nötig.
-- [ ] **`logs/` leeren**, sobald keine Nachfrage mehr zu erwarten ist. Die
-      Protokolldatei nennt Teamnamen und bei fehlgeschlagenen
-      Admin-Anmeldungen IP-Adressen, auch nach dem Löschen des Wettbewerbs.
+- [ ] **Aufräumen**, sobald Urkunden und Nachfragen erledigt sind: auf der
+      Seite des beendeten Wettbewerbs **🧹 Aufräumen**. Das löscht alle Teams
+      samt Namen und Passwörtern und alle Abgaben mit Dateien, Punkten und
+      Feedback. Wettbewerb, Einstellungen und Aufgaben bleiben, beim nächsten
+      Mal ist also alles vorbereitet. Rangliste, Siegerehrung und Urkunden
+      dieses Wettbewerbs sind danach leer – wer etwas aufheben will, sichert
+      den Wettbewerb vorher als ZIP (siehe oben).
+- [ ] **Alte Sicherungskopien löschen**, sobald klar ist, dass nach einem
+      Update alles passt: unter *Einstellungen* ganz unten **🧹 Kopien
+      löschen**. Die Kopien `challenge-vor-…​.db` in `data/` enthalten alles,
+      auch Namen und Passwörter.
+- [ ] **Protokolldatei leeren**, sobald keine Nachfrage mehr zu erwarten
+      ist: unter *Einstellungen* ganz unten **🧹 Protokoll leeren**. Die Datei
+      nennt Teamnamen und bei fehlgeschlagenen Admin-Anmeldungen
+      IP-Adressen, auch nach dem Aufräumen oder Löschen des Wettbewerbs.
 
 ---
 
