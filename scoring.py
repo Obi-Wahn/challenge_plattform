@@ -3,8 +3,12 @@
 from models import Task, Team, Submission
 
 
-def get_standings(challenge):
+def get_standings(challenge, bis=None):
     """Returns (tasks, standings) for a challenge, best team first.
+
+    With `bis`, only submissions handed in up to that moment count - the
+    frozen scoreboard. Their points are the current ones: a submission from
+    before the freeze that is marked afterwards still shows up.
 
     Only teams registered for this competition are included, each of them even
     without a submission. Teams on the
@@ -14,7 +18,10 @@ def get_standings(challenge):
     """
     tasks = Task.geordnet(challenge.id).all()
     teams = Team.query.filter_by(challenge_id=challenge.id).order_by(Team.name).all()
-    submissions = Submission.query.join(Task).filter(Task.challenge_id == challenge.id).all()
+    query = Submission.query.join(Task).filter(Task.challenge_id == challenge.id)
+    if bis is not None:
+        query = query.filter(Submission.timestamp <= bis)
+    submissions = query.all()
 
     standings = {
         team.id: {

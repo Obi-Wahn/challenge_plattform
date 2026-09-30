@@ -8,7 +8,17 @@
   </p>
 </div>
 
-{% if not podium %}
+{% if eingefroren and not podium and not session.get("is_admin") %}
+<!-- Eingefroren sehen nur angemeldete Lehrkräfte das Podium. Wer die
+     Adresse am Handy aufruft, erfährt das Ergebnis mit allen anderen. -->
+<div class="event-card text-center p-5">
+  <h3 class="mb-2">❄️ Die Rangliste ist eingefroren</h3>
+  <p class="text-secondary mb-0">
+    Wer vorne liegt, verkündet gleich die Siegerehrung.
+  </p>
+</div>
+
+{% elif not podium %}
 <div class="event-card text-center p-5">
   <h3 class="text-secondary mb-0">
     Noch keine bewerteten Abgaben – sobald Punkte vergeben sind, erscheint hier das Siegertreppchen.
@@ -55,9 +65,19 @@
 </div>
 
 <div class="text-center mt-4">
+  {% if eingefroren %}
+  <!-- Nach dem letzten Platz der Schritt zurück zum echten Stand: Bis dahin
+       zeigt die Rangliste am Beamer noch den eingefrorenen. -->
+  <form method="post" action="{{ url_for('admin.challenge_reveal', cid=challenge.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="next" value="{{ url_for('public.scoreboard') }}">
+    <button class="btn btn-outline-info">❄️ Rangliste auflösen und ansehen</button>
+  </form>
+  {% else %}
   <a href="{{ url_for('public.scoreboard') }}" class="text-secondary">
     Vollständige Rangliste ansehen
   </a>
+  {% endif %}
 </div>
 
 <script>

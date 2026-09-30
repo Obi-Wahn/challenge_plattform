@@ -56,6 +56,22 @@ def gelesene_dauer(value):
 
     return minuten, None
 
+def gelesene_einfrierminuten(value):
+    """Die Minuten vor Schluss, ab denen die Rangliste einfriert.
+
+    Als (Minuten, Fehlermeldung). Anders als bei der Dauer ist ein leeres Feld
+    kein „nichts angegeben“, sondern ein Versehen - das Feld ist vorbefüllt.
+    """
+    try:
+        minuten = int((value or "").strip())
+    except ValueError:
+        return 0, "Die Minuten vor Schluss müssen eine Zahl sein."
+    if minuten <= 0:
+        return 0, "Die Minuten vor Schluss müssen größer als null sein."
+    if minuten > MAX_DAUER_MINUTEN:
+        return 0, f"Mehr als {MAX_DAUER_MINUTEN} Minuten vor Schluss gehen nicht."
+    return minuten, None
+
 def zeitpunkt_text(zeitpunkt, bezug):
     """„14:35 Uhr", und mit dem Datum davor, wenn es ein anderer Tag ist."""
     if zeitpunkt.date() == bezug.date():
@@ -269,6 +285,16 @@ def challenge_edit(cid):
     challenge = db.get_or_404(Challenge, cid)
 
     if request.method == "POST":
+        # Erst prüfen, dann verstellen - wie bei der Dauer weiter unten.
+        einfrieren = bool(request.form.get("freeze_enabled"))
+        einfrieren_minuten = challenge.freeze_minutes or 15
+        if einfrieren:
+            einfrieren_minuten, fehler = gelesene_einfrierminuten(
+                request.form.get("freeze_minutes"))
+            if fehler:
+                flash(fehler, "warning")
+                return redirect(url_for('admin.challenge_edit', cid=cid))
+
         title = request.form.get("title", "").strip()[:MAX_TITEL]
         if title:
             challenge.title = title
@@ -281,6 +307,9 @@ def challenge_edit(cid):
         if dauer_fehler:
             flash(dauer_fehler, "warning")
             return redirect(url_for('admin.challenge_edit', cid=cid))
+
+        vorher = (challenge.start_time, challenge.end_time,
+                  challenge.freeze_enabled, challenge.freeze_minutes)
 
         challenge.start_time = unveraenderte_zeit(
             challenge.start_time, parse_datetime_local(request.form.get("start_time")))
@@ -302,11 +331,22 @@ def challenge_edit(cid):
             challenge.paused = False
             challenge.paused_at = None
 
+        challenge.freeze_enabled = einfrieren
+        challenge.freeze_minutes = einfrieren_minuten
+        # Neue Zeiten oder ein anderes Einfrieren fangen von vorn an. Ein
+        # geänderter Name dagegen darf eine aufgelöste Rangliste nicht wieder
+        # einfrieren - daher der Vergleich statt eines festen Zurücksetzens.
+        if vorher != (challenge.start_time, challenge.end_time,
+                      challenge.freeze_enabled, challenge.freeze_minutes):
+            challenge.reset_freeze()
+
         db.session.commit()
 
-        ereignis("Wettbewerb bearbeitet: „%s“ (#%s), Start %s, Ende %s",
+        ereignis("Wettbewerb bearbeitet: „%s“ (#%s), Start %s, Ende %s, Rangliste %s",
                  challenge.title, challenge.id, challenge.start_time,
-                 challenge.end_time)
+                 challenge.end_time,
+                 f"friert {challenge.freeze_minutes} Minuten vor Schluss ein"
+                 if challenge.freeze_enabled else "friert nicht ein")
 
         if dauer:
             meldung = (f"Gespeichert. {dauer} Minuten ab "
@@ -321,6 +361,19 @@ def challenge_edit(cid):
 
     return render_template("admin/challenge_edit.html", challenge=challenge,
                            max_dauer=MAX_DAUER_MINUTEN)
+
+@admin_bp.route("/challenges/<int:cid>/rangliste-aufloesen", methods=["POST"])
+def challenge_reveal(cid):
+    """Die eingefrorene Rangliste zeigt wieder den echten Stand.
+
+    Der Schritt nach der Siegerehrung. Danach bekommen die Teams auch ihre
+    Urkunden - auf denen steht der Platz.
+    """
+    challenge = db.get_or_404(Challenge, cid)
+    challenge.scoreboard_revealed = True
+    db.session.commit()
+    flash("Die Rangliste ist aufgelöst und zeigt den echten Stand.", "success")
+    return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))
 
 @admin_bp.route("/challenges/<int:cid>/jetzt-starten", methods=["POST"])
 def challenge_start_now(cid):
@@ -342,6 +395,7 @@ def challenge_start_now(cid):
     # Ein frischer Start hebt eine Pause auf, auch eine aus dem letzten Lauf.
     challenge.paused = False
     challenge.paused_at = None
+    challenge.reset_freeze()
     db.session.commit()
 
     if challenge.active:
@@ -579,6 +633,12 @@ def challenge_resume(cid):
     challenge = db.get_or_404(Challenge, cid)
     pause_sekunden = challenge.paused_seconds
 
+    # Wurde erst nach dem Einfrieren pausiert, bleibt der Zeitpunkt, wo er
+    # war. Rückte er mit der Endzeit nach hinten, tauchten Abgaben kurz vor
+    # der Pause wieder am Beamer auf.
+    if challenge.paused_at:
+        challenge.pin_freeze(challenge.paused_at)
+
     if challenge.end_time and pause_sekunden:
         challenge.end_time += timedelta(seconds=pause_sekunden)
 
@@ -607,6 +667,7 @@ def challenge_finish(cid):
     # Eine laufende Pause endet hier mit: Ihr Zeitpunkt würde sonst die
     # Rechnung bestimmen und den Wettbewerb trotz gesetzter Endzeit
     # weiterlaufen lassen. Beendet sticht pausiert.
+    challenge.freeze_on_finish(challenge.reference_time)
     challenge.end_time = datetime.now()
     challenge.paused = False
     challenge.paused_at = None
@@ -625,6 +686,7 @@ def challenge_reopen(cid):
     challenge.end_time = None
     challenge.paused = False
     challenge.paused_at = None
+    challenge.reset_freeze()
     db.session.commit()
     flash(
         f"„{challenge.title}“ ist wieder geöffnet. Es gibt jetzt keine Endzeit – "
