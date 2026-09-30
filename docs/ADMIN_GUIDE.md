@@ -161,9 +161,11 @@ Drei Wege führen zur Endzeit, und gespeichert wird immer sie:
 - **Dauer in Minuten**: im selben Formular das Feld *Dauer in Minuten*
   füllen. Die Endzeit wird daraus ausgerechnet – Startzeit plus Dauer, ohne
   Startzeit ab jetzt. Eine eingetragene Endzeit wird dabei überschrieben.
-- **▶ Jetzt starten für … Minuten**: der Knopf auf der Wettbewerbsseite. Ein
-  Klick setzt Start auf jetzt und Ende auf jetzt plus Dauer. Der Weg für die
-  Schulstunde, in der es selten pünktlich losgeht.
+- **▶ Jetzt starten für … Minuten**: oben auf der Wettbewerbsseite, neben
+  **⏸ Pause** und **🏁 Wettbewerb beenden**. Ein Klick setzt Start auf jetzt
+  und Ende auf jetzt plus Dauer. Der Weg für die Schulstunde, in der es selten
+  pünktlich losgeht. Läuft die Uhr schon, ist der Knopf nur noch umrandet und
+  fragt vor einem Neustart nach.
 
 Alles davon geht auch **während** der Wettbewerb läuft: Die Teamseiten laden
 sich innerhalb von etwa 15 Sekunden von selbst neu und zeigen dann die neue
@@ -182,8 +184,8 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   Feedback pro Abgabe.
 - **Durchsage an alle Teams**, etwa „Noch 10 Minuten, bitte speichern“:
   einmal unter *Name & Zeiten* das Häkchen **📢 Durchsagen an die Teams**
-  setzen, dann steht auf der Wettbewerbsseite oben ein Feld mit
-  **📢 Senden**. Der Satz erscheint innerhalb von etwa 15 Sekunden oben auf
+  setzen, dann steht auf der Wettbewerbsseite unter den Knöpfen für die Uhr
+  ein Feld mit **📢 Senden**. Der Satz erscheint innerhalb von etwa 15 Sekunden oben auf
   jeder Teamseite und über der Rangliste am Beamer. Es gilt immer nur eine
   Durchsage – eine neue ersetzt die alte, **Entfernen** nimmt sie weg. Ins
   Protokoll kommt nur, dass es eine gab, nicht ihr Text.

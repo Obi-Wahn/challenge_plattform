@@ -59,6 +59,26 @@
       {% endif %}
 
       {% if not finished %}
+      <!-- Der Weg für die Schulstunde: Man weiß, wie viele Minuten man hat,
+           nicht, wann genau es losgeht. Er steht bei Pause und Ende, weil alle
+           drei die Uhr steuern; läuft sie schon, tritt er zurück. -->
+      {% set laeuft = challenge.status() == "running" %}
+      <form method="post" action="{{ url_for('admin.challenge_start_now', cid=challenge.id) }}"
+        class="d-flex flex-wrap align-items-center gap-2"
+        {% if laeuft %}
+        onsubmit="return confirm('Der Wettbewerb läuft bereits. Die Zeit jetzt neu starten?');"
+        {% endif %}>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="next" value="{{ here }}">
+        <label for="dauer-jetzt" class="text-secondary mb-0">Jetzt starten für</label>
+        <div class="input-group jetzt-starten">
+          <input type="number" name="duration_minutes" id="dauer-jetzt" class="form-control"
+            min="1" max="{{ max_dauer }}" step="1" value="{{ dauer_vorschlag }}">
+          <span class="input-group-text">Min.</span>
+          <button class="btn {% if laeuft or challenge.paused %}btn-outline-success{% else %}btn-success{% endif %}">▶ Start</button>
+        </div>
+      </form>
+
       {% if challenge.paused %}
       <form method="post" action="{{ url_for('admin.challenge_resume', cid=challenge.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -122,9 +142,11 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="hidden" name="next" value="{{ here }}">
     <label for="durchsage-text" class="visually-hidden">Durchsage an alle Teams</label>
-    <input type="text" name="text" id="durchsage-text" class="form-control durchsage-feld"
-      maxlength="200" required placeholder="Durchsage an alle Teams, z. B. Noch 10 Minuten!">
-    <button class="btn btn-warning">📢 Senden</button>
+    <div class="input-group durchsage-feld">
+      <input type="text" name="text" id="durchsage-text" class="form-control"
+        maxlength="200" required placeholder="Durchsage an alle Teams, z. B. Noch 10 Minuten!">
+      <button class="btn btn-warning">📢 Senden</button>
+    </div>
   </form>
   {% if challenge.announcement %}
   <form method="post" action="{{ url_for('admin.challenge_announce_clear', cid=challenge.id) }}"
@@ -145,29 +167,10 @@
     🏁 Abgaben sind gesperrt. Mit „Wieder öffnen“ läuft der Wettbewerb weiter, falls
     ein Team noch etwas nachreichen muss.
   </p>
-  {% else %}
-  <!-- Der Weg für die Schulstunde: Man weiß, wie viele Minuten man hat,
-       nicht, wann genau es losgeht. -->
-  <form method="post" action="{{ url_for('admin.challenge_start_now', cid=challenge.id) }}"
-    class="d-flex flex-wrap align-items-center gap-2 mt-3"
-    {% if challenge.status() == "running" %}
-    onsubmit="return confirm('Der Wettbewerb läuft bereits. Die Zeit jetzt neu starten?');"
-    {% endif %}>
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <input type="hidden" name="next" value="{{ here }}">
-
-    <label for="dauer-jetzt" class="text-secondary mb-0">Jetzt starten für</label>
-    <input type="number" name="duration_minutes" id="dauer-jetzt" class="form-control"
-      style="width: 6rem;" min="1" max="{{ max_dauer }}" step="1" value="{{ dauer_vorschlag }}">
-    <span class="text-secondary">Minuten</span>
-    <button class="btn btn-success">▶ Start</button>
-
-    {% if challenge.paused %}
-    <span class="text-secondary small">
-      Die Uhr steht. Mit „Fortsetzen“ läuft sie weiter, ohne dass Zeit verloren geht.
-    </span>
-    {% endif %}
-  </form>
+  {% elif challenge.paused %}
+  <p class="text-secondary small mt-3 mb-0">
+    ⏸ Die Uhr steht. Mit „Fortsetzen“ läuft sie weiter, ohne dass Zeit verloren geht.
+  </p>
   {% endif %}
 </div>
 

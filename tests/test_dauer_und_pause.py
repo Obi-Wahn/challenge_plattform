@@ -465,6 +465,31 @@ class TestJetztStarten:
         assert f"/admin/challenges/{challenge.id}/jetzt-starten" in html
         assert "Jetzt starten für" in html
 
+    def test_er_steht_bei_pause_und_ende_vor_der_durchsage(self, admin, make_challenge):
+        """Unter dem Durchsagefeld las sich „▶ Start“ wie ein Knopf der Durchsage."""
+        challenge = make_challenge(announcements_enabled=True)
+
+        html = admin.get(f"/admin/wettbewerb/{challenge.id}").get_data(as_text=True)
+
+        start = html.index("jetzt-starten")
+        assert start < html.index("⏸ Pause") < html.index("📢 Senden")
+
+    def test_erst_kraeftig_dann_nur_umrandet(self, admin, make_challenge):
+        """Vor dem Start ist er der nächste Schritt, danach ein seltener Neustart."""
+        def startknopf(challenge):
+            html = admin.get(f"/admin/wettbewerb/{challenge.id}").get_data(as_text=True)
+            return re.search(r'<button class="btn ([\w-]+)">▶ Start</button>', html).group(1)
+
+        offen = make_challenge(title="Offen")
+        assert startknopf(offen) == "btn-success"
+
+        laeuft = make_challenge(title="Läuft", start_time=datetime.now() - timedelta(minutes=5),
+                                end_time=datetime.now() + timedelta(minutes=40))
+        assert startknopf(laeuft) == "btn-outline-success"
+
+        pause = make_challenge(title="Pause", paused=True, paused_at=datetime.now())
+        assert startknopf(pause) == "btn-outline-success"
+
     def test_beim_beendeten_wettbewerb_fehlt_er(self, admin, make_challenge):
         """Dort gehört „Wieder öffnen“ hin, nicht ein neuer Start."""
         challenge = make_challenge(end_time=datetime.now() - timedelta(minutes=5))
