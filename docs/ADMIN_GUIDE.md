@@ -56,6 +56,12 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    Ist gerade kein Wettbewerb aktiv, wird der neue es von selbst. Läuft schon
    einer, bleibt der aktiv; den neuen aktivierst du dann am Wettbewerbstag.
 
+   Zwei Häkchen gibt es erst nach dem Anlegen, auf der Seite des Wettbewerbs
+   unter *Name & Zeiten*: **❄️ Rangliste vor Schluss einfrieren** und
+   **📢 Durchsagen an die Teams**. Bei einem neuen Wettbewerb sind beide aus.
+   Was sie tun, steht unten unter *Während des Wettbewerbs*; am besten jetzt
+   entscheiden, dann ist am Tag selbst nichts mehr umzustellen.
+
 5. **Aufgaben anlegen oder einlesen.** Fertige Sätze liegen unter
    `beispiele/` (Scratch, Calliope) und werden auf der Aufgaben-Seite mit
    **⬆️ Datei einlesen** übernommen; sie bringen auch ihre Schwierigkeit
@@ -255,6 +261,10 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Start- oder Anmeldeseite sagt „Gerade ist kein Wettbewerb aktiv“ | Der aktive Wettbewerb wurde gelöscht, und noch ist kein anderer gewählt. `/admin` → auf der Steuerzentrale beim richtigen **✅ Aktivieren**. Danach können sich die Teams wieder registrieren und anmelden. |
 | Wettbewerb gelöscht, ein Team sitzt noch davor | Mit dem Wettbewerb sind seine Teams weg. Das Team landet beim nächsten Klick auf der Startseite und registriert sich dort für den nächsten Wettbewerb neu. |
 | Nach dem Update auf v1.1.0 waren alle Teams abgemeldet | Einmalig und so gewollt: Anmeldungen aus der Zeit davor galten nicht mehr. Teamname und Passwort blieben, die Teams meldeten sich einmal neu an. Spätere Updates melden niemanden ab. Ein Update spielt man trotzdem besser vor dem Wettbewerb ein als mittendrin. |
+| Die Rangliste bewegt sich nicht mehr, obwohl du bewertest | Sie ist eingefroren – das Häkchen **❄️ Rangliste vor Schluss einfrieren** unter *Name & Zeiten* ist gesetzt. Oben auf der Rangliste steht dann *❄️ Eingefroren seit …*, und die Wettbewerbsseite sagt es auch. Den echten Stand zeigt dir die Siegerehrung; **❄️ Rangliste auflösen** zeigt ihn allen. |
+| Ein Team bekommt seine Urkunde nicht | Ist der Wettbewerb beendet und die Rangliste eingefroren, gibt es die Urkunde erst nach dem Auflösen – auf ihr steht der Platz. Die Teamseite sagt dann „Eure Urkunde gibt es nach der Siegerehrung“. **❄️ Rangliste auflösen** am Ende der Siegerehrung oder auf der Wettbewerbsseite drücken; der Knopf zur Urkunde erscheint danach von selbst. |
+| Auf der Wettbewerbsseite fehlt das Feld für die Durchsage | Durchsagen sind für diesen Wettbewerb aus. Unter *Name & Zeiten* das Häkchen **📢 Durchsagen an die Teams** setzen und speichern. |
+| Der Knopf **🧹 Aufräumen** fehlt | Er erscheint erst, wenn der Wettbewerb beendet ist und noch Teams hat. Mitten im Wettbewerb wäre Aufräumen ein Unfall. |
 | Versehentlich beendet | **🔓 Wieder öffnen** auf der Wettbewerbsseite. Die Endzeit wird gelöscht und muss neu gesetzt werden. |
 | Teams sehen die geänderte Zeit nicht | Normalerweise kommt sie innerhalb von etwa 15 Sekunden von selbst an; die Teamseiten fragen den Server in diesem Takt nach dem Stand. Bleibt die alte Zeit stehen, hat das Gerät die Verbindung zum Server verloren oder das Tablet hat geschlafen. Einmal neu laden, dann stimmt sie wieder. |
 | Ein Gerät erreicht den Server nicht | Zuerst die Adresse auf der Startseite mit der im Terminal vergleichen. Dann Firewall. Dann, ob das Gerät im selben Netz hängt (nicht im Gast-WLAN). |
@@ -299,8 +309,8 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 - [ ] **Aufräumen**, sobald Urkunden und Nachfragen erledigt sind: auf der
       Seite des beendeten Wettbewerbs **🧹 Aufräumen**. Das löscht alle Teams
       samt Namen und Passwörtern und alle Abgaben mit Dateien, Punkten und
-      Feedback. Wettbewerb, Einstellungen und Aufgaben bleiben, beim nächsten
-      Mal ist also alles vorbereitet. Rangliste, Siegerehrung und Urkunden
+      Feedback, dazu eine noch stehende Durchsage. Wettbewerb, Einstellungen
+      und Aufgaben bleiben, beim nächsten Mal ist also alles vorbereitet. Rangliste, Siegerehrung und Urkunden
       dieses Wettbewerbs sind danach leer – wer etwas aufheben will, sichert
       den Wettbewerb vorher als ZIP (siehe oben).
 - [ ] **Alte Sicherungskopien löschen**, sobald klar ist, dass nach einem
@@ -331,8 +341,9 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 
 ### Während des Wettbewerbs
 
-> Ab wann die Rangliste zeigen? (Von Anfang an motiviert
-> sie – kurz vor Schluss kann sie auch lähmen.)
+> Ab wann die Rangliste zeigen, und wie viele Minuten vor Schluss
+> einfrieren? (Von Anfang an motiviert sie – kurz vor Schluss kann sie
+> auch lähmen.)
 >
 > _(hier eintragen)_
 
