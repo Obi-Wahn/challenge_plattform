@@ -356,6 +356,32 @@
   </form>
 </div>
 
+<!-- Aufräumen: der Weg zwischen „alles behalten“ und „alles löschen“.
+     Nur für beendete Wettbewerbe - mitten im Wettbewerb wäre es ein
+     Unfall. Was aufgehoben werden soll, sichert man vorher oben. -->
+{% if finished and overview.teams %}
+<div class="event-card border-warning mb-4" id="aufraeumen">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+      <strong class="text-warning">🧹 Aufräumen</strong>
+      <div class="text-secondary small">
+        Löscht alle {{ overview.teams }} Teams samt Namen und Passwörtern und alle
+        {{ overview.submissions }} Abgaben mit Dateien, Punkten und Feedback.
+        Wettbewerb, Einstellungen und Aufgaben bleiben – beim nächsten Mal ist alles
+        vorbereitet. Rangliste, Siegerehrung und Urkunden dieses Wettbewerbs sind danach
+        leer. Wer etwas davon aufheben will, <strong>sichert vorher oben</strong>.
+      </div>
+    </div>
+    <form method="post" action="{{ url_for('admin.challenge_cleanup', cid=challenge.id) }}"
+      data-wettbewerb="{{ challenge.title }}"
+      onsubmit="return confirm('Teams und Abgaben von „' + this.dataset.wettbewerb + '“ wirklich löschen? Das lässt sich nicht rückgängig machen. Wer etwas aufheben will, sichert den Wettbewerb vorher.');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-outline-warning">🧹 Aufräumen</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
 <!-- ===== GEFAHRENZONE ===== -->
 <div class="event-card border-danger mb-4">
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">

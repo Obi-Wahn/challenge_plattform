@@ -70,12 +70,13 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Eigener Name je Wettbewerb**: Name und Untertitel stehen überall – Startseite, Rangliste, Teamseite, Urkunden, Browsertitel, Leiste oben und Fußzeile – und bleiben beim Wettbewerb, wenn längst ein anderer läuft.
 *   **Aufgaben**: Beschreibung in Markdown, erlaubtes Dateiformat, Schwierigkeit (einfach, mittel, schwer oder keine Angabe), optionaler Tipp; die Reihenfolge lässt sich mit ▲ und ▼ ändern. Aufgaben lassen sich als JSON sichern, weitergeben und in einen anderen Wettbewerb einlesen — ohne Abgaben und Punkte. Fertige Sätze für Scratch und Calliope liegen unter `beispiele/` und sind mit einem Klick eingelesen.
 *   **Wettbewerb sichern**: ein ganzer Wettbewerb als ZIP – Aufgaben, Teams, Abgaben samt Dateien, Punkte und Feedback. Unter „Neuer Wettbewerb“ wieder eingelesen, entsteht daraus ein neuer, inaktiver Wettbewerb, etwa auf einem anderen Rechner. Die Namen für die Urkunde und die Passwörter der Teams kommen nur auf ausdrücklichen Wunsch mit, die Passwörter nie im Klartext.
+*   **Aufräumen**: Bei einem beendeten Wettbewerb löscht ein Knopf alle Teams samt Namen und Passwörtern und alle Abgaben mit Dateien; Wettbewerb, Einstellungen und Aufgaben bleiben für das nächste Mal. Protokolldatei und alte Sicherungskopien der Datenbank lassen sich unter Einstellungen löschen.
 *   **Zeit im Griff**: Start- und Endzeit oder eine Dauer in Minuten samt „Jetzt starten für … Minuten"; die Pause hält die Uhr an, „Fortsetzen" schiebt das Ende um die Pausendauer nach hinten.
 *   **Durchsagen**: je Wettbewerb einschaltbar – ein kurzer Satz wie „Noch 10 Minuten, bitte speichern“ erscheint oben auf jeder Teamseite und über der Rangliste. Es gilt immer nur einer; ins Protokoll und in die Sicherung kommt der Text nicht.
 *   **Bewerten**: Abgaben mit Aufgabenbeschreibung daneben, Textformate direkt im Browser lesbar, Download für lokale Tests, Punkte und Feedback, Korrektur freigeben oder Abgabe löschen.
 *   **Teams**: Passwort zurücksetzen, die eingetragenen Namen kontrollieren, freigeben oder die Freigabe zurücknehmen; eine Zeile oben zeigt, wie viele noch auf die Kontrolle warten.
 *   **Urkunden**: als PDF und Druckansicht, für alle Teams oder einzeln, im Quer- oder Hochformat, mit Namen und Handschrift unter der Unterschriftslinie — auch für einen längst beendeten Wettbewerb, mit den Punkten von damals.
-*   **Einstellungen**: Standardname und -untertitel für eine Installation, in der noch kein Wettbewerb angelegt oder keiner aktiv ist, ob über den Spalten der Rangliste die Aufgabentitel stehen, Quer- oder Hochformat der Urkunden, ob die Teams ihre Namen eintragen dürfen und Name und Handschrift unter der Unterschriftslinie.
+*   **Einstellungen**: Standardname und -untertitel für eine Installation, in der noch kein Wettbewerb angelegt oder keiner aktiv ist, ob über den Spalten der Rangliste die Aufgabentitel stehen, Quer- oder Hochformat der Urkunden, ob die Teams ihre Namen eintragen dürfen und Name und Handschrift unter der Unterschriftslinie; ganz unten Protokolldatei und alte Sicherungskopien aufräumen.
 *   **Protokolldatei**: Was anlegt, ändert oder wegnimmt, steht mit Zeitstempel in `logs/anwendung.log` – samt jeder **abgewiesenen** Abgabe mit Grund. Damit ist „Wir haben doch abgegeben!“ nach dem Wettbewerbstag beantwortbar.
 *   **Eigene Fehlerseiten**: deutscher Satz und ein Weg zurück statt der englischen Seite des Webservers. Die gewöhnlichen Missgeschicke landen gar nicht dort, sondern als Meldung auf der Wettbewerbsseite des Teams.
 
@@ -475,7 +476,9 @@ umzubauen.
 **Wofür die Kopie gut ist:** Falls ein Umbau zwar durchläuft, aber nicht das
 Gewünschte tut, kommt man damit an den Stand davor heran. Zum Rückgängigmachen
 die aktuelle Datei zur Seite legen und die Kopie nach `data/challenge.db`
-umbenennen. Alte Kopien kann man löschen, sobald klar ist, dass alles passt.
+umbenennen. Alte Kopien löscht man, sobald klar ist, dass alles passt – unter
+*Einstellungen* mit **🧹 Kopien löschen**. Sie enthalten alles, auch Namen und
+Passwörter.
 
 **Wofür sie nicht gut ist:** Sie ersetzt keine regelmäßige Sicherung. Sie liegt
 im selben Ordner und enthält nur die Datenbank – geht die Festplatte kaputt
@@ -566,8 +569,8 @@ können. Passwörter stehen nie darin, auch keine geratenen.
 **Datenschutz:** Die Datei nennt Teamnamen und bei fehlgeschlagenen
 Admin-Anmeldungen die IP-Adresse des Geräts – auch dann noch, wenn der
 Wettbewerb längst gelöscht ist. Kinder nennen ihr Team gern nach sich selbst.
-Nach dem Wettbewerb, sobald nichts mehr nachzufragen ist, den Ordner `logs/`
-leeren.
+Nach dem Wettbewerb, sobald nichts mehr nachzufragen ist, die Datei unter
+*Einstellungen* mit **🧹 Protokoll leeren** leeren.
 
 Der Sinn: Ohne diese Datei stünde ein Traceback nur im Terminalfenster. Wer
 es schließt oder den Server als Dienst laufen lässt, hätte nach einer Störung
@@ -664,6 +667,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_migrations.py` | Datenbank aus einer älteren Version weiterbenutzen |
 | `test_task_exchange.py` | Aufgaben sichern und wiederverwenden |
 | `test_wettbewerb_sicherung.py` | einen ganzen Wettbewerb als ZIP sichern und als neuen einlesen, Namen und Passwörter nur auf Wunsch |
+| `test_wettbewerb_aufraeumen.py` | nach dem Wettbewerb aufräumen: Teams und Abgaben löschen, Protokolldatei leeren, Sicherungskopien löschen |
 | `test_schwierigkeit.py` | die Schwierigkeit einer Aufgabe, von der Eingabe bis in die Datei |
 | `test_reihenfolge.py` | die Reihenfolge der Aufgaben mit ▲ und ▼, von der Aufgabenliste bis in Rangliste und Sicherung |
 | `test_leitfaden.py` | der Leitfaden nennt nur Seiten und Dateien, die es gibt |
@@ -695,6 +699,7 @@ challenge_plattform/
 ├── certificates.py        # Urkunden als PDF
 ├── task_exchange.py       # Aufgaben sichern und einlesen
 ├── wettbewerb_sicherung.py # einen ganzen Wettbewerb als ZIP sichern und einlesen
+├── datenschutz.py         # aufräumen: Teams und Abgaben, Protokolldatei, Sicherungskopien
 ├── network.py             # Adresse, unter der die Teams beitreten
 ├── sitzung.py             # Anmeldung eines Teams und ihre Gültigkeit
 ├── protokoll.py           # die Zeilen, die in logs/anwendung.log gehen

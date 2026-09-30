@@ -15,6 +15,9 @@ from task_exchange import export_bytes, parse_tasks, ImportError_
 from wettbewerb_sicherung import (sicherung_bauen, sicherung_einlesen,
                                   SicherungFehler)
 from protokoll import ereignis, stoerung
+from datenschutz import (groesse_text, protokoll_leeren, protokolldateien,
+                         sicherungskopien, sicherungskopien_loeschen,
+                         wettbewerb_aufraeumen)
 from datetime import datetime, timedelta
 import io
 import os
@@ -743,6 +746,26 @@ def challenge_reopen(cid):
     )
     return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))
 
+@admin_bp.route("/challenges/<int:cid>/aufraeumen", methods=["POST"])
+def challenge_cleanup(cid):
+    """Löscht Teams und Abgaben eines beendeten Wettbewerbs.
+
+    Nur beendet: Mitten im Wettbewerb wäre das ein Unfall, keine
+    Datensparsamkeit. Wettbewerb, Einstellungen und Aufgaben bleiben.
+    """
+    challenge = db.get_or_404(Challenge, cid)
+    ziel = url_for('admin.challenge_detail', cid=cid)
+    if challenge.status() != "finished":
+        flash("Aufräumen geht erst, wenn der Wettbewerb beendet ist.", "warning")
+        return redirect(ziel)
+
+    teams, abgaben = wettbewerb_aufraeumen(challenge)
+    ereignis("Wettbewerb aufgeräumt: „%s“ (#%s), %s Team(s) und %s Abgabe(n) gelöscht",
+             challenge.title, cid, teams, abgaben)
+    flash(f"Aufgeräumt: {teams} Team(s) und {abgaben} Abgabe(n) sind gelöscht. "
+          "Wettbewerb, Einstellungen und Aufgaben sind geblieben.", "success")
+    return redirect(ziel)
+
 @admin_bp.route("/challenges/<int:cid>/delete", methods=["POST"])
 def challenge_delete(cid):
     challenge = db.get_or_404(Challenge, cid)
@@ -1312,9 +1335,43 @@ def settings():
         flash("Einstellungen gespeichert.", "success")
         return redirect(url_for('admin.settings'))
 
+    protokoll = protokolldateien()
+    kopien = sicherungskopien()
     return render_template(
         "admin/settings.html",
         settings=site_settings,
         signature_fonts=SIGNATURE_FONTS,
-        certificate_orientations=CERTIFICATE_ORIENTATIONS
+        certificate_orientations=CERTIFICATE_ORIENTATIONS,
+        protokoll_groesse=groesse_text(sum(g for _n, g in protokoll)) if protokoll else None,
+        kopien=[(name, groesse_text(groesse)) for name, groesse in kopien],
     )
+
+@admin_bp.route("/protokoll-leeren", methods=["POST"])
+def protocol_clear():
+    """Leert logs/anwendung.log samt älteren Ständen.
+
+    Darin stehen Teamnamen und bei fehlgeschlagenen Admin-Anmeldungen
+    IP-Adressen - auch nach dem Löschen eines Wettbewerbs noch.
+    """
+    fehler = protokoll_leeren()
+    # Die erste Zeile der frischen Datei: Wer später hineinschaut, sieht,
+    # dass hier bewusst geleert wurde und nicht etwas verloren ging.
+    ereignis("Protokolldatei geleert")
+    if fehler:
+        flash(f"Die Protokolldatei ist geleert, {fehler} ältere Datei(en) in logs/ "
+              "ließen sich aber nicht löschen.", "warning")
+    else:
+        flash("Die Protokolldatei ist geleert.", "success")
+    return redirect(url_for('admin.settings') + "#aufraeumen")
+
+@admin_bp.route("/sicherungskopien-loeschen", methods=["POST"])
+def backups_delete():
+    """Löscht die Kopien, die der Start vor einem Umbau der Datenbank anlegt."""
+    geloescht, fehler = sicherungskopien_loeschen()
+    ereignis("Sicherungskopien gelöscht: %s", geloescht)
+    if fehler:
+        flash(f"{geloescht} Sicherungskopie(n) gelöscht, {fehler} ließen sich nicht "
+              "löschen.", "warning")
+    else:
+        flash(f"{geloescht} Sicherungskopie(n) gelöscht.", "success")
+    return redirect(url_for('admin.settings') + "#aufraeumen")
