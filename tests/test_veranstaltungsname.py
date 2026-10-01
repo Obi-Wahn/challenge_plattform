@@ -3,8 +3,9 @@
 Die Einstellungen halten nur die Standardwerte: Sie gelten, solange kein
 Wettbewerb mit eigenem Namen läuft. Läuft einer, steht überall sein Name -
 auf der Startseite, der Rangliste, der Teamseite, den Urkunden und auch im
-Browsertitel, in der Leiste oben und in der Fußzeile. Den Untertitel darf ein
-Wettbewerb überschreiben; lässt er ihn leer, gilt der aus den Einstellungen.
+Browsertitel, in der Leiste oben und in der Fußzeile. Den Untertitel und den
+Gruß auf der Startseite darf ein Wettbewerb überschreiben; lässt er sie leer,
+gelten die aus den Einstellungen.
 """
 
 import io
@@ -77,6 +78,107 @@ class TestAuflösung:
 
         assert marke["name"] == "Coding-Wettbewerb"
         assert marke["tagline"] == "Ein Wettbewerb für Code, Ideen und Kreativität."
+
+
+
+class TestGruss:
+    """Der Gruß steht als eigener Satz unter dem Namen.
+
+    "Willkommen beim ..." ginge nicht: Der Artikel hinge vom Namen ab, und
+    den kann die Seite nicht wählen ("beim Scratch-Cup", "bei der
+    Calliope-Challenge", "bei den Coding-Tagen").
+    """
+
+    def test_standard(self, einstellungen, make_challenge):
+        from models import event_branding
+
+        marke = event_branding(make_challenge(title="Scratch-Cup"))
+
+        assert marke["greeting"] == "Schön, dass ihr dabei seid!"
+
+    def test_eigener_gruss_gewinnt(self, einstellungen, make_challenge):
+        from models import event_branding
+
+        challenge = make_challenge(title="Scratch-Cup", greeting="Auf geht's, 6b!")
+
+        assert event_branding(challenge)["greeting"] == "Auf geht's, 6b!"
+
+    def test_gruss_aus_den_einstellungen(self, einstellungen, make_challenge, database):
+        from models import event_branding
+
+        einstellungen.greeting = "Viel Spaß beim Tüfteln!"
+        database.session.commit()
+
+        assert event_branding(make_challenge())["greeting"] == "Viel Spaß beim Tüfteln!"
+        assert event_branding(None)["greeting"] == "Viel Spaß beim Tüfteln!"
+
+    def test_startseite_name_dann_gruss_dann_untertitel(self, einstellungen, client,
+                                                       make_challenge):
+        make_challenge(title="Calliope-Challenge", tagline="Klasse 7 programmiert")
+
+        seite = client.get("/").get_data(as_text=True)
+
+        assert "Willkommen!" not in seite
+        name = seite.index(">Calliope-Challenge</h1>")
+        gruss = seite.index("Schön, dass ihr dabei seid!")
+        untertitel = seite.index("Klasse 7 programmiert")
+        assert name < gruss < untertitel
+
+    def test_neuer_wettbewerb_mit_gruss(self, einstellungen, admin):
+        from models import Challenge
+
+        admin.post("/admin/challenges/new", data={
+            "csrf_token": csrf_token(admin, "/admin/challenges/new"),
+            "title": "Scratch-Cup",
+            "greeting": "  Auf geht's!  ",
+        })
+
+        assert Challenge.query.one().greeting == "Auf geht's!"
+
+    def test_bearbeiten_setzt_und_leert_den_gruss(self, einstellungen, admin,
+                                                  make_challenge, database):
+        challenge = make_challenge(title="Scratch-Cup")
+        adresse = f"/admin/challenges/{challenge.id}/edit"
+
+        admin.post(adresse, data={"csrf_token": csrf_token(admin, adresse),
+                                  "title": "Scratch-Cup", "greeting": "Auf geht's!"})
+        database.session.refresh(challenge)
+        assert challenge.greeting == "Auf geht's!"
+
+        admin.post(adresse, data={"csrf_token": csrf_token(admin, adresse),
+                                  "title": "Scratch-Cup", "greeting": ""})
+        database.session.refresh(challenge)
+        assert challenge.greeting == ""
+
+    def test_formular_zeigt_den_standard_als_platzhalter(self, einstellungen, admin):
+        seite = admin.get("/admin/challenges/new").get_data(as_text=True)
+
+        assert 'name="greeting"' in seite
+        assert 'placeholder="Schön, dass ihr dabei seid!"' in seite
+
+    def test_einstellungen_speichern_den_gruss(self, einstellungen, admin, database):
+        admin.post("/admin/settings", data={
+            "csrf_token": csrf_token(admin, "/admin/settings"),
+            "site_name": "Coding-Wettbewerb",
+            "tagline": "Untertitel",
+            "greeting": "Viel Spaß beim Tüfteln!",
+        })
+
+        database.session.refresh(einstellungen)
+        assert einstellungen.greeting == "Viel Spaß beim Tüfteln!"
+
+    def test_leerer_gruss_in_den_einstellungen_behaelt_den_alten(self, einstellungen,
+                                                                 admin, database):
+        """Wie beim Untertitel: Der Standard darf nicht verschwinden."""
+        admin.post("/admin/settings", data={
+            "csrf_token": csrf_token(admin, "/admin/settings"),
+            "site_name": "Coding-Wettbewerb",
+            "tagline": "Untertitel",
+            "greeting": "   ",
+        })
+
+        database.session.refresh(einstellungen)
+        assert einstellungen.greeting == "Schön, dass ihr dabei seid!"
 
 
 class TestSeiten:

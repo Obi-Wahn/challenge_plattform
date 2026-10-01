@@ -296,6 +296,7 @@ class TestAufbauUndVerwaltung:
             "csrf_token": csrf_token(admin, "/admin/settings"),
             "site_name": vorhanden.site_name,
             "tagline": vorhanden.tagline,
+            "greeting": vorhanden.greeting,
             "signature_name": vorhanden.signature_name,
             "signature_font": vorhanden.signature_font,
             "certificate_orientation": vorhanden.certificate_orientation,

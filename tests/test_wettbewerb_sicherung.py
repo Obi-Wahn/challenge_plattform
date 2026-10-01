@@ -16,6 +16,7 @@ from tests.helpers import csrf_token
 def wettbewerb(flask_app, make_challenge, make_task, make_team, database):
     """Ein Wettbewerb mit zwei Aufgaben, zwei Teams und drei Abgaben."""
     challenge = make_challenge(title="Scratch-Cup", tagline="Klasse 6",
+                               greeting="Auf geht's!",
                                start_time=datetime(2026, 9, 1, 8, 0),
                                end_time=datetime(2026, 9, 1, 9, 30))
     labyrinth = make_task(challenge, title="Labyrinth", max_points=10,
@@ -97,6 +98,7 @@ class TestSichern:
         zf, daten = zip_lesen(antwort)
         assert daten["wettbewerb"]["titel"] == "Scratch-Cup"
         assert daten["wettbewerb"]["untertitel"] == "Klasse 6"
+        assert daten["wettbewerb"]["gruss"] == "Auf geht's!"
         assert daten["wettbewerb"]["start"] == "2026-09-01T08:00:00"
         assert [a["titel"] for a in daten["aufgaben"]] == ["Labyrinth", "Quiz"]
         assert daten["aufgaben"][0]["hinweis_sichtbar"] is True
@@ -207,6 +209,7 @@ class TestHinUndZurueck:
         neu = Challenge.query.filter(Challenge.id != wettbewerb.id).one()
         assert neu.title == "Scratch-Cup"
         assert neu.tagline == "Klasse 6"
+        assert neu.greeting == "Auf geht's!"
         assert neu.start_time == datetime(2026, 9, 1, 8, 0)
         assert neu.active is False
 

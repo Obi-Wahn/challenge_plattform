@@ -112,6 +112,12 @@ input::placeholder, textarea::placeholder {
   hyphens: auto;
 }
 
+.gruss {
+  /* Der Gruß unter dem Namen: kleiner als der Name, größer als der Untertitel. */
+  font-size: clamp(1.3rem, 2vw, 1.75rem);
+  overflow-wrap: anywhere;
+}
+
 /* In der Leiste oben steht der Name des Wettbewerbs, und der kann lang sein.
    Bootstrap lässt ihn weder umbrechen noch enden, er schöbe die Seite also
    zur Seite; deshalb endet er hier mit drei Punkten. */

@@ -67,7 +67,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 ### Für die Lehrkraft
 *   **Steuerzentrale**: Zustand, Teams, Aufgaben und offene Bewertungen auf einen Blick, die Kacheln nach Vorbereitung, Während des Wettbewerbs und Zum Abschluss sortiert. Eine Linie am Rand hält zusammen, was zum laufenden Wettbewerb gehört; darunter stehen abgesetzt die Einstellungen der Installation und die anderen Wettbewerbe, die beendeten zugeklappt für sich.
 *   **Wettbewerbe verwalten**: anlegen, aktivieren, pausieren, beenden, wieder öffnen und löschen – alles auf der Steuerzentrale. Welcher Wettbewerb gilt, entscheidet die Lehrkraft mit „Aktivieren“; nur ein neu angelegter wird von selbst aktiv, wenn gerade keiner es ist. Beim Anlegen lassen sich die Teams eines früheren Wettbewerbs übernehmen, mit Passwort und den Namen für die Urkunde.
-*   **Eigener Name je Wettbewerb**: Name und Untertitel stehen überall – Startseite, Rangliste, Teamseite, Urkunden, Browsertitel, Leiste oben und Fußzeile – und bleiben beim Wettbewerb, wenn längst ein anderer läuft.
+*   **Eigener Name je Wettbewerb**: Name und Untertitel stehen überall – Startseite, Rangliste, Teamseite, Urkunden, Browsertitel, Leiste oben und Fußzeile – und bleiben beim Wettbewerb, wenn längst ein anderer läuft. Unter dem Namen begrüßt die Startseite die Teams, mit „Schön, dass ihr dabei seid!“ oder einem eigenen Gruß je Wettbewerb.
 *   **Aufgaben**: Beschreibung in Markdown, erlaubtes Dateiformat, Schwierigkeit (einfach, mittel, schwer oder keine Angabe), optionaler Tipp; die Reihenfolge lässt sich mit ▲ und ▼ ändern. Aufgaben lassen sich als JSON sichern, weitergeben und in einen anderen Wettbewerb einlesen — ohne Abgaben und Punkte. Fertige Sätze für Scratch und Calliope liegen unter `beispiele/` und sind mit einem Klick eingelesen.
 *   **Wettbewerb sichern**: ein ganzer Wettbewerb als ZIP – Aufgaben, Teams, Abgaben samt Dateien, Punkte und Feedback. Unter „Neuer Wettbewerb“ wieder eingelesen, entsteht daraus ein neuer, inaktiver Wettbewerb, etwa auf einem anderen Rechner. Die Namen für die Urkunde und die Passwörter der Teams kommen nur auf ausdrücklichen Wunsch mit, die Passwörter nie im Klartext.
 *   **Aufräumen**: Bei einem beendeten Wettbewerb löscht ein Knopf alle Teams samt Namen und Passwörtern und alle Abgaben mit Dateien; Wettbewerb, Einstellungen und Aufgaben bleiben für das nächste Mal. Protokolldatei und alte Sicherungskopien der Datenbank lassen sich unter Einstellungen löschen.
@@ -76,7 +76,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Bewerten**: Abgaben mit Aufgabenbeschreibung daneben, Textformate direkt im Browser lesbar, Download für lokale Tests, Punkte und Feedback, Korrektur freigeben oder Abgabe löschen.
 *   **Teams**: Passwort zurücksetzen, die eingetragenen Namen kontrollieren, freigeben oder die Freigabe zurücknehmen; eine Zeile oben zeigt, wie viele noch auf die Kontrolle warten.
 *   **Urkunden**: als PDF und Druckansicht, für alle Teams oder einzeln, im Quer- oder Hochformat, mit Namen und Handschrift unter der Unterschriftslinie — auch für einen längst beendeten Wettbewerb, mit den Punkten von damals.
-*   **Einstellungen**: Standardname und -untertitel für eine Installation, in der noch kein Wettbewerb angelegt oder keiner aktiv ist, ob über den Spalten der Rangliste die Aufgabentitel stehen, Quer- oder Hochformat der Urkunden, ob die Teams ihre Namen eintragen dürfen und Name und Handschrift unter der Unterschriftslinie; ganz unten Protokolldatei und alte Sicherungskopien aufräumen.
+*   **Einstellungen**: Standardname, -untertitel und -gruß für eine Installation, in der noch kein Wettbewerb angelegt oder keiner aktiv ist, ob über den Spalten der Rangliste die Aufgabentitel stehen, Quer- oder Hochformat der Urkunden, ob die Teams ihre Namen eintragen dürfen und Name und Handschrift unter der Unterschriftslinie; ganz unten Protokolldatei und alte Sicherungskopien aufräumen.
 *   **Protokolldatei**: Was anlegt, ändert oder wegnimmt, steht mit Zeitstempel in `logs/anwendung.log` – samt jeder **abgewiesenen** Abgabe mit Grund. Damit ist „Wir haben doch abgegeben!“ nach dem Wettbewerbstag beantwortbar.
 *   **Eigene Fehlerseiten**: deutscher Satz und ein Weg zurück statt der englischen Seite des Webservers. Die gewöhnlichen Missgeschicke landen gar nicht dort, sondern als Meldung auf der Wettbewerbsseite des Teams.
 
@@ -494,7 +494,7 @@ Knopf lädt eine ZIP-Datei herunter:
 
 | In der ZIP | Inhalt |
 |---|---|
-| `wettbewerb.json` | Name, Untertitel, Zeiten, ob die Rangliste einfriert und ob Durchsagen eingeschaltet sind (ohne deren Text), Aufgaben mit Tipp und Schwierigkeit, Teams, Abgaben mit Punkten, Feedback und Zeitpunkt |
+| `wettbewerb.json` | Name, Untertitel, Gruß, Zeiten, ob die Rangliste einfriert und ob Durchsagen eingeschaltet sind (ohne deren Text), Aufgaben mit Tipp und Schwierigkeit, Teams, Abgaben mit Punkten, Feedback und Zeitpunkt |
 | `abgaben/team_<n>/` | die abgegebenen Dateien, je Team ein Ordner |
 
 Eingelesen wird sie unter **➕ Neuer Wettbewerb → Oder aus einer Sicherung
@@ -631,7 +631,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_rangliste_einfrieren.py` | die Rangliste vor Schluss einfrieren, von der Einstellung über Pause und Ende bis zum Auflösen |
 | `test_durchsage.py` | Durchsagen an alle Teams, vom Schalter im Formular bis auf Teamseite und Rangliste |
 | `test_aktualisierung.py` | die Teamseite holt sich den Stand von selbst |
-| `test_veranstaltungsname.py` | eigener Name je Wettbewerb, Urkunden für ältere Wettbewerbe |
+| `test_veranstaltungsname.py` | eigener Name und Gruß je Wettbewerb, Urkunden für ältere Wettbewerbe |
 | `test_aktiver_wettbewerb.py` | welcher Wettbewerb gilt, wird ausdrücklich gewählt – auch nach dem Löschen und Einlesen |
 
 **Teams, Abgaben, Bewertung**

@@ -49,8 +49,9 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    Startseite, der Rangliste, den Urkunden und auch im Browsertitel, in der
    Leiste oben und in der Fußzeile, und er bleibt bei diesem Wettbewerb, auch
    wenn später ein anderer läuft; seine Urkunden tragen ihn also auch nächstes
-   Jahr noch. Einen eigenen Untertitel kannst du dazuschreiben; leer gelassen
-   gilt der aus *Einstellungen*. Die Werte dort sind nur die Vorgabe für die
+   Jahr noch. Einen eigenen Untertitel kannst du dazuschreiben, ebenso einen
+   eigenen Gruß, der auf der Startseite unter dem Namen steht (sonst „Schön,
+   dass ihr dabei seid!“); leer gelassen gilt jeweils der aus *Einstellungen*. Die Werte dort sind nur die Vorgabe für die
    Zeit, in der noch kein Wettbewerb angelegt oder keiner aktiv ist.
 
    Ist gerade kein Wettbewerb aktiv, wird der neue es von selbst. Läuft schon

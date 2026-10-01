@@ -36,6 +36,7 @@ STANDARD_DAUER_MINUTEN = 45
 MAX_TITEL = 200
 MAX_SEITENNAME = 100
 MAX_UNTERTITEL = 300
+MAX_GRUSS = 200
 # Eine Durchsage ist ein Satz, kein Aufsatz - so lang wie die Spalte.
 MAX_DURCHSAGE = 200
 
@@ -242,6 +243,7 @@ def challenge_new():
         challenge = Challenge(
             title=title,
             tagline=request.form.get("tagline", "").strip()[:MAX_UNTERTITEL],
+            greeting=request.form.get("greeting", "").strip()[:MAX_GRUSS],
             start_time=parse_datetime_local(request.form.get("start_time")),
             end_time=parse_datetime_local(request.form.get("end_time")),
             active=wird_aktiv
@@ -306,6 +308,7 @@ def challenge_edit(cid):
         # Anders als der Name darf der Untertitel leer bleiben: Leer ist die
         # Antwort "nimm den aus den Einstellungen", nicht ein Versehen.
         challenge.tagline = request.form.get("tagline", "").strip()[:MAX_UNTERTITEL]
+        challenge.greeting = request.form.get("greeting", "").strip()[:MAX_GRUSS]
         # Erst prüfen, dann verstellen: Eine unbrauchbare Dauer soll die
         # Eingabe abweisen, ohne unterwegs schon die Zeiten verstellt zu haben.
         dauer, dauer_fehler = gelesene_dauer(request.form.get("duration_minutes"))
@@ -1288,6 +1291,7 @@ def certificate_pdf_single(team_id):
 EINSTELLUNGSFELDER = {
     "site_name": "Standardname",
     "tagline": "Untertitel",
+    "greeting": "Gruß",
     "signature_name": "Unterschrift",
     "signature_font": "Schrift der Unterschrift",
     "member_names_enabled": "Namen der Teammitglieder",
@@ -1308,6 +1312,9 @@ def settings():
             site_settings.site_name = site_name
         if tagline:
             site_settings.tagline = tagline
+        greeting = request.form.get("greeting", "").strip()[:MAX_GRUSS]
+        if greeting:
+            site_settings.greeting = greeting
 
         # The signature may deliberately be emptied again, so it is stored as
         # given instead of only when something was typed.
