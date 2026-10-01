@@ -125,7 +125,10 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
       QR-Code und lässt sich abtippen – wichtig, weil an normalen PCs und
       Laptops ein QR-Code nichts nützt.
 - [ ] **Beamer testen** mit der Rangliste `/scoreboard`. Die Restzeit steht
-      dort oben, dieselbe, die die Teams sehen.
+      dort oben, dieselbe, die die Teams sehen. Ist der Raum hell und die
+      Tabelle blass, oben in der Leiste auf **☀️ Hell** wechseln. Der
+      Browser des Beamer-Rechners merkt sich das; die Geräte der Teams
+      zeigen weiter, was dort eingestellt ist.
 
 ---
 
@@ -266,6 +269,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Auf der Wettbewerbsseite fehlt das Feld für die Durchsage | Durchsagen sind für diesen Wettbewerb aus. Unter *Name & Zeiten* das Häkchen **📢 Durchsagen an die Teams** setzen und speichern. |
 | Der Knopf **🧹 Aufräumen** fehlt | Er erscheint erst, wenn der Wettbewerb beendet ist und noch Teams hat. Mitten im Wettbewerb wäre Aufräumen ein Unfall. |
 | Versehentlich beendet | **🔓 Wieder öffnen** auf der Wettbewerbsseite. Die Endzeit wird gelöscht und muss neu gesetzt werden. |
+| Die Seite ist auf einem Gerät hell, auf einem anderen dunkel | So gewollt: Jedes Gerät folgt seiner eigenen Einstellung (hell oder dunkel im System). Oben in der Leiste wechselt **☀️ Hell** bzw. **🌙 Dunkel**; das merkt sich nur der Browser dieses Geräts. Wer zurück zu dem wechselt, was das Gerät ohnehin zeigt, folgt ihm danach wieder. |
 | Teams sehen die geänderte Zeit nicht | Normalerweise kommt sie innerhalb von etwa 15 Sekunden von selbst an; die Teamseiten fragen den Server in diesem Takt nach dem Stand. Bleibt die alte Zeit stehen, hat das Gerät die Verbindung zum Server verloren oder das Tablet hat geschlafen. Einmal neu laden, dann stimmt sie wieder. |
 | Ein Gerät erreicht den Server nicht | Zuerst die Adresse auf der Startseite mit der im Terminal vergleichen. Dann Firewall. Dann, ob das Gerät im selben Netz hängt (nicht im Gast-WLAN). |
 | „Die Adresse für andere Geräte konnte nicht ermittelt werden“ beim Start, oder auf der Startseite steht `127.0.0.1` | Das Netz hat kein Gateway, die Anwendung kann ihre eigene Adresse nicht erfragen – sie sagt das beim Start. Adresse am Server ablesen (`ip addr` bzw. `ipconfig`) und als `LAN_ADRESSE=192.168.…` in die `.env` eintragen, dann neu starten. |

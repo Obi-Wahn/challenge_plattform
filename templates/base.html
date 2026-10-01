@@ -8,6 +8,22 @@
 
   <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <!-- Hell oder dunkel: Wer selbst gewählt hat, bekommt seine Wahl, sonst
+       folgt die Seite dem Gerät. Die Wahl steht nur im Browser
+       (localStorage), der Server erfährt nichts davon und es gibt kein
+       Cookie. Das Skript steht im Kopf, damit die Seite nicht erst dunkel
+       aufblitzt und dann hell wird. Ohne JavaScript bleibt sie dunkel. -->
+  <script>
+    (function () {
+      var wahl = null;
+      try { wahl = localStorage.getItem("farbschema"); } catch (e) {}
+      if (wahl !== "hell" && wahl !== "dunkel") {
+        wahl = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches
+          ? "hell" : "dunkel";
+      }
+      document.documentElement.setAttribute("data-farbschema", wahl);
+    })();
+  </script>
 </head>
 
 <body>
@@ -30,6 +46,12 @@
           {% endif %}
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('public.scoreboard') }}">🏆 Rangliste</a>
+          </li>
+          <!-- Zwischen den Seiten und dem Team: So bleiben der Teamname
+               und sein Knopf daneben beieinander. Ohne JavaScript könnte er
+               nichts umschalten, deshalb zeigt ihn erst das Skript unten. -->
+          <li class="nav-item" id="farbschema-eintrag" hidden>
+            <button type="button" class="nav-link farbschema-knopf" id="farbschema-knopf"></button>
           </li>
           {% if nav_team %}
           <!-- Die Restzeit steht seit der Zeitleiste auf der Wettbewerbsseite
@@ -87,6 +109,55 @@
        class="text-secondary text-decoration-none small">Quellcode auf GitHub</a>
   </footer>
   <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script>
+    (function () {
+      var wurzel = document.documentElement;
+      var knopf = document.getElementById("farbschema-knopf");
+      var geraet = window.matchMedia ? window.matchMedia("(prefers-color-scheme: light)") : null;
+
+      function geraetSchema() {
+        return geraet && geraet.matches ? "hell" : "dunkel";
+      }
+
+      // Der Knopf nennt, wohin er wechselt, nicht, was gerade zu sehen ist.
+      function beschriften() {
+        var hell = wurzel.getAttribute("data-farbschema") === "hell";
+        knopf.textContent = hell ? "🌙 Dunkel" : "☀️ Hell";
+        knopf.title = hell ? "Zum dunklen Aussehen wechseln" : "Zum hellen Aussehen wechseln";
+      }
+
+      knopf.addEventListener("click", function () {
+        var neu = wurzel.getAttribute("data-farbschema") === "hell" ? "dunkel" : "hell";
+        wurzel.setAttribute("data-farbschema", neu);
+        // Wer zurück zu dem wechselt, was das Gerät ohnehin zeigt, folgt
+        // ihm danach wieder - die Wahl wird dann vergessen statt gemerkt.
+        try {
+          if (neu === geraetSchema()) {
+            localStorage.removeItem("farbschema");
+          } else {
+            localStorage.setItem("farbschema", neu);
+          }
+        } catch (e) {}
+        beschriften();
+      });
+
+      // Stellt das Gerät um (etwa abends auf dunkel), zieht die Seite mit,
+      // solange niemand selbst gewählt hat.
+      if (geraet && geraet.addEventListener) {
+        geraet.addEventListener("change", function () {
+          var gemerkt = null;
+          try { gemerkt = localStorage.getItem("farbschema"); } catch (e) {}
+          if (gemerkt !== "hell" && gemerkt !== "dunkel") {
+            wurzel.setAttribute("data-farbschema", geraetSchema());
+            beschriften();
+          }
+        });
+      }
+
+      beschriften();
+      document.getElementById("farbschema-eintrag").hidden = false;
+    })();
+  </script>
 </body>
 
 </html>
