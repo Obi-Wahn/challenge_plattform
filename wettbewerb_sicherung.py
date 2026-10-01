@@ -2,8 +2,8 @@
 
 Die ZIP enthält eine ``wettbewerb.json`` und im Ordner ``abgaben/`` die
 Dateien, die die Teams hochgeladen haben. In der JSON steht alles, was zum
-Wettbewerb gehört: Name, Untertitel, Zeiten, die Aufgaben samt Hinweis und
-Schwierigkeit, die Teams und ihre Abgaben mit Punkten und Feedback.
+Wettbewerb gehört: Name, Untertitel, Gruß, Zeiten, die Aufgaben samt Hinweis
+und Schwierigkeit, die Teams und ihre Abgaben mit Punkten und Feedback.
 
 Was nur auf ausdrücklichen Wunsch mitkommt:
 
@@ -61,6 +61,7 @@ MAX_TASKS = 200
 MAX_TEAMNAME = 100
 MAX_TITEL = 200
 MAX_UNTERTITEL = 300
+MAX_GRUSS = 200
 MAX_FEEDBACK = 20000
 # So groß darf eine einzelne Abgabe sein - dieselbe Grenze wie beim Hochladen.
 MAX_DATEI_BYTES = 16 * 1024 * 1024
@@ -135,6 +136,7 @@ def sicherung_bauen(challenge, mit_namen, mit_passwoertern=False):
             "wettbewerb": {
                 "titel": challenge.title,
                 "untertitel": challenge.tagline or "",
+                "gruss": challenge.greeting or "",
                 "start": _zeit(challenge.start_time),
                 "ende": _zeit(challenge.end_time),
                 "pausiert": bool(challenge.paused),
@@ -333,6 +335,7 @@ def _anlegen(zf, daten, upload_ordner, geschrieben):
     challenge = Challenge(
         title=titel,
         tagline=str(wettbewerb.get("untertitel") or "").strip()[:MAX_UNTERTITEL],
+        greeting=str(wettbewerb.get("gruss") or "").strip()[:MAX_GRUSS],
         start_time=_datum(wettbewerb.get("start")),
         end_time=_datum(wettbewerb.get("ende")),
         # Nie aktiv: Ein eingelesener Wettbewerb soll nicht unbemerkt den

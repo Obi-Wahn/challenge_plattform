@@ -108,6 +108,11 @@ class Challenge(db.Model):
     # und einmal den "Calliope-Wettbewerb" aus, und der Name bleibt bei dem
     # Wettbewerb, zu dem er gehört, auch wenn längst ein anderer läuft.
     tagline = db.Column(db.String(300), nullable=False, default="")
+    # Der Gruß auf der Startseite, unter dem Namen. Leer heißt: es gilt der
+    # aus den Einstellungen. Ein eigener Satz statt "Willkommen beim ...",
+    # weil der Artikel vom Namen abhinge - "beim Scratch-Cup", "bei der
+    # Calliope-Challenge" - und den kann die Seite nicht sicher wählen.
+    greeting = db.Column(db.String(200), nullable=False, default="")
     start_time = db.Column(db.DateTime, nullable=True)
     end_time = db.Column(db.DateTime, nullable=True)
     active = db.Column(db.Boolean, default=False)
@@ -437,6 +442,8 @@ class Submission(db.Model):
 
     __table_args__ = (db.UniqueConstraint('team_id', 'task_id', name='_team_task_uc'),)
 
+STANDARDGRUSS = "Schön, dass ihr dabei seid!"
+
 class Settings(db.Model):
     __tablename__ = 'settings'
     id = db.Column(db.Integer, primary_key=True)
@@ -448,6 +455,8 @@ class Settings(db.Model):
         nullable=False,
         default="Ein Wettbewerb für Code, Ideen und Kreativität."
     )
+    # Der Standardgruß auf der Startseite, für jeden Wettbewerb ohne eigenen.
+    greeting = db.Column(db.String(200), nullable=False, default=STANDARDGRUSS)
     # Name under the signature line on the certificates, plus the handwriting
     # font it is written in. Empty means the certificates keep saying
     # "Unterschrift", as they did before this was configurable.
@@ -476,11 +485,12 @@ class Settings(db.Model):
 
 
 def event_branding(challenge=None):
-    """Name und Untertitel, wie sie für diesen Wettbewerb gelten.
+    """Name, Untertitel und Gruß, wie sie für diesen Wettbewerb gelten.
 
     Der Name ist der Titel des Wettbewerbs: Beides auseinanderzuhalten wäre
     doppelt, ein Wettbewerb heißt, wie er heißt. Den Untertitel darf er
-    überschreiben; lässt er ihn leer, gilt der aus den Einstellungen.
+    überschreiben, ebenso den Gruß auf der Startseite; lässt er sie leer,
+    gelten die aus den Einstellungen.
 
     Ohne Wettbewerb gelten die Einstellungen allein - das ist der Fall auf
     einer frischen Installation, in der noch keiner angelegt ist. Die Werte
@@ -492,4 +502,6 @@ def event_branding(challenge=None):
     return {
         "name": (challenge.title if challenge else "") or settings.site_name,
         "tagline": (challenge.tagline if challenge else "") or settings.tagline,
+        "greeting": ((challenge.greeting if challenge else "")
+                     or settings.greeting or STANDARDGRUSS),
     }

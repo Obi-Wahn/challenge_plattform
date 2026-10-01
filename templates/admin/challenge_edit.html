@@ -20,12 +20,19 @@
     <input type="text" name="tagline" class="form-control"
       value="{{ challenge.tagline }}" placeholder="{{ site_settings.tagline }}">
 
+    <label class="form-label mt-3">
+      Gruß auf der Startseite <span class="text-secondary">(optional)</span>
+    </label>
+    <input type="text" name="greeting" class="form-control" maxlength="200"
+      value="{{ challenge.greeting }}" placeholder="{{ site_settings.greeting }}">
+
     <p class="text-secondary small mt-2 mb-0">
       Der Name steht auf der Startseite, der Teamseite, über der Rangliste,
       auf den Urkunden dieses Wettbewerbs, im Browsertitel, in der Leiste oben
       und in der Fußzeile – und er bleibt dort auch, wenn später ein anderer
-      Wettbewerb läuft. Den Untertitel leer zu lassen heißt: Es gilt der aus
-      den <strong>Einstellungen</strong>.
+      Wettbewerb läuft. Der Gruß steht auf der Startseite unter dem Namen.
+      Untertitel oder Gruß leer zu lassen heißt: Es gilt der aus den
+      <strong>Einstellungen</strong>.
     </p>
 
     <div class="row g-3 mt-1">

@@ -234,6 +234,25 @@ class TestNachtraeglicheSpalten:
         assert "tagline" in spalten
         assert lies(pfad, "SELECT tagline FROM challenges") == [("",), ("",)]
 
+    def test_spalten_fuer_den_gruss_werden_ergaenzt(self, alte_datenbank):
+        """Alte Wettbewerbe bekommen keinen eigenen Gruß, die Einstellungen den Standard."""
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA + """
+            DROP TABLE IF EXISTS settings;
+            CREATE TABLE settings (
+                id INTEGER NOT NULL PRIMARY KEY,
+                site_name VARCHAR(100) NOT NULL,
+                tagline VARCHAR(300) NOT NULL
+            );
+            INSERT INTO settings (id, site_name, tagline)
+                VALUES (1, 'Alter Name', 'Alter Untertitel');
+        """)
+
+        ensure_added_columns()
+
+        assert lies(pfad, "SELECT greeting FROM challenges") == [("",), ("",)]
+        assert lies(pfad, "SELECT greeting FROM settings") == \
+            [("Schön, dass ihr dabei seid!",)]
+
     def test_spalte_fuer_den_zeitpunkt_der_pause_wird_ergaenzt(self, alte_datenbank):
         pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
 

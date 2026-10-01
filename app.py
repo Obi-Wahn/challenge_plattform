@@ -321,6 +321,7 @@ app = create_app()
 ADDED_COLUMNS = {
     "challenges": {
         "tagline": "VARCHAR(300) NOT NULL DEFAULT ''",
+        "greeting": "VARCHAR(200) NOT NULL DEFAULT ''",
         "paused_at": "DATETIME",
         "freeze_enabled": "BOOLEAN NOT NULL DEFAULT 0",
         "freeze_minutes": "INTEGER NOT NULL DEFAULT 15",
@@ -350,6 +351,7 @@ ADDED_COLUMNS = {
         "certificate_orientation": "VARCHAR(10) NOT NULL DEFAULT 'landscape'",
         "member_names_enabled": "BOOLEAN NOT NULL DEFAULT 0",
         "scoreboard_task_titles": "BOOLEAN NOT NULL DEFAULT 1",
+        "greeting": "VARCHAR(200) NOT NULL DEFAULT 'Schön, dass ihr dabei seid!'",
     },
 }
 

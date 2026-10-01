@@ -2,10 +2,12 @@
 {% block content %}
 
 <div class="text-center mb-4 mb-lg-5">
-  <h1 class="willkommen mb-3">
-    Willkommen!<br>
-    <span style="color: var(--accent)">{{ event.name }}</span>
-  </h1>
+  <!-- Der Name allein als Überschrift, der Gruß als eigener Satz darunter:
+       "Willkommen beim ..." bräuchte einen Artikel, der vom Namen abhängt
+       ("beim Scratch-Cup", "bei der Calliope-Challenge"). -->
+  <h1 class="willkommen mb-2">{{ event.name }}</h1>
+
+  <p class="gruss mb-2">{{ event.greeting }}</p>
 
   <p class="text-secondary mb-0">
     {{ event.tagline }}
