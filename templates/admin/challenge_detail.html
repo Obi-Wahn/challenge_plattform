@@ -5,8 +5,12 @@
 {% set finished = challenge.status() == "finished" %}
 {% set here = url_for('admin.challenge_detail', cid=challenge.id) %}
 
+<a href="{{ url_for('admin.dashboard') }}" class="text-secondary small text-decoration-none">
+  ← zurück zur Steuerzentrale
+</a>
+
 <!-- ===== KOPF: Wettbewerb und sein Zustand ===== -->
-<div class="event-card mb-5">
+<div class="event-card mb-5 mt-2">
   <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
 
     <div>

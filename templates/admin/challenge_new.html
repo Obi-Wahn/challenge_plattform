@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1 class="mb-4">➕ Neuer Wettbewerb</h1>
+<a href="{{ url_for('admin.dashboard') }}" class="text-secondary small text-decoration-none">
+  ← zurück zur Steuerzentrale
+</a>
+<h1 class="mb-4 mt-1">➕ Neuer Wettbewerb</h1>
 
 <div class="event-card">
 
