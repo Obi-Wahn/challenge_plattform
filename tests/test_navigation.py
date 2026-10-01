@@ -159,3 +159,47 @@ class TestKlappmenue:
 
         assert "ms-lg-2" in nav
         assert 'class="nav-link btn btn-outline-light btn-sm ms-2"' not in nav
+
+
+class TestZurueckOben:
+    """Der Weg zurück steht auch über der Überschrift, nicht nur ganz unten.
+
+    Auf langen Seiten wie Bewertungen oder Einstellungen musste man sonst
+    erst bis ans Ende scrollen. Der untere Link bleibt für den, der schon
+    unten ist.
+    """
+
+    @staticmethod
+    def seiten(cid):
+        steuerzentrale = "/admin/dashboard"
+        wettbewerb = f"/admin/wettbewerb/{cid}"
+        return [
+            (f"/admin/wettbewerb/{cid}", steuerzentrale, "← zurück zur Steuerzentrale"),
+            ("/admin/challenges/new", steuerzentrale, "← zurück zur Steuerzentrale"),
+            ("/admin/submissions", steuerzentrale, "← zurück zur Steuerzentrale"),
+            ("/admin/teams", steuerzentrale, "← zurück zur Steuerzentrale"),
+            ("/admin/settings", steuerzentrale, "← zurück zur Steuerzentrale"),
+            (f"/admin/challenges/{cid}/edit", wettbewerb, "← zurück zum Wettbewerb"),
+            (f"/admin/challenges/{cid}/tasks", wettbewerb, "← zurück zum Wettbewerb"),
+        ]
+
+    @staticmethod
+    def inhalt(admin, pfad):
+        """Der Seiteninhalt ohne Leiste und ohne Kommentare."""
+        html = admin.get(pfad).get_data(as_text=True)
+        html = html[html.index("</nav>"):]
+        return re.sub(r"<!--.*?-->", "", html, flags=re.DOTALL)
+
+    def test_oben_und_unten(self, admin, make_challenge):
+        challenge = make_challenge()
+
+        for pfad, ziel, text in self.seiten(challenge.id):
+            html = self.inhalt(admin, pfad)
+            links = [m.start() for m in re.finditer(
+                rf'<a href="{re.escape(ziel)}"[^>]*>\s*{text}\s*</a>', html)]
+            # Die Wettbewerbsseite trägt im Kopf eine Karte statt einer
+            # Überschrift - dort zählt, dass der Link vor ihr steht.
+            kopf = re.search(r'<h[12]|class="event-card', html).start()
+
+            assert len(links) == 2, pfad
+            assert links[0] < kopf, pfad

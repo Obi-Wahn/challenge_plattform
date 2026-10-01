@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1 class="mb-2">📝 Abgaben bewerten</h1>
+<a href="{{ url_for('admin.dashboard') }}" class="text-secondary small text-decoration-none">
+  ← zurück zur Steuerzentrale
+</a>
+<h1 class="mb-2 mt-1">📝 Abgaben bewerten</h1>
 
 {% if challenge %}
 <p class="text-secondary mb-5">

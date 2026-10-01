@@ -651,7 +651,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | Datei | prüft |
 | --- | --- |
 | `test_startseite.py` | QR-Code und abtippbare Adresse |
-| `test_navigation.py` | die obere Leiste, je nach Stand des Wettbewerbs |
+| `test_navigation.py` | die obere Leiste, je nach Stand des Wettbewerbs, und der Zurück-Link oben auf den Admin-Seiten |
 | `test_fusszeile.py` | Name in der Fußzeile, Admin-Anmeldung, Link auf das Repository |
 | `test_admin.py` | Steuerzentrale, Wettbewerbs-Seite, Beenden, Aktivieren |
 | `test_fehlerseiten.py` | eigene deutsche Seiten für 400/403/404/413/429/500 |

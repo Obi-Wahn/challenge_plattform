@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1 class="mb-4">⚙️ Einstellungen</h1>
+<a href="{{ url_for('admin.dashboard') }}" class="text-secondary small text-decoration-none">
+  ← zurück zur Steuerzentrale
+</a>
+<h1 class="mb-4 mt-1">⚙️ Einstellungen</h1>
 
 <form method="post">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
