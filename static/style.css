@@ -357,6 +357,12 @@ input::placeholder, textarea::placeholder {
   margin-bottom: 0.4rem;
 }
 
+/* ====== Bewertungen ====== */
+/* Die Linie zwischen Abgabe und Bewertungsformular, nur angedeutet. */
+.abgabe-trenner {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
 /* ====== Weitere Wettbewerbe in der Steuerzentrale ====== */
 /* Schmaler als eine .event-card: Das sind Zeilen einer Liste, keine Karten,
    und sie sollen unter den Kacheln nicht schwerer wiegen als diese. */
@@ -456,4 +462,166 @@ input::placeholder, textarea::placeholder {
     -webkit-line-clamp: 3;
     line-clamp: 3;
   }
+}
+
+/* ====== Heller Modus ====== */
+/* Das dunkle Aussehen oben ist das ursprüngliche und bleibt unverändert.
+   Der helle Modus legt sich als eigene Schicht darüber: Er greift nur, wenn
+   <html data-farbschema="hell"> gesetzt ist - das Skript in base.html tut
+   das nach der Wahl in der Leiste oder nach der Einstellung des Geräts.
+   Die Farben für Zustände (grün, orange, rot, blau) sind hier dunkler
+   gesetzt: Die hellen Töne des dunklen Modus wären auf Weiß kaum zu lesen,
+   am Beamer erst recht nicht. */
+
+/* Der Umschalter in der Leiste ist ein Knopf, sieht aber aus wie die Links
+   daneben. Im Klappmenü steht er links wie sie. */
+.farbschema-knopf {
+  background: none;
+  border: 0;
+  text-align: start;
+}
+
+[data-farbschema="hell"] body {
+  background: radial-gradient(circle at top, #ffffff, #e8ebf4);
+  color: #1e2235;
+}
+
+[data-farbschema="hell"] .stars {
+  display: none;
+}
+
+[data-farbschema="hell"] .event-card {
+  background: #ffffff;
+  border: 1px solid rgba(30, 34, 53, 0.08);
+  box-shadow: 0 6px 24px rgba(30, 34, 53, 0.08);
+}
+
+[data-farbschema="hell"] p,
+[data-farbschema="hell"] label {
+  color: #3b4166;
+}
+
+[data-farbschema="hell"] table {
+  color: #1e2235;
+}
+
+[data-farbschema="hell"] .btn-outline-light {
+  border-color: rgba(30, 34, 53, 0.3);
+  color: #1e2235;
+}
+
+[data-farbschema="hell"] .btn-outline-light:hover,
+[data-farbschema="hell"] .btn-outline-light:focus-visible {
+  background: #1e2235;
+  border-color: #1e2235;
+  color: #fff;
+}
+
+[data-farbschema="hell"] input,
+[data-farbschema="hell"] textarea,
+[data-farbschema="hell"] select {
+  background: #fff;
+  border-color: rgba(30, 34, 53, 0.25);
+  color: #1e2235;
+}
+
+[data-farbschema="hell"] .beitritt-adresse {
+  color: #1e2235;
+}
+
+[data-farbschema="hell"] .zeitleiste {
+  background: rgba(255, 255, 255, 0.97);
+  border-color: rgba(30, 34, 53, 0.12);
+  box-shadow: 0 6px 20px rgba(30, 34, 53, 0.1);
+}
+
+[data-farbschema="hell"] .zeitleiste-uhr { color: #1e2235; }
+[data-farbschema="hell"] .zeitleiste-wort { color: #5b6280; }
+[data-farbschema="hell"] .zeitleiste-neu { color: #4f46e5; }
+[data-farbschema="hell"] .zeitleiste-laeuft .zeitleiste-stand { color: #15803d; }
+[data-farbschema="hell"] .zeitleiste-pause .zeitleiste-stand { color: #b45309; }
+[data-farbschema="hell"] .zeitleiste-ende .zeitleiste-stand { color: #3b4166; }
+[data-farbschema="hell"] .zeitleiste-knapp .zeitleiste-uhr { color: #b45309; }
+[data-farbschema="hell"] .zeitleiste-gleich .zeitleiste-uhr { color: #dc2626; }
+
+[data-farbschema="hell"] .pause-kasten h2 { color: #b45309; }
+[data-farbschema="hell"] .rangliste-eingefroren strong { color: #0369a1; }
+[data-farbschema="hell"] .durchsage-kopf { color: #a16207; }
+
+[data-farbschema="hell"] .aufgabe-schwierigkeit-einfach { color: #15803d; }
+[data-farbschema="hell"] .aufgabe-schwierigkeit-mittel { color: #a16207; }
+[data-farbschema="hell"] .aufgabe-schwierigkeit-schwer { color: #b91c1c; }
+
+[data-farbschema="hell"] .wettbewerbszeile {
+  background: #fff;
+  border: 1px solid rgba(30, 34, 53, 0.08);
+}
+
+[data-farbschema="hell"] .wettbewerbe-beendet > summary:hover {
+  color: #1e2235;
+}
+
+[data-farbschema="hell"] .wettbewerb-bereich {
+  border-left-color: rgba(30, 34, 53, 0.15);
+}
+
+[data-farbschema="hell"] .bereich-trenner,
+[data-farbschema="hell"] .abgabe-trenner {
+  border-color: rgba(30, 34, 53, 0.15);
+}
+
+[data-farbschema="hell"] .ranglisten-tabelle .ranglisten-spalte,
+[data-farbschema="hell"] .ranglisten-tabelle .ranglisten-gesamt {
+  border-left-color: rgba(30, 34, 53, 0.25);
+}
+
+/* Bootstrap-Klassen, die in den Vorlagen für den dunklen Hintergrund
+   stehen. Statt jede Vorlage doppelt zu führen, deuten sie hier im hellen
+   Modus um: „light“ heißt dann dunkle Schrift, „dark“ ein heller Grund. */
+[data-farbschema="hell"] .navbar-dark {
+  --bs-navbar-color: rgba(30, 34, 53, 0.7);
+  --bs-navbar-hover-color: #1e2235;
+  --bs-navbar-active-color: #1e2235;
+  --bs-navbar-brand-color: #1e2235;
+  --bs-navbar-brand-hover-color: #1e2235;
+  --bs-navbar-toggler-border-color: rgba(30, 34, 53, 0.2);
+  --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2830, 34, 53, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+[data-farbschema="hell"] .text-light {
+  color: #1e2235 !important;
+}
+
+[data-farbschema="hell"] .bg-dark {
+  background-color: #f1f3f9 !important;
+}
+
+[data-farbschema="hell"] .text-warning {
+  color: #b45309 !important;
+}
+
+[data-farbschema="hell"] .text-info {
+  color: #0369a1 !important;
+}
+
+/* Gelbe und hellblaue Schrift auf Weiß ist kaum zu lesen. Die umrandeten
+   Knöpfe bekommen deshalb eine dunklere Schrift; gefüllt beim Darüberfahren
+   bleiben sie, wie Bootstrap sie zeichnet. */
+[data-farbschema="hell"] .btn-outline-warning {
+  --bs-btn-color: #b45309;
+  --bs-btn-border-color: #d97706;
+}
+
+[data-farbschema="hell"] .btn-outline-info {
+  --bs-btn-color: #0369a1;
+  --bs-btn-border-color: #0ea5e9;
+}
+
+[data-farbschema="hell"] .table-dark {
+  --bs-table-color: #1e2235;
+  --bs-table-border-color: rgba(30, 34, 53, 0.15);
+  --bs-table-hover-color: #1e2235;
+  --bs-table-hover-bg: rgba(30, 34, 53, 0.04);
+  --bs-table-striped-color: #1e2235;
+  --bs-table-active-color: #1e2235;
 }

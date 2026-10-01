@@ -83,6 +83,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 ### Für den Beamer
 *   **Rangliste**: Punkte je Aufgabe und Gesamtstand, über jeder Spalte Nummer und Titel der Aufgabe („A1: Die Katze läuft im Kreis“, der Titel lässt sich abschalten), auch mit fünfzehn Aufgaben ohne seitliches Schieben, lädt sich alle 30 Sekunden selbst neu. Oben läuft dieselbe Restzeit mit, die die Teams sehen — die Seite für den ganzen Wettbewerb.
 *   **Rangliste einfrieren**: je Wettbewerb einschaltbar – ab einstellbaren Minuten vor Schluss zeigt der Beamer nur noch, was bis dahin abgegeben war. Die eigenen Punkte sieht jedes Team weiter aktuell, den echten Stand verkündet die Siegerehrung.
+*   **Hell oder dunkel**: Die Seiten folgen der Einstellung des Geräts; **☀️ Hell** oder **🌙 Dunkel** in der Leiste oben wechselt, etwa für den Beamer in einem hellen Raum. Die Wahl merkt sich nur der Browser dieses Geräts, der Server speichert nichts.
 *   **Siegerehrung**: Podium der besten drei, Platz für Platz aufzudecken (Leertaste oder Knopf). Bei Gleichstand teilen sich Teams einen Platz, und der nächste rückt nach: 10, 10 und 8 Punkte ergeben zwei erste Plätze und einen zweiten, kein Platz bleibt leer.
 
 ### Ohne Installationsaufwand
@@ -652,6 +653,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | --- | --- |
 | `test_startseite.py` | QR-Code und abtippbare Adresse |
 | `test_navigation.py` | die obere Leiste, je nach Stand des Wettbewerbs, und der Zurück-Link oben auf den Admin-Seiten |
+| `test_farbschema.py` | hell oder dunkel: der Umschalter in der Leiste, die Wahl bleibt im Browser |
 | `test_fusszeile.py` | Name in der Fußzeile, Admin-Anmeldung, Link auf das Repository |
 | `test_admin.py` | Steuerzentrale, Wettbewerbs-Seite, Beenden, Aktivieren |
 | `test_fehlerseiten.py` | eigene deutsche Seiten für 400/403/404/413/429/500 |
