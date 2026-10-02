@@ -12,7 +12,9 @@ steht nur hier, einmal für alle drei Systeme.
 Jeder Schritt sieht erst nach, ob er nötig ist. Wer die Startdatei zehnmal
 öffnet, bekommt beim zweiten bis zehnten Mal nur den Start - und wenn etwas
 fehlt, etwa weil jemand den Ordner .venv gelöscht hat, wird genau das
-nachgeholt. Eine vorhandene .env und die Datenbank werden nie angefasst.
+nachgeholt. Die Datenbank wird nie angefasst, eine vorhandene .env nur,
+wenn darin noch ein öffentlich bekannter Beispielwert oder ein zu kurzer
+Schlüssel steht.
 
 Diese Datei läuft mit dem Python des Rechners, nicht mit dem der
 Anwendung. Sie braucht deshalb nur die Standardbibliothek, und sie muss sich
@@ -46,9 +48,21 @@ UMGEBUNG = ".venv"
 # Update etwa -, wird neu installiert, sonst nicht.
 PAKETSTAND = ".starter-pakete"
 
-# Die Platzhalter aus .env.example. Steht einer davon noch in einer .env,
-# läuft die Anwendung zwar, aber mit einem Passwort, das im Repository steht.
-PLATZHALTER = {"change-this-in-production-random-string", "change-this-password"}
+# Die Beispielwerte aus .env.example und der README. Sie stehen öffentlich im
+# Repository, mit einem davon startet die Anwendung nicht (siehe config.py,
+# dort steht dieselbe Liste - diese Datei kann config.py nicht laden, weil
+# die beim Laden schon nach der .env fragt). Steht einer in der .env,
+# ersetzt ihn konfiguration_sicherstellen().
+PLATZHALTER = {
+    "change-this-in-production-random-string",
+    "change-this-password",
+    "dein-geheimer-schluessel",
+    "dein-sicheres-passwort",
+}
+
+# Kürzer darf ein SECRET_KEY nicht sein, sonst lässt er sich durchprobieren.
+# Wie MIN_SCHLUESSEL in config.py.
+MIN_SCHLUESSEL = 32
 
 # Wie lange nach dem Start auf den Server gewartet wird, bevor der Browser
 # aufgeht. Beim ersten Start legt die Anwendung erst die Datenbank an.
@@ -260,10 +274,15 @@ def env_lesen(pfad):
     return werte
 
 
-def passwort_erfragen(eingabe=getpass.getpass):
+ERSTER_START = "Beim ersten Start braucht die Plattform ein Admin-Passwort."
+BEISPIEL_PASSWORT = ("In der .env steht als Admin-Passwort noch der Beispielwert, und der "
+                     "steht öffentlich im Repository. Bitte ein eigenes vergeben.")
+
+
+def passwort_erfragen(eingabe=getpass.getpass, anlass=ERSTER_START):
     """Fragt das Admin-Passwort ab, zweimal, bis beide Eingaben passen."""
     print()
-    print("Beim ersten Start braucht die Plattform ein Admin-Passwort.")
+    print(anlass)
     print("Damit meldest du dich unter /admin an. Beim Tippen erscheinen keine Zeichen.")
 
     while True:
@@ -283,46 +302,119 @@ def passwort_erfragen(eingabe=getpass.getpass):
         return passwort
 
 
-def env_inhalt(vorlage, schluessel, passwort):
-    """Die neue .env: die Vorlage, mit echtem Schlüssel und Passwort.
+def env_setzen(inhalt, neue_werte):
+    """Der Inhalt einer .env mit neuen Werten für die genannten Einträge.
 
-    Das Passwort steht in einfachen Anführungszeichen. python-dotenv nimmt
-    es dann wörtlich - ein $, # oder \\ darin bleibt, was es ist. Nur ' und
-    ${ gingen schief, die lehnt passwort_erfragen() ab.
+    Nur deren Zeilen werden ersetzt, alle anderen bleiben samt Kommentaren
+    stehen. Steht ein Eintrag mehrfach darin, werden alle ersetzt - sonst
+    gälte der letzte, alte. Fehlt einer, kommt er ans Ende. Die Werte kommen
+    so in die Datei, wie sie übergeben werden, Anführungszeichen also mit.
     """
     zeilen = []
-    for eintrag in vorlage.splitlines():
-        if eintrag.startswith("SECRET_KEY="):
-            eintrag = f"SECRET_KEY={schluessel}"
-        elif eintrag.startswith("ADMIN_PASSWORD="):
-            eintrag = f"ADMIN_PASSWORD='{passwort}'"
+    gesetzt = set()
+    for eintrag in inhalt.splitlines():
+        name = eintrag.split("=", 1)[0].strip()
+        if "=" in eintrag and name in neue_werte:
+            eintrag = f"{name}={neue_werte[name]}"
+            gesetzt.add(name)
         zeilen.append(eintrag)
+    zeilen += [f"{name}={wert}" for name, wert in neue_werte.items() if name not in gesetzt]
     return "\n".join(zeilen) + "\n"
 
 
-def konfiguration_sicherstellen(basis=BASIS, passwort_holen=passwort_erfragen):
-    """Legt die .env an, wenn es keine gibt. Eine vorhandene bleibt, wie sie ist."""
+def passwort_eintrag(passwort):
+    """Das Passwort, wie es in die .env kommt.
+
+    In einfachen Anführungszeichen nimmt python-dotenv es wörtlich - ein $,
+    # oder \\ darin bleibt, was es ist. Nur ' und ${ gingen schief, die lehnt
+    passwort_erfragen() ab.
+    """
+    return f"'{passwort}'"
+
+
+def env_inhalt(vorlage, schluessel, passwort):
+    """Die neue .env: die Vorlage, mit echtem Schlüssel und Passwort."""
+    return env_setzen(vorlage, {"SECRET_KEY": schluessel,
+                                "ADMIN_PASSWORD": passwort_eintrag(passwort)})
+
+
+def schwacher_schluessel(wert):
+    """Ob ein SECRET_KEY ersetzt werden muss: Beispielwert oder zu kurz."""
+    return wert in PLATZHALTER or len(wert or "") < MIN_SCHLUESSEL
+
+
+def _nur_fuer_besitzer(ziel):
+    if os.name != "nt":
+        # Das Passwort steht im Klartext darin.
+        os.chmod(ziel, 0o600)
+
+
+def vorhandene_env_pruefen(ziel, passwort_holen, umgebung=os.environ):
+    """Ersetzt in einer vorhandenen .env, was öffentlich bekannt oder zu schwach ist.
+
+    Mit einem bekannten oder kurzen SECRET_KEY kann sich jeder ein Cookie als
+    Lehrkraft bauen (siehe config.py). Den Schlüssel muss niemand kennen, er
+    wird deshalb ohne Rückfrage neu gewürfelt - die Teams melden sich danach
+    einmal neu an. Das Admin-Passwort dagegen muss die Lehrkraft kennen: Steht
+    dort noch der Beispielwert, wird nach einem neuen gefragt.
+
+    Was in der Umgebung des Rechners gesetzt ist, gilt vor der .env und
+    bleibt unberührt. Alles andere in der Datei auch.
+    """
+    werte = env_lesen(ziel)
+    neu = {}
+
+    if "SECRET_KEY" not in umgebung and schwacher_schluessel(werte.get("SECRET_KEY")):
+        neu["SECRET_KEY"] = secrets.token_hex(32)
+
+    passwort = werte.get("ADMIN_PASSWORD")
+    if "ADMIN_PASSWORD" not in umgebung and (not passwort or passwort in PLATZHALTER):
+        neu["ADMIN_PASSWORD"] = passwort_eintrag(passwort_holen())
+
+    if not neu:
+        return "vorhanden"
+
+    # utf-8-sig: Eine mit dem Windows-Editor gespeicherte .env beginnt mit
+    # einem unsichtbaren Zeichen, und die erste Zeile hieße sonst anders.
+    with open(ziel, encoding="utf-8-sig") as datei:
+        inhalt = datei.read()
+    with open(ziel, "w", encoding="utf-8") as datei:
+        datei.write(env_setzen(inhalt, neu))
+    _nur_fuer_besitzer(ziel)
+
+    teile = []
+    if "SECRET_KEY" in neu:
+        teile.append("neuer Schlüssel (Teams melden sich einmal neu an)")
+    if "ADMIN_PASSWORD" in neu:
+        teile.append("neues Admin-Passwort")
+    return "vorhanden, " + " und ".join(teile)
+
+
+def _beispiel_passwort_erfragen():
+    return passwort_erfragen(anlass=BEISPIEL_PASSWORT)
+
+
+def konfiguration_sicherstellen(basis=BASIS, passwort_holen=None):
+    """Legt die .env an, wenn es keine gibt.
+
+    Eine vorhandene bleibt, wie sie ist - bis auf Beispielwerte und einen zu
+    kurzen Schlüssel, siehe vorhandene_env_pruefen().
+    """
     ziel = os.path.join(basis, ".env")
 
     if os.path.exists(ziel):
-        werte = env_lesen(ziel)
-        if werte.get("ADMIN_PASSWORD") in PLATZHALTER or werte.get("SECRET_KEY") in PLATZHALTER:
-            return "vorhanden, aber mit Platzhalter aus .env.example - bitte ändern"
-        return "vorhanden"
+        return vorhandene_env_pruefen(ziel, passwort_holen or _beispiel_passwort_erfragen)
 
     with open(os.path.join(basis, ".env.example"), encoding="utf-8") as datei:
         vorlage = datei.read()
 
-    inhalt = env_inhalt(vorlage, secrets.token_hex(32), passwort_holen())
+    inhalt = env_inhalt(vorlage, secrets.token_hex(32), (passwort_holen or passwort_erfragen)())
 
     # "x": nur neu anlegen. Ist in der Zwischenzeit doch eine .env
     # entstanden, wird sie nicht überschrieben.
     with open(ziel, "x", encoding="utf-8") as datei:
         datei.write(inhalt)
-
-    if os.name != "nt":
-        # Das Passwort steht im Klartext darin.
-        os.chmod(ziel, 0o600)
+    _nur_fuer_besitzer(ziel)
 
     return "angelegt"
 
