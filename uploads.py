@@ -43,7 +43,7 @@ def _datei_vormerken(mapper, connection, submission):
     if session is None:
         return
 
-    zum_loeschen_vormerken(session, submission.filename)
+    zum_loeschen_vormerken(session, submission.pfad)
 
 
 def _melden(pfad, fehler):

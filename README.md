@@ -295,7 +295,11 @@ danach in der Schublade liegt, wird genauso aufgeräumt wie jeder andere.
     Startdatei im neuen Ordner öffnen. `--aktualisieren` sagt dasselbe.
 
 In beiden Fällen passt die Plattform die Datenbank beim Start selbst an,
-siehe [Daten und Sicherungen](#-daten-und-sicherungen).
+siehe [Daten und Sicherungen](#-daten-und-sicherungen). Die Datenbank merkt
+sich zu jeder Abgabe nur den Ort innerhalb von `uploads/`, nicht den Ordner der
+Installation. Nach dem Umzug in den neuen Ordner oder auf einen anderen Rechner
+finden Download, Sicherung und Aufräumen die Dateien deshalb dort, wo sie jetzt
+liegen.
 
 ### Von Hand, für Entwicklung
 
@@ -454,8 +458,8 @@ braucht man beide:
 | `data/` | die Datenbank `challenge.db`: Teams, Aufgaben, Punkte, Bewertungen |
 | `uploads/` | die abgegebenen Dateien der Teams |
 
-Die Datenbank merkt sich zu jeder Abgabe nur den **Pfad** der Datei, nicht die
-Datei selbst. Wer nur `data/` sichert, hat nach einem Ausfall zwar die
+Die Datenbank merkt sich zu jeder Abgabe nur, **wo in `uploads/`** die Datei
+liegt, nicht die Datei selbst. Wer nur `data/` sichert, hat nach einem Ausfall zwar die
 Punktestände, aber nicht die Programme, für die sie vergeben wurden. Beide
 Verzeichnisse gehören **nicht** ins Repository und werden von `.gitignore`
 ausgeschlossen.
@@ -571,7 +575,7 @@ Festgehalten wird, was etwas **anlegt, ändert oder wegnimmt** – und was
 
 | Wann | Was im Protokoll steht |
 |---|---|
-| Start | der Server ist hochgefahren, mit Adresse, Port und Version · gesicherte Datenbank vor einem Umbau · ein Wettbewerb, den das Update aktiv geschaltet hat, weil bisher keiner ausdrücklich aktiviert war |
+| Start | der Server ist hochgefahren, mit Adresse, Port und Version · gesicherte Datenbank vor einem Umbau · ein Wettbewerb, den das Update aktiv geschaltet hat, weil bisher keiner ausdrücklich aktiviert war · wie viele Abgaben vom ganzen Pfad auf den Ort unter `uploads/` umgestellt wurden (einmalig nach dem Update) |
 | Aufbau | Wettbewerb angelegt, bearbeitet, aktiv geschaltet, gelöscht · Team angelegt, gelöscht, Passwort zurückgesetzt · übernommene Teams · Aufgabe angelegt, bearbeitet, gelöscht · Aufgaben gesichert und eingelesen · Wettbewerb gesichert (mit oder ohne Namen und Passwörter) und eingelesen · geänderte Einstellungen (nur welche Felder) |
 | Wettbewerbstag | freigeschalteter oder wieder verborgener Tipp · gesendete oder entfernte Durchsage (ohne ihren Text) · abgelehnte Abgabe samt Grund (falsche Endung, zu groß, pausiert, beendet, schon abgegeben) · zu große Sicherung · zurückgesetzte Abgabe · fehlgeschlagene Admin-Anmeldung mit Adresse |
 | Zum Abschluss | erzeugte Urkunden (Wettbewerb, Anzahl, Ausrichtung) · aufgeräumter Wettbewerb (wie viele Teams und Abgaben gelöscht) · geleerte Protokolldatei · gelöschte Sicherungskopien |
@@ -659,6 +663,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_submissions.py` | Abgabe, Korrektur nach Freigabe, Bewertung |
 | `test_bewertungsseite.py` | die Bewertungsseite lädt Code nach, statt ihn mitzuschicken |
 | `test_aufraeumen.py` | hochgeladene Dateien verschwinden mit ihrer Abgabe |
+| `test_ablageort.py` | Abgaben werden auch nach einem Update in einen neuen Ordner gefunden und aufgeräumt |
 | `test_scoring.py` | Rangliste und Podium, auch bei Gleichstand |
 | `test_certificates.py` | Urkunden-PDF, Unterschrift, Namen der Teammitglieder, Download durch die Teams |
 | `test_mitgliedernamen.py` | Namen eintragen, kontrollieren, freigeben |

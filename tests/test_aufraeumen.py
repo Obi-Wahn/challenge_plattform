@@ -166,7 +166,7 @@ class TestAbgabeUeberDieOberflaeche:
 
         abgabe = Submission.query.first()
         assert abgabe is not None
-        pfad = abgabe.filename
+        pfad = abgabe.pfad
         assert os.path.exists(pfad)
 
         admin.post(f"/admin/reset/{abgabe.id}", data={
@@ -254,7 +254,7 @@ class TestKorrekturabgabe:
         }, content_type="multipart/form-data")
 
         abgabe = Submission.query.first()
-        erster_pfad = abgabe.filename
+        erster_pfad = abgabe.pfad
         assert os.path.exists(erster_pfad)
 
         abgabe.resubmit_allowed = True
@@ -289,8 +289,8 @@ class TestKorrekturabgabe:
         }, content_type="multipart/form-data")
 
         abgabe = Submission.query.first()
-        assert os.path.exists(abgabe.filename)
-        with open(abgabe.filename, "rb") as datei:
+        assert os.path.exists(abgabe.pfad)
+        with open(abgabe.pfad, "rb") as datei:
             assert datei.read() == b"zweite fassung"
 
     def test_scheitert_das_speichern_bleibt_die_alte_datei(
@@ -357,7 +357,7 @@ class TestKorrekturabgabe:
             assert datei.read() == b"erste fassung"
 
         abgabe = database.session.get(Submission, abgabe_id)
-        assert abgabe.filename == erster_pfad, \
+        assert abgabe.pfad == erster_pfad, \
             "die Datenbank zeigt nicht mehr auf die gültige Abgabe"
 
     def test_gleicher_name_wird_trotzdem_ersetzt(
@@ -377,13 +377,13 @@ class TestKorrekturabgabe:
 
         abgabe = Submission.query.first()
         assert not os.path.exists(erster_pfad), "die alte Datei blieb liegen"
-        assert os.path.exists(abgabe.filename)
-        with open(abgabe.filename, "rb") as datei:
+        assert os.path.exists(abgabe.pfad)
+        with open(abgabe.pfad, "rb") as datei:
             assert datei.read() == b"zweite fassung"
 
         # Die Endung muss bleiben: Der Download in der Verwaltung liest sie
         # aus dem abgelegten Namen.
-        assert abgabe.filename.endswith(".sb3")
+        assert abgabe.pfad.endswith(".sb3")
 
     def test_scheitert_das_speichern_bleibt_keine_waise_liegen(
             self, flask_app, make_challenge, make_task, logged_in_team, upload,
