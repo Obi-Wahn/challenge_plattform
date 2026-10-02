@@ -1,6 +1,9 @@
+import os
 import re
 import secrets
 from datetime import datetime, timedelta
+
+from flask import current_app
 
 from extensions import db
 
@@ -428,11 +431,36 @@ class Task(db.Model):
                     .filter(cls.challenge_id == challenge_id).scalar())
         return (hoechste or 0) + 1
 
+def abgabe_pfad(ablage):
+    """Wo die Datei einer Abgabe auf der Platte liegt.
+
+    In der Datenbank steht nur der Teil unterhalb von uploads/, etwa
+    „3/task_5_katze.sb3“, mit / getrennt. Bis v1.15.0 stand dort der ganze
+    Pfad - und der zeigte nach einem Update aus dem ZIP (neuer Ordner,
+    uploads/ hinüberkopiert) oder einem Umzug auf einen anderen Rechner in
+    den alten Ordner: Download und Sicherung fanden nichts mehr, und das
+    Aufräumen ließ die kopierten Dateien liegen. Den Rest des Pfads liefert
+    deshalb erst hier die laufende Installation.
+
+    Ein ganzer Pfad, den die Umstellung beim Start nicht deuten konnte,
+    bleibt, wie er ist.
+    """
+    if not ablage or os.path.isabs(ablage):
+        return ablage
+    return os.path.join(current_app.config["UPLOAD_FOLDER"], *ablage.split("/"))
+
+
+def ablage_von(pfad):
+    """Das Gegenstück zu abgabe_pfad(): der Teil unterhalb von uploads/."""
+    return os.path.relpath(pfad, current_app.config["UPLOAD_FOLDER"]).replace(os.sep, "/")
+
+
 class Submission(db.Model):
     __tablename__ = 'submissions'
     id = db.Column(db.Integer, primary_key=True)
     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=False)
     task_id = db.Column(db.Integer, db.ForeignKey('tasks.id'), nullable=False)
+    # Der Ablageort unterhalb von uploads/, siehe abgabe_pfad().
     filename = db.Column(db.String(300), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.now)
     points = db.Column(db.Integer, nullable=True)
@@ -441,6 +469,11 @@ class Submission(db.Model):
     resubmit_allowed = db.Column(db.Boolean, default=False)
 
     __table_args__ = (db.UniqueConstraint('team_id', 'task_id', name='_team_task_uc'),)
+
+    @property
+    def pfad(self):
+        """Wo die Datei dieser Abgabe gerade liegt - siehe abgabe_pfad()."""
+        return abgabe_pfad(self.filename)
 
 STANDARDGRUSS = "Schön, dass ihr dabei seid!"
 

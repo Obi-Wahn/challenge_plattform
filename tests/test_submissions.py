@@ -29,7 +29,7 @@ def test_abgabe_wird_gespeichert(make_challenge, make_task, logged_in_team, data
     assert antwort.status_code == 302
     abgabe = Submission.query.filter_by(team_id=team.id, task_id=task.id).one()
     assert abgabe.points is None
-    assert abgabe.filename.endswith("loesung.sb3")
+    assert abgabe.pfad.endswith("loesung.sb3")
 
 
 def test_falsches_dateiformat_wird_abgewiesen(make_challenge, make_task, logged_in_team):
@@ -127,7 +127,7 @@ def test_zweite_abgabe_ohne_freigabe_wird_abgewiesen(
 
     # Es bleibt bei genau einer Abgabe, und zwar bei der ersten.
     abgabe = Submission.query.one()
-    with open(abgabe.filename, "rb") as datei:
+    with open(abgabe.pfad, "rb") as datei:
         assert datei.read() == b"erster versuch"
 
 
@@ -150,7 +150,7 @@ class TestKorrektur:
         # Die Freigabe ist damit aufgebraucht: Der dritte Versuch ändert nichts.
         abgeben(client, task, inhalt=b"dritter versuch")
         abgabe = Submission.query.one()
-        with open(abgabe.filename, "rb") as datei:
+        with open(abgabe.pfad, "rb") as datei:
             assert datei.read() == b"zweiter versuch"
 
     def test_korrektur_loescht_die_alte_bewertung(
@@ -295,7 +295,7 @@ class TestLangeDateinamen:
         assert antwort.status_code == 302
         abgabe = Submission.query.filter_by(team_id=team.id, task_id=task.id).one()
         # Die Datei liegt wirklich da - genau das schlug vorher fehl.
-        assert os.path.exists(abgabe.filename)
+        assert os.path.exists(abgabe.pfad)
 
     def test_die_endung_bleibt_erhalten(
             self, make_challenge, make_task, logged_in_team, database):
@@ -309,7 +309,7 @@ class TestLangeDateinamen:
 
         abgabe = Submission.query.filter_by(team_id=team.id, task_id=task.id).one()
         # Der Download in der Verwaltung nimmt die Endung aus diesem Namen.
-        assert abgabe.filename.endswith(".sb3")
+        assert abgabe.pfad.endswith(".sb3")
 
     def test_der_abgelegte_name_haelt_die_grenze_ein(
             self, make_challenge, make_task, logged_in_team, database):
@@ -325,7 +325,7 @@ class TestLangeDateinamen:
         abgeben(client, task, dateiname="z" * 300 + ".sb3")
 
         abgabe = Submission.query.filter_by(team_id=team.id, task_id=task.id).one()
-        name = os.path.basename(abgabe.filename)
+        name = os.path.basename(abgabe.pfad)
         # "task_<nummer>_" kommt noch davor, deshalb etwas Luft nach oben.
         assert len(name) <= MAX_DATEINAME + 20
 
@@ -340,7 +340,7 @@ class TestLangeDateinamen:
         abgeben(client, task, dateiname="loesung.sb3")
 
         abgabe = Submission.query.filter_by(team_id=team.id, task_id=task.id).one()
-        assert abgabe.filename.endswith("loesung.sb3")
+        assert abgabe.pfad.endswith("loesung.sb3")
 
 
 class TestGekuerzterDateiname:

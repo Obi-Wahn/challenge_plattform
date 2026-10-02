@@ -104,7 +104,7 @@ class TestDateiUpload:
             "file": (io.BytesIO(b"x"), "../../../etc/passwd.sb3"),
         }, content_type="multipart/form-data")
 
-        gespeichert = os.path.abspath(Submission.query.one().filename)
+        gespeichert = os.path.abspath(Submission.query.one().pfad)
         upload_ordner = os.path.abspath(flask_app.config["UPLOAD_FOLDER"])
         assert gespeichert.startswith(upload_ordner)
 
