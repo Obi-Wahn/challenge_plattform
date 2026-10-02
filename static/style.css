@@ -443,6 +443,19 @@ input::placeholder, textarea::placeholder {
   border-left: 1px solid rgba(255, 255, 255, 0.3);
 }
 
+/* Punkte je Aufgabe und der Strich für „noch nichts“. Bootstraps
+   „text-success“ ist ein dunkles Grün, das auf dem dunklen Grund am Beamer
+   kaum zu lesen war, und der Strich verschwand ganz. */
+.ranglisten-punkte {
+  color: #75e0a7;
+  background-color: rgba(25, 135, 84, 0.35);
+  border: 1px solid rgba(117, 224, 167, 0.45);
+}
+
+.ranglisten-leer {
+  color: rgba(230, 232, 239, 0.4);
+}
+
 /* Am Beamer müssen Platz und Gesamtpunkte ohne Schieben zu sehen sein, auch
    bei vierzehn Aufgaben. Deshalb teilt sich die Tabelle ab Laptopbreite die
    Breite der Seite: Platz, Team und Gesamt haben feste Spalten, die Aufgaben
@@ -468,6 +481,38 @@ input::placeholder, textarea::placeholder {
     -webkit-line-clamp: 3;
     line-clamp: 3;
   }
+}
+
+/* ====== Markdown-Editor ====== */
+/* Die Werkzeugleiste von EasyMDE ist für hellen Grund gemacht: Ihre Knöpfe
+   zeichnen in Schwarz, auf der dunklen Karte waren sie kaum zu sehen. Der
+   Container steht im Selektor, damit diese Regeln gegen easymde.min.css
+   gewinnen, das die Seite erst nach style.css lädt. */
+.EasyMDEContainer .editor-toolbar {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.EasyMDEContainer .editor-toolbar button {
+  color: #e6e8ef;
+}
+
+.EasyMDEContainer .editor-toolbar button.active,
+.EasyMDEContainer .editor-toolbar button:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.EasyMDEContainer .editor-toolbar i.separator {
+  border-left-color: rgba(255, 255, 255, 0.25);
+  border-right-color: transparent;
+}
+
+/* Die Vorschau hat wie das Eingabefeld einen hellen Grund, bekam aber die
+   helle Schrift der Seite - auch für Absätze, die hier eine eigene Farbe
+   haben. Der Text war darin kaum zu lesen. */
+.EasyMDEContainer .editor-preview,
+.EasyMDEContainer .editor-preview p {
+  color: #1e2235;
 }
 
 /* ====== Heller Modus ====== */
@@ -630,4 +675,34 @@ input::placeholder, textarea::placeholder {
   --bs-table-hover-bg: rgba(30, 34, 53, 0.04);
   --bs-table-striped-color: #1e2235;
   --bs-table-active-color: #1e2235;
+}
+
+/* Im hellen Modus wieder so, wie EasyMDE und Bootstrap es zeichnen. */
+[data-farbschema="hell"] .EasyMDEContainer .editor-toolbar {
+  border-color: #ced4da;
+}
+
+[data-farbschema="hell"] .EasyMDEContainer .editor-toolbar button {
+  color: #1e2235;
+}
+
+[data-farbschema="hell"] .EasyMDEContainer .editor-toolbar button.active,
+[data-farbschema="hell"] .EasyMDEContainer .editor-toolbar button:hover {
+  background: #fcfcfc;
+  border-color: #95a5a6;
+}
+
+[data-farbschema="hell"] .EasyMDEContainer .editor-toolbar i.separator {
+  border-left-color: #d9d9d9;
+  border-right-color: #fff;
+}
+
+[data-farbschema="hell"] .ranglisten-punkte {
+  color: #198754;
+  background-color: rgba(25, 135, 84, 0.25);
+  border-color: rgba(25, 135, 84, 0.25);
+}
+
+[data-farbschema="hell"] .ranglisten-leer {
+  color: rgba(108, 117, 125, 0.25);
 }

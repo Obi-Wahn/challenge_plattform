@@ -76,14 +76,14 @@
               <td class="ranglisten-spalte py-4 px-2 text-center">
                 {% set points = team.task_points[task.id] %}
                 {% if points %}
-                <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25">
+                <span class="badge ranglisten-punkte">
                   {{ points }}
                 </span>
                 {% else %}
                 <!-- Keine Punkte und keine Abgabe sehen gleich aus: Die
                      Rangliste hängt am Beamer, ein "0" daneben wäre nur ein
                      zweiter Strich. -->
-                <span class="text-muted opacity-25">-</span>
+                <span class="ranglisten-leer">-</span>
                 {% endif %}
               </td>
               {% endfor %}
