@@ -299,22 +299,151 @@ class TestKonfiguration:
         assert (dotenv_values(ordner / ".env")["SECRET_KEY"]
                 != dotenv_values(zweiter / ".env")["SECRET_KEY"])
 
-    def test_vorhandene_env_wird_nie_angefasst(self, ordner):
-        (ordner / ".env").write_text("ADMIN_PASSWORD=meins\nSECRET_KEY=abc\n", encoding="utf-8")
+    def test_vorhandene_env_mit_eigenen_werten_bleibt_unberuehrt(self, ordner):
+        inhalt = f"ADMIN_PASSWORD=meins\nSECRET_KEY={'k' * 40}\n"
+        (ordner / ".env").write_text(inhalt, encoding="utf-8")
 
         def nicht_fragen():
-            raise AssertionError("Bei vorhandener .env wird nicht nach dem Passwort gefragt.")
+            raise AssertionError("Bei eigenem Passwort wird nicht nach dem Passwort gefragt.")
 
         assert starter.konfiguration_sicherstellen(str(ordner), passwort_holen=nicht_fragen) == "vorhanden"
-        assert (ordner / ".env").read_text(encoding="utf-8") == "ADMIN_PASSWORD=meins\nSECRET_KEY=abc\n"
+        assert (ordner / ".env").read_text(encoding="utf-8") == inhalt
 
-    def test_platzhalter_aus_der_vorlage_wird_angemahnt(self, ordner):
-        (ordner / ".env").write_text(
-            (ordner / ".env.example").read_text(encoding="utf-8"), encoding="utf-8"
-        )
-        stand = starter.konfiguration_sicherstellen(str(ordner), passwort_holen=None)
-        assert "Platzhalter" in stand
 
+class TestBeispielwerteErsetzen:
+    """Beispielwerte und kurze Schlüssel in einer vorhandenen .env.
+
+    Mit einem bekannten SECRET_KEY kann sich jeder ein Cookie als Lehrkraft
+    unterschreiben. Der Starter ersetzt ihn deshalb selbst, beim Passwort
+    fragt er nach.
+    """
+
+    def env(self, ordner, inhalt):
+        (ordner / ".env").write_text(inhalt, encoding="utf-8")
+        return ordner / ".env"
+
+    def test_vorlage_unveraendert_kopiert(self, ordner, monkeypatch):
+        monkeypatch.delenv("SECRET_KEY", raising=False)
+        monkeypatch.delenv("ADMIN_PASSWORD", raising=False)
+        vorlage = (ordner / ".env.example").read_text(encoding="utf-8")
+        datei = self.env(ordner, vorlage)
+
+        stand = starter.konfiguration_sicherstellen(
+            str(ordner), passwort_holen=lambda: "Sommerfest2026")
+
+        werte = dotenv_values(datei)
+        assert len(werte["SECRET_KEY"]) == 64
+        assert werte["ADMIN_PASSWORD"] == "Sommerfest2026"
+        assert "neuer Schlüssel" in stand and "neues Admin-Passwort" in stand
+        # Die Erklärungen der Vorlage bleiben stehen.
+        assert "LAN_ADRESSE" in datei.read_text(encoding="utf-8")
+        assert werte["FLASK_DEBUG"] == "false"
+
+    @pytest.mark.parametrize("schluessel", [
+        "change-this-in-production-random-string", "dein-geheimer-schluessel",
+        "geheim", "",
+    ])
+    def test_schwacher_schluessel_wird_ohne_rueckfrage_ersetzt(self, ordner, monkeypatch, schluessel):
+        monkeypatch.delenv("SECRET_KEY", raising=False)
+        monkeypatch.delenv("ADMIN_PASSWORD", raising=False)
+        datei = self.env(ordner, f"# meine Notiz\nSECRET_KEY={schluessel}\nADMIN_PASSWORD='meins'\nPORT=8002\n")
+
+        def nicht_fragen():
+            raise AssertionError("Das Passwort ist in Ordnung, gefragt wird nicht.")
+
+        stand = starter.konfiguration_sicherstellen(str(ordner), passwort_holen=nicht_fragen)
+
+        werte = dotenv_values(datei)
+        assert len(werte["SECRET_KEY"]) == 64
+        assert werte["ADMIN_PASSWORD"] == "meins"
+        assert werte["PORT"] == "8002"
+        assert datei.read_text(encoding="utf-8").startswith("# meine Notiz\n")
+        assert stand == "vorhanden, neuer Schlüssel (Teams melden sich einmal neu an)"
+
+    def test_fehlender_schluessel_kommt_dazu(self, ordner, monkeypatch):
+        monkeypatch.delenv("SECRET_KEY", raising=False)
+        monkeypatch.delenv("ADMIN_PASSWORD", raising=False)
+        datei = self.env(ordner, "ADMIN_PASSWORD=meins\n")
+        starter.konfiguration_sicherstellen(str(ordner), passwort_holen=None)
+        assert len(dotenv_values(datei)["SECRET_KEY"]) == 64
+
+    def test_doppelter_eintrag_wird_ueberall_ersetzt(self, ordner, monkeypatch):
+        # python-dotenv nimmt den letzten - der darf nicht der alte bleiben.
+        monkeypatch.delenv("SECRET_KEY", raising=False)
+        monkeypatch.delenv("ADMIN_PASSWORD", raising=False)
+        datei = self.env(ordner, "SECRET_KEY=kurz\nADMIN_PASSWORD=meins\nSECRET_KEY=auch-kurz\n")
+        starter.konfiguration_sicherstellen(str(ordner), passwort_holen=None)
+        text = datei.read_text(encoding="utf-8")
+        assert "kurz" not in text
+        assert len(dotenv_values(datei)["SECRET_KEY"]) == 64
+
+    def test_beispielpasswort_aus_der_readme_wird_erfragt(self, ordner, monkeypatch):
+        monkeypatch.delenv("SECRET_KEY", raising=False)
+        monkeypatch.delenv("ADMIN_PASSWORD", raising=False)
+        schluessel = "s" * 64
+        datei = self.env(ordner, f"SECRET_KEY={schluessel}\nADMIN_PASSWORD=dein-sicheres-passwort\n")
+
+        stand = starter.konfiguration_sicherstellen(str(ordner), passwort_holen=lambda: "o$ter#hase")
+
+        werte = dotenv_values(datei)
+        assert werte["ADMIN_PASSWORD"] == "o$ter#hase"
+        assert werte["SECRET_KEY"] == schluessel
+        assert stand == "vorhanden, neues Admin-Passwort"
+
+    def test_werte_aus_der_umgebung_bleiben_unberuehrt(self, ordner, monkeypatch):
+        # Was der Rechner selbst setzt, gilt vor der .env - die Datei zu
+        # ändern hätte keine Wirkung, die Rückfrage nur Verwirrung.
+        monkeypatch.setenv("SECRET_KEY", "x" * 64)
+        monkeypatch.setenv("ADMIN_PASSWORD", "aus-dem-dienst")
+        inhalt = "SECRET_KEY=kurz\n"
+        datei = self.env(ordner, inhalt)
+        assert starter.konfiguration_sicherstellen(str(ordner), passwort_holen=None) == "vorhanden"
+        assert datei.read_text(encoding="utf-8") == inhalt
+
+    def test_env_mit_bom_aus_dem_windows_editor(self, ordner, monkeypatch):
+        monkeypatch.delenv("SECRET_KEY", raising=False)
+        monkeypatch.delenv("ADMIN_PASSWORD", raising=False)
+        datei = ordner / ".env"
+        datei.write_bytes("SECRET_KEY=kurz\nADMIN_PASSWORD=meins\n".encode("utf-8-sig"))
+        starter.konfiguration_sicherstellen(str(ordner), passwort_holen=None)
+        text = datei.read_text(encoding="utf-8")
+        assert text.count("SECRET_KEY=") == 1
+        assert len(dotenv_values(datei)["SECRET_KEY"]) == 64
+
+    @pytest.mark.skipif(os.name == "nt", reason="Dateirechte gibt es so nur unter Linux und macOS")
+    def test_geaenderte_env_ist_nur_fuer_den_besitzer_lesbar(self, ordner, monkeypatch):
+        monkeypatch.delenv("SECRET_KEY", raising=False)
+        monkeypatch.delenv("ADMIN_PASSWORD", raising=False)
+        datei = self.env(ordner, "SECRET_KEY=kurz\nADMIN_PASSWORD=meins\n")
+        datei.chmod(0o644)
+        starter.konfiguration_sicherstellen(str(ordner), passwort_holen=None)
+        assert datei.stat().st_mode & 0o777 == 0o600
+
+    def test_beispielwerte_wie_in_config(self):
+        # starter.py kann config.py nicht laden, deshalb steht die Liste
+        # zweimal. Sie darf nicht auseinanderlaufen.
+        import config
+        assert starter.PLATZHALTER == config.PLATZHALTER
+        assert starter.MIN_SCHLUESSEL == config.MIN_SCHLUESSEL
+
+    def test_beispielwerte_aus_vorlage_und_readme_sind_erfasst(self):
+        root = Path(starter.__file__).parent
+        vorlage = dotenv_values(root / ".env.example")
+        assert vorlage["SECRET_KEY"] in starter.PLATZHALTER
+        assert vorlage["ADMIN_PASSWORD"] in starter.PLATZHALTER
+        readme = (root / "README.md").read_text(encoding="utf-8")
+        for zeile in readme.splitlines():
+            zeile = zeile.strip()
+            if zeile.startswith(("SECRET_KEY=", "ADMIN_PASSWORD=")):
+                assert zeile.split("=", 1)[1] in starter.PLATZHALTER, zeile
+
+    def test_anlass_steht_vor_der_frage(self, capsys):
+        eingaben = iter(["neu", "neu"])
+        starter.passwort_erfragen(eingabe=lambda _: next(eingaben), anlass=starter.BEISPIEL_PASSWORT)
+        assert "Beispielwert" in capsys.readouterr().out
+
+
+class TestPasswortAbfrage:
     def test_passwort_wird_zweimal_abgefragt_bis_es_passt(self, capsys):
         eingaben = iter(["", "eins", "zwei", "o'brien", "a${B}", "richtig", "richtig"])
         assert starter.passwort_erfragen(eingabe=lambda _: next(eingaben)) == "richtig"
