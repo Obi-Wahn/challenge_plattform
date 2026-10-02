@@ -903,16 +903,17 @@ def code_der_abgabe(submission):
     ergaben so eine Seite von 35 MB, in der nichts Lesbares stand.
     """
     endung = os.path.splitext(submission.filename)[1].lower()
+    pfad = submission.pfad
     if endung not in TEXT_FORMATS:
         bezeichnung = TASK_FORMATS.get(endung)
         was = f"Eine {bezeichnung}-Datei" if bezeichnung else "Diese Art von Datei"
         return "", f"{was} lässt sich nicht als Text anzeigen - zum Ansehen herunterladen."
 
-    if not os.path.exists(submission.filename):
+    if not os.path.exists(pfad):
         return "", "Die Datei liegt nicht mehr an ihrem Platz."
 
     try:
-        with open(submission.filename, "r", encoding="utf-8", errors="replace") as datei:
+        with open(pfad, "r", encoding="utf-8", errors="replace") as datei:
             text = datei.read(MAX_CODE_ZEICHEN + 1)
     except OSError as fehler:
         return "", f"Die Datei konnte nicht gelesen werden: {fehler}"
@@ -997,7 +998,7 @@ def submissions():
             "abgegeben": s.timestamp,
             "endung": endung,
             "als_text_lesbar": endung in TEXT_FORMATS,
-            "groesse": dateigroesse(s.filename),
+            "groesse": dateigroesse(s.pfad),
         })
 
     return render_template("admin/review.html", submissions=submissions_data, challenge=challenge)
@@ -1035,7 +1036,7 @@ def submission_reset(submission_id):
 def download_submission(submission_id):
     submission = db.get_or_404(Submission, submission_id)
     
-    filepath = submission.filename
+    filepath = submission.pfad
     directory = os.path.dirname(filepath)
     original_filename = os.path.basename(filepath)
 

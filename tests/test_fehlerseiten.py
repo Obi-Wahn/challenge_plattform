@@ -180,7 +180,7 @@ class TestAbgabeMitMissgeschick:
         assert "freigeben" in html or "freigegeben" in html
         # Die erste Abgabe steht unverändert da.
         abgabe = Submission.query.one()
-        with open(abgabe.filename, "rb") as datei:
+        with open(abgabe.pfad, "rb") as datei:
             assert datei.read() == b"projekt"
 
     def test_ohne_anmeldung_geht_es_zur_startseite(self, client, make_challenge, make_task):

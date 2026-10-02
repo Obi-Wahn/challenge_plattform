@@ -560,6 +560,58 @@ def ensure_team_uids():
             conn.execute(text("UPDATE teams SET uid = :uid WHERE id = :id"),
                          {"uid": secrets.token_hex(16), "id": team_id})
 
+# So sieht ein Ablageort aus, wie er inzwischen in der Datenbank steht:
+# Teamnummer, Schrägstrich, Dateiname - siehe models.abgabe_pfad().
+ABLAGE = re.compile(r"\d+/[^/\\]+")
+
+
+def gedeuteter_ablageort(gespeichert):
+    """Der Ablageort zu einem ganzen Pfad aus der Zeit bis v1.15.0, oder None.
+
+    Abgaben lagen immer unter uploads/<Team>/<Datei>, also genügen die
+    letzten zwei Teile. Getrennt wird an / und an \\, damit auch eine
+    Datenbank von einem Windows-Rechner auf Linux passt und umgekehrt. Was
+    nicht so aussieht, bleibt unangetastet.
+    """
+    if not gespeichert or ABLAGE.fullmatch(gespeichert):
+        return None
+    teile = [teil for teil in re.split(r"[/\\]", gespeichert) if teil]
+    if len(teile) < 2 or not teile[-2].isdigit():
+        return None
+    return f"{teile[-2]}/{teile[-1]}"
+
+
+def ensure_relative_upload_paths():
+    """Stellt die Abgaben von ganzen Pfaden auf den Ablageort unter uploads/ um.
+
+    Bis v1.15.0 stand in der Datenbank der ganze Pfad, samt dem Ordner der
+    Installation. Nach einem Update aus dem ZIP zeigte er in den alten
+    Ordner, siehe models.abgabe_pfad(). Läuft einmal; danach steht überall
+    der kurze Ablageort, und es gibt nichts mehr umzustellen.
+    """
+    from sqlalchemy import inspect, text
+
+    if "submissions" not in set(inspect(db.engine).get_table_names()):
+        return
+
+    with db.engine.connect() as conn:
+        zeilen = conn.execute(text("SELECT id, filename FROM submissions")).all()
+
+    umstellen = [(nummer, neu) for nummer, alt in zeilen
+                 if (neu := gedeuteter_ablageort(alt))]
+    if not umstellen:
+        return
+
+    backup_before_migration("pfade")
+
+    with db.engine.begin() as conn:
+        for nummer, neu in umstellen:
+            conn.execute(text("UPDATE submissions SET filename = :neu WHERE id = :id"),
+                         {"neu": neu, "id": nummer})
+
+    app.logger.info("Abgaben auf den Ablageort unter uploads/ umgestellt: %s", len(umstellen))
+
+
 def ensure_active_challenge():
     """Macht den Wettbewerb ausdrücklich aktiv, der bisher nur einsprang.
 
@@ -630,13 +682,15 @@ def run_startup_migrations():
     Namen der Teammitglieder etwa - stillschweigend wieder heraus.
 
     Der Zeitpunkt der Pause und die Kennzeichen der Teams kommen danach:
-    Sie füllen Spalten, die der Schritt davor überhaupt erst anlegt. Zuletzt
-    bekommt ein Bestand ohne aktiven Wettbewerb seinen aktiven.
+    Sie füllen Spalten, die der Schritt davor überhaupt erst anlegt. Dann
+    werden die Pfade der Abgaben umgestellt, und zuletzt bekommt ein Bestand
+    ohne aktiven Wettbewerb seinen aktiven.
     """
     ensure_team_challenge_binding()
     ensure_added_columns()
     ensure_pause_timestamp()
     ensure_team_uids()
+    ensure_relative_upload_paths()
     ensure_active_challenge()
 
 if __name__ == "__main__":

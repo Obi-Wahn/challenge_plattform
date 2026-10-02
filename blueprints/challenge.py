@@ -1,7 +1,7 @@
 from flask import (Blueprint, render_template, request, redirect, url_for,
                    abort, current_app, send_file, flash, jsonify)
 from extensions import db
-from models import (Challenge, Task, Submission, Settings, MAX_MEMBERS,
+from models import (Challenge, Task, Submission, Settings, MAX_MEMBERS, ablage_von,
                     MAX_MEMBER_TEXT_LENGTH, format_member_names, parse_member_names)
 from sitzung import angemeldetes_team
 from uploads import safe_name, zum_loeschen_vormerken
@@ -338,7 +338,7 @@ def submit_task(task_id):
 
     # Eine Korrektur darf die noch gültige Datei nicht überschreiben, auch
     # dann nicht, wenn sie denselben Namen trägt - siehe freier_pfad().
-    if existing and existing.filename == filepath:
+    if existing and existing.pfad == filepath:
         filepath = freier_pfad(filepath)
 
     file.save(filepath)
@@ -347,8 +347,8 @@ def submit_task(task_id):
         # Correction: replace the file and clear the previous grading, so the
         # submission goes back into the admin's review queue. The release is
         # used up, so a further correction needs a new one.
-        previous_filepath = existing.filename
-        existing.filename = filepath
+        previous_filepath = existing.pfad
+        existing.filename = ablage_von(filepath)
         existing.timestamp = datetime.now()
         existing.points = None
         existing.feedback = None
@@ -364,7 +364,7 @@ def submit_task(task_id):
         db.session.add(Submission(
             team_id=team_id,
             task_id=task_id,
-            filename=filepath,
+            filename=ablage_von(filepath),
             timestamp=datetime.now()
         ))
 

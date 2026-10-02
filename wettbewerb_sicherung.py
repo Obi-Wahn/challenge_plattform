@@ -43,7 +43,7 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 
 from extensions import db
-from models import (Challenge, Submission, Task, Team, format_member_names,
+from models import (Challenge, Submission, Task, Team, ablage_von, format_member_names,
                     parse_member_names, MAX_ABGABE_BYTES, MAX_DAUER_MINUTEN,
                     MAX_GRUSS, MAX_MEMBERS, MAX_TEAMNAME, MAX_TITEL, MAX_UNTERTITEL)
 from task_rules import clean_task_values
@@ -113,7 +113,7 @@ def sicherung_bauen(challenge, mit_namen, mit_passwoertern=False):
                     "nachreichen_erlaubt": bool(submission.resubmit_allowed),
                 }
 
-                pfad = submission.filename
+                pfad = submission.pfad
                 if pfad and os.path.isfile(pfad):
                     name = os.path.basename(pfad)
                     ziel = f"{ABGABEN_ORDNER}/team_{team_nr[team.id]}/{name}"
@@ -421,7 +421,7 @@ def _anlegen(zf, daten, upload_ordner, geschrieben):
         db.session.add(Submission(
             team_id=team.id,
             task_id=task.id,
-            filename=pfad,
+            filename=ablage_von(pfad),
             timestamp=_datum(eintrag.get("zeit")) or datetime.now(),
             points=punkte,
             feedback=str(eintrag.get("feedback") or "")[:MAX_FEEDBACK] or None,

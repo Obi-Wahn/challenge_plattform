@@ -217,7 +217,7 @@ class TestDerInhaltWirdNachgeladen:
         import os
 
         abgabe = self.abgabe_anlegen(make_challenge, make_task, logged_in_team)
-        os.remove(abgabe.filename)
+        os.remove(abgabe.pfad)
 
         daten = admin.get(f"/admin/submissions/{abgabe.id}/code").get_json()
 
@@ -289,7 +289,7 @@ class TestDownload:
         client, _team = logged_in_team(challenge)
         abgeben(client, task, "loesung.py")
         abgabe = Submission.query.one()
-        os.remove(abgabe.filename)
+        os.remove(abgabe.pfad)
 
         antwort = admin.get(f"/admin/download/{abgabe.id}", follow_redirects=True)
         seite = antwort.get_data(as_text=True)

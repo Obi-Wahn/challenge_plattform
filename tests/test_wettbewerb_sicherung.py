@@ -168,7 +168,7 @@ class TestSichern:
 
     def test_fehlende_datei_bricht_nicht_ab(self, admin, wettbewerb):
         submission = Submission.query.filter(Submission.points == 6).one()
-        os.remove(submission.filename)
+        os.remove(submission.pfad)
 
         zf, daten = zip_lesen(sichern(admin, wettbewerb))
 
@@ -227,9 +227,9 @@ class TestHinUndZurueck:
         assert abgabe.points == 8
         assert abgabe.feedback == "Schön gelöst"
         assert abgabe.timestamp == datetime(2026, 9, 1, 8, 40)
-        assert abgabe.filename.startswith(
+        assert abgabe.pfad.startswith(
             os.path.join(flask_app.config["UPLOAD_FOLDER"], str(blitz.id)))
-        with open(abgabe.filename, "rb") as f:
+        with open(abgabe.pfad, "rb") as f:
             assert f.read() == b"scratch-blitz"
 
         donner = Team.query.filter_by(challenge_id=neu.id, name="Team Donner").one()
@@ -349,8 +349,8 @@ class TestEinlesenPrueft:
 
         abgabe = Submission.query.one()
         ordner = os.path.join(flask_app.config["UPLOAD_FOLDER"], str(abgabe.team_id))
-        assert os.path.dirname(abgabe.filename) == ordner
-        assert os.path.basename(abgabe.filename) == f"task_{abgabe.task_id}_boese.py"
+        assert os.path.dirname(abgabe.pfad) == ordner
+        assert os.path.basename(abgabe.pfad) == f"task_{abgabe.task_id}_boese.py"
         assert not os.path.exists(os.path.join(flask_app.config["UPLOAD_FOLDER"],
                                                "..", "boese.py"))
 
@@ -528,8 +528,8 @@ class TestBeispielWettbewerb:
         einlesen(admin, self.beispiel())
 
         for abgabe in Submission.query.all():
-            assert abgabe.filename.endswith(".sb3")
-            with zipfile.ZipFile(abgabe.filename) as sb3:
+            assert abgabe.pfad.endswith(".sb3")
+            with zipfile.ZipFile(abgabe.pfad) as sb3:
                 projekt = json.loads(sb3.read("project.json"))
             assert projekt["targets"][0]["isStage"] is True
 
