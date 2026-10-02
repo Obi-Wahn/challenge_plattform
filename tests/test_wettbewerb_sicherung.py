@@ -473,3 +473,70 @@ class TestKaputteZip:
         assert antwort.status_code == 413
         assert "Sicherung" in seite
         assert "Scratch" not in seite
+
+
+class TestBeispielWettbewerb:
+    """beispiele/scratch-wettbewerb.zip: ein fertiger Wettbewerb zum Ausprobieren."""
+
+    @staticmethod
+    def beispiel():
+        from pathlib import Path
+
+        ordner = Path(__file__).resolve().parent.parent / "beispiele"
+        return (ordner / "scratch-wettbewerb.zip").read_bytes()
+
+    def test_laesst_sich_ohne_anpassung_einlesen(self, admin):
+        antwort = einlesen(admin, self.beispiel())
+
+        seite = antwort.get_data(as_text=True)
+        assert "Beispiel: Scratch-Wettbewerb“ eingelesen: 6 Team(s), 5 Aufgabe(n), " \
+            "18 Abgabe(n)" in seite
+        assert "fehlte die Datei" not in seite
+        assert "Angepasst" not in seite
+
+    def test_aufgaben_sind_die_aus_dem_aufgabensatz(self, admin):
+        from task_exchange import parse_tasks
+        from pathlib import Path
+
+        satz = Path(__file__).resolve().parent.parent / "beispiele" / "scratch-aufgaben.json"
+        erwartet, _ = parse_tasks(satz.read_bytes())
+        einlesen(admin, self.beispiel())
+
+        aufgaben = Task.geordnet(Challenge.query.one().id).all()
+        assert [(a.title, a.description, a.max_points, a.hint, a.difficulty)
+                for a in aufgaben] == \
+            [(t["title"], t["description"], t["max_points"], t["hint"], t["difficulty"])
+             for t in erwartet]
+
+    def test_punkte_und_namen(self, admin):
+        einlesen(admin, self.beispiel())
+
+        punkte = {team.name: sum(s.points or 0 for s in team.submissions)
+                  for team in Team.query.all()}
+        assert punkte == {"Die Pixelpiraten": 65, "Bit & Byte": 46, "Code-Katzen": 31,
+                          "Die Schleifen": 18, "Rot-Grün-Blau": 8, "Die Bugjäger": 0}
+        assert Submission.query.filter(Submission.points.is_(None)).count() == 3
+
+        piraten = Team.query.filter_by(name="Die Pixelpiraten").one()
+        assert piraten.member_list == ["Paula Pixel", "Pepe Pirat", "Pia Palette"]
+        assert piraten.members_approved is True
+        # Eingetragen, aber noch nicht freigegeben - so sieht man die Freigabe.
+        assert Team.query.filter_by(name="Rot-Grün-Blau").one().members_approved is False
+        assert all(team.password_hash is None for team in Team.query.all())
+
+    def test_abgaben_sind_scratch_projekte(self, admin):
+        einlesen(admin, self.beispiel())
+
+        for abgabe in Submission.query.all():
+            assert abgabe.filename.endswith(".sb3")
+            with zipfile.ZipFile(abgabe.filename) as sb3:
+                projekt = json.loads(sb3.read("project.json"))
+            assert projekt["targets"][0]["isStage"] is True
+
+    def test_urkunden_lassen_sich_drucken(self, admin):
+        einlesen(admin, self.beispiel())
+
+        antwort = admin.get(f"/admin/urkunden.pdf?wettbewerb={Challenge.query.one().id}")
+
+        assert antwort.status_code == 200
+        assert antwort.data.startswith(b"%PDF")
