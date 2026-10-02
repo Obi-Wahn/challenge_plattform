@@ -2,6 +2,8 @@ from flask import (Blueprint, render_template, request, redirect, url_for, sessi
                    send_from_directory, send_file, flash, jsonify, current_app)
 from extensions import db
 from models import (Team, Challenge, Task, Submission, Settings, TASK_FORMATS,
+                    MAX_DAUER_MINUTEN, MAX_GRUSS, MAX_SEITENNAME, MAX_TITEL,
+                    MAX_UNTERTITEL,
                     TEXT_FORMATS, TASK_DIFFICULTIES, MAX_MEMBERS,
                     MAX_MEMBER_TEXT_LENGTH, format_member_names,
                     parse_member_names, event_branding)
@@ -15,6 +17,7 @@ from task_exchange import export_bytes, parse_tasks, ImportError_
 from wettbewerb_sicherung import (sicherung_bauen, sicherung_einlesen,
                                   SicherungFehler)
 from protokoll import ereignis, stoerung
+from uploads import safe_name
 from datenschutz import (groesse_text, protokoll_leeren, protokolldateien,
                          sicherungskopien, sicherungskopien_loeschen,
                          wettbewerb_aufraeumen)
@@ -24,19 +27,10 @@ import os
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
-# Eine Schulstunde dauert 45 Minuten, ein Doppelblock 90. Nach oben lässt die
-# Grenze Raum für einen ganzen Projekttag, ohne dass ein Vertipper wie "4500"
-# den Wettbewerb ins nächste Jahr schiebt.
-MAX_DAUER_MINUTEN = 24 * 60
+# Eine Schulstunde. Die Grenzen für Dauer, Namen und Texte stehen in
+# models.py neben den Spalten.
 STANDARD_DAUER_MINUTEN = 45
 
-# So lang dürfen die Namen werden, die in die Datenbank gehen - dieselben
-# Grenzen, die dort als Spaltenbreite stehen. SQLite setzt sie nicht selbst
-# durch: Ohne diese Prüfung landen auch 5000 Zeichen in der Spalte.
-MAX_TITEL = 200
-MAX_SEITENNAME = 100
-MAX_UNTERTITEL = 300
-MAX_GRUSS = 200
 # Eine Durchsage ist ein Satz, kein Aufsatz - so lang wie die Spalte.
 MAX_DURCHSAGE = 200
 
@@ -895,15 +889,9 @@ def gelesene_punkte(wert, maximum):
 def dateigroesse(pfad):
     """Die Größe einer Abgabe als lesbarer Text, oder None, wenn sie fehlt."""
     try:
-        bytes_ = os.path.getsize(pfad)
+        return groesse_text(os.path.getsize(pfad))
     except OSError:
         return None
-
-    if bytes_ < 1024:
-        return f"{bytes_} Byte"
-    if bytes_ < 1024 * 1024:
-        return f"{bytes_ / 1024:.0f} KB"
-    return f"{bytes_ / (1024 * 1024):.1f} MB"
 
 
 def code_der_abgabe(submission):
@@ -1042,10 +1030,6 @@ def submission_reset(submission_id):
     db.session.commit()
     ereignis("Abgabe zurückgesetzt: Team „%s“, Aufgabe „%s“", team, aufgabe)
     return redirect(url_for('admin.submissions'))
-
-def safe_name(text):
-    allowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"
-    return "".join(c if c in allowed else "_" for c in text)
 
 @admin_bp.route("/download/<int:submission_id>")
 def download_submission(submission_id):

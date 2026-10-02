@@ -66,6 +66,65 @@ class TestDieSeiteBleibtSchlank:
         assert ".sb3" in html
         assert "KB" in html
 
+    def test_groesse_mit_deutschem_komma(
+            self, admin, make_challenge, make_task, logged_in_team):
+        challenge = make_challenge()
+        task = make_task(challenge, allowed_extension=".sb3")
+        client, _team = logged_in_team(challenge)
+        abgeben(client, task, "loesung.sb3", b"x" * (1536 * 1024))
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        assert "1,5 MB" in html
+        assert "1.5 MB" not in html
+
+
+class TestAufgabentextNurEinmalUmwandeln:
+    """Jede Abgabe zeigt ihre Aufgabenbeschreibung. Bei 40 Teams und 10
+    Aufgaben wurden dieselben zehn Texte 370-mal umgewandelt - nach jeder
+    Bewertung von vorn."""
+
+    def test_gleicher_text_wird_einmal_umgewandelt(
+            self, admin, make_challenge, make_task, make_team, flask_app,
+            database, monkeypatch):
+        import markdown
+
+        import app as anwendung
+        from models import Submission
+
+        challenge = make_challenge()
+        task = make_task(challenge, description="Die Katze **läuft** im Kreis.")
+        for nummer in range(5):
+            team = make_team(challenge, name=f"Team {nummer}")
+            database.session.add(Submission(team_id=team.id, task_id=task.id,
+                                            filename=f"{team.id}/task_{task.id}_a.sb3"))
+        database.session.commit()
+
+        aufrufe = []
+        original = markdown.markdown
+        monkeypatch.setattr(markdown, "markdown",
+                            lambda text, **kw: aufrufe.append(text) or original(text, **kw))
+        anwendung.markdown_html.cache_clear()
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        assert html.count("<strong>läuft</strong>") == 5
+        assert len(aufrufe) == 1
+
+    def test_geaenderter_text_wird_neu_umgewandelt(self, flask_app):
+        from app import markdown_html
+
+        assert "<em>alt</em>" in markdown_html("*alt*")
+        assert "<em>neu</em>" in markdown_html("*neu*")
+
+    def test_entschaerfen_gilt_auch_aus_dem_zwischenspeicher(self, flask_app):
+        from app import markdown_html
+
+        for _ in range(2):
+            html = markdown_html("[klick](javascript:alert(1)) <b>fett</b>")
+            assert "javascript:" not in html
+            assert "<b>" not in html
+
 
 class TestWasSichAlsTextLesenLaesst:
     def test_eine_scratch_datei_bekommt_keinen_knopf(

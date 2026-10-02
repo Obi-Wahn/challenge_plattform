@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
 from extensions import db, limiter
 from sqlalchemy.exc import IntegrityError
-from models import Challenge, Settings, Team
+from models import Challenge, Settings, Team, MAX_TEAMNAME
 from scoring import get_standings, get_podium
 from sitzung import team_abmelden, team_anmelden
 from network import join_url
@@ -14,10 +14,8 @@ public_bp = Blueprint('public', __name__)
 
 # Grenzen für das, was von außen ankommt. Die Registrierung ist die einzige
 # Seite, die ohne Anmeldung schreibend auf die Datenbank zugreift - und im
-# Klassenraum wird erfahrungsgemäß ausprobiert, was durchgeht. SQLite setzt
-# die Länge aus String(100) nicht selbst durch: Ohne diese Prüfung landen
-# auch 5000 Zeichen in der Spalte.
-MAX_TEAMNAME = 100
+# Klassenraum wird erfahrungsgemäß ausprobiert, was durchgeht. Die Länge des
+# Teamnamens kommt aus models.py, wo sie auch die Breite der Spalte ist.
 MAX_PASSWORT = 128
 
 # Warum gerade keine Anmeldung möglich ist, je Zustand des Wettbewerbs. Der
@@ -221,16 +219,10 @@ def scoreboard():
     tasks, standings = get_standings(
         challenge, bis=challenge.freeze_point if eingefroren else None)
 
-    # Dieselbe Rechnung wie auf der Wettbewerbsseite der Teams: vor dem Start
-    # bis zum Beginn, danach bis zum Ende. Die Rangliste hängt den ganzen Tag
-    # am Beamer, deshalb steht die Restzeit auch hier.
+    # Die Rangliste hängt den ganzen Tag am Beamer, deshalb steht die
+    # Restzeit auch hier - dieselbe wie auf der Wettbewerbsseite der Teams.
     status = challenge.status()
-    if status == "upcoming":
-        seconds = challenge.seconds_until_start
-    elif status == "running":
-        seconds = challenge.remaining_seconds
-    else:
-        seconds = 0
+    seconds = challenge.countdown_seconds
 
     return render_template(
         "scoreboard.html",

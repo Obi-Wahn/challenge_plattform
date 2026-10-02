@@ -452,3 +452,27 @@ class TestAnmeldungBeiZweiSchreibweisen:
 
         self.vorbereiten(flask_app, make_challenge, database)
         assert {t.name for t in Team.query.all()} == {"Die Hacker", "die hacker"}
+
+
+class TestGrenzenAnEinerStelle:
+    """Jede Grenze steht einmal in models.py, als Breite der Spalte und für
+    jede Stelle, die prüft oder kürzt."""
+
+    def test_spaltenbreiten_sind_die_grenzen(self):
+        import models
+
+        assert models.Team.__table__.c.name.type.length == models.MAX_TEAMNAME
+        assert models.Challenge.__table__.c.title.type.length == models.MAX_TITEL
+        assert models.Challenge.__table__.c.tagline.type.length == models.MAX_UNTERTITEL
+        assert models.Challenge.__table__.c.greeting.type.length == models.MAX_GRUSS
+        assert models.Settings.__table__.c.site_name.type.length == models.MAX_SEITENNAME
+
+    def test_alle_pruefen_mit_denselben_grenzen(self, flask_app):
+        import models
+        import wettbewerb_sicherung
+        from blueprints import admin, public
+
+        assert public.MAX_TEAMNAME is wettbewerb_sicherung.MAX_TEAMNAME is models.MAX_TEAMNAME
+        assert admin.MAX_TITEL is wettbewerb_sicherung.MAX_TITEL
+        assert admin.MAX_DAUER_MINUTEN is wettbewerb_sicherung.MAX_DAUER_MINUTEN
+        assert flask_app.config["MAX_CONTENT_LENGTH"] == wettbewerb_sicherung.MAX_DATEI_BYTES

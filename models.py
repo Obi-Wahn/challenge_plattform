@@ -17,6 +17,26 @@ MAX_MEMBER_NAME_LENGTH = 60
 # auf der es klemmt.
 MAX_MEMBER_TEXT_LENGTH = 220
 
+# So lang dürfen Namen und Texte werden - zugleich die Breite ihrer Spalten
+# unten. SQLite setzt die Breite nicht selbst durch: Ohne Prüfung landen auch
+# 5000 Zeichen in der Spalte. Formulare, Registrierung und das Einlesen einer
+# Sicherung holen die Grenzen deshalb von hier, damit keine Stelle eine
+# andere Zahl kennt.
+MAX_TEAMNAME = 100
+MAX_TITEL = 200
+MAX_SEITENNAME = 100
+MAX_UNTERTITEL = 300
+MAX_GRUSS = 200
+
+# Eine Schulstunde dauert 45 Minuten, ein Doppelblock 90. Nach oben lässt die
+# Grenze Raum für einen ganzen Projekttag, ohne dass ein Vertipper wie "4500"
+# den Wettbewerb ins nächste Jahr schiebt.
+MAX_DAUER_MINUTEN = 24 * 60
+
+# So groß darf eine Abgabe sein, beim Hochladen wie beim Einlesen einer
+# Sicherung.
+MAX_ABGABE_BYTES = 16 * 1024 * 1024
+
 
 def parse_member_names(text):
     """Die Namen aus dem Eingabefeld, in der Reihenfolge der Eingabe.
@@ -45,7 +65,7 @@ class Team(db.Model):
     # A team belongs to the competition it registered for. Nullable so teams
     # from before this became a rule survive the migration.
     challenge_id = db.Column(db.Integer, db.ForeignKey('challenges.id'), nullable=True)
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(MAX_TEAMNAME), nullable=False)
     password_hash = db.Column(db.String(200), nullable=True)
     # Ein Kennzeichen, das genau dieses eine Team meint - und nur dann in
     # einer Sitzung steht, wenn sich dieses Team angemeldet hat. Die Nummer
@@ -99,7 +119,7 @@ class Team(db.Model):
 class Challenge(db.Model):
     __tablename__ = 'challenges'
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
+    title = db.Column(db.String(MAX_TITEL), nullable=False)
     # Der Untertitel dieses Wettbewerbs, unter seinem Titel. Leer heißt: es
     # gilt der Untertitel aus den Einstellungen.
     #
@@ -107,12 +127,12 @@ class Challenge(db.Model):
     # Name. Dieselbe Installation richtet so einmal den "Scratch-Wettbewerb"
     # und einmal den "Calliope-Wettbewerb" aus, und der Name bleibt bei dem
     # Wettbewerb, zu dem er gehört, auch wenn längst ein anderer läuft.
-    tagline = db.Column(db.String(300), nullable=False, default="")
+    tagline = db.Column(db.String(MAX_UNTERTITEL), nullable=False, default="")
     # Der Gruß auf der Startseite, unter dem Namen. Leer heißt: es gilt der
     # aus den Einstellungen. Ein eigener Satz statt "Willkommen beim ...",
     # weil der Artikel vom Namen abhinge - "beim Scratch-Cup", "bei der
     # Calliope-Challenge" - und den kann die Seite nicht sicher wählen.
-    greeting = db.Column(db.String(200), nullable=False, default="")
+    greeting = db.Column(db.String(MAX_GRUSS), nullable=False, default="")
     start_time = db.Column(db.DateTime, nullable=True)
     end_time = db.Column(db.DateTime, nullable=True)
     active = db.Column(db.Boolean, default=False)
@@ -252,6 +272,21 @@ class Challenge(db.Model):
             return 0
         remaining = (self.end_time - self.reference_time).total_seconds()
         return max(0, int(remaining))
+
+    @property
+    def countdown_seconds(self):
+        """Was die Restzeit-Leiste herunterzählt, auf Teamseite und Rangliste.
+
+        Vor dem Start bis zum Beginn, danach bis zum Ende. Ohne gesetzte Zeit
+        und nach dem Ende bleibt es bei 0, dann zeigt die Leiste nur den Stand
+        und keine Uhr.
+        """
+        status = self.status()
+        if status == "upcoming":
+            return self.seconds_until_start
+        if status == "running":
+            return self.remaining_seconds
+        return 0
 
     @property
     def announcement(self):
@@ -449,14 +484,14 @@ class Settings(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # Standardname und -untertitel: Sie gelten, solange kein Wettbewerb mit
     # eigenem Namen laeuft, also auf einer frischen Installation.
-    site_name = db.Column(db.String(100), nullable=False, default="Coding-Wettbewerb")
+    site_name = db.Column(db.String(MAX_SEITENNAME), nullable=False, default="Coding-Wettbewerb")
     tagline = db.Column(
-        db.String(300),
+        db.String(MAX_UNTERTITEL),
         nullable=False,
         default="Ein Wettbewerb für Code, Ideen und Kreativität."
     )
     # Der Standardgruß auf der Startseite, für jeden Wettbewerb ohne eigenen.
-    greeting = db.Column(db.String(200), nullable=False, default=STANDARDGRUSS)
+    greeting = db.Column(db.String(MAX_GRUSS), nullable=False, default=STANDARDGRUSS)
     # Name under the signature line on the certificates, plus the handwriting
     # font it is written in. Empty means the certificates keep saying
     # "Unterschrift", as they did before this was configurable.

@@ -225,3 +225,13 @@ class TestSicherungskopienLoeschen:
         html = admin.get("/admin/settings").get_data(as_text=True)
         start = html.index("🧹 Kopien löschen")
         assert "disabled" in html[html.rindex("<button", 0, start):start]
+
+
+class TestGroesseAlsText:
+    def test_alle_stufen_mit_deutschem_komma(self):
+        from datenschutz import groesse_text
+
+        assert groesse_text(52) == "52 Byte"
+        assert groesse_text(340 * 1024) == "340 KB"
+        assert groesse_text(int(1.25 * 1024 * 1024)) == "1,2 MB"
+        assert groesse_text(3 * 1024 * 1024) == "3,0 MB"

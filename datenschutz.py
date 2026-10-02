@@ -122,7 +122,13 @@ def protokoll_leeren():
 
 
 def groesse_text(anzahl_bytes):
-    """„1,2 MB“ oder „340 KB“ - für die Anzeige, nicht zum Rechnen."""
+    """„1,2 MB“, „340 KB“ oder „52 Byte“ - für die Anzeige, nicht zum Rechnen.
+
+    Die eine Stelle für Größen auf allen Seiten, mit deutschem Komma. Die
+    Bewertungsseite hatte vorher eine eigene und schrieb „1.2 MB“.
+    """
     if anzahl_bytes >= 1024 * 1024:
         return f"{anzahl_bytes / (1024 * 1024):.1f} MB".replace(".", ",")
-    return f"{max(1, round(anzahl_bytes / 1024))} KB"
+    if anzahl_bytes >= 1024:
+        return f"{round(anzahl_bytes / 1024)} KB"
+    return f"{anzahl_bytes} Byte"
