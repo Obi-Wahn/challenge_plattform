@@ -63,6 +63,13 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    Was sie tun, steht unten unter *Während des Wettbewerbs*; am besten jetzt
    entscheiden, dann ist am Tag selbst nichts mehr umzustellen.
 
+   Zum ersten Kennenlernen gibt es einen fertigen Wettbewerb: auf derselben
+   Seite unten unter **Oder aus einer Sicherung einlesen** die Datei
+   `beispiele/scratch-wettbewerb.zip` wählen. Er bringt ausgedachte Teams,
+   Abgaben und Punkte mit, an ihm lassen sich Bewertungen, Rangliste und
+   Urkunden ausprobieren. Danach den echten Wettbewerb aktivieren; den
+   Beispiel-Wettbewerb kannst du löschen.
+
 5. **Aufgaben anlegen oder einlesen.** Fertige Sätze liegen unter
    `beispiele/` (Scratch, Calliope) und werden auf der Aufgaben-Seite mit
    **⬆️ Datei einlesen** übernommen; sie bringen auch ihre Schwierigkeit

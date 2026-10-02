@@ -69,7 +69,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Wettbewerbe verwalten**: anlegen, aktivieren, pausieren, beenden, wieder öffnen und löschen – alles auf der Steuerzentrale. Welcher Wettbewerb gilt, entscheidet die Lehrkraft mit „Aktivieren“; nur ein neu angelegter wird von selbst aktiv, wenn gerade keiner es ist. Beim Anlegen lassen sich die Teams eines früheren Wettbewerbs übernehmen, mit Passwort und den Namen für die Urkunde.
 *   **Eigener Name je Wettbewerb**: Name und Untertitel stehen überall – Startseite, Rangliste, Teamseite, Urkunden, Browsertitel, Leiste oben und Fußzeile – und bleiben beim Wettbewerb, wenn längst ein anderer läuft. Unter dem Namen begrüßt die Startseite die Teams, mit „Schön, dass ihr dabei seid!“ oder einem eigenen Gruß je Wettbewerb.
 *   **Aufgaben**: Beschreibung in Markdown, erlaubtes Dateiformat, Schwierigkeit (einfach, mittel, schwer oder keine Angabe), optionaler Tipp; die Reihenfolge lässt sich mit ▲ und ▼ ändern. Aufgaben lassen sich als JSON sichern, weitergeben und in einen anderen Wettbewerb einlesen — ohne Abgaben und Punkte. Fertige Sätze für Scratch und Calliope liegen unter `beispiele/` und sind mit einem Klick eingelesen.
-*   **Wettbewerb sichern**: ein ganzer Wettbewerb als ZIP – Aufgaben, Teams, Abgaben samt Dateien, Punkte und Feedback. Unter „Neuer Wettbewerb“ wieder eingelesen, entsteht daraus ein neuer, inaktiver Wettbewerb, etwa auf einem anderen Rechner. Die Namen für die Urkunde und die Passwörter der Teams kommen nur auf ausdrücklichen Wunsch mit, die Passwörter nie im Klartext.
+*   **Wettbewerb sichern**: ein ganzer Wettbewerb als ZIP – Aufgaben, Teams, Abgaben samt Dateien, Punkte und Feedback. Unter „Neuer Wettbewerb“ wieder eingelesen, entsteht daraus ein neuer, inaktiver Wettbewerb, etwa auf einem anderen Rechner. Die Namen für die Urkunde und die Passwörter der Teams kommen nur auf ausdrücklichen Wunsch mit, die Passwörter nie im Klartext. Zum Ausprobieren liegt unter `beispiele/` ein fertiger Scratch-Wettbewerb mit ausgedachten Teams, Abgaben und Punkten.
 *   **Aufräumen**: Bei einem beendeten Wettbewerb löscht ein Knopf alle Teams samt Namen und Passwörtern und alle Abgaben mit Dateien; Wettbewerb, Einstellungen und Aufgaben bleiben für das nächste Mal. Protokolldatei und alte Sicherungskopien der Datenbank lassen sich unter Einstellungen löschen.
 *   **Zeit im Griff**: Start- und Endzeit oder eine Dauer in Minuten samt „Jetzt starten für … Minuten"; die Pause hält die Uhr an, „Fortsetzen" schiebt das Ende um die Pausendauer nach hinten.
 *   **Durchsagen**: je Wettbewerb einschaltbar – ein kurzer Satz wie „Noch 10 Minuten, bitte speichern“ erscheint oben auf jeder Teamseite und über der Rangliste. Es gilt immer nur einer; ins Protokoll und in die Sicherung kommt der Text nicht.
@@ -534,6 +534,22 @@ die Kopie von `data/` und `uploads/` der sichere Weg – nur sie enthält alle
 Wettbewerbe und die Einstellungen auf einmal, sodass nach dem Zurückkopieren
 alle einfach weitermachen.
 
+### Beispiel-Wettbewerb zum Ausprobieren
+
+Unter `beispiele/scratch-wettbewerb.zip` liegt ein fertiger Wettbewerb im
+selben Format, eingelesen wie jede andere Sicherung. Darin stehen die fünf
+Aufgaben aus `beispiele/scratch-aufgaben.json`, sechs Teams von „Die
+Pixelpiraten“ bis „Die Bugjäger“ und 18 Abgaben mit Punkten und Feedback,
+drei davon noch unbewertet. Die Abgaben sind kleine Scratch-Projekte, die sich
+öffnen lassen. Vier Teams haben freigegebene Namen für die Urkunde, bei einem
+warten sie noch auf die Freigabe. Alle Namen sind ausgedacht.
+
+Aktiviert zeigt er Bewertungen, Rangliste, Siegerehrung und Urkunden, ohne dass
+eine Klasse etwas abgeben muss. Er ist schon beendet; mit **Wieder öffnen**
+läuft er weiter. Passwörter haben die Teams nicht: Wer die Teamseite sehen
+will, vergibt einem Team unter **Teams** eins. Vor dem echten Wettbewerb
+diesen aktivieren, den Beispiel-Wettbewerb kannst du danach löschen.
+
 ## 📋 Protokolldatei
 
 Fehler und wichtige Ereignisse landen in `logs/anwendung.log` – mit
@@ -669,7 +685,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_protokoll.py` | `logs/anwendung.log` entsteht, hält die wichtigen Ereignisse fest und bleibt beim gewöhnlichen Betrieb still |
 | `test_migrations.py` | Datenbank aus einer älteren Version weiterbenutzen |
 | `test_task_exchange.py` | Aufgaben sichern und wiederverwenden |
-| `test_wettbewerb_sicherung.py` | einen ganzen Wettbewerb als ZIP sichern und als neuen einlesen, Namen und Passwörter nur auf Wunsch |
+| `test_wettbewerb_sicherung.py` | einen ganzen Wettbewerb als ZIP sichern und als neuen einlesen, Namen und Passwörter nur auf Wunsch; der Beispiel-Wettbewerb liest sich ohne Anpassung ein |
 | `test_wettbewerb_aufraeumen.py` | nach dem Wettbewerb aufräumen: Teams und Abgaben löschen, Protokolldatei leeren, Sicherungskopien löschen |
 | `test_schwierigkeit.py` | die Schwierigkeit einer Aufgabe, von der Eingabe bis in die Datei |
 | `test_reihenfolge.py` | die Reihenfolge der Aufgaben mit ▲ und ▼, von der Aufgabenliste bis in Rangliste und Sicherung |
@@ -726,7 +742,7 @@ challenge_plattform/
 │   └── ...                  # eigenes CSS, Bilder
 ├── templates/               # HTML Templates
 ├── tests/                   # automatische Tests (pytest)
-├── beispiele/               # fertige Aufgabensätze zum Einlesen
+├── beispiele/               # fertige Aufgabensätze und ein Beispiel-Wettbewerb zum Einlesen
 ├── werkzeuge/               # Hilfsskripte (Bibliotheken und Pakete prüfen)
 ├── docs/
 │   ├── ADMIN_GUIDE.md       # Leitfaden für den Wettbewerbstag
