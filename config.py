@@ -1,5 +1,22 @@
 import os
 
+# Werte, die öffentlich im Repository stehen: in .env.example und als Beispiel
+# in der README. Mit einem bekannten SECRET_KEY kann sich jeder ein
+# Sitzungs-Cookie mit „is_admin“ selbst unterschreiben, ganz ohne Passwort -
+# mit diesen Werten startet die Anwendung deshalb nicht. Dieselbe Liste steht
+# in starter.py, der sie beim Start selbst ersetzt.
+PLATZHALTER = {
+    "change-this-in-production-random-string",
+    "change-this-password",
+    "dein-geheimer-schluessel",
+    "dein-sicheres-passwort",
+}
+
+# Ab dieser Länge lässt sich ein SECRET_KEY nicht mehr durchprobieren. Ein
+# Team sieht sein eigenes Cookie im Browser, und für kurze Schlüssel gibt es
+# fertige Werkzeuge mit Wortlisten. Der Starter vergibt 64 Zeichen.
+MIN_SCHLUESSEL = 32
+
 
 def _require_env(key):
     value = os.environ.get(key)
@@ -8,7 +25,18 @@ def _require_env(key):
             f"{key} ist nicht gesetzt. Kopiere .env.example zu .env und setze einen echten Wert, "
             "bevor die Anwendung gestartet wird."
         )
+    if value in PLATZHALTER:
+        raise RuntimeError(
+            f"{key} steht in der .env noch auf dem Beispielwert „{value}“. Der steht "
+            "öffentlich im Repository. Die Startdatei ersetzt ihn beim nächsten Start "
+            "selbst - oder in der .env einen eigenen Wert eintragen."
+        )
     return value
+
+
+def schluessel_zu_kurz(schluessel):
+    """Ob sich der SECRET_KEY durchprobieren ließe - siehe MIN_SCHLUESSEL."""
+    return len(schluessel or "") < MIN_SCHLUESSEL
 
 
 class Config:

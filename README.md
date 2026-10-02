@@ -138,7 +138,12 @@ startet die Plattform, und der Browser geht auf.
 
 Bei **jedem weiteren Start** prüft sie nur, ob noch alles da ist, und startet
 dann direkt. Fehlt etwas – ist etwa `.venv` gelöscht worden –, holt sie genau
-das nach. Eine vorhandene `.env` und die Datenbank fasst sie nie an.
+das nach. Die Datenbank fasst sie nie an, eine vorhandene `.env` nur in einem
+Fall: Steht darin noch ein Beispielwert aus `.env.example` oder dieser README
+oder ist der `SECRET_KEY` kürzer als 32 Zeichen, würfelt sie einen neuen
+Schlüssel (die Teams melden sich danach einmal neu an) und fragt nach einem
+eigenen Admin-Passwort. Mit einem bekannten Schlüssel könnte sich sonst jeder
+ohne Passwort in die Steuerzentrale bringen.
 
 Die Umgebung bleibt an das Python gebunden, mit dem sie angelegt wurde; die
 Übersicht nennt es, etwa „Virtuelle Umgebung ..... vorhanden (Python 3.13)“.
@@ -326,7 +331,7 @@ liegen.
     ADMIN_PASSWORD=dein-sicheres-passwort
     FLASK_DEBUG=false
     ```
-    `SECRET_KEY` und `ADMIN_PASSWORD` sind Pflicht — ohne echte Werte startet die Anwendung nicht. `FLASK_DEBUG` sollte in einem Netzwerk mit mehreren Nutzern (z. B. der Schul-LAN) immer auf `false` bleiben; der eingebaute Debugger erlaubt sonst beliebige Code-Ausführung auf dem Server.
+    `SECRET_KEY` und `ADMIN_PASSWORD` sind Pflicht und müssen eigene Werte sein: Mit den Beispielwerten von hier oder aus `.env.example` startet die Anwendung nicht, denn wer den Schlüssel kennt, kommt ohne Passwort in die Steuerzentrale. Einen passenden Schlüssel gibt `python -c "import secrets; print(secrets.token_hex(32))"` aus. Ist er kürzer als 32 Zeichen, warnt die Anwendung beim Start. `FLASK_DEBUG` sollte in einem Netzwerk mit mehreren Nutzern (z. B. der Schul-LAN) immer auf `false` bleiben; der eingebaute Debugger erlaubt sonst beliebige Code-Ausführung auf dem Server.
 
 4.  **Datenbank vorbereiten**
     Beim ersten Start wird die Datenbank automatisch erstellt. Neu hinzugekommene Spalten (z. B. für die Hinweise-Funktion) werden bei bestehenden Datenbanken beim Start ebenfalls automatisch ergänzt, ohne Datenverlust.
@@ -575,7 +580,7 @@ Festgehalten wird, was etwas **anlegt, ändert oder wegnimmt** – und was
 
 | Wann | Was im Protokoll steht |
 |---|---|
-| Start | der Server ist hochgefahren, mit Adresse, Port und Version · gesicherte Datenbank vor einem Umbau · ein Wettbewerb, den das Update aktiv geschaltet hat, weil bisher keiner ausdrücklich aktiviert war · wie viele Abgaben vom ganzen Pfad auf den Ort unter `uploads/` umgestellt wurden (einmalig nach dem Update) |
+| Start | der Server ist hochgefahren, mit Adresse, Port und Version · gesicherte Datenbank vor einem Umbau · ein Wettbewerb, den das Update aktiv geschaltet hat, weil bisher keiner ausdrücklich aktiviert war · wie viele Abgaben vom ganzen Pfad auf den Ort unter `uploads/` umgestellt wurden (einmalig nach dem Update) · eine Warnung, wenn der `SECRET_KEY` kürzer als 32 Zeichen ist |
 | Aufbau | Wettbewerb angelegt, bearbeitet, aktiv geschaltet, gelöscht · Team angelegt, gelöscht, Passwort zurückgesetzt · übernommene Teams · Aufgabe angelegt, bearbeitet, gelöscht · Aufgaben gesichert und eingelesen · Wettbewerb gesichert (mit oder ohne Namen und Passwörter) und eingelesen · geänderte Einstellungen (nur welche Felder) |
 | Wettbewerbstag | freigeschalteter oder wieder verborgener Tipp · gesendete oder entfernte Durchsage (ohne ihren Text) · abgelehnte Abgabe samt Grund (falsche Endung, zu groß, pausiert, beendet, schon abgegeben) · zu große Sicherung · zurückgesetzte Abgabe · fehlgeschlagene Admin-Anmeldung mit Adresse |
 | Zum Abschluss | erzeugte Urkunden (Wettbewerb, Anzahl, Ausrichtung) · aufgeräumter Wettbewerb (wie viele Teams und Abgaben gelöscht) · geleerte Protokolldatei · gelöschte Sicherungskopien |
@@ -702,7 +707,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 
 | Datei | prüft |
 | --- | --- |
-| `test_security.py` | CSRF, Passwörter, Uploads, Rate-Limit |
+| `test_security.py` | CSRF, Passwörter, Uploads, Rate-Limit, keine Beispielwerte als Schlüssel |
 | `test_eingaben.py` | Eingaben werden geprüft, auch am Formular vorbei |
 
 ## 📂 Projektstruktur

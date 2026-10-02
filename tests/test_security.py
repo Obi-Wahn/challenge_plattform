@@ -340,3 +340,52 @@ class TestSitzungsCookie:
         # Im Schul-LAN läuft die Anwendung über http. Mit Secure=True würde
         # der Browser das Cookie gar nicht erst schicken - niemand käme rein.
         assert flask_app.config["SESSION_COOKIE_SECURE"] is False
+
+
+class TestGeheimerSchluessel:
+    """Mit einem bekannten SECRET_KEY unterschreibt sich jeder ein Admin-Cookie."""
+
+    @pytest.mark.parametrize("wert", [
+        "change-this-in-production-random-string", "dein-geheimer-schluessel",
+    ])
+    def test_beispielschluessel_startet_nicht(self, monkeypatch, wert):
+        import config
+        monkeypatch.setenv("SECRET_KEY", wert)
+        with pytest.raises(RuntimeError) as fehler:
+            config._require_env("SECRET_KEY")
+        assert "Beispielwert" in str(fehler.value)
+
+    @pytest.mark.parametrize("wert", ["change-this-password", "dein-sicheres-passwort"])
+    def test_beispielpasswort_startet_nicht(self, monkeypatch, wert):
+        import config
+        monkeypatch.setenv("ADMIN_PASSWORD", wert)
+        with pytest.raises(RuntimeError):
+            config._require_env("ADMIN_PASSWORD")
+
+    def test_eigener_wert_geht_durch(self, monkeypatch):
+        import config
+        monkeypatch.setenv("ADMIN_PASSWORD", "Sommerfest2026")
+        assert config._require_env("ADMIN_PASSWORD") == "Sommerfest2026"
+
+    def test_gefaelschtes_cookie_braucht_den_schluessel(self, flask_app):
+        # Genau das, was ein bekannter Schlüssel möglich machte: ein selbst
+        # unterschriebenes Cookie mit is_admin. Mit einem anderen Schlüssel
+        # unterschrieben, gilt es nicht.
+        from flask import Flask
+        from flask.sessions import SecureCookieSessionInterface
+
+        fremd = Flask("fremd")
+        fremd.secret_key = "change-this-in-production-random-string"
+        cookie = SecureCookieSessionInterface().get_signing_serializer(fremd).dumps(
+            {"is_admin": True})
+
+        client = flask_app.test_client()
+        client.set_cookie("session", cookie)
+        antwort = client.get("/admin/dashboard")
+        assert antwort.status_code == 302
+        assert "/admin/login" in antwort.headers["Location"]
+
+    def test_kurzer_schluessel_wird_angemahnt(self):
+        from app import schluesselwarnung
+        assert "kürzer als 32 Zeichen" in schluesselwarnung("geheim")
+        assert schluesselwarnung("k" * 32) is None

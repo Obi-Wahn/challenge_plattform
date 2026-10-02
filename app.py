@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from flask import Flask, request, session
-from config import Config
+from config import Config, MIN_SCHLUESSEL, schluessel_zu_kurz
 from extensions import db, csrf, limiter
 from wettbewerb_sicherung import MAX_ZIP_BYTES
 from network import FESTE_ADRESSE, lan_adresse, server_port
@@ -646,6 +646,20 @@ def startmeldung(adresse, port, protokoll):
     return zeilen
 
 
+def schluesselwarnung(schluessel):
+    """Der Satz für Fenster und Protokoll, wenn der SECRET_KEY zu kurz ist, sonst None.
+
+    Nur eine Warnung, kein Abbruch: Eine Installation, die am Wettbewerbstag
+    nach einem Update nicht mehr startet, wäre schlimmer als der kurze
+    Schlüssel. Die Startdatei ersetzt ihn beim nächsten Start ohnehin.
+    """
+    if not schluessel_zu_kurz(schluessel):
+        return None
+    return (f"SECRET_KEY in der .env ist kürzer als {MIN_SCHLUESSEL} Zeichen und lässt "
+            "sich durchprobieren - wer ihn errät, kommt ohne Passwort in die "
+            "Steuerzentrale. Die Startdatei ersetzt ihn beim nächsten Start selbst.")
+
+
 def run_startup_migrations():
     """Alle Änderungen am Bestand, in der Reihenfolge, in der sie laufen müssen.
 
@@ -674,6 +688,11 @@ if __name__ == "__main__":
     # Debug mode is off by default: the built-in Werkzeug debugger allows
     # arbitrary code execution and this app is bound to 0.0.0.0 for LAN access,
     # so it must only be enabled explicitly for local development.
+    warnung = schluesselwarnung(app.config["SECRET_KEY"])
+    if warnung:
+        print(f"Achtung: {warnung}")
+        app.logger.warning(warnung)
+
     debug_mode = os.environ.get("FLASK_DEBUG", "false").strip().lower() in ("1", "true", "yes")
     port = server_port()
 
