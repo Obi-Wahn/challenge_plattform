@@ -666,7 +666,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_teams.py` | Registrierung, Anmeldung, Bindung an den Wettbewerb, Team-Verwaltung |
 | `test_sitzung.py` | die Anmeldung gilt nicht mehr, wenn ihr Wettbewerb gelöscht ist |
 | `test_submissions.py` | Abgabe, Korrektur nach Freigabe, Bewertung |
-| `test_bewertungsseite.py` | die Bewertungsseite lädt Code nach, statt ihn mitzuschicken |
+| `test_bewertungsseite.py` | die Bewertungsseite lädt Code nach, statt ihn mitzuschicken, und wandelt jeden Aufgabentext nur einmal um |
 | `test_aufraeumen.py` | hochgeladene Dateien verschwinden mit ihrer Abgabe |
 | `test_ablageort.py` | Abgaben werden auch nach einem Update in einen neuen Ordner gefunden und aufgeräumt |
 | `test_scoring.py` | Rangliste und Podium, auch bei Gleichstand |

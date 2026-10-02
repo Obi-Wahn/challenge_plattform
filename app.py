@@ -11,6 +11,7 @@ if sys.version_info < (3, 11):
         "Die Aufgabentexte (Markdown) laufen unter älteren Fassungen nicht."
     )
 
+import functools
 import logging
 import os
 import re
@@ -23,8 +24,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from flask import Flask, request, session
+from markupsafe import Markup, escape
+import markdown
 from config import Config, MIN_SCHLUESSEL, schluessel_zu_kurz
 from extensions import db, csrf, limiter
+from models import MAX_ABGABE_BYTES
 from wettbewerb_sicherung import MAX_ZIP_BYTES
 from network import FESTE_ADRESSE, lan_adresse, server_port
 from protokoll import ereignis
@@ -71,7 +75,7 @@ FEHLERSEITEN = {
     404: ("🧭", "Diese Seite gibt es nicht",
           "Vielleicht hat sich in der Adresse ein Tippfehler versteckt."),
     413: ("📦", "Die Datei ist zu groß",
-          "Bis zu 16 MB nimmt der Server an. Bei einem Scratch-Projekt helfen "
+          f"Bis zu {MAX_ABGABE_BYTES // (1024 * 1024)} MB nimmt der Server an. Bei einem Scratch-Projekt helfen "
           "meist kleinere Klänge oder Bilder - fragt sonst die Lehrkraft."),
     429: ("⏱️", "Zu viele Versuche",
           "Zum Schutz vor Rateversuchen ist die Anmeldung kurz gesperrt. "
@@ -80,6 +84,21 @@ FEHLERSEITEN = {
           "Der Fehler steht mit Zeitstempel in der Protokolldatei "
           "logs/anwendung.log. Ein Neuladen der Seite hilft oft schon."),
 }
+
+
+@functools.lru_cache(maxsize=512)
+def markdown_html(text):
+    """Ein Aufgabentext als HTML, siehe render_markdown in create_app().
+
+    Zwischengespeichert, weil derselbe Text oft vielfach gebraucht wird: Die
+    Bewertungsseite zeigt zu jeder Abgabe die Aufgabenbeschreibung, bei 40
+    Teams und 10 Aufgaben also 370-mal dieselben zehn Texte - und lädt nach
+    jeder Bewertung neu. Das Umwandeln kostete dort über 80 % der Zeit (bis
+    zu 590 ms statt 50 ms). Gleicher Text ergibt gleiches HTML, veralten kann
+    hier also nichts; ein geänderter Text ist ein neuer Schlüssel.
+    """
+    html = markdown.markdown(str(escape(text)))
+    return Markup(UNSICHERE_ZIELE.sub(r'\1="#"', html))
 
 
 def configure_logging(app):
@@ -169,13 +188,9 @@ def create_app():
         Die Markdown-Auszeichnung selbst - Fettdruck, Listen, Code, Links
         ins Web - funktioniert unverändert.
         """
-        from markupsafe import Markup, escape
-        import markdown
         if not text:
             return ""
-
-        html = markdown.markdown(str(escape(text)))
-        return Markup(UNSICHERE_ZIELE.sub(r'\1="#"', html))
+        return markdown_html(str(text))
 
     @app.template_filter('aufgabentext')
     def split_task_description(text):
@@ -187,8 +202,6 @@ def create_app():
         Ueberschrift, bleibt die Einleitung leer und alles steht im Rest; die
         Angaben stehen dann direkt unter dem Titel.
         """
-        from markupsafe import Markup
-
         html = render_markdown(text)
         if not html:
             return {"einleitung": Markup(""), "rest": Markup("")}

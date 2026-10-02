@@ -21,6 +21,18 @@ from extensions import db
 from models import Submission
 from protokoll import stoerung
 
+# Zeichen, die in einem Dateinamen zum Herunterladen stehen bleiben - alles
+# andere wird zu "_". So übersteht der Name jedes Betriebssystem, auch mit
+# Emoji oder Umlauten im Team- oder Wettbewerbsnamen.
+DATEINAMEN_ZEICHEN = frozenset(
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-")
+
+
+def safe_name(text):
+    """Text als Teil eines Dateinamens, etwa „Bit & Byte“ als „Bit___Byte“."""
+    return "".join(c if c in DATEINAMEN_ZEICHEN else "_" for c in text)
+
+
 # Schlüssel, unter dem die Pfade bis zum Abschluss der Transaktion warten.
 VORGEMERKT = "abgaben_dateien_zum_loeschen"
 

@@ -4,7 +4,7 @@ from extensions import db
 from models import (Challenge, Task, Submission, Settings, MAX_MEMBERS, ablage_von,
                     MAX_MEMBER_TEXT_LENGTH, format_member_names, parse_member_names)
 from sitzung import angemeldetes_team
-from uploads import zum_loeschen_vormerken
+from uploads import safe_name, zum_loeschen_vormerken
 from scoring import get_standings
 from protokoll import ereignis
 from certificates import build_certificates_for, certificate_entry, names_line
@@ -162,16 +162,9 @@ def view():
     submissions = Submission.query.filter_by(team_id=team_id).join(Task).filter(Task.challenge_id == challenge.id).all()
     submission_map = {s.task_id: s for s in submissions}
 
-    # Dieselbe Rechnung wie auf der Rangliste: vor dem Start bis zum
-    # Beginn, danach bis zum Ende. Ohne gesetzte Zeit bleibt es bei 0, dann
-    # zeigt die Leiste nur den Stand und keine Uhr.
+    # Dieselbe Restzeit wie auf der Rangliste.
     status = challenge.status()
-    if status == "upcoming":
-        seconds = challenge.seconds_until_start
-    elif status == "running":
-        seconds = challenge.remaining_seconds
-    else:
-        seconds = 0
+    seconds = challenge.countdown_seconds
 
     return render_template(
         "challenge.html",
@@ -392,8 +385,7 @@ def submit_task(task_id):
 
 def certificate_filename(team_name):
     """A file name that survives any team name, including emoji."""
-    allowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"
-    cleaned = "".join(c if c in allowed else "_" for c in team_name).strip("_")
+    cleaned = safe_name(team_name).strip("_")
     return f"Urkunde_{cleaned or 'Team'}.pdf"
 
 @challenge_bp.route("/urkunde.pdf")

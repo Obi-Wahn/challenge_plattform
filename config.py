@@ -1,5 +1,7 @@
 import os
 
+from models import MAX_ABGABE_BYTES
+
 # Werte, die öffentlich im Repository stehen: in .env.example und als Beispiel
 # in der README. Mit einem bekannten SECRET_KEY kann sich jeder ein
 # Sitzungs-Cookie mit „is_admin“ selbst unterschreiben, ganz ohne Passwort -
@@ -65,7 +67,7 @@ class Config:
     # The allowed file type is configured per task (Task.allowed_extension),
     # not globally.
     UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB max upload
+    MAX_CONTENT_LENGTH = MAX_ABGABE_BYTES
 
     # Protokolldatei
     # Eigener Ort per LOG_DIR, damit die Tests nicht in das Verzeichnis der

@@ -261,3 +261,33 @@ class TestLeisteAufDerRangliste:
         html = client.get("/scoreboard").get_data(as_text=True)
 
         assert '<div class="zeitleiste' not in html
+
+
+class TestRestzeitDerLeiste:
+    """Teamseite und Rangliste zählen dieselbe Zeit herunter."""
+
+    def test_vor_dem_start_bis_zum_beginn(self, make_challenge):
+        from datetime import datetime, timedelta
+
+        jetzt = datetime.now()
+        challenge = make_challenge(start_time=jetzt + timedelta(minutes=10),
+                                   end_time=jetzt + timedelta(minutes=55))
+        assert 590 <= challenge.countdown_seconds <= 600
+
+    def test_waehrend_des_wettbewerbs_bis_zum_ende(self, make_challenge):
+        from datetime import datetime, timedelta
+
+        jetzt = datetime.now()
+        challenge = make_challenge(start_time=jetzt - timedelta(minutes=5),
+                                   end_time=jetzt + timedelta(minutes=40))
+        assert 2390 <= challenge.countdown_seconds <= 2400
+
+    def test_nach_dem_ende_und_ohne_zeiten_null(self, make_challenge):
+        from datetime import datetime, timedelta
+
+        jetzt = datetime.now()
+        vorbei = make_challenge(title="Vorbei", start_time=jetzt - timedelta(hours=2),
+                                end_time=jetzt - timedelta(hours=1))
+        ohne = make_challenge(title="Ohne Zeiten", active=False)
+        assert vorbei.countdown_seconds == 0
+        assert ohne.countdown_seconds == 0
