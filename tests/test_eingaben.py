@@ -111,6 +111,16 @@ class TestAufgabeUeberDasFormular:
 
         assert Task.query.filter_by(title="Testaufgabe").first().allowed_extension == ".pde"
 
+    @pytest.mark.parametrize("endung", [".xml", ".ino", ".aia", ".ipynb"])
+    def test_die_weiteren_formate_werden_gespeichert(self, admin, make_challenge,
+                                                     database, endung):
+        from models import Task
+
+        challenge = make_challenge()
+        self.aufgabe_anlegen(admin, challenge, allowed_extension=endung)
+
+        assert Task.query.filter_by(title="Testaufgabe").one().allowed_extension == endung
+
     def test_ohne_titel_entsteht_nichts(self, admin, make_challenge, database):
         from models import Task
 

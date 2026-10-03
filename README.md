@@ -58,7 +58,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Wettbewerbsseite**: alle Aufgaben mit Fortschritt, eigenen Punkten und dem Feedback der Lehrkraft, dazu die Restzeit als Leiste.
 *   **Schwierigkeit auf einen Blick**: Unter dem einleitenden Satz jeder Aufgabe stehen Punkte und Stufe — 🟢 einfach, 🟡 mittel, 🔴 schwer.
 *   **Aktualisiert sich selbst**: Die Seite fragt alle 15 Sekunden nach dem Stand — Pause, Fortsetzen, ein freigeschalteter Tipp, eine Durchsage und eine neue Dauer kommen an, ohne dass jemand neu laden muss.
-*   **Abgabe je Aufgabe**: Processing (`.pde`), Scratch (`.sb`/`.sb3`), Python (`.py`), Java (`.java`), MakeCode/Calliope (`.hex`/`.mkcd`) — welches Format erlaubt ist, legt die Aufgabe fest.
+*   **Abgabe je Aufgabe**: Processing (`.pde`), Scratch (`.sb`/`.sb3`), Python (`.py`), Java (`.java`), MakeCode/Calliope (`.hex`/`.mkcd`), Open Roberta und Snap! (`.xml`), Arduino (`.ino`), App Inventor (`.aia`), Jupyter (`.ipynb`) — welches Format erlaubt ist, legt die Aufgabe fest.
 *   **Tipps**: Kommt ein Team nicht weiter, schaltet die Lehrkraft den Hinweis zur Aufgabe frei.
 *   **Korrektur**: Gibt die Lehrkraft eine Abgabe frei, darf das Team sie genau einmal ersetzen.
 *   **Namen für die Urkunde**: Das Team trägt sie selbst ein, einen pro Zeile; auf die Urkunde kommen sie nach der Freigabe durch die Lehrkraft.
