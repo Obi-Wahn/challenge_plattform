@@ -104,6 +104,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
     *   Rate-Limiting auf Login-Routen (Flask-Limiter).
     *   Secure Filename Handling.
     *   Kein Debug-Modus im Normalbetrieb (nur über `FLASK_DEBUG=true` für lokale Entwicklung).
+    *   Unverschlüsselt: Die Plattform spricht http, nicht https. Im selben Netz lässt sich mitlesen. Das Admin-Passwort deshalb nirgends sonst verwenden und die Steuerzentrale möglichst am Server selbst bedienen.
 *   **Architektur**: Modularer Aufbau mit Flask Blueprints und Application Factory Pattern.
 
 ## 🚀 Installation & Setup
@@ -587,7 +588,7 @@ Festgehalten wird, was etwas **anlegt, ändert oder wegnimmt** – und was
 |---|---|
 | Start | der Server ist hochgefahren, mit Adresse, Port und Version · gesicherte Datenbank vor einem Umbau · ein Wettbewerb, den das Update aktiv geschaltet hat, weil bisher keiner ausdrücklich aktiviert war · wie viele Abgaben vom ganzen Pfad auf den Ort unter `uploads/` umgestellt wurden (einmalig nach dem Update) · eine Warnung, wenn der `SECRET_KEY` kürzer als 32 Zeichen ist |
 | Aufbau | Wettbewerb angelegt, bearbeitet, aktiv geschaltet, gelöscht · Team angelegt, gelöscht, Passwort zurückgesetzt · übernommene Teams · Aufgabe angelegt, bearbeitet, gelöscht · Aufgaben gesichert und eingelesen · Wettbewerb gesichert (mit oder ohne Namen und Passwörter) und eingelesen · geänderte Einstellungen (nur welche Felder) |
-| Wettbewerbstag | freigeschalteter oder wieder verborgener Tipp · gesendete oder entfernte Durchsage (ohne ihren Text) · abgelehnte Abgabe samt Grund (falsche Endung, zu groß, pausiert, beendet, schon abgegeben) · zu große Sicherung · zurückgesetzte Abgabe · fehlgeschlagene Admin-Anmeldung mit Adresse |
+| Wettbewerbstag | freigeschalteter oder wieder verborgener Tipp · gesendete oder entfernte Durchsage (ohne ihren Text) · abgelehnte Abgabe samt Grund (falsche Endung, leere Datei, zu groß, pausiert, beendet, schon abgegeben, zweimal kurz hintereinander abgeschickt) · zu große Sicherung · zurückgesetzte Abgabe · fehlgeschlagene Admin-Anmeldung mit Adresse |
 | Zum Abschluss | erzeugte Urkunden (Wettbewerb, Anzahl, Ausrichtung) · aufgeräumter Wettbewerb (wie viele Teams und Abgaben gelöscht) · geleerte Protokolldatei · gelöschte Sicherungskopien |
 | Störungen | eine Datei, die nicht gelöscht werden konnte · eine Urkunde, die nicht erzeugt werden konnte · jeder unbehandelte Fehler mit Traceback |
 
@@ -670,7 +671,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | --- | --- |
 | `test_teams.py` | Registrierung, Anmeldung, Bindung an den Wettbewerb, Team-Verwaltung |
 | `test_sitzung.py` | die Anmeldung gilt nicht mehr, wenn ihr Wettbewerb gelöscht ist |
-| `test_submissions.py` | Abgabe, Korrektur nach Freigabe, Bewertung |
+| `test_submissions.py` | Abgabe, leere Datei, doppelt abgeschickte Abgabe, Korrektur nach Freigabe, Bewertung |
 | `test_bewertungsseite.py` | die Bewertungsseite lädt Code nach, statt ihn mitzuschicken, und wandelt jeden Aufgabentext nur einmal um |
 | `test_aufraeumen.py` | hochgeladene Dateien verschwinden mit ihrer Abgabe |
 | `test_ablageort.py` | Abgaben werden auch nach einem Update in einen neuen Ordner gefunden und aufgeräumt |

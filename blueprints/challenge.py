@@ -8,6 +8,7 @@ from uploads import safe_name, zum_loeschen_vormerken
 from scoring import get_standings
 from protokoll import ereignis
 from certificates import build_certificates_for, certificate_entry, names_line
+from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 import io
 import os
@@ -272,6 +273,46 @@ def abgabe_abgelehnt(grund, text, team, task):
     return zurueck_mit_meldung(text)
 
 
+def ist_leer(file):
+    """Ob in der hochgeladenen Datei gar nichts steht.
+
+    Etwa nach einem abgebrochenen Speichern. Angenommen verbrauchte sie den
+    einen Versuch, den ein Team je Aufgabe hat - und die Lehrkraft fände
+    beim Bewerten nichts vor.
+    """
+    leer = not file.stream.read(1)
+    file.stream.seek(0)
+    return leer
+
+
+def doppelt_abgeschickt(filepath, team, task):
+    """Verwirft eine Abgabe, die eine zweite Anfrage desselben Teams überholt hat.
+
+    Ein Doppelklick auf „Abgeben“ schickt dieselbe Abgabe zweimal. Beide
+    Anfragen sehen anfangs noch keine Abgabe (oder dieselbe Freigabe), beide
+    speichern ihre Datei - gespeichert werden darf aber nur eine. Die andere
+    ist angekommen, also ist das kein Fehler: Die hier eben geschriebene
+    Datei geht wieder weg, und das Team erfährt, dass seine Abgabe da ist.
+    """
+    db.session.rollback()
+
+    # Trug die Datei beide Male denselben Namen, haben beide Anfragen in
+    # dieselbe Datei geschrieben - und die gespeicherte Abgabe zeigt genau
+    # darauf. Dann bleibt sie.
+    if not Submission.query.filter_by(filename=ablage_von(filepath)).first():
+        try:
+            os.remove(filepath)
+        except OSError:
+            pass
+
+    return abgabe_abgelehnt(
+        "zweimal kurz hintereinander abgeschickt, eine davon gespeichert",
+        f"„{task.title}“ wurde zweimal kurz hintereinander abgeschickt. "
+        "Gespeichert ist nur eine der beiden Abgaben.",
+        team, task
+    )
+
+
 @challenge_bp.route("/submit/<int:task_id>", methods=["POST"])
 def submit_task(task_id):
     # Submissions are only accepted for the active competition,
@@ -330,6 +371,14 @@ def submit_task(task_id):
             team, task
         )
 
+    if ist_leer(file):
+        return abgabe_abgelehnt(
+            f"leere Datei: „{file.filename}“",
+            "Die Datei ist leer, es steht nichts darin - gespeichert wurde "
+            "nichts. Speichert euer Projekt noch einmal und gebt es dann ab.",
+            team, task
+        )
+
     filename = gekuerzter_dateiname(secure_filename(file.filename))
     team_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], str(team_id))
     os.makedirs(team_folder, exist_ok=True)
@@ -348,11 +397,23 @@ def submit_task(task_id):
         # submission goes back into the admin's review queue. The release is
         # used up, so a further correction needs a new one.
         previous_filepath = existing.pfad
-        existing.filename = ablage_von(filepath)
-        existing.timestamp = datetime.now()
-        existing.points = None
-        existing.feedback = None
-        existing.resubmit_allowed = False
+
+        # Umgestellt wird nur, solange die Abgabe noch auf die alte Datei
+        # zeigt und freigegeben ist. Hat eine zweite Anfrage desselben Teams
+        # die Freigabe inzwischen verbraucht, gewönne sonst die spätere, und
+        # die Datei der früheren bliebe unbemerkt in uploads/ liegen - auch
+        # nach dem Aufräumen.
+        umgestellt = Submission.query.filter_by(
+            id=existing.id, filename=existing.filename, resubmit_allowed=True
+        ).update({
+            Submission.filename: ablage_von(filepath),
+            Submission.timestamp: datetime.now(),
+            Submission.points: None,
+            Submission.feedback: None,
+            Submission.resubmit_allowed: False,
+        })
+        if not umgestellt:
+            return doppelt_abgeschickt(filepath, team, task)
 
         # Die alte Datei geht erst weg, wenn die Umstellung gespeichert ist -
         # dieselbe Regel wie beim Löschen einer Abgabe. Würde sie vorher
@@ -370,6 +431,10 @@ def submit_task(task_id):
 
     try:
         db.session.commit()
+    except IntegrityError:
+        # Eine Abgabe je Team und Aufgabe (_team_task_uc): Die zweite
+        # Anfrage eines Doppelklicks kam hier zu spät.
+        return doppelt_abgeschickt(filepath, team, task)
     except Exception:
         # Die gerade geschriebene Datei gehört zu einer Abgabe, die es nun
         # nicht gibt. Sie bliebe sonst als Waise liegen.

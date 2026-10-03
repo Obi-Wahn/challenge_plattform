@@ -1,5 +1,6 @@
 """Abgaben: wann sie erlaubt sind und was eine Korrektur macht."""
 
+import os
 from datetime import datetime, timedelta
 
 import pytest
@@ -194,6 +195,158 @@ class TestKorrektur:
         abgeben(client, task, dateiname="andere.sb3")
 
         assert Submission.query.count() == 1
+
+
+class TestLeereDatei:
+    """Eine leere Datei verbrauchte sonst den einen Versuch je Aufgabe."""
+
+    def test_wird_abgewiesen(self, make_challenge, make_task, logged_in_team):
+        from models import Submission
+
+        challenge = make_challenge()
+        task = make_task(challenge)
+        client, _team = logged_in_team(challenge)
+
+        antwort = abgeben(client, task, inhalt=b"")
+
+        assert antwort.status_code == 302
+        assert antwort.headers["Location"] == "/challenge"
+        assert Submission.query.count() == 0
+        assert "Die Datei ist leer" in client.get("/challenge").get_data(as_text=True)
+
+    def test_danach_geht_die_richtige_datei(self, make_challenge, make_task,
+                                            logged_in_team):
+        from models import Submission
+
+        challenge = make_challenge()
+        task = make_task(challenge)
+        client, _team = logged_in_team(challenge)
+
+        abgeben(client, task, inhalt=b"")
+        abgeben(client, task, inhalt=b"projekt")
+
+        abgabe = Submission.query.one()
+        with open(abgabe.pfad, "rb") as datei:
+            assert datei.read() == b"projekt"
+
+
+class TestDoppeltAbgeschickt:
+    """Ein Doppelklick auf „Abgeben“ schickt dieselbe Abgabe zweimal.
+
+    Nachgestellt wird die zweite Anfrage: Während sie ihre Datei speichert,
+    wird die erste fertig und steht schon in der Datenbank.
+    """
+
+    @pytest.fixture
+    def andere_anfrage(self, flask_app, monkeypatch):
+        """Lässt die erste Anfrage fertig werden, sobald die zweite speichert.
+
+        `fertig(dateiname)` legt fest, unter welchem Namen die erste ihre
+        Datei abgelegt hat.
+        """
+        from werkzeug.datastructures import FileStorage
+
+        from extensions import db
+
+        erste = {}
+        speichern = FileStorage.save
+
+        def save(datei, ziel, *args, **kwargs):
+            speichern(datei, ziel, *args, **kwargs)
+            if not erste:
+                return
+            ordner = os.path.dirname(ziel)
+            ablage = os.path.join(ordner, erste["dateiname"])
+            if ablage != ziel:
+                with open(ablage, "wb") as andere:
+                    andere.write(b"erste anfrage")
+            name = os.path.relpath(ablage, flask_app.config["UPLOAD_FOLDER"])
+            with db.engine.begin() as verbindung:
+                erste["schritt"](verbindung, name.replace(os.sep, "/"))
+
+        monkeypatch.setattr(FileStorage, "save", save)
+
+        def fertig(dateiname, schritt):
+            erste["dateiname"] = dateiname
+            erste["schritt"] = schritt
+
+        return fertig
+
+    @staticmethod
+    def dateien(flask_app):
+        ablage = flask_app.config["UPLOAD_FOLDER"]
+        return sorted(name for _, _, namen in os.walk(ablage) for name in namen)
+
+    def test_neue_abgabe_ohne_serverfehler(self, flask_app, make_challenge, make_task,
+                                           logged_in_team, andere_anfrage):
+        from models import Submission
+
+        challenge = make_challenge()
+        task = make_task(challenge)
+        client, team = logged_in_team(challenge)
+        andere_anfrage(f"task_{task.id}_erste.sb3", lambda verbindung, name:
+                       verbindung.exec_driver_sql(
+                           "INSERT INTO submissions (team_id, task_id, filename, "
+                           "timestamp, resubmit_allowed) VALUES (?, ?, ?, ?, 0)",
+                           (team.id, task.id, name, datetime.now())))
+
+        antwort = abgeben(client, task)
+
+        # Vorher: 500, „Da ist etwas schiefgegangen“ - obwohl die Abgabe da war.
+        assert antwort.status_code == 302
+        assert antwort.headers["Location"] == "/challenge"
+        assert "zweimal kurz hintereinander" in client.get("/challenge").get_data(as_text=True)
+
+        # Es bleibt die Abgabe der ersten Anfrage, die Datei der zweiten ist weg.
+        abgabe = Submission.query.one()
+        assert abgabe.pfad.endswith("erste.sb3")
+        assert self.dateien(flask_app) == [f"task_{task.id}_erste.sb3"]
+
+    def test_gleicher_name_die_gespeicherte_datei_bleibt(
+            self, flask_app, make_challenge, make_task, logged_in_team, andere_anfrage):
+        """Beide Anfragen schrieben in dieselbe Datei - sie gehört der gespeicherten."""
+        from models import Submission
+
+        challenge = make_challenge()
+        task = make_task(challenge)
+        client, team = logged_in_team(challenge)
+        andere_anfrage(f"task_{task.id}_loesung.sb3", lambda verbindung, name:
+                       verbindung.exec_driver_sql(
+                           "INSERT INTO submissions (team_id, task_id, filename, "
+                           "timestamp, resubmit_allowed) VALUES (?, ?, ?, ?, 0)",
+                           (team.id, task.id, name, datetime.now())))
+
+        assert abgeben(client, task).status_code == 302
+
+        abgabe = Submission.query.one()
+        assert os.path.isfile(abgabe.pfad)
+
+    def test_korrektur_laesst_keine_datei_liegen(
+            self, flask_app, make_challenge, make_task, logged_in_team, andere_anfrage,
+            database):
+        """Ohne die Prüfung gewann die spätere, die Datei der früheren blieb liegen."""
+        from models import Submission
+
+        challenge = make_challenge()
+        task = make_task(challenge)
+        client, _team = logged_in_team(challenge)
+        abgeben(client, task, dateiname="alt.sb3")
+        abgabe = Submission.query.one()
+        abgabe.resubmit_allowed = True
+        database.session.commit()
+        andere_anfrage(f"task_{task.id}_erste.sb3", lambda verbindung, name:
+                       verbindung.exec_driver_sql(
+                           "UPDATE submissions SET filename = ?, resubmit_allowed = 0 "
+                           "WHERE id = ?", (name, abgabe.id)))
+
+        antwort = abgeben(client, task, dateiname="zweite.sb3")
+
+        assert antwort.status_code == 302
+        database.session.refresh(abgabe)
+        assert abgabe.pfad.endswith("erste.sb3")
+        assert abgabe.resubmit_allowed is False
+        # Die alte Datei räumt die erste Anfrage weg, nicht diese.
+        assert f"task_{task.id}_zweite.sb3" not in self.dateien(flask_app)
 
 
 class TestBewertung:
