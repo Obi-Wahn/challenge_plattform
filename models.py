@@ -395,6 +395,12 @@ TASK_FORMATS = {
     ".py": "Python",
     ".hex": "MakeCode/Calliope",
     ".mkcd": "MakeCode-Projekt",
+    # Open Roberta und Snap! exportieren beide als .xml. Die Abgabe wird nur
+    # an der Endung erkannt, ein Eintrag gilt deshalb für beide.
+    ".xml": "Open Roberta/Snap!",
+    ".ino": "Arduino",
+    ".aia": "App Inventor",
+    ".ipynb": "Jupyter-Notebook",
 }
 
 DEFAULT_TASK_FORMAT = ".pde"
@@ -414,12 +420,14 @@ TASK_DIFFICULTIES = {
 # lassen.
 NO_TASK_DIFFICULTY = ""
 
-# Welche Formate sich in der Bewertung als Text lesen lassen. Eine .sb3- oder
-# .mkcd-Datei ist eine ZIP-Datei und eine .hex-Datei eine Liste aus
+# Welche Formate sich in der Bewertung als Text lesen lassen. Eine .sb3-,
+# .mkcd- oder .aia-Datei ist eine ZIP-Datei und eine .hex-Datei eine Liste aus
 # Maschinencode - im Anzeigefeld stünde davon nur Zeichensalat, und die Seite
-# trüge dabei Megabyte davon mit sich herum. Für diese Formate gibt es den
-# Knopf zum Herunterladen.
-TEXT_FORMATS = {".pde", ".java", ".py"}
+# trüge dabei Megabyte davon mit sich herum. Die .xml von Open Roberta und
+# Snap! und das .ipynb von Jupyter sind zwar Text, aber Blöcke bzw. Zellen in
+# XML oder JSON, oft mit eingebetteten Bildern; lesen lassen sie sich erst in
+# ihrer Umgebung. Für diese Formate gibt es den Knopf zum Herunterladen.
+TEXT_FORMATS = {".pde", ".java", ".py", ".ino"}
 
 class Task(db.Model):
     __tablename__ = 'tasks'

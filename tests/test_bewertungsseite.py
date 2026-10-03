@@ -10,6 +10,8 @@ Entscheidung trägt; der Inhalt kommt beim Aufklappen nach.
 import io
 import zipfile
 
+import pytest
+
 from tests.helpers import csrf_token
 
 
@@ -151,6 +153,32 @@ class TestWasSichAlsTextLesenLaesst:
         html = admin.get("/admin/submissions").get_data(as_text=True)
 
         assert "Code anzeigen" in html
+
+
+    def test_ein_arduino_sketch_bekommt_einen(
+            self, admin, make_challenge, make_task, logged_in_team):
+        challenge = make_challenge()
+        task = make_task(challenge, allowed_extension=".ino")
+        client, _team = logged_in_team(challenge)
+        abgeben(client, task, "blinken.ino", b"void setup() {}\nvoid loop() {}")
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        assert "Code anzeigen" in html
+
+    @pytest.mark.parametrize("endung", [".xml", ".aia", ".ipynb"])
+    def test_bloecke_apps_und_notebooks_bekommen_keinen(
+            self, admin, make_challenge, make_task, logged_in_team, endung):
+        """Erst in Open Roberta, Snap!, App Inventor oder Jupyter lesbar."""
+        challenge = make_challenge()
+        task = make_task(challenge, allowed_extension=endung)
+        client, _team = logged_in_team(challenge)
+        abgeben(client, task, f"loesung{endung}", b"<xml></xml>")
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        assert "Code anzeigen" not in html
+        assert "Datei herunterladen" in html
 
 
 class TestDerInhaltWirdNachgeladen:

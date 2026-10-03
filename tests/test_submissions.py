@@ -2,6 +2,8 @@
 
 from datetime import datetime, timedelta
 
+import pytest
+
 from tests.helpers import csrf_token
 
 
@@ -371,3 +373,40 @@ class TestGekuerzterDateiname:
         ergebnis = gekuerzter_dateiname("a" * 300)
 
         assert len(ergebnis) == MAX_DATEINAME
+
+
+class TestWeitereFormate:
+    """Open Roberta, Snap!, Arduino, App Inventor und Jupyter."""
+
+    @pytest.mark.parametrize("endung,dateiname", [
+        (".xml", "NEPOprog.xml"),
+        (".xml", "Snap-Projekt.xml"),
+        (".ino", "blinken.ino"),
+        (".aia", "QuizApp.aia"),
+        (".ipynb", "Auswertung.ipynb"),
+    ])
+    def test_abgabe_im_format_der_aufgabe_kommt_an(
+            self, make_challenge, make_task, logged_in_team, database,
+            endung, dateiname):
+        from models import Submission
+
+        challenge = make_challenge()
+        task = make_task(challenge, allowed_extension=endung)
+        client, team = logged_in_team(challenge)
+
+        abgeben(client, task, dateiname=dateiname)
+
+        abgabe = Submission.query.filter_by(team_id=team.id, task_id=task.id).one()
+        assert abgabe.pfad.endswith(dateiname)
+
+    def test_ein_anderes_der_neuen_formate_wird_abgewiesen(
+            self, make_challenge, make_task, logged_in_team, database):
+        from models import Submission
+
+        challenge = make_challenge()
+        task = make_task(challenge, allowed_extension=".xml")
+        client, _team = logged_in_team(challenge)
+
+        abgeben(client, task, dateiname="blinken.ino")
+
+        assert Submission.query.count() == 0
