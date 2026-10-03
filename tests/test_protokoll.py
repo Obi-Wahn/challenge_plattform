@@ -4,6 +4,7 @@ Sie ist dafür da, dass eine Störung am Wettbewerbstag nachvollziehbar
 bleibt, auch wenn niemand das Terminalfenster im Blick hatte.
 """
 
+import io
 import logging
 import os
 
@@ -406,10 +407,15 @@ class TestWettbewerbstag:
 
     def test_zu_grosse_datei(self, flask_app, protokoll, make_challenge, make_task,
                              logged_in_team):
-        """Die Ablehnung passiert vor der Route - trotzdem soll sie festgehalten sein."""
+        """Die Ablehnung passiert vor der Route - trotzdem soll sie festgehalten sein.
+
+        Wie jede andere abgelehnte Abgabe mit Team und Aufgabe, nicht mit der
+        Adresse des Geräts: Gesucht wird ein Team, und die Adresse ist ein
+        Datum mehr über ein Kind.
+        """
         challenge = make_challenge()
-        task = make_task(challenge)
-        client, _ = logged_in_team(challenge)
+        task = make_task(challenge, title="Katze bewegen")
+        client, _ = logged_in_team(challenge, name="Team Blitz")
         protokoll.neu()
 
         grenze = flask_app.config["MAX_CONTENT_LENGTH"]
@@ -417,8 +423,38 @@ class TestWettbewerbstag:
         assert antwort.status_code == 413
 
         zeile = protokoll.neu()
-        assert "Abgabe abgelehnt: Datei zu groß" in zeile
-        assert f"/submit/{task.id}" in zeile
+        assert "Abgabe abgelehnt: Team „Team Blitz“, Aufgabe „Katze bewegen“" in zeile
+        assert "zu groß" in zeile
+        assert "127.0.0.1" not in zeile
+
+    def test_zu_grosse_sicherung_ohne_adresse(self, admin, flask_app, protokoll,
+                                              monkeypatch):
+        """Dort kommt nur die angemeldete Lehrkraft hin."""
+        import app as anwendung
+        monkeypatch.setattr(anwendung, "MAX_ZIP_BYTES", 1024)
+        protokoll.neu()
+
+        antwort = admin.post("/admin/challenges/einlesen", data={
+            "csrf_token": csrf_token(admin, "/admin/challenges/new"),
+            "file": (io.BytesIO(b"x" * 5000), "Sicherung.zip"),
+        }, content_type="multipart/form-data")
+        assert antwort.status_code == 413
+
+        zeile = protokoll.neu()
+        assert "Sicherung abgelehnt: Datei zu groß" in zeile
+        assert "127.0.0.1" not in zeile
+
+    def test_leere_datei(self, protokoll, make_challenge, make_task, logged_in_team):
+        challenge = make_challenge()
+        task = make_task(challenge, title="Katze bewegen")
+        client, _ = logged_in_team(challenge, name="Team Blitz")
+        protokoll.neu()
+
+        self.abgeben(client, task, inhalt=b"")
+
+        zeile = protokoll.neu()
+        assert "Abgabe abgelehnt: Team „Team Blitz“, Aufgabe „Katze bewegen“" in zeile
+        assert "leere Datei" in zeile
 
     def test_zurueckgesetzte_abgabe(self, admin, protokoll, make_challenge, make_task,
                                     logged_in_team, database):

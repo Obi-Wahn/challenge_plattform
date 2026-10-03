@@ -294,6 +294,27 @@ def register_error_handlers(app):
             ueberschrift=ueberschrift, erklaerung=erklaerung, zurueck=zurueck
         ), code
 
+    def abgabe_der_anfrage():
+        """Team und Aufgabe einer Abgabe, die schon an der Größe scheiterte.
+
+        Die Route ist nicht gelaufen, das Sitzungs-Cookie kam aber mit, und
+        die Adresse nennt die Aufgabe. Gibt die Namen zurück, für die Zeile
+        im Protokoll.
+        """
+        team = task = None
+        try:
+            from models import Challenge, Task
+            from sitzung import angemeldetes_team
+            team = angemeldetes_team(Challenge.current())
+            task_id = (request.view_args or {}).get("task_id")
+            if task_id is not None:
+                task = db.session.get(Task, task_id)
+        except Exception: # noqa: BLE001 - eine Fehlerseite darf nie selbst scheitern
+            pass
+
+        return (team.name if team else "unbekannt",
+                task.title if task else request.path)
+
     for code in FEHLERSEITEN:
         # Der Umweg über die Vorgabe bindet den Wert fest: Ohne sie zeigten
         # am Ende alle Handler auf dieselbe letzte Zahl.
@@ -303,21 +324,28 @@ def register_error_handlers(app):
                     and session.get("is_admin")):
                 # Keine Abgabe, sondern eine Sicherung über der Grenze für
                 # Sicherungen - der Satz über Scratch-Klänge passte nicht.
-                ereignis("Sicherung abgelehnt: Datei zu groß (mehr als %s MB), von %s",
-                         MAX_ZIP_BYTES // (1024 * 1024), request.remote_addr or "unbekannt")
+                # Ohne Adresse: Hier kommt nur hin, wer als Lehrkraft
+                # angemeldet ist.
+                ereignis("Sicherung abgelehnt: Datei zu groß (mehr als %s MB)",
+                         MAX_ZIP_BYTES // (1024 * 1024))
                 return fehlerseite(code, erklaerung=(
                     f"Eine Sicherung darf bis zu {MAX_ZIP_BYTES // (1024 * 1024)} MB "
                     "groß sein. Diese ist größer - sie ist wohl keine Sicherung "
                     "eines einzelnen Wettbewerbs."))
-            if code == 413:
+            if code == 413 and request.endpoint == "challenge.submit_task":
                 # Eine zu große Datei bricht die Anfrage ab, bevor die Route
                 # läuft - hier ist die einzige Stelle, an der diese Ablehnung
-                # überhaupt noch festzuhalten ist. Team und Aufgabe stehen
-                # nicht zur Verfügung, die Adresse nennt die Aufgabe.
-                ereignis(
-                    "Abgabe abgelehnt: Datei zu groß (mehr als %s MB), %s von %s",
-                    app.config["MAX_CONTENT_LENGTH"] // (1024 * 1024),
-                    request.path, request.remote_addr or "unbekannt")
+                # überhaupt noch festzuhalten ist. Dieselbe Zeile wie bei
+                # jeder anderen abgelehnten Abgabe, also mit Team und Aufgabe
+                # statt mit der Adresse des Geräts.
+                team, aufgabe = abgabe_der_anfrage()
+                ereignis("Abgabe abgelehnt: Team „%s“, Aufgabe „%s“ - zu groß, "
+                         "mehr als %s MB", team, aufgabe,
+                         app.config["MAX_CONTENT_LENGTH"] // (1024 * 1024))
+            elif code == 413:
+                ereignis("Anfrage abgelehnt: zu groß (mehr als %s MB), %s",
+                         app.config["MAX_CONTENT_LENGTH"] // (1024 * 1024),
+                         request.path)
             if code == 500:
                 # Nach einem Fehler steht die Sitzung der Datenbank womöglich
                 # quer. Die Fehlerseite fragt aber selbst noch einmal nach dem
