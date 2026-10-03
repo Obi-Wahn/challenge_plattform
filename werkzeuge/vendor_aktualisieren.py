@@ -5,10 +5,11 @@ Die Anwendung läuft ohne Internet, deshalb liegen Bootstrap, EasyMDE,
 Font Awesome und die Handschriften als Dateien im Repo. Der Preis dafür:
 Sie aktualisieren sich nicht von selbst. Dieses Skript nimmt die Handarbeit ab.
 
-    python werkzeuge/vendor_aktualisieren.py --pruefen
-        Sieht nach, ob es neuere Fassungen gibt. Ändert nichts.
-
     python werkzeuge/vendor_aktualisieren.py
+        Sieht nach, ob es neuere Fassungen gibt. Ändert nichts, wie
+        pakete_pruefen.py ohne Schalter. --pruefen tut dasselbe.
+
+    python werkzeuge/vendor_aktualisieren.py --holen
         Holt genau die Fassungen, die in static/vendor/versionen.json stehen,
         und ersetzt die Dateien.
 
@@ -124,12 +125,14 @@ def pruefen(liste):
     """
     neueres = False
     vorschlag = None
+    nicht_abgefragt = []
     for paket in liste["pakete"]:
         try:
             daten = paketdaten(paket["npm"])
             neuste = daten["dist-tags"]["latest"]
         except (urllib.error.URLError, KeyError, ValueError) as fehler:
             print(f"  {paket['name']:<20} konnte nicht abgefragt werden: {fehler}")
+            nicht_abgefragt.append(schluessel(paket))
             continue
 
         hier = paket["version"]
@@ -145,10 +148,14 @@ def pruefen(liste):
         else:
             print(f"  {name:<22} {hier:>8}      aktuell")
 
+    if nicht_abgefragt:
+        print(f"\nNicht abgefragt: {', '.join(nicht_abgefragt)} - "
+              "Internetverbindung prüfen.")
     if neueres:
         print("\nZum Übernehmen:")
         print(f"  python werkzeuge/vendor_aktualisieren.py --setzen {vorschlag}")
-        print("  python werkzeuge/vendor_aktualisieren.py")
+    elif not nicht_abgefragt:
+        print("\nAlles auf dem neusten Stand.")
     return neueres
 
 
@@ -249,25 +256,31 @@ def setzen(liste, angaben):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Holt die Frontend-Bibliotheken nach static/vendor/.")
-    parser.add_argument("--pruefen", action="store_true",
-                        help="nur nachsehen, ob es neuere Fassungen gibt")
-    parser.add_argument("--setzen", nargs="+", metavar="PAKET=VERSION",
-                        help="neue Fassung eintragen und holen")
+        description="Sieht nach, ob es neuere Fassungen der Frontend-Bibliotheken "
+                    "gibt. Ohne Schalter ändert es nichts.")
+    schalter = parser.add_mutually_exclusive_group()
+    # Ohne Schalter wird geprüft, wie bei pakete_pruefen.py. --pruefen bleibt
+    # für alle, die es so gewohnt sind.
+    schalter.add_argument("--pruefen", action="store_true",
+                          help="nur nachsehen, ob es neuere Fassungen gibt "
+                               "(wie ohne Schalter)")
+    schalter.add_argument("--holen", action="store_true",
+                          help="die Fassungen aus versionen.json holen")
+    schalter.add_argument("--setzen", nargs="+", metavar="PAKET=VERSION",
+                          help="neue Fassung eintragen und holen")
     argumente = parser.parse_args()
 
     liste = lade_liste()
-
-    if argumente.pruefen:
-        print("Vergleich mit der npm-Registry:\n")
-        pruefen(liste)
-        return 0
 
     if argumente.setzen:
         print("Neue Fassungen eintragen:\n")
         if not setzen(liste, argumente.setzen):
             return 1
         print()
+    elif not argumente.holen:
+        print("Vergleich mit der npm-Registry:\n")
+        pruefen(liste)
+        return 0
 
     print(f"Dateien holen nach {VENDOR.relative_to(WURZEL)}:\n")
     return 0 if aktualisieren(liste) else 1

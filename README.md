@@ -379,7 +379,7 @@ Fassungen dort liegen, steht in `static/vendor/versionen.json`.
 Nachsehen, ob es neuere gibt (ändert nichts):
 
 ```bash
-python werkzeuge/vendor_aktualisieren.py --pruefen
+python werkzeuge/vendor_aktualisieren.py
 ```
 
 ```
@@ -390,16 +390,21 @@ python werkzeuge/vendor_aktualisieren.py --pruefen
 
 Zum Übernehmen:
   python werkzeuge/vendor_aktualisieren.py --setzen fontawesome-free=7.3.1
-  python werkzeuge/vendor_aktualisieren.py
 ```
 
-Die Namen in der linken Spalte sind genau die, die `--setzen` annimmt – ohne
-Leerzeichen, damit sie sich auch in der PowerShell eintippen lassen. Danach:
+`--setzen` trägt die Fassung in `versionen.json` ein und holt die Dateien
+gleich. Die Namen in der linken Spalte sind genau die, die `--setzen` annimmt –
+ohne Leerzeichen, damit sie sich auch in der PowerShell eintippen lassen.
+Danach:
 
 ```bash
 pytest
 python app.py     # und die Seiten einmal ansehen
 ```
+
+Fehlen Dateien unter `static/vendor/` oder sind sie beschädigt, holt
+`python werkzeuge/vendor_aktualisieren.py --holen` genau die Fassungen aus
+`versionen.json` neu.
 
 Das Skript holt die Dateien aus der npm-Registry, prüft die Prüfsumme und
 ersetzt nur das, was sich geändert hat. Es braucht Internet – also am

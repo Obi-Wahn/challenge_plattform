@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Welche Fassungen der Frontend-Bibliotheken hier liegen. Aktualisiert wird mit: python werkzeuge/vendor_aktualisieren.py",
+  "_hinweis": "Welche Fassungen der Frontend-Bibliotheken hier liegen. Geprüft wird mit: python werkzeuge/vendor_aktualisieren.py, geholt mit --holen",
   "pakete": [
     {
       "name": "Bootstrap",

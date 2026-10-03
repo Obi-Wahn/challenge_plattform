@@ -210,3 +210,89 @@ class TestZeilenendenUnterWindows:
 
         assert w.hole_paket(self.paket("s.ttf")) == ["s.ttf"]
         assert ziel.read_bytes() == b"\0\1\n"
+
+
+class TestOhneSchalterWirdNurGeprueft:
+    """Ohne Schalter ändert das Werkzeug nichts, wie pakete_pruefen.py.
+
+    Vorher holte ein Aufruf ohne Schalter sofort die Dateien, geprüft wurde
+    erst mit --pruefen. Bei pakete_pruefen.py war es umgekehrt, und wer beide
+    nacheinander aufrief, bekam einmal eine Prüfung und einmal ein Update.
+    """
+
+    def starte(self, monkeypatch, *schalter):
+        import sys
+
+        sys.path.insert(0, str(WURZEL / "werkzeuge"))
+        import vendor_aktualisieren as w
+
+        aufrufe = []
+        monkeypatch.setattr(w, "pruefen", lambda _liste: aufrufe.append("pruefen"))
+        monkeypatch.setattr(w, "aktualisieren",
+                            lambda _liste: aufrufe.append("holen") or True)
+        monkeypatch.setattr(w, "setzen",
+                            lambda _liste, _angaben: aufrufe.append("setzen") or True)
+        monkeypatch.setattr(sys, "argv", ["vendor_aktualisieren.py", *schalter])
+        return w.main(), aufrufe
+
+    def test_ohne_schalter_wird_nur_geprueft(self, monkeypatch):
+        assert self.starte(monkeypatch) == (0, ["pruefen"])
+
+    def test_pruefen_geht_weiterhin(self, monkeypatch):
+        assert self.starte(monkeypatch, "--pruefen") == (0, ["pruefen"])
+
+    def test_holen_holt(self, monkeypatch):
+        assert self.starte(monkeypatch, "--holen") == (0, ["holen"])
+
+    def test_setzen_traegt_ein_und_holt(self, monkeypatch):
+        ergebnis = self.starte(monkeypatch, "--setzen", "bootstrap=9.9.9")
+        assert ergebnis == (0, ["setzen", "holen"])
+
+    def test_pruefen_und_holen_zugleich_wird_abgelehnt(self, monkeypatch):
+        with pytest.raises(SystemExit):
+            self.starte(monkeypatch, "--pruefen", "--holen")
+
+    def test_vorschlag_braucht_keinen_zweiten_aufruf(self, liste, monkeypatch, capsys):
+        """--setzen holt selbst, der Vorschlag nennt deshalb nur diese Zeile."""
+        import sys
+
+        sys.path.insert(0, str(WURZEL / "werkzeuge"))
+        import vendor_aktualisieren as w
+
+        monkeypatch.setattr(w, "paketdaten",
+                            lambda _npm: {"dist-tags": {"latest": "999.0.0"}})
+        w.pruefen(liste)
+        ausgabe = capsys.readouterr().out
+
+        assert "--setzen" in ausgabe
+        vorschlag = ausgabe.split("Zum Übernehmen:")[1]
+        assert vorschlag.count("vendor_aktualisieren.py") == 1
+
+    def test_alles_aktuell_wird_gesagt(self, liste, monkeypatch, capsys):
+        import sys
+
+        sys.path.insert(0, str(WURZEL / "werkzeuge"))
+        import vendor_aktualisieren as w
+
+        monkeypatch.setattr(w, "paketdaten",
+                            lambda _npm: {"dist-tags": {"latest": "0.0.1"}})
+        w.pruefen(liste)
+
+        assert "Alles auf dem neusten Stand." in capsys.readouterr().out
+
+    def test_ohne_internet_heisst_es_nicht_alles_aktuell(self, liste, monkeypatch, capsys):
+        import sys
+        import urllib.error
+
+        sys.path.insert(0, str(WURZEL / "werkzeuge"))
+        import vendor_aktualisieren as w
+
+        def kein_netz(_npm):
+            raise urllib.error.URLError("kein Netz")
+
+        monkeypatch.setattr(w, "paketdaten", kein_netz)
+        w.pruefen(liste)
+        ausgabe = capsys.readouterr().out
+
+        assert "Alles auf dem neusten Stand." not in ausgabe
+        assert "Internetverbindung prüfen" in ausgabe
