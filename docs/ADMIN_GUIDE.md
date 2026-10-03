@@ -35,8 +35,8 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 
 3. **Auf Updates sehen:**
    ```bash
-   python werkzeuge/vendor_aktualisieren.py --pruefen   # Frontend
-   python werkzeuge/pakete_pruefen.py                   # Python-Pakete
+   python werkzeuge/vendor_aktualisieren.py   # Frontend
+   python werkzeuge/pakete_pruefen.py         # Python-Pakete
    ```
    Beide brauchen Internet und ändern nichts, sie zeigen nur an. Eine neue
    Hauptversion kurz vor dem Wettbewerb **nicht** mehr einspielen – und wenn
