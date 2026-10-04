@@ -27,7 +27,9 @@
 
 {% else %}
 
-<!-- Von Platz 3 aufwärts einzeln aufdecken -->
+<!-- Die Knöpfe stehen über dem Podest und bleiben dort: Die Plätze
+     erscheinen auf ihrer Stufe, nichts rutscht nach und nichts muss
+     gescrollt werden. -->
 <div class="text-center mb-4" id="reveal-controls">
   <button class="btn btn-primary btn-lg" id="reveal-next">
     🥁 Nächsten Platz verkünden
@@ -37,31 +39,36 @@
   </button>
 </div>
 
-<div class="row justify-content-center">
-  <div class="col-lg-8">
-    {% for stufe in podium | reverse %}
-    <div class="event-card mb-4 text-center podium-step" data-place="{{ stufe.place }}" hidden>
-      <div style="font-size: 3.5rem; line-height: 1;">
-        {% if stufe.place == 1 %}🥇{% elif stufe.place == 2 %}🥈{% else %}🥉{% endif %}
-      </div>
-
-      <h2 class="mt-2 mb-3 text-secondary">{{ stufe.place }}. Platz</h2>
-
-      {% for team in stufe.teams %}
-      <div class="fw-bold" style="font-size: {% if stufe.place == 1 %}3rem{% else %}2.2rem{% endif %};">
-        {{ team.name }}
-      </div>
-      {% endfor %}
-
-      <div class="text-secondary mt-2" style="font-size: 1.3rem;">
-        {{ stufe.teams[0].total }} {% if stufe.teams[0].total == 1 %}Punkt{% else %}Punkte{% endif %}
+<!-- Wie auf einem echten Podest steht der erste Platz in der Mitte, der
+     zweite links, der dritte rechts. Fehlt ein Platz, fehlt seine Stufe. -->
+<div class="podest">
+  {% for platz in [2, 1, 3] %}
+  {% for stufe in podium if stufe.place == platz %}
+  <div class="podest-spalte podest-platz-{{ stufe.place }}" data-place="{{ stufe.place }}">
+    <div class="podest-oben">
+      <div class="podest-frage" aria-hidden="true">?</div>
+      <div class="podest-sieger">
+        <div class="podest-medaille">
+          {% if stufe.place == 1 %}🥇{% elif stufe.place == 2 %}🥈{% else %}🥉{% endif %}
+        </div>
+        {% for team in stufe.teams %}
+        <div class="podest-team">{{ team.name }}</div>
+        {% endfor %}
+        <div class="podest-punkte">
+          {{ stufe.teams[0].total }} {% if stufe.teams[0].total == 1 %}Punkt{% else %}Punkte{% endif %}
+        </div>
         {% if stufe.teams | length > 1 %}
-        <span class="badge bg-info text-dark ms-2">punktgleich</span>
+        <span class="badge bg-info text-dark">punktgleich</span>
         {% endif %}
       </div>
     </div>
-    {% endfor %}
+    <div class="podest-stufe">
+      <span class="podest-zahl">{{ stufe.place }}</span>
+      <span class="podest-wort">Platz</span>
+    </div>
   </div>
+  {% endfor %}
+  {% endfor %}
 </div>
 
 <div class="text-center mt-4">
@@ -81,37 +88,34 @@
 </div>
 
 <script>
-  // The steps are revealed from the lowest place upwards, so the winner comes last.
-  const steps = Array.from(document.querySelectorAll(".podium-step"));
+  // Aufgedeckt wird vom letzten Platz aufwärts, der Sieger kommt zuletzt.
+  const steps = Array.from(document.querySelectorAll(".podest-spalte"))
+    .sort((a, b) => b.dataset.place - a.dataset.place);
   const nextButton = document.getElementById("reveal-next");
   const allButton = document.getElementById("reveal-all");
   let revealed = 0;
 
+  function fertig() {
+    nextButton.disabled = true;
+    nextButton.textContent = "🎉 Alle Plätze verkündet";
+    allButton.disabled = true;
+  }
+
   function revealNext() {
     if (revealed >= steps.length) return;
-    const step = steps[revealed];
-    step.hidden = false;
-    step.scrollIntoView({ behavior: "smooth", block: "center" });
+    steps[revealed].classList.add("verkuendet");
     revealed += 1;
-    if (revealed >= steps.length) {
-      nextButton.disabled = true;
-      nextButton.textContent = "🎉 Alle Plätze verkündet";
-    }
+    if (revealed >= steps.length) fertig();
   }
 
   function revealAll() {
-    while (revealed < steps.length) {
-      steps[revealed].hidden = false;
-      revealed += 1;
-    }
-    nextButton.disabled = true;
-    nextButton.textContent = "🎉 Alle Plätze verkündet";
+    while (revealed < steps.length) revealNext();
   }
 
   nextButton.addEventListener("click", revealNext);
   allButton.addEventListener("click", revealAll);
 
-  // Space bar also advances, handy when the page is projected.
+  // Die Leertaste deckt auch auf, praktisch am Beamer.
   document.addEventListener("keydown", (event) => {
     if (event.code === "Space") {
       event.preventDefault();

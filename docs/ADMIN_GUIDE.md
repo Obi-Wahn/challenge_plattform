@@ -238,7 +238,11 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 1. **🏁 Wettbewerb beenden** auf der Wettbewerbsseite. Das setzt die Endzeit
    auf jetzt; Abgaben sind gesperrt. Gelöscht wird nichts.
 2. **Letzte Abgaben zu Ende bewerten** – das geht nach dem Beenden weiter.
-3. **Siegerehrung** `/siegerehrung` an die Wand werfen. Gleichstände teilen
+3. **Siegerehrung** `/siegerehrung` an die Wand werfen. Dort steht ein
+   Siegerpodest mit Fragezeichen über den Stufen. **🥁 Nächsten Platz
+   verkünden** (oder die Leertaste) stellt erst den dritten, dann den
+   zweiten und zuletzt den ersten Platz auf seine Stufe; der Knopf bleibt
+   dabei oben stehen, scrollen musst du nicht. Gleichstände teilen
    sich einen Platz, niemand fällt durch eine willkürliche Reihung heraus.
    Ist die Rangliste eingefroren, zeigt die Siegerehrung nur dir als
    angemeldeter Lehrkraft den echten Stand; wer die Adresse am Handy

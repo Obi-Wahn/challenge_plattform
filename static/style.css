@@ -108,7 +108,7 @@ input::placeholder, textarea::placeholder {
   /* In der zweiten Zeile steht der Name des Wettbewerbs. Ein langes Wort darin
      ("Programmierwettbewerb") ist auf dem Handy breiter als die Seite und
      schöbe sie sonst zur Seite, statt umzubrechen. */
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   hyphens: auto;
 }
 
@@ -515,6 +515,166 @@ input::placeholder, textarea::placeholder {
   color: #1e2235;
 }
 
+/* ====== Siegerehrung: Podest ====== */
+/* Erster Platz in der Mitte und am höchsten, zweiter links, dritter rechts.
+   Jede Spalte hält den Platz für ihre Sieger von Anfang an frei, bis dahin
+   steht dort ein Fragezeichen. Beim Aufdecken verschiebt sich also nichts,
+   und der Knopf über dem Podest bleibt, wo er ist. */
+.podest {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 1rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.podest-spalte {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fragezeichen und Sieger liegen übereinander in derselben Zelle, die
+   Zelle ist so hoch wie die Sieger. */
+.podest-oben {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: end;
+  text-align: center;
+  padding: 0 0.25rem 0.75rem;
+}
+
+.podest-frage,
+.podest-sieger {
+  grid-area: 1 / 1;
+}
+
+.podest-frage {
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.25;
+  align-self: end;
+}
+
+.podest-sieger {
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(1.5rem);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.verkuendet .podest-frage { visibility: hidden; }
+
+.verkuendet .podest-sieger {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+}
+
+.podest-medaille {
+  font-size: 3rem;
+  line-height: 1;
+  margin-bottom: 0.35rem;
+}
+
+.podest-team {
+  font-weight: 700;
+  font-size: 1.6rem;
+  line-height: 1.2;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.podest-platz-1 { flex-grow: 1.15; }
+.podest-platz-1 .podest-team { font-size: 2.1rem; }
+
+.podest-punkte {
+  font-size: 1.15rem;
+  color: #aab0d6;
+  margin: 0.25rem 0;
+}
+
+/* Am Beamer mit 768 Pixel Höhe sollen auch lange Namen samt Stufe noch
+   ohne Scrollen zu sehen sein, deshalb wachsen die Stufen mit der Höhe. */
+.podest-stufe {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 0.75rem;
+  border-radius: 12px 12px 0 0;
+  color: rgba(20, 22, 35, 0.8);
+  box-shadow: inset 0 -8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.podest-zahl {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.podest-wort {
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.podest-platz-1 .podest-stufe {
+  height: min(190px, 22vh);
+  background: linear-gradient(180deg, #f8d859, #d9a521);
+}
+
+.podest-platz-2 .podest-stufe {
+  height: min(140px, 17vh);
+  background: linear-gradient(180deg, #e3e7ef, #a9b0bf);
+}
+
+.podest-platz-3 .podest-stufe {
+  height: 100px;
+  background: linear-gradient(180deg, #e8a86e, #b8733a);
+}
+
+/* Am großen Beamer darf das Podest den Platz auch nutzen. */
+@media (min-width: 1400px) and (min-height: 950px) {
+  .podest { max-width: 1200px; gap: 1.25rem; }
+  .podest-spalte { max-width: 380px; }
+  .podest-platz-1 { max-width: 460px; }
+  .podest-frage { font-size: 5rem; }
+  .podest-medaille { font-size: 3.75rem; }
+  .podest-team { font-size: 2rem; }
+  .podest-platz-1 .podest-team { font-size: 2.5rem; }
+  .podest-punkte { font-size: 1.35rem; }
+  .podest-zahl { font-size: 4.5rem; }
+  .podest-platz-1 .podest-stufe { height: 250px; }
+  .podest-platz-2 .podest-stufe { height: 185px; }
+  .podest-platz-3 .podest-stufe { height: 130px; }
+}
+
+@media (max-width: 576px) {
+  .podest { gap: 0.3rem; }
+  .podest-oben { padding: 0 0 0.5rem; }
+  .podest-frage { font-size: 2.5rem; }
+  .podest-medaille { font-size: 2rem; }
+  .podest-team { font-size: 0.95rem; }
+  .podest-platz-1 .podest-team { font-size: 1.05rem; }
+  .podest-punkte { font-size: 0.85rem; }
+  .podest-oben .badge { font-size: 0.65rem; }
+  .podest-zahl { font-size: 2.2rem; }
+  .podest-wort { font-size: 0.7rem; }
+  .podest-platz-1 .podest-stufe { height: 130px; }
+  .podest-platz-2 .podest-stufe { height: 95px; }
+  .podest-platz-3 .podest-stufe { height: 65px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .podest-sieger { transition: none; }
+}
+
 /* ====== Heller Modus ====== */
 /* Das dunkle Aussehen oben ist das ursprüngliche und bleibt unverändert.
    Der helle Modus legt sich als eigene Schicht darüber: Er greift nur, wenn
@@ -705,4 +865,9 @@ input::placeholder, textarea::placeholder {
 
 [data-farbschema="hell"] .ranglisten-leer {
   color: rgba(108, 117, 125, 0.25);
+}
+
+[data-farbschema="hell"] .podest-punkte { color: #5b6280; }
+[data-farbschema="hell"] .podest-stufe {
+  box-shadow: inset 0 -8px 16px rgba(0, 0, 0, 0.1), 0 6px 18px rgba(30, 34, 53, 0.12);
 }
