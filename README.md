@@ -84,7 +84,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Rangliste**: Punkte je Aufgabe und Gesamtstand, über jeder Spalte Nummer und Titel der Aufgabe („A1: Die Katze läuft im Kreis“, der Titel lässt sich abschalten), auch mit fünfzehn Aufgaben ohne seitliches Schieben, lädt sich alle 30 Sekunden selbst neu. Oben läuft dieselbe Restzeit mit, die die Teams sehen — die Seite für den ganzen Wettbewerb.
 *   **Rangliste einfrieren**: je Wettbewerb einschaltbar – ab einstellbaren Minuten vor Schluss zeigt der Beamer nur noch, was bis dahin abgegeben war. Die eigenen Punkte sieht jedes Team weiter aktuell, den echten Stand verkündet die Siegerehrung.
 *   **Hell oder dunkel**: Die Seiten folgen der Einstellung des Geräts; **☀️ Hell** oder **🌙 Dunkel** in der Leiste oben wechselt, etwa für den Beamer in einem hellen Raum. Die Wahl merkt sich nur der Browser dieses Geräts, der Server speichert nichts.
-*   **Siegerehrung**: Podium der besten drei, Platz für Platz aufzudecken (Leertaste oder Knopf). Bei Gleichstand teilen sich Teams einen Platz, und der nächste rückt nach: 10, 10 und 8 Punkte ergeben zwei erste Plätze und einen zweiten, kein Platz bleibt leer.
+*   **Siegerehrung**: Siegerpodest der besten drei, Platz für Platz von 3 bis 1 aufzudecken (Leertaste oder Knopf), jeder Platz erscheint auf seiner Stufe. Bei Gleichstand teilen sich Teams einen Platz, und der nächste rückt nach: 10, 10 und 8 Punkte ergeben zwei erste Plätze und einen zweiten, kein Platz bleibt leer.
 
 ### Ohne Installationsaufwand
 *   **Startdateien** für Windows, macOS und Linux richten beim ersten Öffnen alles ein und starten die Plattform.

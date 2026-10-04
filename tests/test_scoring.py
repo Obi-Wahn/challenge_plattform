@@ -4,6 +4,8 @@ Bei Gleichstand rücken die folgenden Teams nach (1, 2, 2, 3) statt einen
 Platz zu überspringen - so bleibt kein Platz auf dem Podium leer.
 """
 
+import re
+
 import pytest
 
 from scoring import get_podium, get_standings
@@ -153,6 +155,44 @@ class TestPodium:
         _tasks, standings = get_standings(challenge)
 
         assert get_podium(standings) == []
+
+
+class TestSiegerpodest:
+    """Die Siegerehrung als Podest: der erste Platz in der Mitte, die Knöpfe
+    darüber. So erscheint jeder Platz an seiner Stelle und niemand muss
+    zwischen den Verkündungen scrollen."""
+
+    def plaetze(self, html):
+        return [int(p) for p in re.findall(r'class="podest-spalte[^"]*" data-place="(\d)"', html)]
+
+    def test_zweiter_erster_dritter(self, client, wettbewerb_mit_punkten):
+        wettbewerb_mit_punkten({"Gold": [10, 10], "Silber": [8, 8], "Bronze": [5, 5]})
+
+        html = client.get("/siegerehrung").get_data(as_text=True)
+
+        assert self.plaetze(html) == [2, 1, 3]
+
+    def test_der_knopf_steht_ueber_dem_podest(self, client, wettbewerb_mit_punkten):
+        wettbewerb_mit_punkten({"Gold": [10, 10], "Silber": [8, 8], "Bronze": [5, 5]})
+
+        html = client.get("/siegerehrung").get_data(as_text=True)
+
+        assert html.index('id="reveal-next"') < html.index('class="podest"')
+
+    def test_fehlende_plaetze_fehlen_auch_auf_dem_podest(self, client, wettbewerb_mit_punkten):
+        wettbewerb_mit_punkten({"Gold": [10, 10], "Silber": [8, 8]})
+
+        html = client.get("/siegerehrung").get_data(as_text=True)
+
+        assert self.plaetze(html) == [2, 1]
+
+    def test_gleichstand_steht_auf_einer_stufe(self, client, wettbewerb_mit_punkten):
+        wettbewerb_mit_punkten({"Gold A": [10, 10], "Gold B": [10, 10], "Silber": [8, 8]})
+
+        html = client.get("/siegerehrung").get_data(as_text=True)
+
+        assert self.plaetze(html) == [2, 1]
+        assert "punktgleich" in html
 
 
 class TestOeffentlicheSeiten:
