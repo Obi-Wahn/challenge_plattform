@@ -199,7 +199,10 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 ### Während des Wettbewerbs
 
 - **Abgaben bewerten** unter `/admin` → *Bewertungen*. Punkte und ein kurzes
-  Feedback pro Abgabe.
+  Feedback pro Abgabe. Die Abgaben stehen nach Aufgaben geordnet, so wie auf
+  der Teamseite (*Aufgabe 1*, *Aufgabe 2* …), in jeder Aufgabe die offenen
+  zuerst. Oben führt *Springen zu* direkt zu jeder Aufgabe; gelb sind die,
+  in denen noch etwas offen ist.
 - **Durchsage an alle Teams**, etwa „Noch 10 Minuten, bitte speichern“:
   einmal unter *Name & Zeiten* das Häkchen **📢 Durchsagen an die Teams**
   setzen, dann steht auf der Wettbewerbsseite unter den Knöpfen für die Uhr
