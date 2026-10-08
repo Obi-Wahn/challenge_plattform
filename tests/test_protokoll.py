@@ -8,7 +8,9 @@ import io
 import logging
 import os
 
-from app import LOG_HANDLER_NAME, configure_logging
+import pytest
+
+from app import LOG_HANDLER_NAME, configure_logging, einmal_im_terminal
 
 
 def logdatei(flask_app):
@@ -47,6 +49,40 @@ class TestEinrichtung:
     def test_waitress_meldungen_landen_in_derselben_datei(self, flask_app):
         handler = next(h for h in flask_app.logger.handlers if h.name == LOG_HANDLER_NAME)
         assert handler in logging.getLogger("waitress").handlers
+
+
+class TestTerminal:
+    """Am 08.10.2026 stand im Terminal jede Meldung doppelt, einmal als
+    „[…] INFO in protokoll: …“ und einmal als „INFO:app: …“. Die zweite kam
+    über die Ausgabe, die waitress beim Start mit ``logging.basicConfig()``
+    am obersten Logger anlegt."""
+
+    @pytest.fixture
+    def wie_nach_dem_start_von_waitress(self, flask_app):
+        zweite_ausgabe = io.StringIO()
+        handler = logging.StreamHandler(zweite_ausgabe)
+        logging.getLogger().addHandler(handler)
+        vorher = flask_app.logger.propagate
+        yield zweite_ausgabe
+        flask_app.logger.propagate = vorher
+        logging.getLogger().removeHandler(handler)
+
+    def test_ohne_den_aufruf_stuende_die_meldung_doppelt(
+            self, flask_app, wie_nach_dem_start_von_waitress):
+        flask_app.logger.warning("Prüfzeile doppelt")
+        assert "Prüfzeile doppelt" in wie_nach_dem_start_von_waitress.getvalue()
+
+    def test_meldung_steht_nur_einmal_im_terminal(
+            self, flask_app, wie_nach_dem_start_von_waitress):
+        einmal_im_terminal(flask_app)
+        flask_app.logger.warning("Prüfzeile einmal")
+        assert "Prüfzeile einmal" not in wie_nach_dem_start_von_waitress.getvalue()
+
+    def test_die_datei_bekommt_die_meldung_weiter(
+            self, flask_app, wie_nach_dem_start_von_waitress):
+        einmal_im_terminal(flask_app)
+        flask_app.logger.warning("Prüfzeile Datei")
+        assert "Prüfzeile Datei" in inhalt(flask_app)
 
 
 class TestInhalt:
@@ -100,8 +136,6 @@ class TestInhalt:
 # eine Bewertung, ein Seitenaufruf. Die Klasse TestWasStillBleibt am Ende hält
 # genau diese Entscheidung fest: Sie ist der Grund, warum die Datei am
 # Wettbewerbstag noch zu lesen ist.
-
-import pytest
 
 from tests.helpers import csrf_token
 

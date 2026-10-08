@@ -144,6 +144,21 @@ def configure_logging(app):
         waitress_log.setLevel(logging.INFO)
 
 
+def einmal_im_terminal(app):
+    """Verhindert, dass jede Meldung im Terminal doppelt steht.
+
+    waitress ruft beim Start ``logging.basicConfig()`` auf und hängt damit
+    eine zweite Ausgabe ans Terminal. Die Meldungen der Anwendung stehen über
+    Flasks eigene Ausgabe schon dort - mit Zeitstempel - und kämen über die
+    zweite noch einmal, ohne. Die Protokolldatei betrifft das nicht, dort
+    stand jede Zeile immer nur einmal.
+
+    Nur für den echten Start: Die Tests lesen die Meldungen über ``caplog``,
+    und das hört am obersten Logger mit.
+    """
+    app.logger.propagate = False
+
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -768,5 +783,6 @@ if __name__ == "__main__":
                 "(%s in der .env setzen).", port, version, FESTE_ADRESSE
             )
 
+        einmal_im_terminal(app)
         serve(app, host="0.0.0.0", port=port)
 
