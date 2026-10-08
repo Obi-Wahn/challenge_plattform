@@ -73,7 +73,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Aufräumen**: Bei einem beendeten Wettbewerb löscht ein Knopf alle Teams samt Namen und Passwörtern und alle Abgaben mit Dateien; Wettbewerb, Einstellungen und Aufgaben bleiben für das nächste Mal. Protokolldatei und alte Sicherungskopien der Datenbank lassen sich unter Einstellungen löschen.
 *   **Zeit im Griff**: Start- und Endzeit oder eine Dauer in Minuten samt „Jetzt starten für … Minuten"; die Pause hält die Uhr an, „Fortsetzen" schiebt das Ende um die Pausendauer nach hinten.
 *   **Durchsagen**: je Wettbewerb einschaltbar – ein kurzer Satz wie „Noch 10 Minuten, bitte speichern“ erscheint oben auf jeder Teamseite und über der Rangliste. Es gilt immer nur einer; ins Protokoll und in die Sicherung kommt der Text nicht.
-*   **Bewerten**: Abgaben mit Aufgabenbeschreibung daneben, Textformate direkt im Browser lesbar, Download für lokale Tests, Punkte und Feedback, Korrektur freigeben oder Abgabe löschen.
+*   **Bewerten**: Abgaben nach Aufgaben geordnet, oben eine Sprungleiste, die zeigt, wo noch etwas offen ist, dazu die Aufgabenbeschreibung, Textformate direkt im Browser lesbar, Download für lokale Tests, Punkte und Feedback, Korrektur freigeben oder Abgabe löschen.
 *   **Teams**: Passwort zurücksetzen, die eingetragenen Namen kontrollieren, freigeben oder die Freigabe zurücknehmen; eine Zeile oben zeigt, wie viele noch auf die Kontrolle warten.
 *   **Urkunden**: als PDF und Druckansicht, für alle Teams oder einzeln, im Quer- oder Hochformat, mit Namen und Handschrift unter der Unterschriftslinie — auch für einen längst beendeten Wettbewerb, mit den Punkten von damals.
 *   **Einstellungen**: Standardname, -untertitel und -gruß für eine Installation, in der noch kein Wettbewerb angelegt oder keiner aktiv ist, ob über den Spalten der Rangliste die Aufgabentitel stehen, Quer- oder Hochformat der Urkunden, ob die Teams ihre Namen eintragen dürfen und Name und Handschrift unter der Unterschriftslinie; ganz unten Protokolldatei und alte Sicherungskopien aufräumen.
@@ -673,7 +673,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_teams.py` | Registrierung, Anmeldung, Bindung an den Wettbewerb, Team-Verwaltung |
 | `test_sitzung.py` | die Anmeldung gilt nicht mehr, wenn ihr Wettbewerb gelöscht ist |
 | `test_submissions.py` | Abgabe, leere Datei, doppelt abgeschickte Abgabe, Korrektur nach Freigabe, Bewertung |
-| `test_bewertungsseite.py` | die Bewertungsseite lädt Code nach, statt ihn mitzuschicken, und wandelt jeden Aufgabentext nur einmal um |
+| `test_bewertungsseite.py` | die Bewertungsseite ordnet die Abgaben nach Aufgaben, lädt Code nach, statt ihn mitzuschicken, und wandelt jeden Aufgabentext nur einmal um |
 | `test_aufraeumen.py` | hochgeladene Dateien verschwinden mit ihrer Abgabe |
 | `test_ablageort.py` | Abgaben werden auch nach einem Update in einen neuen Ordner gefunden und aufgeräumt |
 | `test_scoring.py` | Rangliste und Podium, auch bei Gleichstand |

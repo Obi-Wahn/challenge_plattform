@@ -971,7 +971,7 @@ def submissions():
     # database but must not clutter the review list.
     challenge = Challenge.current()
     if not challenge:
-        return render_template("admin/review.html", submissions=[], challenge=None)
+        return render_template("admin/review.html", gruppen=[], challenge=None)
 
     raw_submissions = Submission.query.join(Team).join(Task).filter(
         Task.challenge_id == challenge.id
@@ -980,16 +980,25 @@ def submissions():
         Team.name
     ).all()
 
-    submissions_data = []
+    # Die Abgaben stehen nach Aufgaben gruppiert, in der Reihenfolge, die
+    # auch Teamseite und Rangliste zeigen. Innerhalb einer Aufgabe zuerst
+    # die offenen, dann nach Teamname. Aufgaben ohne Abgabe fallen weg.
+    gruppe_der_aufgabe = {
+        task.id: {"nummer": nummer, "titel": task.title, "abgaben": []}
+        for nummer, task in enumerate(Task.geordnet(challenge.id), start=1)
+    }
+
     for s in raw_submissions:
         # Der Inhalt wird hier nicht mehr gelesen; das erledigt
         # submission_code() beim Aufklappen. Angezeigt wird nur, was die
         # Entscheidung trägt: ob sich die Datei überhaupt als Text lesen
         # lässt und wie groß sie ist.
         endung = os.path.splitext(s.filename)[1].lower()
-        submissions_data.append({
+        gruppe = gruppe_der_aufgabe[s.task_id]
+        gruppe["abgaben"].append({
             "id": s.id,
             "team_name": s.team.name,
+            "task_nummer": gruppe["nummer"],
             "task_title": s.task.title,
             "task_description": s.task.description,
             "max_points": s.task.max_points,
@@ -1002,7 +1011,10 @@ def submissions():
             "groesse": dateigroesse(s.pfad),
         })
 
-    return render_template("admin/review.html", submissions=submissions_data, challenge=challenge)
+    gruppen = [gruppe for gruppe in gruppe_der_aufgabe.values() if gruppe["abgaben"]]
+    for gruppe in gruppen:
+        gruppe["offen"] = sum(1 for abgabe in gruppe["abgaben"] if abgabe["points"] is None)
+    return render_template("admin/review.html", gruppen=gruppen, challenge=challenge)
 
 @admin_bp.route("/submissions/<int:submission_id>/allow_resubmit", methods=["POST"])
 def submission_allow_resubmit(submission_id):

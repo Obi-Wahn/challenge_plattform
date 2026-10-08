@@ -307,6 +307,92 @@ class TestKnoepfeOhneBewertung:
         assert all("formnovalidate" in knopf for knopf in knoepfe)
 
 
+class TestNachAufgabenSortiert:
+    """Die Abgaben stehen in Blöcken je Aufgabe, in der Reihenfolge von
+    Teamseite und Rangliste. Bisher standen sie nach Teamname durcheinander,
+    und wer eine Aufgabe nach der anderen bewerten wollte, musste suchen."""
+
+    def abgabe(self, database, team, task, punkte=None):
+        from models import Submission
+        database.session.add(Submission(team_id=team.id, task_id=task.id, points=punkte,
+                                        filename=f"{team.id}/task_{task.id}_a.sb3"))
+        database.session.commit()
+
+    def test_die_bloecke_folgen_der_reihenfolge_der_aufgaben(
+            self, admin, make_challenge, make_task, make_team, database):
+        challenge = make_challenge()
+        # Die zuletzt angelegte steht vorne - es zählt die Position, nicht das Anlegen.
+        zweite = make_task(challenge, title="Zweite Aufgabe", position=2)
+        erste = make_task(challenge, title="Erste Aufgabe", position=1)
+        team = make_team(challenge, name="Anton")
+        self.abgabe(database, team, zweite)
+        self.abgabe(database, team, erste)
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        assert "Aufgabe 1: Erste Aufgabe" in html
+        assert "Aufgabe 2: Zweite Aufgabe" in html
+        assert html.index("Aufgabe 1: Erste Aufgabe") < html.index("Aufgabe 2: Zweite Aufgabe")
+
+    def test_in_einer_aufgabe_stehen_die_offenen_zuerst(
+            self, admin, make_challenge, make_task, make_team, database):
+        challenge = make_challenge()
+        task = make_task(challenge, title="Katze")
+        self.abgabe(database, make_team(challenge, name="Anton"), task, punkte=5)
+        self.abgabe(database, make_team(challenge, name="Zora"), task)
+        self.abgabe(database, make_team(challenge, name="Berta"), task)
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        assert html.index("Berta") < html.index("Zora") < html.index("Anton")
+        assert "3 Abgaben · 2 offen" in html
+
+    def test_eine_aufgabe_ohne_abgabe_bekommt_keinen_block(
+            self, admin, make_challenge, make_task, make_team, database):
+        challenge = make_challenge()
+        make_task(challenge, title="Noch leer", position=1)
+        zweite = make_task(challenge, title="Mit Abgabe", position=2)
+        self.abgabe(database, make_team(challenge), zweite, punkte=3)
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        assert "Noch leer" not in html
+        # Gezählt wird trotzdem wie auf der Teamseite.
+        assert "Aufgabe 2: Mit Abgabe" in html
+        kopf = " ".join(html.split("Aufgabe 2: Mit Abgabe")[1].split("</h2>")[0].split())
+        assert "1 Abgabe" in kopf
+        assert "offen" not in kopf
+
+    def test_die_sprungleiste_fuehrt_zu_jeder_aufgabe_mit_abgaben(
+            self, admin, make_challenge, make_task, make_team, database):
+        import re
+        challenge = make_challenge()
+        erste = make_task(challenge, title="Fertig", position=1)
+        make_task(challenge, title="Leer", position=2)
+        dritte = make_task(challenge, title="Halb", position=3)
+        self.abgabe(database, make_team(challenge, name="Anton"), erste, punkte=4)
+        self.abgabe(database, make_team(challenge, name="Berta"), dritte)
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        ziele = re.findall(r'href="#(aufgabe-\d+)"', html)
+        assert ziele == ["aufgabe-1", "aufgabe-3"]
+        assert all(f'id="{ziel}"' in html for ziel in ziele)
+        leiste = " ".join(html.split("Springen zu:")[1].split("</nav>")[0].split())
+        assert "Aufgabe 1 ✔" in leiste
+        assert "Aufgabe 3 · 1 offen" in leiste
+
+    def test_bei_nur_einer_aufgabe_gibt_es_keine_sprungleiste(
+            self, admin, make_challenge, make_task, make_team, database):
+        challenge = make_challenge()
+        task = make_task(challenge)
+        self.abgabe(database, make_team(challenge), task)
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        assert "Springen zu" not in html
+
+
 class TestDownload:
     def test_eine_fehlende_datei_meldet_die_bewertungsseite(
             self, admin, make_challenge, make_task, logged_in_team):
