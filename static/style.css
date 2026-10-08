@@ -368,6 +368,16 @@ input::placeholder, textarea::placeholder {
   color: #fca5a5;
 }
 
+/* „Aufgabe 1“, „Aufgabe 2“ über dem Titel jeder Aufgabenkarte der Teams. */
+.aufgabe-nummer {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #93c5fd;
+  margin-bottom: 0.2rem;
+}
+
 /* Der Einleitungssatz einer Aufgabe steht über Punkten und Schwierigkeit.
    Sein Absatz bringt einen eigenen Abstand mit; ohne ihn stünden die beiden
    Zeilen doppelt weit auseinander. */
@@ -774,6 +784,7 @@ input::placeholder, textarea::placeholder {
 [data-farbschema="hell"] .aufgabe-schwierigkeit-einfach { color: #15803d; }
 [data-farbschema="hell"] .aufgabe-schwierigkeit-mittel { color: #a16207; }
 [data-farbschema="hell"] .aufgabe-schwierigkeit-schwer { color: #b91c1c; }
+[data-farbschema="hell"] .aufgabe-nummer { color: #1d4ed8; }
 
 [data-farbschema="hell"] .wettbewerbszeile {
   background: #fff;

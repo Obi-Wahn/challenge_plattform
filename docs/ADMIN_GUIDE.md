@@ -102,8 +102,9 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 
    Die **Reihenfolge** änderst du in der Aufgabenliste mit ▲ und ▼ – je
    Klick rückt die Aufgabe eine Stelle. In dieser Reihenfolge stehen die
-   Aufgaben auf der Seite der Teams, in der Rangliste (A1, A2 …) und in den
-   Sicherungen. Neue und eingelesene Aufgaben kommen ans Ende. Am besten
+   Aufgaben auf der Seite der Teams (über jeder „Aufgabe 1“, „Aufgabe 2“ …),
+   in der Rangliste (A1, A2 …) und in den Sicherungen. Die Nummern sind
+   dieselben, du kannst also im Raum von „Aufgabe 3“ sprechen. Neue und eingelesene Aufgaben kommen ans Ende. Am besten
    vor dem Start sortieren: Wer mitten im Wettbewerb umstellt, ändert auch
    die Nummern über den Spalten der Rangliste am Beamer – die Punkte bleiben
    dabei, wo sie hingehören.

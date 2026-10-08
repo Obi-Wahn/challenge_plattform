@@ -96,8 +96,14 @@
 </div>
 {% endif %}
 
-<!-- Fortschrittsanzeige -->
+<!-- Aufgaben -->
+<!-- Die Überschrift trennt die Aufgaben sichtbar von dem, was darüber steht
+     (Zeit, Durchsage, Namen). Ohne sie wussten Schülerinnen und Schüler nicht,
+     dass die Karten darunter das sind, was sie bearbeiten sollen. -->
 {% if tasks %}
+<h3 class="mt-4 mb-3">📋 Aufgaben</h3>
+
+<!-- Fortschrittsanzeige -->
 <div class="mb-4">
   <div class="d-flex justify-content-between text-secondary small mb-1">
     <span>Fortschritt</span>
@@ -112,7 +118,6 @@
 </div>
 {% endif %}
 
-<!-- Aufgaben -->
 <div class="row g-3">
 
   {% for task in tasks %}
@@ -121,6 +126,10 @@
 
       {% set aufgabentext = task.description | aufgabentext %}
 
+      <!-- Gezählt wie in der Rangliste (A1, A2, …), in derselben Reihenfolge
+           aus Task.geordnet(): So meinen Teams und Lehrkraft dieselbe Karte,
+           wenn sie über eine Nummer reden. -->
+      <div class="aufgabe-nummer">Aufgabe {{ loop.index }}</div>
       <h5 class="mb-1">{{ task.title }}</h5>
 
       <!-- Erst der Satz, der sagt, worum es geht, dann Punkte und
