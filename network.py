@@ -133,3 +133,21 @@ def join_url(host_url):
         adresse = f"{adresse}:{teile.port}"
 
     return urlunsplit((teile.scheme, adresse, teile.path or "/", "", ""))
+
+
+def abtipp_adresse(url):
+    """Die Beitrittsadresse so, wie sie groß über dem QR-Code steht.
+
+    Ohne "http://" und ohne den Schrägstrich am Ende: Beides ergänzt der
+    Browser beim Eintippen selbst, und mit acht Zeichen weniger passt die
+    Adresse in doppelter Größe auf dieselbe Zeile. Der QR-Code behält die
+    vollständige Adresse. Https bleibt stehen - ohne die Vorsilbe versuchte
+    der Browser womöglich http -, ebenso ein Pfad, falls die Anwendung
+    hinter einem Unterordner läuft.
+    """
+    teile = urlsplit(url)
+    if teile.scheme != "http":
+        return url
+
+    pfad = "" if teile.path in ("", "/") else teile.path
+    return teile.netloc + pfad

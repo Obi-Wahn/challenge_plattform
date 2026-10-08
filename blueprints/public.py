@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from models import Challenge, Settings, Team, MAX_TEAMNAME
 from scoring import get_standings, get_podium
 from sitzung import team_abmelden, team_anmelden
-from network import join_url
+from network import abtipp_adresse, join_url
 from protokoll import ereignis
 import base64
 import io
@@ -87,10 +87,12 @@ def generate_qr_code(adresse):
 
 @public_bp.route("/", methods=["GET", "POST"])
 def index():
-    # Dieselbe Adresse steckt im QR-Code und steht zum Abtippen darunter:
-    # An einem normalen PC nützt ein QR-Code nichts.
-    beitritt = join_url(request.host_url)
-    qr_code_data = generate_qr_code(beitritt)
+    # Dieselbe Adresse steckt im QR-Code und steht zum Abtippen darüber:
+    # An einem normalen PC nützt ein QR-Code nichts. Zum Abtippen steht sie
+    # gekürzt da, siehe abtipp_adresse().
+    adresse = join_url(request.host_url)
+    beitritt = abtipp_adresse(adresse)
+    qr_code_data = generate_qr_code(adresse)
 
     challenge = Challenge.current()
 

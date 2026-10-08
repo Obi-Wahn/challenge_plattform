@@ -23,11 +23,13 @@
        ein QR-Code nichts -, darunter der QR-Code fürs Handy. -->
   {% if beitritt %}
   <div class="col-lg-6 col-xl-5">
-    <div class="event-card text-center h-100 d-flex flex-column justify-content-center">
+    <div class="event-card beitritt-karte text-center h-100 d-flex flex-column justify-content-center">
       <p class="text-secondary small mb-1">
         💻 Am Computer diese Adresse eintippen:
       </p>
-      <p class="beitritt-adresse {{ 'mb-4' if qr_code_data else 'mb-0' }}">{{ beitritt }}</p>
+      {# Die Zeichenzahl braucht style.css, um die Schrift so groß zu machen,
+         dass die Adresse die Karte gerade ausfüllt. #}
+      <p class="beitritt-adresse {{ 'mb-4' if qr_code_data else 'mb-0' }}" style="--zeichen: {{ beitritt|length }}">{{ beitritt }}</p>
 
       {% if qr_code_data %}
       <img src="data:image/png;base64,{{ qr_code_data }}" alt="QR-Code zu dieser Seite" class="qr-code mx-auto">
