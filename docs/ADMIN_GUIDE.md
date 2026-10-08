@@ -57,9 +57,10 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    Ist gerade kein Wettbewerb aktiv, wird der neue es von selbst. Läuft schon
    einer, bleibt der aktiv; den neuen aktivierst du dann am Wettbewerbstag.
 
-   Zwei Häkchen gibt es erst nach dem Anlegen, auf der Seite des Wettbewerbs
+   Drei Häkchen gibt es erst nach dem Anlegen, auf der Seite des Wettbewerbs
    unter *Name & Zeiten*: **❄️ Rangliste vor Schluss einfrieren** und
-   **📢 Durchsagen an die Teams**. Bei einem neuen Wettbewerb sind beide aus.
+   **📢 Durchsagen an die Teams** sind bei einem neuen Wettbewerb aus,
+   **🔁 Teams dürfen ihre Abgabe selbst korrigieren** ist an.
    Was sie tun, steht unten unter *Während des Wettbewerbs*; am besten jetzt
    entscheiden, dann ist am Tag selbst nichts mehr umzustellen.
 
@@ -208,6 +209,13 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   jeder Teamseite und über der Rangliste am Beamer. Es gilt immer nur eine
   Durchsage – eine neue ersetzt die alte, **Entfernen** nimmt sie weg. Ins
   Protokoll kommt nur, dass es eine gab, nicht ihr Text.
+- **Korrekturen** machen die Teams selbst: Unter jeder abgegebenen Aufgabe
+  steht **🔁 Korrektur abgeben**, die neue Datei ersetzt die alte. War die
+  Abgabe schon bewertet, fallen Punkte und Feedback weg, und sie steht wieder
+  als offen unter *Bewertungen*. Das geht, solange der Wettbewerb läuft.
+  Willst du jede Korrektur selbst freigeben, nimm unter *Name & Zeiten* das
+  Häkchen **🔁 Teams dürfen ihre Abgabe selbst korrigieren** heraus; dann
+  steht unter jeder Abgabe wieder **🔓 Erneut abgeben erlauben**.
 - **Hinweis freischalten**, wenn eine Aufgabe zu schwer ist: auf der
   Aufgaben-Seite umschalten. Der Hinweis erscheint bei allen Teams innerhalb
   von etwa 15 Sekunden, ohne dass jemand neu laden muss.
@@ -271,7 +279,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Team tippt seinen Namen anders geschrieben | Beim **Anmelden** ist das in Ordnung: „die pixelpiraten“ findet „Die Pixelpiraten“, solange es nur ein Team dieses Namens gibt. Nur wenn zwei Teams nebeneinander existieren, die sich allein in der Schreibweise unterscheiden, muss die Schreibweise stimmen. |
 | Zwei Teams mit fast gleichem Namen | Beim **Registrieren** zählt die Schreibweise: „Die Hacker“ und „die hacker“ werden zwei verschiedene Teams. Umgebende Leerzeichen werden dagegen entfernt, `„ Team A “` wird zu `„Team A“`. Wenn das stört, Team löschen und neu anmelden lassen. |
 | Ein Team kommt nicht mehr rein | Passwort vergessen. `/admin` → *Teams* → neues Passwort setzen und dem Team sagen. Das alte wird nicht angezeigt – auch nicht dir. |
-| Ein Team hat die falsche Datei hochgeladen | `/admin` → *Bewertungen* → **🔓 Erneut abgeben erlauben** – das geht auch, bevor die Abgabe Punkte hat. Die Freigabe gilt **einmal**. Sobald das Team neu abgibt, verschwindet die bisherige Bewertung und die Abgabe landet wieder in der Warteschlange; bis dahin bleibt alles, wie es ist. |
+| Ein Team hat die falsche Datei hochgeladen | Normalerweise nichts zu tun: Das Team lädt über **🔁 Korrektur abgeben** die richtige hoch. Hast du das Häkchen **🔁 Teams dürfen ihre Abgabe selbst korrigieren** herausgenommen: `/admin` → *Bewertungen* → **🔓 Erneut abgeben erlauben** – das geht auch, bevor die Abgabe Punkte hat. Die Freigabe gilt **einmal**. Sobald das Team neu abgibt, verschwindet die bisherige Bewertung und die Abgabe landet wieder in der Warteschlange; bis dahin bleibt alles, wie es ist. |
 | „Abgaben sind gerade gesperrt“ bei einem Team | Wettbewerb pausiert oder Endzeit überschritten. Die Meldung steht auf der Wettbewerbsseite des Teams. Gehört das Team zu einem anderen als dem aktiven Wettbewerb, landet es gar nicht erst dort, sondern auf der Startseite. |
 | Falsches Dateiformat wird abgewiesen | Das erlaubte Format steht pro Aufgabe und in der Meldung, die das Team bekommt. Prüfen, ob es zu dem passt, was die Umgebung tatsächlich exportiert (Scratch: `.sb3`, MakeCode-Calliope: `.hex`, Open Roberta und Snap!: `.xml`, Arduino: `.ino`, App Inventor: `.aia`, Jupyter: `.ipynb`). Open Roberta und Snap! teilen sich `.xml` – aus welcher der beiden Umgebungen die Datei stammt, prüft die Plattform nicht. |
 | Ein Team will sich noch registrieren, der Wettbewerb ist beendet oder pausiert | Die Startseite nimmt dann keine neuen Teams an – sonst stünde das Team mit null Punkten in der Rangliste am Beamer. Soll es doch noch mitmachen: **🔓 Wieder öffnen** bzw. **▶ Fortsetzen** auf der Wettbewerbsseite, dann registrieren lassen. |

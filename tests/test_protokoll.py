@@ -395,7 +395,7 @@ class TestWettbewerbstag:
 
     def test_zweite_abgabe_ohne_freigabe(self, protokoll, make_challenge, make_task,
                                          logged_in_team):
-        challenge = make_challenge()
+        challenge = make_challenge(self_correction=False)
         task = make_task(challenge)
         client, _ = logged_in_team(challenge)
         self.abgeben(client, task)

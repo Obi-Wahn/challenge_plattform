@@ -295,7 +295,7 @@ class TestKnoepfeOhneBewertung:
     def test_beide_knoepfe_umgehen_die_pflichtfeldpruefung(
             self, admin, make_challenge, make_task, logged_in_team):
         import re
-        challenge = make_challenge()
+        challenge = make_challenge(self_correction=False)
         task = make_task(challenge, allowed_extension=".py")
         client, _team = logged_in_team(challenge)
         abgeben(client, task, "loesung.py")

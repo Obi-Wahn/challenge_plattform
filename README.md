@@ -60,7 +60,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Aktualisiert sich selbst**: Die Seite fragt alle 15 Sekunden nach dem Stand — Pause, Fortsetzen, ein freigeschalteter Tipp, eine Durchsage und eine neue Dauer kommen an, ohne dass jemand neu laden muss.
 *   **Abgabe je Aufgabe**: Processing (`.pde`), Scratch (`.sb`/`.sb3`), Python (`.py`), Java (`.java`), MakeCode/Calliope (`.hex`/`.mkcd`), Open Roberta und Snap! (`.xml`), Arduino (`.ino`), App Inventor (`.aia`), Jupyter (`.ipynb`) — welches Format erlaubt ist, legt die Aufgabe fest.
 *   **Tipps**: Kommt ein Team nicht weiter, schaltet die Lehrkraft den Hinweis zur Aufgabe frei.
-*   **Korrektur**: Gibt die Lehrkraft eine Abgabe frei, darf das Team sie genau einmal ersetzen.
+*   **Korrektur**: Solange der Wettbewerb läuft, ersetzt ein Team seine Abgabe einfach durch eine neue Datei; eine schon bewertete wird dabei wieder offen. Je Wettbewerb abschaltbar, dann gibt die Lehrkraft jede Korrektur einzeln frei.
 *   **Namen für die Urkunde**: Das Team trägt sie selbst ein, einen pro Zeile; auf die Urkunde kommen sie nach der Freigabe durch die Lehrkraft.
 *   **Eigene Urkunde als PDF**: nach dem Ende des Wettbewerbs selbst herunterladbar, bei eingefrorener Rangliste nach der Siegerehrung.
 
@@ -509,7 +509,7 @@ Knopf lädt eine ZIP-Datei herunter:
 
 | In der ZIP | Inhalt |
 |---|---|
-| `wettbewerb.json` | Name, Untertitel, Gruß, Zeiten, ob die Rangliste einfriert und ob Durchsagen eingeschaltet sind (ohne deren Text), Aufgaben mit Tipp und Schwierigkeit, Teams, Abgaben mit Punkten, Feedback und Zeitpunkt |
+| `wettbewerb.json` | Name, Untertitel, Gruß, Zeiten, ob die Rangliste einfriert, ob Durchsagen eingeschaltet sind (ohne deren Text) und ob Teams selbst korrigieren dürfen, Aufgaben mit Tipp und Schwierigkeit, Teams, Abgaben mit Punkten, Feedback und Zeitpunkt |
 | `abgaben/team_<n>/` | die abgegebenen Dateien, je Team ein Ordner |
 
 Eingelesen wird sie unter **➕ Neuer Wettbewerb → Oder aus einer Sicherung
@@ -661,6 +661,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_zeitleiste.py` | die Restzeit-Leiste auf Wettbewerbsseite und Rangliste |
 | `test_rangliste_einfrieren.py` | die Rangliste vor Schluss einfrieren, von der Einstellung über Pause und Ende bis zum Auflösen |
 | `test_durchsage.py` | Durchsagen an alle Teams, vom Schalter im Formular bis auf Teamseite und Rangliste |
+| `test_korrektur_ohne_freigabe.py` | Teams korrigieren ihre Abgabe selbst, vom Schalter im Formular über Teamseite und Bewertungsseite bis zur Sicherung |
 | `test_aktualisierung.py` | die Teamseite holt sich den Stand von selbst |
 | `test_veranstaltungsname.py` | eigener Name und Gruß je Wettbewerb, Urkunden für ältere Wettbewerbe |
 | `test_aktiver_wettbewerb.py` | welcher Wettbewerb gilt, wird ausdrücklich gewählt – auch nach dem Löschen und Einlesen |
