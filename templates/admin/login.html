@@ -18,8 +18,7 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="mb-4">
           <input type="password" name="password" class="form-control form-control-lg" required
-            placeholder="{% if bewertungszugang %}Passwort{% else %}Admin-Passwort{% endif %}"
-            aria-label="Passwort">
+            placeholder="Passwort" aria-label="Passwort">
           {% if bewertungszugang %}
           {# Ein Feld für beide Zugänge: Das Passwort entscheidet, wohin es geht. #}
           <div class="form-text text-secondary mt-2">
