@@ -86,9 +86,10 @@ def seitenstand(challenge):
 
     Drin steht, was ein Team sofort sehen muss: welcher Wettbewerb läuft, ob
     er pausiert oder beendet ist, wann er anfängt und aufhört, welche Hinweise
-    freigeschaltet sind, wie viele Aufgaben es gibt, welche Durchsage gilt
-    und ob die Urkunde schon zu haben ist - nach dem Auflösen der Rangliste
-    erscheint ihr Knopf so, ohne dass jemand neu lädt.
+    freigeschaltet sind, wie viele Aufgaben es gibt, welche Durchsage gilt,
+    ob Teams ihre Abgaben selbst korrigieren dürfen und ob die Urkunde schon
+    zu haben ist - nach dem Auflösen der Rangliste erscheint ihr Knopf so,
+    ohne dass jemand neu lädt.
 
     Die Zeiten gehören dazu, weil die Uhr im Browser nichts davon weiß, wenn
     die Lehrkraft die Dauer mitten im Wettbewerb neu setzt - die Seite zeigte
@@ -115,6 +116,7 @@ def seitenstand(challenge):
         str(anzahl),
         ",".join(str(nummer) for (nummer,) in hinweise),
         "urkunde" if challenge.certificates_open else "-",
+        "korrektur" if challenge.self_correction else "-",
         challenge.announcement_at.isoformat()
         if challenge.announcement and challenge.announcement_at else "-",
     ])
@@ -341,10 +343,11 @@ def submit_task(task_id):
 
     team_id = team.id
 
-    # A team may only submit once per task, unless an admin explicitly
-    # released this submission for a correction.
+    # Ersetzen darf ein Team seine Abgabe, wenn der Wettbewerb Korrekturen
+    # ohne Freigabe erlaubt oder die Lehrkraft diese eine Abgabe freigegeben
+    # hat. Sonst bleibt es bei einer Abgabe je Aufgabe.
     existing = Submission.query.filter_by(team_id=team_id, task_id=task_id).first()
-    if existing and not existing.resubmit_allowed:
+    if existing and not (challenge.self_correction or existing.resubmit_allowed):
         return abgabe_abgelehnt(
             "schon abgegeben, keine Freigabe zum Ersetzen",
             f"„{task.title}“ habt ihr schon abgegeben. Soll die Abgabe ersetzt "
@@ -394,18 +397,20 @@ def submit_task(task_id):
 
     if existing:
         # Correction: replace the file and clear the previous grading, so the
-        # submission goes back into the admin's review queue. The release is
-        # used up, so a further correction needs a new one.
+        # submission goes back into the admin's review queue. A release is
+        # used up, so a further correction needs a new one - unless the
+        # competition allows corrections without one.
         previous_filepath = existing.pfad
 
         # Umgestellt wird nur, solange die Abgabe noch auf die alte Datei
-        # zeigt und freigegeben ist. Hat eine zweite Anfrage desselben Teams
-        # die Freigabe inzwischen verbraucht, gewönne sonst die spätere, und
-        # die Datei der früheren bliebe unbemerkt in uploads/ liegen - auch
-        # nach dem Aufräumen.
-        umgestellt = Submission.query.filter_by(
-            id=existing.id, filename=existing.filename, resubmit_allowed=True
-        ).update({
+        # zeigt (und, ohne Korrektur durch die Teams, freigegeben ist). Hat
+        # eine zweite Anfrage desselben Teams sie inzwischen ersetzt, gewönne
+        # sonst die spätere, und die Datei der früheren bliebe unbemerkt in
+        # uploads/ liegen - auch nach dem Aufräumen.
+        bedingung = {"id": existing.id, "filename": existing.filename}
+        if not challenge.self_correction:
+            bedingung["resubmit_allowed"] = True
+        umgestellt = Submission.query.filter_by(**bedingung).update({
             Submission.filename: ablage_von(filepath),
             Submission.timestamp: datetime.now(),
             Submission.points: None,

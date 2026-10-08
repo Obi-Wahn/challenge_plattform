@@ -168,7 +168,7 @@ class TestAbgabeMitMissgeschick:
             self, make_challenge, make_task, logged_in_team):
         from models import Submission
 
-        challenge = make_challenge()
+        challenge = make_challenge(self_correction=False)
         task = make_task(challenge)
         client, _team = logged_in_team(challenge)
 

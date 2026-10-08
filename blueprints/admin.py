@@ -346,6 +346,7 @@ def challenge_edit(cid):
         # nächsten Einschalten unverhofft wieder auftauchte.
         if not challenge.announcements_enabled:
             challenge.clear_announcement()
+        challenge.self_correction = bool(request.form.get("self_correction"))
 
         db.session.commit()
 

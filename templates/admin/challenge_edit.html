@@ -113,6 +113,23 @@
       der Rangliste. Es gilt immer nur eine Durchsage; ausschalten entfernt sie.
     </p>
 
+    <!-- Je Wettbewerb und von Anfang an eingeschaltet: Auf die Freigabe je
+         Abgabe musste ein Team sonst warten, bis die Lehrkraft die Karte in
+         der Bewertungsliste wiederfand. -->
+    <div class="form-check mt-4">
+      <input class="form-check-input" type="checkbox" name="self_correction"
+        id="self_correction" {% if challenge.self_correction %}checked{% endif %}>
+      <label class="form-check-label" for="self_correction">
+        🔁 Teams dürfen ihre Abgabe selbst korrigieren
+      </label>
+    </div>
+    <p class="text-secondary small mt-2 mb-0">
+      Solange der Wettbewerb läuft, kann ein Team eine neue Datei hochladen, die seine
+      Abgabe ersetzt. War sie schon bewertet, fallen Punkte und Feedback weg, und sie
+      steht wieder als offen bei den Abgaben. Ausgeschaltet gibst du jede Korrektur
+      einzeln frei.
+    </p>
+
     <button class="btn btn-primary mt-4">
       💾 Speichern
     </button>

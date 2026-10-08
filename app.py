@@ -371,6 +371,7 @@ ADDED_COLUMNS = {
         "announcements_enabled": "BOOLEAN NOT NULL DEFAULT 0",
         "announcement_text": "VARCHAR(200) NOT NULL DEFAULT ''",
         "announcement_at": "DATETIME",
+        "self_correction": "BOOLEAN NOT NULL DEFAULT 1",
     },
     "teams": {
         "member_names": "TEXT",

@@ -145,6 +145,7 @@ def sicherung_bauen(challenge, mit_namen, mit_passwoertern=False):
                 # Nur ob es Durchsagen gibt, nicht ihr Text: Der gilt für den
                 # Augenblick, nicht für eine Sicherung.
                 "durchsagen": bool(challenge.announcements_enabled),
+                "korrektur_ohne_freigabe": bool(challenge.self_correction),
             },
             "aufgaben": [
                 {
@@ -347,6 +348,8 @@ def _anlegen(zf, daten, upload_ordner, geschrieben):
         frozen_since=_datum(wettbewerb.get("eingefroren_seit")),
         scoreboard_revealed=bool(wettbewerb.get("rangliste_aufgeloest")),
         announcements_enabled=bool(wettbewerb.get("durchsagen")),
+        # Fehlt die Angabe, gilt der Standard für neue Wettbewerbe.
+        self_correction=bool(wettbewerb.get("korrektur_ohne_freigabe", True)),
     )
     if challenge.paused and not challenge.paused_at:
         challenge.paused = False

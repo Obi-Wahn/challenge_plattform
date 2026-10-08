@@ -121,7 +121,7 @@ def test_zweite_abgabe_ohne_freigabe_wird_abgewiesen(
         make_challenge, make_task, logged_in_team):
     from models import Submission
 
-    challenge = make_challenge()
+    challenge = make_challenge(self_correction=False)
     task = make_task(challenge)
     client, _team = logged_in_team(challenge)
 
@@ -139,7 +139,7 @@ class TestKorrektur:
             self, admin, make_challenge, make_task, logged_in_team, database):
         from models import Submission
 
-        challenge = make_challenge()
+        challenge = make_challenge(self_correction=False)
         task = make_task(challenge)
         client, team = logged_in_team(challenge)
         abgeben(client, task, inhalt=b"erster versuch")
@@ -161,7 +161,7 @@ class TestKorrektur:
         """Die Abgabe muss zurück in die Warteschlange der Lehrkraft."""
         from models import Submission
 
-        challenge = make_challenge()
+        challenge = make_challenge(self_correction=False)
         task = make_task(challenge)
         client, _team = logged_in_team(challenge)
         abgeben(client, task)
@@ -183,7 +183,7 @@ class TestKorrektur:
             self, admin, make_challenge, make_task, logged_in_team, database):
         from models import Submission
 
-        challenge = make_challenge()
+        challenge = make_challenge(self_correction=False)
         task = make_task(challenge)
         client, _team = logged_in_team(challenge)
         abgeben(client, task)

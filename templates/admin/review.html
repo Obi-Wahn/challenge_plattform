@@ -149,6 +149,8 @@
 
       <div class="col-md-12 mt-2">
         <div class="d-flex flex-wrap justify-content-end gap-2">
+          {# Dürfen Teams selbst korrigieren, braucht es keine Freigabe. #}
+          {% if not challenge.self_correction %}
           {# formnovalidate: Die Knöpfe teilen sich das Formular mit dem
              Punktefeld, und das ist ein Pflichtfeld. Ohne das Attribut hielt
              der Browser beide an, solange die Abgabe noch keine Punkte hatte -
@@ -162,6 +164,7 @@
             🔓 Erneut abgeben erlauben
             {% endif %}
           </button>
+          {% endif %}
 
           <button type="submit" formnovalidate formaction="{{ url_for('admin.submission_reset', submission_id=submission.id) }}"
             class="btn btn-outline-danger btn-sm"

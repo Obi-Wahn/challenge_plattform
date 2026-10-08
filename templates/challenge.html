@@ -177,12 +177,21 @@
       {% endif %}
       {% endif %}
 
-      {% if not submission or submission.resubmit_allowed %}
+      {# Ohne Freigabe nur, solange abgegeben werden kann: Nach dem Ende oder
+         in der Pause stünde sonst unter jeder abgegebenen Aufgabe ein
+         ausgegrautes Formular. #}
+      {% if not submission or submission.resubmit_allowed or (challenge.self_correction and offen) %}
 
-      {% if submission %}
+      {% if submission and submission.resubmit_allowed %}
       <div class="mt-3 mb-2 p-2 rounded bg-dark border border-info text-light small">
         🔓 <strong>Korrektur freigegeben:</strong> Ihr könnt eine neue Datei hochladen.
         Sie ersetzt eure bisherige Abgabe.
+      </div>
+      {% elif submission %}
+      <div class="mt-3 mb-2 text-secondary small">
+        Noch etwas verbessert? Eine neue Datei ersetzt eure Abgabe.
+        {%- if submission.points is not none %} Die Punkte fallen dann weg, bis
+        die Lehrkraft neu bewertet.{% endif %}
       </div>
       {% endif %}
 

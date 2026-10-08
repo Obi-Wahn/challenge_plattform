@@ -163,6 +163,11 @@ class Challenge(db.Model):
     announcements_enabled = db.Column(db.Boolean, nullable=False, default=False)
     announcement_text = db.Column(db.String(200), nullable=False, default="")
     announcement_at = db.Column(db.DateTime, nullable=True)
+    # Teams dürfen eine Abgabe selbst ersetzen, ohne dass die Lehrkraft sie
+    # erst freigibt. Die Bewertung fällt dabei weg, und die Abgabe steht
+    # wieder als offen in der Bewertungsliste. Ausgeschaltet gilt die
+    # Freigabe je Abgabe wie früher.
+    self_correction = db.Column(db.Boolean, nullable=False, default=True)
     tasks = db.relationship('Task', backref='challenge', lazy=True, cascade="all, delete-orphan",
                             order_by="(Task.position, Task.id)")
     teams = db.relationship('Team', backref='challenge', lazy=True, cascade="all, delete-orphan")
