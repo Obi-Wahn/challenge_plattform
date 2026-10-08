@@ -382,6 +382,20 @@ class TestNachAufgabenSortiert:
         assert "Aufgabe 1 ✔" in leiste
         assert "Aufgabe 3 · 1 offen" in leiste
 
+    def test_jede_aufgabe_fuehrt_zurueck_zur_sprungleiste(
+            self, admin, make_challenge, make_task, make_team, database):
+        challenge = make_challenge()
+        erste = make_task(challenge, title="Fertig", position=1)
+        zweite = make_task(challenge, title="Halb", position=2)
+        self.abgabe(database, make_team(challenge, name="Anton"), erste, punkte=4)
+        self.abgabe(database, make_team(challenge, name="Berta"), zweite)
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        assert 'id="sprungleiste"' in html
+        # Je Aufgabe einmal, nicht an jeder Abgabe.
+        assert html.count('href="#sprungleiste"') == 2
+
     def test_bei_nur_einer_aufgabe_gibt_es_keine_sprungleiste(
             self, admin, make_challenge, make_task, make_team, database):
         challenge = make_challenge()
@@ -391,6 +405,7 @@ class TestNachAufgabenSortiert:
         html = admin.get("/admin/submissions").get_data(as_text=True)
 
         assert "Springen zu" not in html
+        assert 'href="#sprungleiste"' not in html
 
 
 class TestDownload:
