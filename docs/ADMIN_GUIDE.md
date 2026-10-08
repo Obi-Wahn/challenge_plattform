@@ -138,7 +138,7 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 - [ ] **Hilft jemand beim Bewerten?** Dann unter *Einstellungen* →
       *Bewertungszugang* ein eigenes Passwort setzen (mindestens 6 Zeichen,
       nicht das Admin-Passwort) und weitergeben. Angemeldet wird sich wie du
-      über **Admin-Anmeldung** unten auf jeder Seite, landet aber direkt auf
+      über **Jury-Anmeldung** unten auf jeder Seite, landet aber direkt auf
       der Bewertungsseite und kommt von dort nirgendwo anders hin. Löschen
       und Freigeben sind dort ausgeblendet. Ohne Passwort gibt es diesen
       Zugang nicht.
