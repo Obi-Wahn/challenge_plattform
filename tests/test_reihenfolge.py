@@ -1,7 +1,7 @@
 """Die Reihenfolge der Aufgaben, die der Admin mit ▲ und ▼ festlegt.
 
 Sie gilt überall, wo Aufgaben der Reihe nach stehen: in der Aufgabenliste,
-auf der Teamseite, in der Rangliste (A1, A2 …), im Namen einer
+auf der Teamseite (Aufgabe 1, Aufgabe 2 …), in der Rangliste (A1, A2 …), im Namen einer
 heruntergeladenen Abgabe und in beiden Sicherungen.
 """
 
@@ -160,6 +160,26 @@ class TestUeberall:
         html = client.get("/challenge").get_data(as_text=True)
 
         assert self.reihenfolge_in(html, ["Katze", "Punkte", "Gespräch"])
+
+    def test_teamseite_nummeriert_wie_die_rangliste(self, umsortiert, logged_in_team):
+        # Ohne Nummer wussten Teams nicht, welche Karte mit „Aufgabe 2“
+        # gemeint ist. Gezählt wird wie A1, A2 … in der Rangliste.
+        client, _ = logged_in_team(umsortiert)
+
+        html = client.get("/challenge").get_data(as_text=True)
+
+        karten = re.findall(
+            r'class="aufgabe-nummer">([^<]+)</div>\s*<h5[^>]*>([^<]+)</h5>', html)
+        assert karten == [
+            ("Aufgabe 1", "Katze"), ("Aufgabe 2", "Punkte"), ("Aufgabe 3", "Gespräch"),
+        ]
+
+    def test_teamseite_hat_eine_ueberschrift_ueber_den_aufgaben(self, umsortiert, logged_in_team):
+        client, _ = logged_in_team(umsortiert)
+
+        html = client.get("/challenge").get_data(as_text=True)
+
+        assert self.reihenfolge_in(html, ["📋 Aufgaben", "Fortschritt", "Aufgabe 1"])
 
     def test_rangliste_nummeriert_in_der_neuen_reihenfolge(self, client, umsortiert, make_team):
         make_team(umsortiert, name="Team Blitz")
