@@ -18,6 +18,7 @@ from wettbewerb_sicherung import (sicherung_bauen, sicherung_einlesen,
                                   SicherungFehler)
 from protokoll import ereignis, stoerung
 from uploads import safe_name
+from scratch_skripte import skripte_der_abgabe
 from datenschutz import (groesse_text, protokoll_leeren, protokolldateien,
                          sicherungskopien, sicherungskopien_loeschen,
                          wettbewerb_aufraeumen)
@@ -943,6 +944,27 @@ def submission_code(submission_id):
     return antwort
 
 
+@admin_bp.route("/submissions/<int:submission_id>/skripte")
+def submission_skripte(submission_id):
+    """Die Skripte einer Scratch-Abgabe, nachgeladen beim Aufklappen.
+
+    Der Server liest nur die project.json aus der .sb3 und schreibt die
+    Blöcke als scratchblocks-Text; die Bilder zeichnet der Browser. Als JSON
+    aus demselben Grund wie submission_code().
+    """
+    submission = db.get_or_404(Submission, submission_id)
+    if os.path.splitext(submission.filename)[1].lower() != ".sb3":
+        figuren, hinweis = [], "Nur Scratch-3-Projekte (.sb3) lassen sich so anzeigen."
+    elif not os.path.isfile(submission.pfad):
+        figuren, hinweis = [], "Die Datei liegt nicht mehr an ihrem Platz."
+    else:
+        figuren, hinweis = skripte_der_abgabe(submission.pfad)
+
+    antwort = jsonify({"figuren": figuren, "hinweis": hinweis})
+    antwort.headers["X-Content-Type-Options"] = "nosniff"
+    return antwort
+
+
 @admin_bp.route("/submissions", methods=["GET", "POST"])
 def submissions():
     if request.method == "POST":
@@ -1008,13 +1030,16 @@ def submissions():
             "abgegeben": s.timestamp,
             "endung": endung,
             "als_text_lesbar": endung in TEXT_FORMATS,
+            "als_scratch": endung == ".sb3",
             "groesse": dateigroesse(s.pfad),
         })
 
     gruppen = [gruppe for gruppe in gruppe_der_aufgabe.values() if gruppe["abgaben"]]
     for gruppe in gruppen:
         gruppe["offen"] = sum(1 for abgabe in gruppe["abgaben"] if abgabe["points"] is None)
-    return render_template("admin/review.html", gruppen=gruppen, challenge=challenge)
+    hat_scratch = any(abgabe["als_scratch"] for gruppe in gruppen for abgabe in gruppe["abgaben"])
+    return render_template("admin/review.html", gruppen=gruppen, challenge=challenge,
+                           hat_scratch=hat_scratch)
 
 @admin_bp.route("/submissions/<int:submission_id>/allow_resubmit", methods=["POST"])
 def submission_allow_resubmit(submission_id):

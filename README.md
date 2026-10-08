@@ -73,7 +73,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Aufräumen**: Bei einem beendeten Wettbewerb löscht ein Knopf alle Teams samt Namen und Passwörtern und alle Abgaben mit Dateien; Wettbewerb, Einstellungen und Aufgaben bleiben für das nächste Mal. Protokolldatei und alte Sicherungskopien der Datenbank lassen sich unter Einstellungen löschen.
 *   **Zeit im Griff**: Start- und Endzeit oder eine Dauer in Minuten samt „Jetzt starten für … Minuten"; die Pause hält die Uhr an, „Fortsetzen" schiebt das Ende um die Pausendauer nach hinten.
 *   **Durchsagen**: je Wettbewerb einschaltbar – ein kurzer Satz wie „Noch 10 Minuten, bitte speichern“ erscheint oben auf jeder Teamseite und über der Rangliste. Es gilt immer nur einer; ins Protokoll und in die Sicherung kommt der Text nicht.
-*   **Bewerten**: Abgaben nach Aufgaben geordnet, oben eine Sprungleiste, die zeigt, wo noch etwas offen ist, dazu die Aufgabenbeschreibung, Textformate direkt im Browser lesbar, Download für lokale Tests, Punkte und Feedback, Korrektur freigeben (wenn die Teams nicht selbst korrigieren dürfen) oder Abgabe löschen.
+*   **Bewerten**: Abgaben nach Aufgaben geordnet, oben eine Sprungleiste, die zeigt, wo noch etwas offen ist, dazu die Aufgabenbeschreibung, Textformate direkt im Browser lesbar, die Skripte einer Scratch-Abgabe (`.sb3`) als Blöcke wie in Scratch, Download für lokale Tests, Punkte und Feedback, Korrektur freigeben (wenn die Teams nicht selbst korrigieren dürfen) oder Abgabe löschen.
 *   **Teams**: Passwort zurücksetzen, die eingetragenen Namen kontrollieren, freigeben oder die Freigabe zurücknehmen; eine Zeile oben zeigt, wie viele noch auf die Kontrolle warten.
 *   **Urkunden**: als PDF und Druckansicht, für alle Teams oder einzeln, im Quer- oder Hochformat, mit Namen und Handschrift unter der Unterschriftslinie — auch für einen längst beendeten Wettbewerb, mit den Punkten von damals.
 *   **Einstellungen**: Standardname, -untertitel und -gruß für eine Installation, in der noch kein Wettbewerb angelegt oder keiner aktiv ist, ob über den Spalten der Rangliste die Aufgabentitel stehen, Quer- oder Hochformat der Urkunden, ob die Teams ihre Namen eintragen dürfen und Name und Handschrift unter der Unterschriftslinie; ganz unten Protokolldatei und alte Sicherungskopien aufräumen.
@@ -94,7 +94,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 ## 🛠 Technologien
 
 *   **Backend**: Python, Flask, SQLAlchemy (SQLite), waitress (Produktiv-WSGI-Server).
-*   **Frontend**: HTML5, CSS3, Bootstrap 5, Markdown-Editor (EasyMDE) — alle Assets liegen lokal im Repo (`static/vendor/`), keine CDN-Abhängigkeit, funktioniert komplett offline.
+*   **Frontend**: HTML5, CSS3, Bootstrap 5, Markdown-Editor (EasyMDE), scratchblocks für die Skripte der Scratch-Abgaben — alle Assets liegen lokal im Repo (`static/vendor/`), keine CDN-Abhängigkeit, funktioniert komplett offline.
 *   **PDF**: fpdf2 für die Urkunden. Die Handschriften unter `static/vendor/fonts/` stehen
     unter der SIL Open Font License (Lizenztexte liegen daneben) und sind mit im Repo,
     damit die Urkunden auch ohne Internet entstehen.
@@ -372,7 +372,7 @@ steht in **[docs/ADMIN_GUIDE.md](docs/ADMIN_GUIDE.md)**.
 
 ## 🔄 Frontend-Bibliotheken aktualisieren
 
-Bootstrap, EasyMDE, Font Awesome und die Handschriften liegen als Dateien
+Bootstrap, EasyMDE, Font Awesome, scratchblocks und die Handschriften liegen als Dateien
 unter `static/vendor/` im Repo – nur so funktioniert die Anwendung ohne
 Internet. Der Preis dafür: Sie aktualisieren sich nicht von selbst. Welche
 Fassungen dort liegen, steht in `static/vendor/versionen.json`.
@@ -674,6 +674,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_sitzung.py` | die Anmeldung gilt nicht mehr, wenn ihr Wettbewerb gelöscht ist |
 | `test_submissions.py` | Abgabe, leere Datei, doppelt abgeschickte Abgabe, Korrektur nach Freigabe, Bewertung |
 | `test_bewertungsseite.py` | die Bewertungsseite ordnet die Abgaben nach Aufgaben, lädt Code nach, statt ihn mitzuschicken, und wandelt jeden Aufgabentext nur einmal um |
+| `test_scratch_skripte.py` | die Skripte einer `.sb3` als Blöcke, auf Deutsch und robust gegen kaputte oder bearbeitete Dateien |
 | `test_aufraeumen.py` | hochgeladene Dateien verschwinden mit ihrer Abgabe |
 | `test_ablageort.py` | Abgaben werden auch nach einem Update in einen neuen Ordner gefunden und aufgeräumt |
 | `test_scoring.py` | Rangliste und Podium, auch bei Gleichstand |
@@ -741,6 +742,7 @@ challenge_plattform/
 ├── protokoll.py           # die Zeilen, die in logs/anwendung.log gehen
 ├── uploads.py             # löscht Dateien mit ihrer Abgabe
 ├── task_rules.py          # Regeln für Aufgabenwerte, für Formular und Import
+├── scratch_skripte.py     # liest die Skripte aus einer .sb3 für die Bewertungsseite
 ├── requirements.txt       # Abhängigkeiten
 ├── requirements-dev.txt   # zusätzlich zum Testen
 ├── pytest.ini             # Test-Einstellungen
@@ -753,7 +755,7 @@ challenge_plattform/
 │   ├── challenge.py
 │   └── public.py
 ├── static/
-│   ├── vendor/              # Lokal eingebundene Frontend-Bibliotheken (Bootstrap, EasyMDE, Font Awesome)
+│   ├── vendor/              # Lokal eingebundene Frontend-Bibliotheken (Bootstrap, EasyMDE, Font Awesome, scratchblocks)
 │   │   ├── fonts/           # Handschriften für die Unterschrift auf den Urkunden (OFL)
 │   │   └── versionen.json   # welche Fassungen hier liegen
 │   └── ...                  # eigenes CSS, Bilder

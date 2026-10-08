@@ -206,6 +206,12 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   zuerst. Oben führt *Springen zu* direkt zu jeder Aufgabe; gelb sind die,
   in denen noch etwas offen ist. **↑ nach oben** an jeder Aufgabe führt
   zurück zu dieser Leiste.
+- **Scratch-Abgaben ansehen**: Bei einer `.sb3` zeigt **🧩 Skripte anzeigen**
+  die Skripte jeder Figur als Blöcke, so wie in Scratch, nur ohne sie
+  auszuführen. Ob das Projekt tut, was es soll, zeigt weiterhin erst
+  **⬇️ Datei herunterladen** und Öffnen in Scratch. Blöcke aus Erweiterungen,
+  die die Plattform nicht kennt, erscheinen grau mit ihrem englischen Namen;
+  Kommentare aus dem Projekt fehlen.
 - **Durchsage an alle Teams**, etwa „Noch 10 Minuten, bitte speichern“:
   einmal unter *Name & Zeiten* das Häkchen **📢 Durchsagen an die Teams**
   setzen, dann steht auf der Wettbewerbsseite unter den Knöpfen für die Uhr
