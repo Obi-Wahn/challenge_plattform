@@ -1,5 +1,5 @@
 from flask import (Blueprint, render_template, request, redirect, url_for, session,
-                   send_from_directory, send_file, flash, jsonify, current_app)
+                   send_from_directory, send_file, flash, jsonify, current_app, abort)
 from extensions import db
 from models import (Team, Challenge, Task, Submission, Settings, TASK_FORMATS,
                     MAX_DAUER_MINUTEN, MAX_GRUSS, MAX_SEITENNAME, MAX_TITEL,
@@ -17,6 +17,7 @@ from task_exchange import export_bytes, parse_tasks, ImportError_
 from wettbewerb_sicherung import (sicherung_bauen, sicherung_einlesen,
                                   SicherungFehler)
 from protokoll import ereignis, stoerung
+from sitzung import bewertung_angemeldet
 from uploads import safe_name
 from scratch_skripte import skripte_der_abgabe
 from datenschutz import (groesse_text, protokoll_leeren, protokolldateien,
@@ -79,12 +80,32 @@ def zeitpunkt_text(zeitpunkt, bezug):
         return zeitpunkt.strftime("%H:%M") + " Uhr"
     return zeitpunkt.strftime("%d.%m., %H:%M") + " Uhr"
 
+# Was der Bewertungszugang darf: die Bewertungsseite samt Code, Skripten
+# und Download. Alles andere unter /admin bleibt beim Admin - auch Abgaben
+# löschen und zum Korrigieren freigeben, obwohl beides auf derselben Seite
+# steht.
+NUR_BEWERTUNG = {
+    "admin.submissions",
+    "admin.submission_code",
+    "admin.submission_skripte",
+    "admin.download_submission",
+}
+
 @admin_bp.before_request
 def restrict_admin():
     # Gilt für alles unter /admin außer der Anmeldung selbst: Die liegt in
     # auth_bp, und diese Prüfung läuft nur für die Seiten dieses Blueprints.
-    if not session.get("is_admin"):
-        return redirect(url_for('auth.admin_login'))
+    if session.get("is_admin"):
+        return None
+    if bewertung_angemeldet():
+        if request.endpoint in NUR_BEWERTUNG:
+            return None
+        # Auch ein von Hand abgeschicktes Formular kommt hier nicht weiter.
+        # Ein Link aus Gewohnheit, etwa /admin, führt zurück zu den Abgaben.
+        if request.method == "POST":
+            abort(403)
+        return redirect(url_for('admin.submissions'))
+    return redirect(url_for('auth.admin_login'))
 
 # Was der Lehrkraft angezeigt wird, wenn aus dem Formular keine Aufgabe wird.
 PROBLEM_MELDUNG = {
@@ -993,7 +1014,8 @@ def submissions():
     # database but must not clutter the review list.
     challenge = Challenge.current()
     if not challenge:
-        return render_template("admin/review.html", gruppen=[], challenge=None)
+        return render_template("admin/review.html", gruppen=[], challenge=None,
+                               nur_bewertung=not session.get("is_admin"))
 
     raw_submissions = Submission.query.join(Team).join(Task).filter(
         Task.challenge_id == challenge.id
@@ -1038,8 +1060,11 @@ def submissions():
     for gruppe in gruppen:
         gruppe["offen"] = sum(1 for abgabe in gruppe["abgaben"] if abgabe["points"] is None)
     hat_scratch = any(abgabe["als_scratch"] for gruppe in gruppen for abgabe in gruppe["abgaben"])
+    # Mit dem Bewertungszugang fehlen die Knöpfe zum Löschen und Freigeben
+    # und der Weg zur Steuerzentrale; restrict_admin() hält die Adressen zu.
     return render_template("admin/review.html", gruppen=gruppen, challenge=challenge,
-                           hat_scratch=hat_scratch)
+                           hat_scratch=hat_scratch,
+                           nur_bewertung=not session.get("is_admin"))
 
 @admin_bp.route("/submissions/<int:submission_id>/allow_resubmit", methods=["POST"])
 def submission_allow_resubmit(submission_id):
@@ -1323,6 +1348,25 @@ EINSTELLUNGSFELDER = {
 }
 
 
+# Gemeinsam benutzt und im Schul-LAN bei fünf Versuchen pro Minute zu
+# erraten - ein paar Zeichen muss das Passwort für die Bewertung haben.
+MIN_BEWERTUNGSPASSWORT = 6
+MAX_BEWERTUNGSPASSWORT = 128
+
+
+def bewertungspasswort_fehler(passwort):
+    """Was gegen das neue Passwort für die Bewertung spricht, oder None."""
+    if len(passwort) < MIN_BEWERTUNGSPASSWORT:
+        return f"Es braucht mindestens {MIN_BEWERTUNGSPASSWORT} Zeichen."
+    if len(passwort) > MAX_BEWERTUNGSPASSWORT:
+        return f"Es darf höchstens {MAX_BEWERTUNGSPASSWORT} Zeichen haben."
+    # Sonst entschiede die Anmeldeseite immer für den Admin, und wer nur
+    # bewerten soll, säße mit dem Passwort in der Steuerzentrale.
+    if passwort == current_app.config["ADMIN_PASSWORD"]:
+        return "Es darf nicht dasselbe sein wie das Admin-Passwort."
+    return None
+
+
 @admin_bp.route("/settings", methods=["GET", "POST"])
 def settings():
     site_settings = Settings.get()
@@ -1355,14 +1399,34 @@ def settings():
             ausrichtung if ausrichtung in CERTIFICATE_ORIENTATIONS else DEFAULT_ORIENTATION
         )
 
+        # Leer heißt hier: Das Passwort bleibt, wie es ist. Sonst nähme jedes
+        # Speichern der Seite den Bewertungszugang wieder weg - im Feld steht
+        # das gesetzte Passwort ja nicht. Abschalten geht über einen eigenen
+        # Knopf (review_access_off).
+        neues_passwort = request.form.get("review_password", "")
+        passwort_fehler = None
+        bewertung_vorher = site_settings.review_access
+        if neues_passwort.strip():
+            passwort_fehler = bewertungspasswort_fehler(neues_passwort)
+            if not passwort_fehler:
+                site_settings.set_review_password(neues_passwort)
+
         db.session.commit()
 
         geaendert = [name for feld, name in EINSTELLUNGSFELDER.items()
                      if getattr(site_settings, feld) != vorher[feld]]
         if geaendert:
             ereignis("Einstellungen geändert: %s", ", ".join(geaendert))
+        # Nur dass, nie womit: Das Passwort kommt nicht ins Protokoll.
+        if neues_passwort.strip() and not passwort_fehler:
+            ereignis("Passwort für die Bewertung geändert" if bewertung_vorher
+                     else "Bewertungszugang eingerichtet")
 
-        flash("Einstellungen gespeichert.", "success")
+        if passwort_fehler:
+            flash("Einstellungen gespeichert, das Passwort für die Bewertung aber "
+                  f"nicht: {passwort_fehler}", "warning")
+        else:
+            flash("Einstellungen gespeichert.", "success")
         return redirect(url_for('admin.settings'))
 
     protokoll = protokolldateien()
@@ -1375,6 +1439,21 @@ def settings():
         protokoll_groesse=groesse_text(sum(g for _n, g in protokoll)) if protokoll else None,
         kopien=[(name, groesse_text(groesse)) for name, groesse in kopien],
     )
+
+@admin_bp.route("/bewertungszugang-abschalten", methods=["POST"])
+def review_access_off():
+    """Nimmt das Passwort für die Bewertung weg.
+
+    Wer damit angemeldet war, ist beim nächsten Klick draußen: Das Kennzeichen
+    in der Sitzung passt zu keinem Passwort mehr (bewertung_angemeldet).
+    """
+    site_settings = Settings.get()
+    if site_settings.review_access:
+        site_settings.set_review_password(None)
+        db.session.commit()
+        ereignis("Bewertungszugang abgeschaltet")
+    flash("Der Bewertungszugang ist abgeschaltet.", "success")
+    return redirect(url_for('admin.settings') + "#bewertungszugang")
 
 @admin_bp.route("/protokoll-leeren", methods=["POST"])
 def protocol_clear():

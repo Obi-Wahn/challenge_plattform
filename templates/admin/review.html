@@ -1,9 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
 
+{% if nur_bewertung %}
+{# Mit dem Bewertungszugang gibt es keine Steuerzentrale, in die es zurück
+   ginge. An der Stelle steht, wie man hier wieder herauskommt. #}
+<p class="text-secondary small mb-0">
+  Angemeldet zum Bewerten ·
+  <a href="{{ url_for('auth.admin_logout') }}" class="text-secondary">🔓 Abmelden</a>
+</p>
+{% else %}
 <a href="{{ url_for('admin.dashboard') }}" class="text-secondary small text-decoration-none">
   ← zurück zur Steuerzentrale
 </a>
+{% endif %}
 <h1 class="mb-2 mt-1">📝 Abgaben bewerten</h1>
 
 {% if challenge %}
@@ -190,6 +199,9 @@
 
       </div>
 
+      {# Löschen und Freigeben bleiben beim Admin, siehe NUR_BEWERTUNG in
+         blueprints/admin.py. #}
+      {% if not nur_bewertung %}
       <div class="col-md-12 mt-2">
         <div class="d-flex flex-wrap justify-content-end gap-2">
           {# Dürfen Teams selbst korrigieren, braucht es keine Freigabe. #}
@@ -216,6 +228,7 @@
           </button>
         </div>
       </div>
+      {% endif %}
 
     </div>
   </form>
@@ -224,9 +237,15 @@
 {% endfor %}
 {% endfor %}
 
+{% if nur_bewertung %}
+<a href="{{ url_for('auth.admin_logout') }}" class="btn btn-sm btn-outline-secondary">
+  🔓 Abmelden
+</a>
+{% else %}
 <a href="{{ url_for('admin.dashboard') }}" class="text-secondary">
   ← zurück zur Steuerzentrale
 </a>
+{% endif %}
 
 <script>
   // Holt den Inhalt einer Abgabe beim ersten Aufklappen nach. Der Text wird

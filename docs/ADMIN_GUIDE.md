@@ -135,6 +135,13 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
       dem QR-Code und lässt sich abtippen – wichtig, weil an normalen PCs und
       Laptops ein QR-Code nichts nützt. Dort fehlt das `http://` davor: Das
       ergänzt der Browser beim Eintippen selbst.
+- [ ] **Hilft jemand beim Bewerten?** Dann unter *Einstellungen* →
+      *Bewertungszugang* ein eigenes Passwort setzen (mindestens 6 Zeichen,
+      nicht das Admin-Passwort) und weitergeben. Angemeldet wird sich wie du
+      über **Admin-Anmeldung** unten auf jeder Seite, landet aber direkt auf
+      der Bewertungsseite und kommt von dort nirgendwo anders hin. Löschen
+      und Freigeben sind dort ausgeblendet. Ohne Passwort gibt es diesen
+      Zugang nicht.
 - [ ] **Beamer testen** mit der Rangliste `/scoreboard`. Die Restzeit steht
       dort oben, dieselbe, die die Teams sehen. Ist der Raum hell und die
       Tabelle blass, oben in der Leiste auf **☀️ Hell** wechseln. Der
@@ -206,6 +213,12 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   zuerst. Oben führt *Springen zu* direkt zu jeder Aufgabe; gelb sind die,
   in denen noch etwas offen ist. **↑ nach oben** an jeder Aufgabe führt
   zurück zu dieser Leiste.
+- **Mit Hilfe bewerten**: Wer mit dem Passwort für die Bewertung angemeldet
+  ist, sieht dieselbe Seite, nur ohne **🗑 Abgabe vollständig löschen** und
+  **🔓 Erneut abgeben erlauben**. Wer was bewertet hat, merkt sich die
+  Plattform nicht. Soll niemand mehr mitbewerten, unter *Einstellungen* ein
+  neues Passwort setzen oder **Bewertungszugang abschalten** – wer noch
+  angemeldet ist, ist beim nächsten Klick draußen.
 - **Scratch-Abgaben ansehen**: Bei einer `.sb3` zeigt **🧩 Skripte anzeigen**
   die Skripte jeder Figur als Blöcke, so wie in Scratch, nur ohne sie
   auszuführen. Ob das Projekt tut, was es soll, zeigt weiterhin erst
@@ -289,6 +302,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Team tippt seinen Namen anders geschrieben | Beim **Anmelden** ist das in Ordnung: „die pixelpiraten“ findet „Die Pixelpiraten“, solange es nur ein Team dieses Namens gibt. Nur wenn zwei Teams nebeneinander existieren, die sich allein in der Schreibweise unterscheiden, muss die Schreibweise stimmen. |
 | Zwei Teams mit fast gleichem Namen | Beim **Registrieren** zählt die Schreibweise: „Die Hacker“ und „die hacker“ werden zwei verschiedene Teams. Umgebende Leerzeichen werden dagegen entfernt, `„ Team A “` wird zu `„Team A“`. Wenn das stört, Team löschen und neu anmelden lassen. |
 | Ein Team kommt nicht mehr rein | Passwort vergessen. `/admin` → *Teams* → neues Passwort setzen und dem Team sagen. Das alte wird nicht angezeigt – auch nicht dir. |
+| Wer beim Bewerten hilft, landet wieder auf der Anmeldung | Das Passwort für die Bewertung wurde geändert oder der Zugang abgeschaltet – beides meldet ab. Unter *Einstellungen* → *Bewertungszugang* steht, ob er eingerichtet ist; das aktuelle Passwort weitergeben oder ein neues setzen. |
 | Ein Team hat die falsche Datei hochgeladen | Normalerweise nichts zu tun: Das Team lädt über **🔁 Korrektur abgeben** die richtige hoch. Hast du das Häkchen **🔁 Teams dürfen ihre Abgabe selbst korrigieren** herausgenommen: `/admin` → *Bewertungen* → **🔓 Erneut abgeben erlauben** – das geht auch, bevor die Abgabe Punkte hat. Die Freigabe gilt **einmal**. Sobald das Team neu abgibt, verschwindet die bisherige Bewertung und die Abgabe landet wieder in der Warteschlange; bis dahin bleibt alles, wie es ist. |
 | „Abgaben sind gerade gesperrt“ bei einem Team | Wettbewerb pausiert oder Endzeit überschritten. Die Meldung steht auf der Wettbewerbsseite des Teams. Gehört das Team zu einem anderen als dem aktiven Wettbewerb, landet es gar nicht erst dort, sondern auf der Startseite. |
 | Falsches Dateiformat wird abgewiesen | Das erlaubte Format steht pro Aufgabe und in der Meldung, die das Team bekommt. Prüfen, ob es zu dem passt, was die Umgebung tatsächlich exportiert (Scratch: `.sb3`, MakeCode-Calliope: `.hex`, Open Roberta und Snap!: `.xml`, Arduino: `.ino`, App Inventor: `.aia`, Jupyter: `.ipynb`). Open Roberta und Snap! teilen sich `.xml` – aus welcher der beiden Umgebungen die Datei stammt, prüft die Plattform nicht. |

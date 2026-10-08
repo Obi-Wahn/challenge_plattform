@@ -409,6 +409,7 @@ ADDED_COLUMNS = {
         "member_names_enabled": "BOOLEAN NOT NULL DEFAULT 0",
         "scoreboard_task_titles": "BOOLEAN NOT NULL DEFAULT 1",
         "greeting": "VARCHAR(200) NOT NULL DEFAULT 'Schön, dass ihr dabei seid!'",
+        "review_password_hash": "VARCHAR(200) NOT NULL DEFAULT ''",
     },
 }
 
