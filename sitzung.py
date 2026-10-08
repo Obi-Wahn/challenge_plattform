@@ -1,4 +1,4 @@
-"""Wer gerade als Team angemeldet ist - und wann diese Anmeldung verfällt.
+"""Wer gerade als Team oder zum Bewerten angemeldet ist - und wann das verfällt.
 
 Die Anmeldung eines Teams steht in der Sitzung des Browsers, der Wettbewerb
 dazu in der Datenbank. Der kann verschwinden, während das Cookie weiterlebt:
@@ -61,3 +61,37 @@ def angemeldetes_team(challenge):
         return None
 
     return team
+
+
+# ------------------------------------------------------- Bewertungszugang
+
+def bewertung_anmelden(settings):
+    """Merkt sich im Browser, dass hier jemand zum Bewerten angemeldet ist.
+
+    Gespeichert wird das Kennzeichen des gerade gültigen Passworts, siehe
+    Settings.review_token. Ein Name oder sonst etwas über die Person steht
+    nicht darin: Der Zugang ist ein gemeinsamer, kein persönlicher.
+    """
+    session["bewertung"] = settings.review_token
+
+
+def bewertung_abmelden():
+    session.pop("bewertung", None)
+
+
+def bewertung_angemeldet():
+    """Ob die Anmeldung zur Bewertung noch gilt.
+
+    Sie gilt, solange die Lehrkraft das Passwort weder geändert noch den
+    Zugang abgeschaltet hat. Sonst wird sie hier geräumt - wie bei den Teams,
+    damit eine alte Anmeldung nicht auf jeder Seite wieder hochkommt.
+    """
+    kennzeichen = session.get("bewertung")
+    if not kennzeichen:
+        return False
+
+    from models import Settings
+    if kennzeichen != Settings.get().review_token:
+        bewertung_abmelden()
+        return False
+    return True

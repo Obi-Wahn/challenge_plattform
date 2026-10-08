@@ -554,6 +554,41 @@ class Settings(db.Model):
     # An ist die Voreinstellung; aus lohnt sich bei vielen Aufgaben mit
     # langen Titeln, wenn am Beamer ohnehin nur Wortanfänge übrig blieben.
     scoreboard_task_titles = db.Column(db.Boolean, nullable=False, default=True)
+    # Der Hash des Passworts für den Bewertungszugang. Leer heißt: Es gibt
+    # keinen, angemeldet wird sich dann nur als Admin. Das Passwort selbst
+    # steht nirgends, auch nicht in der .env.
+    review_password_hash = db.Column(db.String(200), nullable=False, default="")
+
+    @property
+    def review_access(self):
+        """Ob ein Bewertungszugang eingerichtet ist."""
+        return bool(self.review_password_hash)
+
+    def set_review_password(self, password):
+        """Richtet den Bewertungszugang ein, oder schaltet ihn mit None ab."""
+        from werkzeug.security import generate_password_hash
+        self.review_password_hash = generate_password_hash(password) if password else ""
+
+    def check_review_password(self, password):
+        from werkzeug.security import check_password_hash
+        if not self.review_password_hash or not password:
+            return False
+        return check_password_hash(self.review_password_hash, password)
+
+    @property
+    def review_token(self):
+        """Das Kennzeichen, an dem eine Anmeldung zur Bewertung hängt.
+
+        Abgeleitet aus dem Hash, und der trägt ein zufälliges Salz: Jedes neu
+        gesetzte Passwort ergibt ein anderes Kennzeichen, auch dasselbe noch
+        einmal. Wer mit dem alten angemeldet war, ist damit draußen. In der
+        Sitzung steht nur dieses Kennzeichen, nicht der Hash - das Cookie ist
+        unterschrieben, aber lesbar.
+        """
+        if not self.review_password_hash:
+            return ""
+        import hashlib
+        return hashlib.sha256(self.review_password_hash.encode()).hexdigest()[:32]
 
     @classmethod
     def get(cls):

@@ -74,9 +74,10 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Zeit im Griff**: Start- und Endzeit oder eine Dauer in Minuten samt „Jetzt starten für … Minuten"; die Pause hält die Uhr an, „Fortsetzen" schiebt das Ende um die Pausendauer nach hinten.
 *   **Durchsagen**: je Wettbewerb einschaltbar – ein kurzer Satz wie „Noch 10 Minuten, bitte speichern“ erscheint oben auf jeder Teamseite und über der Rangliste. Es gilt immer nur einer; ins Protokoll und in die Sicherung kommt der Text nicht.
 *   **Bewerten**: Abgaben nach Aufgaben geordnet, oben eine Sprungleiste, die zeigt, wo noch etwas offen ist, dazu die Aufgabenbeschreibung, Textformate direkt im Browser lesbar, die Skripte einer Scratch-Abgabe (`.sb3`) als Blöcke wie in Scratch, Download für lokale Tests, Punkte und Feedback, Korrektur freigeben (wenn die Teams nicht selbst korrigieren dürfen) oder Abgabe löschen.
+*   **Bewertungszugang**: ein eigenes Passwort für alle, die beim Bewerten helfen. Damit geht es nur auf die Bewertungsseite – Abgaben ansehen, herunterladen, Punkte und Feedback geben. Löschen, Freigeben und alles andere bleiben beim Admin; ein neues Passwort meldet alle ab, die mit dem alten angemeldet waren.
 *   **Teams**: Passwort zurücksetzen, die eingetragenen Namen kontrollieren, freigeben oder die Freigabe zurücknehmen; eine Zeile oben zeigt, wie viele noch auf die Kontrolle warten.
 *   **Urkunden**: als PDF und Druckansicht, für alle Teams oder einzeln, im Quer- oder Hochformat, mit Namen und Handschrift unter der Unterschriftslinie — auch für einen längst beendeten Wettbewerb, mit den Punkten von damals.
-*   **Einstellungen**: Standardname, -untertitel und -gruß für eine Installation, in der noch kein Wettbewerb angelegt oder keiner aktiv ist, ob über den Spalten der Rangliste die Aufgabentitel stehen, Quer- oder Hochformat der Urkunden, ob die Teams ihre Namen eintragen dürfen und Name und Handschrift unter der Unterschriftslinie; ganz unten Protokolldatei und alte Sicherungskopien aufräumen.
+*   **Einstellungen**: Standardname, -untertitel und -gruß für eine Installation, in der noch kein Wettbewerb angelegt oder keiner aktiv ist, ob über den Spalten der Rangliste die Aufgabentitel stehen, Quer- oder Hochformat der Urkunden, ob die Teams ihre Namen eintragen dürfen, Name und Handschrift unter der Unterschriftslinie und das Passwort für den Bewertungszugang; ganz unten Protokolldatei und alte Sicherungskopien aufräumen.
 *   **Protokolldatei**: Was anlegt, ändert oder wegnimmt, steht mit Zeitstempel in `logs/anwendung.log` – samt jeder **abgewiesenen** Abgabe mit Grund. Damit ist „Wir haben doch abgegeben!“ nach dem Wettbewerbstag beantwortbar.
 *   **Eigene Fehlerseiten**: deutscher Satz und ein Weg zurück statt der englischen Seite des Webservers. Die gewöhnlichen Missgeschicke landen gar nicht dort, sondern als Meldung auf der Wettbewerbsseite des Teams.
 
@@ -587,7 +588,7 @@ Festgehalten wird, was etwas **anlegt, ändert oder wegnimmt** – und was
 | Wann | Was im Protokoll steht |
 |---|---|
 | Start | der Server ist hochgefahren, mit Adresse, Port und Version · gesicherte Datenbank vor einem Umbau · ein Wettbewerb, den das Update aktiv geschaltet hat, weil bisher keiner ausdrücklich aktiviert war · wie viele Abgaben vom ganzen Pfad auf den Ort unter `uploads/` umgestellt wurden (einmalig nach dem Update) · eine Warnung, wenn der `SECRET_KEY` kürzer als 32 Zeichen ist |
-| Aufbau | Wettbewerb angelegt, bearbeitet, aktiv geschaltet, gelöscht · Team angelegt, gelöscht, Passwort zurückgesetzt · übernommene Teams · Aufgabe angelegt, bearbeitet, gelöscht · Aufgaben gesichert und eingelesen · Wettbewerb gesichert (mit oder ohne Namen und Passwörter) und eingelesen · geänderte Einstellungen (nur welche Felder) |
+| Aufbau | Wettbewerb angelegt, bearbeitet, aktiv geschaltet, gelöscht · Team angelegt, gelöscht, Passwort zurückgesetzt · übernommene Teams · Aufgabe angelegt, bearbeitet, gelöscht · Aufgaben gesichert und eingelesen · Wettbewerb gesichert (mit oder ohne Namen und Passwörter) und eingelesen · geänderte Einstellungen (nur welche Felder) · Bewertungszugang eingerichtet, Passwort geändert, abgeschaltet (ohne das Passwort) |
 | Wettbewerbstag | freigeschalteter oder wieder verborgener Tipp · gesendete oder entfernte Durchsage (ohne ihren Text) · abgelehnte Abgabe samt Grund (falsche Endung, leere Datei, zu groß, pausiert, beendet, schon abgegeben, zweimal kurz hintereinander abgeschickt) · zu große Sicherung · zurückgesetzte Abgabe · fehlgeschlagene Admin-Anmeldung mit Adresse |
 | Zum Abschluss | erzeugte Urkunden (Wettbewerb, Anzahl, Ausrichtung) · aufgeräumter Wettbewerb (wie viele Teams und Abgaben gelöscht) · geleerte Protokolldatei · gelöschte Sicherungskopien |
 | Störungen | eine Datei, die nicht gelöscht werden konnte · eine Urkunde, die nicht erzeugt werden konnte · jeder unbehandelte Fehler mit Traceback |
@@ -674,6 +675,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_sitzung.py` | die Anmeldung gilt nicht mehr, wenn ihr Wettbewerb gelöscht ist |
 | `test_submissions.py` | Abgabe, leere Datei, doppelt abgeschickte Abgabe, Korrektur nach Freigabe, Bewertung |
 | `test_bewertungsseite.py` | die Bewertungsseite ordnet die Abgaben nach Aufgaben, lädt Code nach, statt ihn mitzuschicken, und wandelt jeden Aufgabentext nur einmal um |
+| `test_bewertungszugang.py` | das Passwort nur zum Bewerten: einrichten, anmelden, was es darf und was nicht, abmelden beim Wechsel |
 | `test_scratch_skripte.py` | die Skripte einer `.sb3` als Blöcke, auf Deutsch und robust gegen kaputte oder bearbeitete Dateien |
 | `test_aufraeumen.py` | hochgeladene Dateien verschwinden mit ihrer Abgabe |
 | `test_ablageort.py` | Abgaben werden auch nach einem Update in einen neuen Ordner gefunden und aufgeräumt |
@@ -689,7 +691,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_navigation.py` | die obere Leiste, je nach Stand des Wettbewerbs, und der Zurück-Link oben auf den Admin-Seiten |
 | `test_farbschema.py` | hell oder dunkel: der Umschalter in der Leiste, die Wahl bleibt im Browser; Editorleiste und Ranglistenpunkte bleiben im dunklen Modus lesbar |
 | `test_zeichen.py` | bunte Zeichen tragen den Zusatz, der sie auch unter Windows bunt zeigt; Mülleimer und Pause bleiben überall Umriss |
-| `test_fusszeile.py` | Name in der Fußzeile, Admin-Anmeldung, Link auf das Repository |
+| `test_fusszeile.py` | Name in der Fußzeile, Jury-Anmeldung, Link auf das Repository |
 | `test_admin.py` | Steuerzentrale, Wettbewerbs-Seite, Beenden, Aktivieren |
 | `test_fehlerseiten.py` | eigene deutsche Seiten für 400/403/404/413/429/500 |
 
@@ -738,7 +740,7 @@ challenge_plattform/
 ├── wettbewerb_sicherung.py # einen ganzen Wettbewerb als ZIP sichern und einlesen
 ├── datenschutz.py         # aufräumen: Teams und Abgaben, Protokolldatei, Sicherungskopien
 ├── network.py             # Adresse, unter der die Teams beitreten
-├── sitzung.py             # Anmeldung eines Teams und ihre Gültigkeit
+├── sitzung.py             # Anmeldung eines Teams oder zum Bewerten und ihre Gültigkeit
 ├── protokoll.py           # die Zeilen, die in logs/anwendung.log gehen
 ├── uploads.py             # löscht Dateien mit ihrer Abgabe
 ├── task_rules.py          # Regeln für Aufgabenwerte, für Formular und Import

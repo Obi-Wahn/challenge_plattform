@@ -1,6 +1,6 @@
 """Die Fußzeile - der Name der Anwendung und die beiden leisen Links.
 
-Der Link auf das Repository steht neben der Admin-Anmeldung, nicht an der
+Der Link auf das Repository steht neben der Jury-Anmeldung, nicht an der
 Zeile mit dem Namen: die soll ruhig bleiben. Im Schul-LAN ist oft kein
 Internet, der Link darf also nirgends im Weg stehen.
 """
@@ -30,10 +30,10 @@ class TestQuellcodeLink:
         assert 'target="_blank"' in fuss
         assert 'rel="noopener"' in fuss
 
-    def test_er_steht_hinter_der_admin_anmeldung(self, client):
+    def test_er_steht_hinter_der_jury_anmeldung(self, client):
         fuss = fusszeile(client)
 
-        assert fuss.index("Admin-Anmeldung") < fuss.index("Quellcode auf GitHub")
+        assert fuss.index("Jury-Anmeldung") < fuss.index("Quellcode auf GitHub")
 
     def test_die_zeile_mit_dem_namen_bleibt_ohne_link(self, client):
         fuss = fusszeile(client)
