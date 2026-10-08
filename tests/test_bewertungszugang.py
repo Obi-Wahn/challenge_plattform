@@ -167,6 +167,15 @@ class TestAnmelden:
         passwort_setzen(admin, PASSWORT)
         assert hinweis in client.get("/admin/login").get_data(as_text=True)
 
+    def test_feld_heisst_nur_passwort(self, client, admin):
+        # Die Seite heißt „Jury-Anmeldung“ - „Admin-Passwort“ im Feld passte
+        # nicht dazu, auch ohne eingerichteten Bewertungszugang nicht.
+        for _ in range(2):
+            html = client.get("/admin/login").get_data(as_text=True)
+            assert 'placeholder="Passwort"' in html
+            assert 'placeholder="Admin-Passwort"' not in html
+            passwort_setzen(admin, PASSWORT)
+
     def test_falsches_passwort_steht_im_protokoll(self, flask_app, eingerichtet):
         vorher = len(logdatei_inhalt(flask_app))
         client = flask_app.test_client()
