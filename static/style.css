@@ -896,7 +896,8 @@ input::placeholder, textarea::placeholder {
 }
 
 /* ====== Bewertungsseite ====== */
-/* Nach einem Klick in „Springen zu“ klebt die Überschrift sonst am oberen Rand. */
-.abgaben-aufgabe {
+/* Nach einem Sprung klebt das Ziel sonst am oberen Rand - die Überschrift
+   einer Aufgabe ebenso wie die Leiste „Springen zu“ beim Weg zurück. */
+.abgaben-sprungziel {
   scroll-margin-top: 1.5rem;
 }

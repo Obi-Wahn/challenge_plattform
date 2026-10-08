@@ -25,7 +25,8 @@
 {% if gruppen|length > 1 %}
 {# Springt zu einer Aufgabe. Gelb sind die Aufgaben, in denen noch etwas
    offen ist - die standen vor der Gruppierung alle ganz oben. #}
-<nav class="d-flex flex-wrap align-items-center gap-2 mb-5" aria-label="Zu einer Aufgabe springen">
+<nav id="sprungleiste" class="abgaben-sprungziel d-flex flex-wrap align-items-center gap-2 mb-5"
+  aria-label="Zu einer Aufgabe springen">
   <span class="text-secondary small me-1">Springen zu:</span>
   {% for gruppe in gruppen %}
   <a href="#aufgabe-{{ gruppe.nummer }}"
@@ -38,14 +39,20 @@
 {% endif %}
 
 {% for gruppe in gruppen %}
-<h2 id="aufgabe-{{ gruppe.nummer }}"
-  class="abgaben-aufgabe mb-4 pb-2 border-bottom {% if not loop.first %}mt-5 pt-3{% endif %}">
-  Aufgabe {{ gruppe.nummer }}: {{ gruppe.titel }}
-  <span class="fs-6 fw-normal text-secondary ms-1 text-nowrap">
-    {{ gruppe.abgaben|length }} {{ "Abgabe" if gruppe.abgaben|length == 1 else "Abgaben" }}
-    {%- if gruppe.offen %} · {{ gruppe.offen }} offen{% endif %}
-  </span>
-</h2>
+<div id="aufgabe-{{ gruppe.nummer }}"
+  class="abgaben-sprungziel d-flex flex-wrap align-items-baseline column-gap-3 row-gap-2 mb-4 pb-2 border-bottom {% if not loop.first %}mt-5 pt-3{% endif %}">
+  <h2 class="mb-0 me-auto">
+    Aufgabe {{ gruppe.nummer }}: {{ gruppe.titel }}
+    <span class="fs-6 fw-normal text-secondary ms-1 text-nowrap">
+      {{ gruppe.abgaben|length }} {{ "Abgabe" if gruppe.abgaben|length == 1 else "Abgaben" }}
+      {%- if gruppe.offen %} · {{ gruppe.offen }} offen{% endif %}
+    </span>
+  </h2>
+  {% if gruppen|length > 1 %}
+  {# Zurück zur Leiste, ohne durch alle Abgaben davor hochzuscrollen. #}
+  <a href="#sprungleiste" class="btn btn-sm btn-outline-secondary text-nowrap">↑ nach oben</a>
+  {% endif %}
+</div>
 
 {% for submission in gruppe.abgaben %}
 <div class="event-card mb-4">
