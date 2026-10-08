@@ -901,3 +901,29 @@ input::placeholder, textarea::placeholder {
 .abgaben-sprungziel {
   scroll-margin-top: 1.5rem;
 }
+
+/* Die Skripte einer Scratch-Abgabe, nebeneinander wie auf der Arbeitsfläche
+   in Scratch. Große Projekte scrollen im Kasten, nicht die ganze Seite. */
+.scratch-skripte {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: inherit;
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.scratch-flaeche {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem 2rem;
+}
+
+.scratch-skript {
+  flex: none;
+}
+
+[data-farbschema="hell"] .scratch-skripte {
+  background: #f9f9f9;
+  border-color: rgba(30, 34, 53, 0.1);
+}

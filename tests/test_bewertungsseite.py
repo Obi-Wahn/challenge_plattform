@@ -129,8 +129,9 @@ class TestAufgabentextNurEinmalUmwandeln:
 
 
 class TestWasSichAlsTextLesenLaesst:
-    def test_eine_scratch_datei_bekommt_keinen_knopf(
+    def test_eine_scratch_datei_bekommt_den_knopf_fuer_die_skripte(
             self, admin, make_challenge, make_task, logged_in_team):
+        """Den Text liest niemand - die Skripte zeigt tests/test_scratch_skripte.py."""
         challenge = make_challenge()
         task = make_task(challenge, allowed_extension=".sb3")
         client, _team = logged_in_team(challenge)
@@ -139,9 +140,23 @@ class TestWasSichAlsTextLesenLaesst:
         html = admin.get("/admin/submissions").get_data(as_text=True)
 
         assert "Code anzeigen" not in html
-        assert "zum Ansehen herunterladen" in html
+        assert "Skripte anzeigen" in html
+        assert "zum Ansehen herunterladen" not in html
         # Der Weg zur Datei selbst bleibt.
         assert "Datei herunterladen" in html
+
+    def test_ein_scratch_1_4_projekt_bekommt_keinen(
+            self, admin, make_challenge, make_task, logged_in_team):
+        """Das alte Format ist keine ZIP-Datei mit project.json."""
+        challenge = make_challenge()
+        task = make_task(challenge, allowed_extension=".sb")
+        client, _team = logged_in_team(challenge)
+        abgeben(client, task, "loesung.sb", b"ScratchV02")
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        assert "Skripte anzeigen" not in html
+        assert "zum Ansehen herunterladen" in html
 
     def test_eine_python_datei_bekommt_einen(
             self, admin, make_challenge, make_task, logged_in_team):

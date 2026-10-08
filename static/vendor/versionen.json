@@ -33,6 +33,17 @@
       }
     },
     {
+      "name": "scratchblocks",
+      "npm": "scratchblocks",
+      "version": "3.7.1",
+      "lizenz": "MIT",
+      "_hinweis": "Zeichnet die Skripte einer Scratch-Abgabe auf der Bewertungsseite. translations.js bringt die deutschen Blocktexte mit.",
+      "dateien": {
+        "build/scratchblocks.min.js": "scratchblocks/scratchblocks.min.js",
+        "build/translations.js": "scratchblocks/translations.js"
+      }
+    },
+    {
       "name": "Caveat",
       "npm": "@expo-google-fonts/caveat",
       "version": "0.4.2",

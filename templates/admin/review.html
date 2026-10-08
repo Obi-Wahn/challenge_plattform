@@ -98,6 +98,13 @@
         data-code-ziel="code-text-{{ submission.id }}">
         📄 Code anzeigen
       </button>
+      {% elif submission.als_scratch %}
+      <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="collapse"
+        data-bs-target="#skripte-{{ submission.id }}" aria-expanded="false"
+        data-skripte-url="{{ url_for('admin.submission_skripte', submission_id=submission.id) }}"
+        data-skripte-ziel="skripte-inhalt-{{ submission.id }}">
+        🧩 Skripte anzeigen
+      </button>
       {% endif %}
       <a href="{{ url_for('admin.download_submission', submission_id=submission.id) }}"
         class="btn btn-sm btn-outline-light">
@@ -119,6 +126,10 @@
   <div class="collapse mb-4" id="code-{{ submission.id }}">
     <div class="card card-body bg-dark text-light font-monospace" id="code-text-{{ submission.id }}"
       style="white-space: pre-wrap; max-height: 400px; overflow-y: auto; font-size: 0.9em;">Wird geladen …</div>
+  </div>
+  {% elif submission.als_scratch %}
+  <div class="collapse mb-4" id="skripte-{{ submission.id }}">
+    <div class="card card-body scratch-skripte" id="skripte-inhalt-{{ submission.id }}">Wird geladen …</div>
   </div>
   {% else %}
   <p class="text-secondary small mb-4">
@@ -251,5 +262,92 @@
     });
   });
 </script>
+
+{% if hat_scratch %}
+{# Zeichnet die Skripte einer Scratch-Abgabe. Die Bibliothek liegt im
+   Repository und wird nur geladen, wenn auf der Seite eine .sb3 steht. #}
+<script src="{{ url_for('static', filename='vendor/scratchblocks/scratchblocks.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/scratchblocks/translations.js') }}"></script>
+<script>
+  // Der Server schickt die Skripte als Text in der englischen Schreibweise
+  // von scratchblocks; hier werden sie übersetzt und gezeichnet. Namen von
+  // Figuren kommen aus der Datei eines Teams und gehen nur über textContent
+  // in die Seite.
+  function skripteZeigen(ziel, daten) {
+    ziel.replaceChildren();
+    const figuren = daten.figuren || [];
+    if (!figuren.length) {
+      ziel.textContent = daten.hinweis || "In dem Projekt steht keine Figur.";
+      return;
+    }
+
+    const ohne = [];
+    for (const figur of figuren) {
+      const name = figur.buehne ? "Bühne" : "Figur „" + figur.name + "“";
+      if (!figur.skripte.length) {
+        ohne.push(name);
+        continue;
+      }
+      const titel = document.createElement("h4");
+      titel.className = "h6 mb-2";
+      titel.textContent = name;
+      const flaeche = document.createElement("div");
+      flaeche.className = "scratch-flaeche mb-3";
+      for (const text of figur.skripte) {
+        flaeche.appendChild(skriptZeichnen(text));
+      }
+      ziel.append(titel, flaeche);
+    }
+
+    if (ohne.length) {
+      const zeile = document.createElement("p");
+      zeile.className = "text-secondary small mb-0";
+      zeile.textContent = "Ohne Skripte: " + ohne.join(", ");
+      ziel.appendChild(zeile);
+    }
+  }
+
+  function skriptZeichnen(text) {
+    try {
+      const dokument = scratchblocks.parse(text, {languages: ["en"]});
+      dokument.translate(scratchblocks.allLanguages.de);
+      const bild = scratchblocks.newView(dokument, {style: "scratch3", scale: 0.675}).render();
+      bild.classList.add("scratch-skript");
+      return bild;
+    } catch (fehler) {
+      // Lieber den Text als gar nichts.
+      const ersatz = document.createElement("pre");
+      ersatz.className = "small mb-0";
+      ersatz.textContent = text;
+      return ersatz;
+    }
+  }
+
+  document.querySelectorAll("[data-skripte-url]").forEach(knopf => {
+    let geholt = false;
+
+    knopf.addEventListener("click", () => {
+      if (geholt) {
+        return;
+      }
+      geholt = true;
+
+      const ziel = document.getElementById(knopf.dataset.skripteZiel);
+      fetch(knopf.dataset.skripteUrl)
+        .then(antwort => {
+          if (!antwort.ok) {
+            throw new Error(antwort.status);
+          }
+          return antwort.json();
+        })
+        .then(daten => skripteZeigen(ziel, daten))
+        .catch(() => {
+          geholt = false; // beim nächsten Klick noch einmal versuchen
+          ziel.textContent = "Die Skripte konnten nicht geladen werden.";
+        });
+    });
+  });
+</script>
+{% endif %}
 
 {% endblock %}
