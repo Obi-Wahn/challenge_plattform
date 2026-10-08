@@ -129,9 +129,10 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
       Adresse aufrufen, die im Terminal steht. Klappt das nicht, liegt es
       meist an der Firewall des Schul-PCs (Port 8000 eingehend erlauben,
       bzw. den Port aus `PORT` in der `.env`).
-- [ ] **Adresse notieren.** Sie steht auch auf der Startseite über dem
-      QR-Code und lässt sich abtippen – wichtig, weil an normalen PCs und
-      Laptops ein QR-Code nichts nützt.
+- [ ] **Adresse notieren.** Sie steht auch groß auf der Startseite über
+      dem QR-Code und lässt sich abtippen – wichtig, weil an normalen PCs und
+      Laptops ein QR-Code nichts nützt. Dort fehlt das `http://` davor: Das
+      ergänzt der Browser beim Eintippen selbst.
 - [ ] **Beamer testen** mit der Rangliste `/scoreboard`. Die Restzeit steht
       dort oben, dieselbe, die die Teams sehen. Ist der Raum hell und die
       Tabelle blass, oben in der Leiste auf **☀️ Hell** wechseln. Der

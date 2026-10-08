@@ -7,7 +7,7 @@ sonst landen alle auf ihrem eigenen Gerät.
 
 import pytest
 
-from network import NUR_LOKAL, join_url
+from network import NUR_LOKAL, abtipp_adresse, join_url
 
 
 class TestBeitrittsAdresse:
@@ -44,6 +44,29 @@ class TestBeitrittsAdresse:
         assert all(a == a.lower() for a in NUR_LOKAL)
 
 
+class TestAbtippAdresse:
+    """Über dem QR-Code steht die Adresse ohne http:// und Schrägstrich.
+
+    Beides ergänzt der Browser, und ohne die acht Zeichen passt die Adresse
+    in doppelter Größe auf dieselbe Zeile.
+    """
+
+    def test_http_und_schraegstrich_fallen_weg(self):
+        assert abtipp_adresse("http://10.100.4.17:8000/") == "10.100.4.17:8000"
+
+    def test_ohne_port_bleibt_die_ip(self):
+        assert abtipp_adresse("http://192.168.1.50/") == "192.168.1.50"
+
+    def test_https_bleibt_vollstaendig(self):
+        """Ohne Vorsilbe versuchte der Browser womöglich http."""
+        assert abtipp_adresse("https://schule.example:8443/") == \
+            "https://schule.example:8443/"
+
+    def test_ein_unterordner_bleibt_stehen(self):
+        """Läuft die Anwendung hinter einem Pfad, gehört er zur Adresse."""
+        assert abtipp_adresse("http://10.0.0.7/wettbewerb/") == "10.0.0.7/wettbewerb/"
+
+
 class TestSeitenaufbau:
     def test_reihenfolge_gruss_adresse_qr_anmeldung(self, client, make_challenge):
         """Von oben nach unten, wie im Unterricht gebraucht."""
@@ -61,8 +84,12 @@ class TestSeitenaufbau:
         make_challenge()
         html = client.get("/").get_data(as_text=True)
 
-        assert "beitritt-adresse" in html
-        assert "http://" in html
+        import re
+        treffer = re.search(r'style="--zeichen: (\d+)">([^<]+)</p>', html)
+        assert treffer, "Adresse steht nicht auf der Seite"
+
+        # Nach der Zeichenzahl richtet style.css die Schriftgröße aus
+        assert int(treffer.group(1)) == len(treffer.group(2))
 
     def test_der_qr_code_ist_da(self, client, make_challenge):
         make_challenge()
@@ -71,7 +98,11 @@ class TestSeitenaufbau:
 
     def test_qr_code_und_angezeigte_adresse_gehoeren_zusammen(
             self, flask_app, make_challenge, monkeypatch):
-        """Beide müssen dieselbe Adresse meinen."""
+        """Beide müssen dieselbe Adresse meinen.
+
+        Der QR-Code trägt sie vollständig, angezeigt wird sie ohne http://
+        und Schrägstrich - siehe TestAbtippAdresse.
+        """
         import io
 
         import qrcode
@@ -80,13 +111,14 @@ class TestSeitenaufbau:
         html = flask_app.test_client().get("/").get_data(as_text=True)
 
         import re
-        treffer = re.search(r'class="beitritt-adresse[^"]*">([^<]+)<', html)
+        treffer = re.search(r'class="beitritt-adresse[^"]*"[^>]*>([^<]+)<', html)
         assert treffer, "Adresse steht nicht auf der Seite"
         angezeigt = treffer.group(1).strip()
+        assert "://" not in angezeigt
 
         # Denselben Code noch einmal erzeugen und die Bilder vergleichen
         puffer = io.BytesIO()
-        qrcode.make(angezeigt).save(puffer, format="PNG")
+        qrcode.make(f"http://{angezeigt}/").save(puffer, format="PNG")
         import base64
         erwartet = base64.b64encode(puffer.getvalue()).decode("ascii")
 

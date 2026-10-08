@@ -138,12 +138,24 @@ input::placeholder, textarea::placeholder {
   border-radius: 8px;
 }
 
+/* Die Karte mit Adresse und QR-Code ist der Maßstab für die Schriftgröße
+   der Adresse (cqi = ein Hundertstel ihrer Innenbreite). */
+.beitritt-karte {
+  container-type: inline-size;
+}
+
 .beitritt-adresse {
   font-family: ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+  font-weight: 700;
   /* Die Adresse bleibt auf einer Zeile: ein Umbruch mitten in der
-     Portnummer lädt dazu ein, "800" statt "8000" abzutippen. Statt zu
-     brechen, wird die Schrift auf schmalen Displays kleiner. */
+     Portnummer lädt dazu ein, "800" statt "8000" abzutippen. Sie soll aber
+     auch von hinten im Raum lesbar sein, also so groß wie möglich: Ein
+     Zeichen einer Festbreitenschrift ist rund 0,6 Schriftgrößen breit. Mit
+     0,62 und --zeichen Zeichen (aus index.html) füllt die Adresse die
+     Karte gerade, mit etwas Luft für breitere Schriften.
+     Die erste font-size gilt nur für Browser ohne Container-Einheiten. */
   font-size: clamp(0.85rem, 4.4vw, 1.35rem);
+  font-size: min(calc(100cqi / (var(--zeichen, 24) * 0.62)), 3rem);
   white-space: nowrap;
   color: #fff;
 }
