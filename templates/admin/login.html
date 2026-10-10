@@ -2,9 +2,14 @@
 {% block content %}
 
 <div class="row justify-content-center text-center">
-  <div class="col-md-5">
+  {# Der Link unten heißt kurz „Jury-Anmeldung“, hier steht, wer sich
+     anmeldet. Die Überschrift ist breiter als das Formular, damit sie am
+     Rechner in eine Zeile passt; auf dem Handy brechen die Zeilen gleich lang. #}
+  <div class="col-12">
+    <h2 class="mb-4" style="text-wrap: balance;">🔐 Anmeldung für Admin und Bewertungszugang</h2>
+  </div>
 
-    <h2 class="mb-4">🔐 Jury-Anmeldung</h2>
+  <div class="col-md-5">
 
     {% if error %}
     <div class="alert alert-danger" role="alert">
