@@ -1,0 +1,48 @@
+{
+  "format": "coding-wettbewerb-aufgaben",
+  "version": 1,
+  "exportiert_am": "10.10.2026",
+  "wettbewerb": "Beispiel: Snap!-Wettbewerb",
+  "aufgaben": [
+    {
+      "titel": "Ein Quadrat zeichnen",
+      "beschreibung": "Die Figur zeichnet ein Quadrat auf die Bühne.\n\n**Das soll passieren:**\n\n* Beim Klick auf die grüne Flagge wird die Bühne zuerst leer gewischt.\n* Danach zeichnet die Figur ein Quadrat mit vier gleich langen Seiten.\n* Die Figur steht am Ende wieder dort, wo sie angefangen hat.\n\nSpeichert euer Projekt über das Dateisymbol oben links mit *Projekt exportieren…* – heraus kommt eine `.xml`-Datei.",
+      "punkte": 10,
+      "dateiformat": ".xml",
+      "hinweis": "„Stift runter“ steht unter *Stift*. Mit „wiederhole 4 mal“ braucht ihr „gehe … Schritte“ und „drehe … 90 Grad“ nur einmal.",
+      "schwierigkeit": "einfach"
+    },
+    {
+      "titel": "Bunte Blume",
+      "beschreibung": "Aus vielen Quadraten wird eine Blume.\n\n**Das soll passieren:**\n\n* Die Figur zeichnet ein Quadrat, dreht sich ein Stück und zeichnet das nächste.\n* Nach einer ganzen Runde ist eine Blüte aus mindestens zehn Quadraten entstanden.\n* Die Quadrate haben nicht alle dieselbe Farbe.",
+      "punkte": 10,
+      "dateiformat": ".xml",
+      "hinweis": "Eine ganze Runde hat 360 Grad. Bei 12 Quadraten dreht sich die Figur nach jedem um 30 Grad. „ändere Stift Farbton um …“ macht es bunt.",
+      "schwierigkeit": "einfach"
+    },
+    {
+      "titel": "Ein eigener Block: Vieleck",
+      "beschreibung": "Baut euch einen Block, den Snap! noch nicht hat.\n\n**Das soll passieren:**\n\n* Es gibt einen eigenen Block „Vieleck“ mit zwei Eingängen: die Zahl der Ecken und die Länge einer Seite.\n* Der Block zeichnet ein gleichmäßiges Vieleck, egal ob mit 3, 5 oder 8 Ecken.\n* Ein Skript zeigt, dass es klappt: Es zeichnet mit dem Block mindestens drei verschiedene Vielecke.",
+      "punkte": 15,
+      "dateiformat": ".xml",
+      "hinweis": "Einen eigenen Block legt ihr mit Rechtsklick auf die Skriptfläche und *Neuen Block bauen…* an. Die Figur dreht sich bei jeder Ecke um 360 geteilt durch die Zahl der Ecken.",
+      "schwierigkeit": "mittel"
+    },
+    {
+      "titel": "Die Siebenerreihe",
+      "beschreibung": "Snap! rechnet mit ganzen Listen auf einmal.\n\n**Das soll passieren:**\n\n* Eine Variable „Reihe“ enthält die Zahlen 7, 14, 21 … bis 70 als Liste.\n* Die Liste entsteht nicht, indem ihr alle zehn Zahlen von Hand eintippt.\n* Beim Klick auf die Figur sagt sie, wie viel alle Zahlen der Reihe zusammen ergeben.",
+      "punkte": 15,
+      "dateiformat": ".xml",
+      "hinweis": "„Zahlen von 1 bis 10“ liefert eine Liste. Mit „wende ( ) an auf …“ wird jede Zahl mal 7 genommen, und „kombiniere die Elemente von … mit ( + )“ zählt alles zusammen.",
+      "schwierigkeit": "mittel"
+    },
+    {
+      "titel": "Zahlenraten",
+      "beschreibung": "Die Figur denkt sich eine Zahl, und ihr müsst sie erraten.\n\n**Das soll passieren:**\n\n* Beim Start denkt sich die Figur eine Zufallszahl zwischen 1 und 100.\n* Sie fragt so lange nach einem Tipp, bis die Zahl erraten ist.\n* Nach jedem falschen Tipp sagt sie, ob die gesuchte Zahl größer oder kleiner ist.\n* Am Ende sagt sie, wie viele Versuche es gebraucht hat.",
+      "punkte": 20,
+      "dateiformat": ".xml",
+      "hinweis": "Speichert die Zufallszahl in einer Variablen, bevor die Fragerei beginnt – sonst denkt sich die Figur bei jedem Tipp eine neue aus. „wiederhole bis …“ hört auf, sobald die Antwort stimmt.",
+      "schwierigkeit": "schwer"
+    }
+  ]
+}

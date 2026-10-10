@@ -72,7 +72,7 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    Beispiel-Wettbewerb kannst du löschen.
 
 5. **Aufgaben anlegen oder einlesen.** Fertige Sätze liegen unter
-   `beispiele/` (Scratch, Calliope) und werden auf der Aufgaben-Seite mit
+   `beispiele/` (Scratch, Snap!, Calliope) und werden auf der Aufgaben-Seite mit
    **⬆️ Datei einlesen** übernommen; sie bringen auch ihre Schwierigkeit
    mit. Aufgaben aus einem früheren Wettbewerb lassen sich dort ebenso
    einzeln oder als Satz exportieren und wieder einlesen.
@@ -82,7 +82,7 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    Drucker und Papier mitspielen.
 
 7. **Pro Aufgabe festlegen:** Punkte, erlaubtes Dateiformat
-   (z. B. `.sb3` für Scratch, `.hex` für Calliope), die Schwierigkeit und
+   (z. B. `.sb3` für Scratch, `.xml` für Snap!, `.hex` für Calliope), die Schwierigkeit und
    optional einen Hinweis. Der Hinweis bleibt verborgen, bis er
    freigeschaltet wird.
 
@@ -220,12 +220,18 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   Plattform nicht. Soll niemand mehr mitbewerten, unter *Einstellungen* ein
   neues Passwort setzen oder **Bewertungszugang abschalten** – wer noch
   angemeldet ist, ist beim nächsten Klick draußen.
-- **Scratch-Abgaben ansehen**: Bei einer `.sb3` zeigt **🧩 Skripte anzeigen**
-  die Skripte jeder Figur als Blöcke, so wie in Scratch, nur ohne sie
-  auszuführen. Ob das Projekt tut, was es soll, zeigt weiterhin erst
-  **⬇️ Datei herunterladen** und Öffnen in Scratch. Blöcke aus Erweiterungen,
-  die die Plattform nicht kennt, erscheinen grau mit ihrem englischen Namen;
-  Kommentare aus dem Projekt fehlen.
+- **Scratch- und Snap!-Abgaben ansehen**: Bei einer `.sb3` und bei einer
+  `.xml` aus Snap! zeigt **🧩 Skripte anzeigen** die Skripte jeder Figur als
+  Blöcke, so wie in Scratch, nur ohne sie auszuführen. Ob das Projekt tut,
+  was es soll, zeigt weiterhin erst **⬇️ Datei herunterladen** und Öffnen in
+  Scratch oder Snap!. Blöcke, die die Plattform nicht kennt, erscheinen grau
+  mit ihrem englischen Namen; Kommentare aus dem Projekt fehlen.
+  Bei Snap! stehen Blöcke, die es auch in Scratch gibt, im Wortlaut von
+  Scratch („gehe 10er Schritt“), die übrigen so wie im deutschen Snap!
+  („wende … an auf“). Eigene Blöcke stehen mit ihrem Inhalt bei der Figur,
+  der sie gehören, oder ganz unten unter *Eigene Blöcke für alle Figuren*.
+  Ein Programm aus Open Roberta, das ebenfalls als `.xml` kommt, zeigt die
+  Plattform nicht als Blöcke, sondern sagt das.
 - **Durchsage an alle Teams**, etwa „Noch 10 Minuten, bitte speichern“:
   einmal unter *Name & Zeiten* das Häkchen **📢 Durchsagen an die Teams**
   setzen, dann steht auf der Wettbewerbsseite unter den Knöpfen für die Uhr
@@ -316,7 +322,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Wer beim Bewerten hilft, landet wieder auf der Anmeldung | Das Passwort für die Bewertung wurde geändert oder der Zugang abgeschaltet – beides meldet ab. Unter *Einstellungen* → *Bewertungszugang* steht, ob er eingerichtet ist; das aktuelle Passwort weitergeben oder ein neues setzen. |
 | Ein Team hat die falsche Datei hochgeladen | Normalerweise nichts zu tun: Das Team lädt über **🔁 Korrektur abgeben** die richtige hoch. Hast du das Häkchen **🔁 Teams dürfen ihre Abgabe selbst korrigieren** herausgenommen: `/admin` → *Bewertungen* → **🔓 Erneut abgeben erlauben** – das geht auch, bevor die Abgabe Punkte hat. Die Freigabe gilt **einmal**. Sobald das Team neu abgibt, verschwindet die bisherige Bewertung und die Abgabe landet wieder in der Warteschlange; bis dahin bleibt alles, wie es ist. |
 | „Abgaben sind gerade gesperrt“ bei einem Team | Wettbewerb pausiert oder Endzeit überschritten. Die Meldung steht auf der Wettbewerbsseite des Teams. Gehört das Team zu einem anderen als dem aktiven Wettbewerb, landet es gar nicht erst dort, sondern auf der Startseite. |
-| Falsches Dateiformat wird abgewiesen | Das erlaubte Format steht pro Aufgabe und in der Meldung, die das Team bekommt. Prüfen, ob es zu dem passt, was die Umgebung tatsächlich exportiert (Scratch: `.sb3`, MakeCode-Calliope: `.hex`, Open Roberta und Snap!: `.xml`, Arduino: `.ino`, App Inventor: `.aia`, Jupyter: `.ipynb`). Open Roberta und Snap! teilen sich `.xml` – aus welcher der beiden Umgebungen die Datei stammt, prüft die Plattform nicht. |
+| Falsches Dateiformat wird abgewiesen | Das erlaubte Format steht pro Aufgabe und in der Meldung, die das Team bekommt. Prüfen, ob es zu dem passt, was die Umgebung tatsächlich exportiert (Scratch: `.sb3`, MakeCode-Calliope: `.hex`, Open Roberta und Snap!: `.xml`, Arduino: `.ino`, App Inventor: `.aia`, Jupyter: `.ipynb`). Open Roberta und Snap! teilen sich `.xml` – aus welcher der beiden Umgebungen die Datei stammt, prüft die Plattform beim Abgeben nicht; erst **🧩 Skripte anzeigen** merkt es. |
 | Ein Team will sich noch registrieren, der Wettbewerb ist beendet oder pausiert | Die Startseite nimmt dann keine neuen Teams an – sonst stünde das Team mit null Punkten in der Rangliste am Beamer. Soll es doch noch mitmachen: **🔓 Wieder öffnen** bzw. **▶ Fortsetzen** auf der Wettbewerbsseite, dann registrieren lassen. |
 | Start- oder Anmeldeseite sagt „Gerade ist kein Wettbewerb aktiv“ | Der aktive Wettbewerb wurde gelöscht, und noch ist kein anderer gewählt. `/admin` → auf der Steuerzentrale beim richtigen **✅ Aktivieren**. Danach können sich die Teams wieder registrieren und anmelden. |
 | Wettbewerb gelöscht, ein Team sitzt noch davor | Mit dem Wettbewerb sind seine Teams weg. Das Team landet beim nächsten Klick auf der Startseite und registriert sich dort für den nächsten Wettbewerb neu. |
