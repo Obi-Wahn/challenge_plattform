@@ -107,7 +107,7 @@
         data-code-ziel="code-text-{{ submission.id }}">
         📄 Code anzeigen
       </button>
-      {% elif submission.als_scratch %}
+      {% elif submission.als_bloecke %}
       <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="collapse"
         data-bs-target="#skripte-{{ submission.id }}" aria-expanded="false"
         data-skripte-url="{{ url_for('admin.submission_skripte', submission_id=submission.id) }}"
@@ -136,7 +136,7 @@
     <div class="card card-body bg-dark text-light font-monospace" id="code-text-{{ submission.id }}"
       style="white-space: pre-wrap; max-height: 400px; overflow-y: auto; font-size: 0.9em;">Wird geladen …</div>
   </div>
-  {% elif submission.als_scratch %}
+  {% elif submission.als_bloecke %}
   <div class="collapse mb-4" id="skripte-{{ submission.id }}">
     <div class="card card-body scratch-skripte" id="skripte-inhalt-{{ submission.id }}">Wird geladen …</div>
   </div>
@@ -282,9 +282,10 @@
   });
 </script>
 
-{% if hat_scratch %}
-{# Zeichnet die Skripte einer Scratch-Abgabe. Die Bibliothek liegt im
-   Repository und wird nur geladen, wenn auf der Seite eine .sb3 steht. #}
+{% if hat_bloecke %}
+{# Zeichnet die Skripte einer Scratch- oder Snap!-Abgabe. Die Bibliothek
+   liegt im Repository und wird nur geladen, wenn auf der Seite eine .sb3
+   oder eine .xml steht. #}
 <script src="{{ url_for('static', filename='vendor/scratchblocks/scratchblocks.min.js') }}"></script>
 <script src="{{ url_for('static', filename='vendor/scratchblocks/translations.js') }}"></script>
 <script>
@@ -292,6 +293,32 @@
   // von scratchblocks; hier werden sie übersetzt und gezeichnet. Namen von
   // Figuren kommen aus der Datei eines Teams und gehen nur über textContent
   // in die Seite.
+
+  // Klammern aus Snap!, die Scratch nicht kennt (BLOECKE in snap_skripte.py,
+  // der Text muss dort gleich lauten). Mit Klammer zeichnet scratchblocks
+  // nur Blöcke, die es kennt; deshalb werden diese hier angemeldet, schon
+  // auf Deutsch, und die Übersetzung lässt sie so.
+  const SNAP_KLAMMERN = [
+    ["SNAP_FOR", "für %1 = %2 bis %3", "control", true],
+    ["SNAP_FOREACH", "für jedes %1 von %2", "list", true],
+    ["SNAP_WARP", "Warp", "control", false],
+  ];
+  for (const [kennung, text, kategorie, schleife] of SNAP_KLAMMERN) {
+    const teile = text.split(/(%\d)/).map(teil => teil.trim()).filter(Boolean);
+    const eingang = teil => /^%\d$/.test(teil);
+    // Den Schlüssel bildet scratchblocks so: ohne Umlaute, klein geschrieben.
+    const schluessel = teile.map(teil => eingang(teil) ? "_" : teil).join(" ")
+      .replace(/ß/g, "ss").replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u")
+      .toLowerCase();
+    scratchblocks.allLanguages.en.blocksByHash[schluessel] = [{
+      id: kennung, spec: text, parts: teile,
+      inputs: teile.filter(eingang).map(() => "%s"),
+      shape: "c-block", category: kategorie, hasLoopArrow: schleife,
+    }];
+    scratchblocks.allLanguages.en.commands[kennung] = text;
+    scratchblocks.allLanguages.de.commands[kennung] = text;
+  }
+
   function skripteZeigen(ziel, daten) {
     ziel.replaceChildren();
     const figuren = daten.figuren || [];
@@ -302,7 +329,7 @@
 
     const ohne = [];
     for (const figur of figuren) {
-      const name = figur.buehne ? "Bühne" : "Figur „" + figur.name + "“";
+      const name = figur.titel || (figur.buehne ? "Bühne" : "Figur „" + figur.name + "“");
       if (!figur.skripte.length) {
         ohne.push(name);
         continue;

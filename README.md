@@ -68,12 +68,12 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Steuerzentrale**: Zustand, Teams, Aufgaben und offene Bewertungen auf einen Blick, die Kacheln nach Vorbereitung, Während des Wettbewerbs und Zum Abschluss sortiert. Eine Linie am Rand hält zusammen, was zum laufenden Wettbewerb gehört; darunter stehen abgesetzt die Einstellungen der Installation und die anderen Wettbewerbe, die beendeten zugeklappt für sich.
 *   **Wettbewerbe verwalten**: anlegen, aktivieren, pausieren, beenden, wieder öffnen und löschen – alles auf der Steuerzentrale. Welcher Wettbewerb gilt, entscheidet die Lehrkraft mit „Aktivieren“; nur ein neu angelegter wird von selbst aktiv, wenn gerade keiner es ist. Beim Anlegen lassen sich die Teams eines früheren Wettbewerbs übernehmen, mit Passwort und den Namen für die Urkunde.
 *   **Eigener Name je Wettbewerb**: Name und Untertitel stehen überall – Startseite, Rangliste, Teamseite, Urkunden, Browsertitel, Leiste oben und Fußzeile – und bleiben beim Wettbewerb, wenn längst ein anderer läuft. Unter dem Namen begrüßt die Startseite die Teams, mit „Schön, dass ihr dabei seid!“ oder einem eigenen Gruß je Wettbewerb.
-*   **Aufgaben**: Beschreibung in Markdown, erlaubtes Dateiformat, Schwierigkeit (einfach, mittel, schwer oder keine Angabe), optionaler Tipp; die Reihenfolge lässt sich mit ▲ und ▼ ändern. Aufgaben lassen sich als JSON sichern, weitergeben und in einen anderen Wettbewerb einlesen — ohne Abgaben und Punkte. Fertige Sätze für Scratch und Calliope liegen unter `beispiele/` und sind mit einem Klick eingelesen.
+*   **Aufgaben**: Beschreibung in Markdown, erlaubtes Dateiformat, Schwierigkeit (einfach, mittel, schwer oder keine Angabe), optionaler Tipp; die Reihenfolge lässt sich mit ▲ und ▼ ändern. Aufgaben lassen sich als JSON sichern, weitergeben und in einen anderen Wettbewerb einlesen — ohne Abgaben und Punkte. Fertige Sätze für Scratch, Snap! und Calliope liegen unter `beispiele/` und sind mit einem Klick eingelesen.
 *   **Wettbewerb sichern**: ein ganzer Wettbewerb als ZIP – Aufgaben, Teams, Abgaben samt Dateien, Punkte und Feedback. Unter „Neuer Wettbewerb“ wieder eingelesen, entsteht daraus ein neuer, inaktiver Wettbewerb, etwa auf einem anderen Rechner. Die Namen für die Urkunde und die Passwörter der Teams kommen nur auf ausdrücklichen Wunsch mit, die Passwörter nie im Klartext. Zum Ausprobieren liegt unter `beispiele/` ein fertiger Scratch-Wettbewerb mit ausgedachten Teams, Abgaben und Punkten.
 *   **Aufräumen**: Bei einem beendeten Wettbewerb löscht ein Knopf alle Teams samt Namen und Passwörtern und alle Abgaben mit Dateien; Wettbewerb, Einstellungen und Aufgaben bleiben für das nächste Mal. Protokolldatei und alte Sicherungskopien der Datenbank lassen sich unter Einstellungen löschen.
 *   **Zeit im Griff**: Start- und Endzeit oder eine Dauer in Minuten samt „Jetzt starten für … Minuten"; die Pause hält die Uhr an, „Fortsetzen" schiebt das Ende um die Pausendauer nach hinten.
 *   **Durchsagen**: je Wettbewerb einschaltbar – ein kurzer Satz wie „Noch 10 Minuten, bitte speichern“ erscheint oben auf jeder Teamseite und über der Rangliste. Es gilt immer nur einer; ins Protokoll und in die Sicherung kommt der Text nicht.
-*   **Bewerten**: Abgaben nach Aufgaben geordnet, oben eine Sprungleiste, die zeigt, wo noch etwas offen ist, dazu die Aufgabenbeschreibung, Textformate direkt im Browser lesbar, die Skripte einer Scratch-Abgabe (`.sb3`) als Blöcke wie in Scratch, Download für lokale Tests, Punkte und Feedback, Korrektur freigeben (wenn die Teams nicht selbst korrigieren dürfen) oder Abgabe löschen.
+*   **Bewerten**: Abgaben nach Aufgaben geordnet, oben eine Sprungleiste, die zeigt, wo noch etwas offen ist, dazu die Aufgabenbeschreibung, Textformate direkt im Browser lesbar, die Skripte einer Scratch- oder Snap!-Abgabe (`.sb3`, `.xml`) als Blöcke wie in Scratch, Download für lokale Tests, Punkte und Feedback, Korrektur freigeben (wenn die Teams nicht selbst korrigieren dürfen) oder Abgabe löschen.
 *   **Bewertungszugang**: ein eigenes Passwort für alle, die beim Bewerten helfen. Damit geht es nur auf die Bewertungsseite – Abgaben ansehen, herunterladen, Punkte und Feedback geben. Löschen, Freigeben und alles andere bleiben beim Admin; ein neues Passwort meldet alle ab, die mit dem alten angemeldet waren.
 *   **Teams**: Passwort zurücksetzen, die eingetragenen Namen kontrollieren, freigeben oder die Freigabe zurücknehmen; eine Zeile oben zeigt, wie viele noch auf die Kontrolle warten.
 *   **Urkunden**: als PDF und Druckansicht, für alle Teams oder einzeln, im Quer- oder Hochformat, mit Namen und Handschrift unter der Unterschriftslinie — auch für einen längst beendeten Wettbewerb, mit den Punkten von damals.
@@ -95,7 +95,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 ## 🛠 Technologien
 
 *   **Backend**: Python, Flask, SQLAlchemy (SQLite), waitress (Produktiv-WSGI-Server).
-*   **Frontend**: HTML5, CSS3, Bootstrap 5, Markdown-Editor (EasyMDE), scratchblocks für die Skripte der Scratch-Abgaben — alle Assets liegen lokal im Repo (`static/vendor/`), keine CDN-Abhängigkeit, funktioniert komplett offline.
+*   **Frontend**: HTML5, CSS3, Bootstrap 5, Markdown-Editor (EasyMDE), scratchblocks für die Skripte der Scratch- und Snap!-Abgaben — alle Assets liegen lokal im Repo (`static/vendor/`), keine CDN-Abhängigkeit, funktioniert komplett offline.
 *   **PDF**: fpdf2 für die Urkunden. Die Handschriften unter `static/vendor/fonts/` stehen
     unter der SIL Open Font License (Lizenztexte liegen daneben) und sind mit im Repo,
     damit die Urkunden auch ohne Internet entstehen.
@@ -678,6 +678,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_bewertungsseite.py` | die Bewertungsseite ordnet die Abgaben nach Aufgaben, lädt Code nach, statt ihn mitzuschicken, und wandelt jeden Aufgabentext nur einmal um |
 | `test_bewertungszugang.py` | das Passwort nur zum Bewerten: einrichten, anmelden, was es darf und was nicht, abmelden beim Wechsel |
 | `test_scratch_skripte.py` | die Skripte einer `.sb3` als Blöcke, auf Deutsch und robust gegen kaputte oder bearbeitete Dateien |
+| `test_snap_skripte.py` | die Skripte eines Snap!-Projekts als Blöcke, an echten Exporten aus Snap! 12 (`tests/snap/`), dazu Open Roberta und bearbeitete Dateien |
 | `test_aufraeumen.py` | hochgeladene Dateien verschwinden mit ihrer Abgabe |
 | `test_ablageort.py` | Abgaben werden auch nach einem Update in einen neuen Ordner gefunden und aufgeräumt |
 | `test_scoring.py` | Rangliste und Podium, auch bei Gleichstand |
@@ -746,6 +747,7 @@ challenge_plattform/
 ├── uploads.py             # löscht Dateien mit ihrer Abgabe
 ├── task_rules.py          # Regeln für Aufgabenwerte, für Formular und Import
 ├── scratch_skripte.py     # liest die Skripte aus einer .sb3 für die Bewertungsseite
+├── snap_skripte.py        # liest die Skripte aus einem Snap!-Projekt (.xml) für die Bewertungsseite
 ├── requirements.txt       # Abhängigkeiten
 ├── requirements-dev.txt   # zusätzlich zum Testen
 ├── pytest.ini             # Test-Einstellungen
