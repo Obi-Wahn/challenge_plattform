@@ -126,4 +126,16 @@
 
 {% endif %}
 
+<script>
+  // Nach dem Ende wird oft noch bewertet, und die Rangliste am Beamer wechselt
+  // schon vorher hierher. Bis der erste Platz verkündet ist, holt sich die
+  // Seite deshalb alle 30 Sekunden den neuesten Stand - danach bleibt sie
+  // stehen, damit nichts Aufgedecktes wieder verschwindet.
+  setInterval(() => {
+    if (!document.querySelector(".podest-spalte.verkuendet")) {
+      location.reload();
+    }
+  }, 30000);
+</script>
+
 {% endblock %}

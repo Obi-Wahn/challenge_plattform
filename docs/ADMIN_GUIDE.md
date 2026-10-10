@@ -254,7 +254,8 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   nicht.
 - **Rangliste** `/scoreboard` aktualisiert sich alle 30 Sekunden von selbst und
   trägt die Restzeit oben — sie ist die Seite für den Beamer, den ganzen
-  Wettbewerb über. Eine eigene Countdown-Seite gibt es nicht mehr.
+  Wettbewerb über. Nach dem Ende wechselt sie von selbst zur Siegerehrung.
+  Eine eigene Countdown-Seite gibt es nicht mehr.
 - **Rangliste einfrieren**, wenn es am Ende spannend bleiben soll: unter
   *Name & Zeiten* das Häkchen **❄️ Rangliste vor Schluss einfrieren** setzen
   und die Minuten vor Schluss eintragen (vorgeschlagen sind 15). Ab dann
@@ -271,7 +272,12 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 1. **🏁 Wettbewerb beenden** auf der Wettbewerbsseite. Das setzt die Endzeit
    auf jetzt; Abgaben sind gesperrt. Gelöscht wird nichts.
 2. **Letzte Abgaben zu Ende bewerten** – das geht nach dem Beenden weiter.
-3. **Siegerehrung** `/siegerehrung` an die Wand werfen. Dort steht ein
+3. **Siegerehrung** `/siegerehrung` an die Wand werfen. Hängt die Rangliste
+   schon am Beamer, musst du nichts tun: Spätestens 30 Sekunden nach dem
+   Ende wechselt sie von selbst zur Siegerehrung, sobald die erste Abgabe
+   Punkte hat. Bis der erste Platz verkündet ist, holt sich die
+   Siegerehrung alle 30 Sekunden den neuesten Stand, du kannst also in
+   Ruhe zu Ende bewerten. Dort steht ein
    Siegerpodest mit Fragezeichen über den Stufen. **🥁 Nächsten Platz
    verkünden** (oder die Leertaste) stellt erst den dritten, dann den
    zweiten und zuletzt den ersten Platz auf seine Stufe; der Knopf bleibt
@@ -279,9 +285,13 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
    sich einen Platz, niemand fällt durch eine willkürliche Reihung heraus.
    Ist die Rangliste eingefroren, zeigt die Siegerehrung nur dir als
    angemeldeter Lehrkraft den echten Stand; wer die Adresse am Handy
-   aufruft, sieht bloß *❄️ Die Rangliste ist eingefroren*. Nach dem letzten
+   aufruft, sieht bloß *❄️ Die Rangliste ist eingefroren*. Darum wechselt
+   eine eingefrorene Rangliste am Beamer nur dann zum Podest, wenn du dort
+   angemeldet bist; sonst bleibt sie bis zum Auflösen stehen. Nach dem letzten
    Platz **❄️ Rangliste auflösen und ansehen** drücken (der Knopf steht auch
    auf der Wettbewerbsseite), dann zeigt die Rangliste wieder alles.
+   **Vollständige Rangliste ansehen** unter dem Podest führt zur ganzen
+   Rangliste, und die bleibt dann auch stehen.
 4. **Urkunden**: als Sammel-PDF über `/admin/urkunden.pdf` oder einzeln.
    Die Teams können ihre eigene Urkunde nach dem Beenden selbst
    herunterladen – bei eingefrorener Rangliste erst nach dem Auflösen, denn

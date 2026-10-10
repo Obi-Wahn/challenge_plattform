@@ -220,9 +220,17 @@ def scoreboard():
     if not challenge:
         return render_template("scoreboard.html", challenge=None)
 
+    # Ist der Wettbewerb vorbei, wechselt die Rangliste am Beamer von selbst
+    # zum Siegerpodest. Das gilt nur für eine Rangliste, die schon während des
+    # Wettbewerbs offen war - sie lädt sich mit `zum_podest` neu. Wer die
+    # Rangliste danach eigens aufruft, etwa über „Vollständige Rangliste
+    # ansehen“ unter dem Podest, bekommt die Rangliste.
+    eingefroren = challenge.scoreboard_frozen
+    if request.args.get("zum_podest") and podest_sichtbar(challenge):
+        return redirect(url_for("public.siegerehrung"))
+
     # Eingefroren zählen nur die Abgaben bis zum Einfrieren - für alle, auch
     # am Beamer der Lehrkraft. Den echten Stand zeigt ihr die Siegerehrung.
-    eingefroren = challenge.scoreboard_frozen
     tasks, standings = get_standings(
         challenge, bis=challenge.freeze_point if eingefroren else None)
 
@@ -241,6 +249,21 @@ def scoreboard():
         aufgabentitel=Settings.get().scoreboard_task_titles,
         eingefroren=eingefroren,
     )
+
+def podest_sichtbar(challenge):
+    """Ob die Rangliste jetzt zum Siegerpodest wechseln soll.
+
+    Erst nach dem Ende, und nur wenn es dort etwas zu verkünden gibt: Ohne
+    bewertete Abgabe bleibt die Rangliste stehen und wechselt mit dem ersten
+    Punkt. Eingefroren sieht das Podest nur die angemeldete Lehrkraft - an
+    einem anderen Gerät bleibt bis zum Auflösen die eingefrorene Rangliste.
+    """
+    if challenge.status() != "finished":
+        return False
+    if challenge.scoreboard_frozen and not session.get("is_admin"):
+        return False
+    _tasks, standings = get_standings(challenge)
+    return bool(get_podium(standings))
 
 @public_bp.route("/siegerehrung")
 def siegerehrung():
