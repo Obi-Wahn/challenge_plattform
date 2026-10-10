@@ -572,7 +572,8 @@ class TestAdminEinstieg:
         antwort = client.get("/admin", follow_redirects=True)
 
         assert antwort.status_code == 200
-        assert "Jury-Anmeldung" in antwort.get_data(as_text=True)
+        assert ("Anmeldung für Admin und Bewertungszugang"
+                in antwort.get_data(as_text=True))
         assert 'name="password"' in antwort.get_data(as_text=True)
 
     def test_angemeldet_fuehrt_admin_zur_steuerzentrale(self, admin, make_challenge):
