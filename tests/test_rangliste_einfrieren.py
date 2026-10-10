@@ -40,10 +40,14 @@ def posten(admin, pfad, daten=None):
 
 
 def gesamt_auf_der_rangliste(client, teamname):
-    """Die Gesamtpunkte eines Teams, wie sie am Beamer stehen."""
+    """Die Gesamtpunkte eines Teams, wie sie am Beamer stehen.
+
+    Nach dem Ende führt /scoreboard zum Podest; die ganze Rangliste gibt es
+    dann mit `vollstaendig`, wie über den Link unter dem Podest.
+    """
     import re
 
-    html = client.get("/scoreboard").get_data(as_text=True)
+    html = client.get("/scoreboard?vollstaendig=1").get_data(as_text=True)
     zeile = html.split(teamname, 1)[1].split("</tr>", 1)[0]
     return int(re.findall(r'ranglisten-gesamt[^>]*>\s*(\d+)', zeile)[0])
 

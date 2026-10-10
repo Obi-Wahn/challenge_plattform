@@ -220,13 +220,13 @@ def scoreboard():
     if not challenge:
         return render_template("scoreboard.html", challenge=None)
 
-    # Ist der Wettbewerb vorbei, wechselt die Rangliste am Beamer von selbst
-    # zum Siegerpodest. Das gilt nur für eine Rangliste, die schon während des
-    # Wettbewerbs offen war - sie lädt sich mit `zum_podest` neu. Wer die
-    # Rangliste danach eigens aufruft, etwa über „Vollständige Rangliste
-    # ansehen“ unter dem Podest, bekommt die Rangliste.
+    # Ist der Wettbewerb vorbei, führt die Rangliste zum Siegerpodest - die
+    # am Beamer beim nächsten Neuladen von selbst, und genauso jeder neue
+    # Aufruf. Die ganze Rangliste gibt es danach über „Vollständige Rangliste
+    # ansehen“ unter dem Podest, mit `vollstaendig`; dabei bleibt es auch
+    # beim Neuladen.
     eingefroren = challenge.scoreboard_frozen
-    if request.args.get("zum_podest") and podest_sichtbar(challenge):
+    if not request.args.get("vollstaendig") and podest_sichtbar(challenge):
         return redirect(url_for("public.siegerehrung"))
 
     # Eingefroren zählen nur die Abgaben bis zum Einfrieren - für alle, auch
