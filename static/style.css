@@ -128,14 +128,29 @@ input::placeholder, textarea::placeholder {
 }
 
 .qr-code {
-  /* Am Beamer darf der Code größer sein, auf dem Handy nicht breiter
-     als die Karte. */
-  width: clamp(170px, 15vw, 240px);
+  /* Auf dem Handy bleibt der Code klein: Wer ihn dort sieht, ist schon auf
+     der Seite, und das Formular darunter soll nicht weiter nach unten
+     rutschen. */
+  width: 170px;
   height: auto;
   aspect-ratio: 1;
   background: white;
   padding: 8px;
   border-radius: 8px;
+  /* Das Bild ist kleiner, als es am Beamer gezeigt wird. Ohne das würden
+     die Kanten der Kästchen beim Vergrößern weich. */
+  image-rendering: pixelated;
+}
+
+@media (min-width: 992px) {
+  /* Ab lg steht die Startseite am Beamer, und der Code soll von weiter
+     hinten im Raum scanbar sein: drei Viertel der Kartenbreite (cqi, siehe
+     .beitritt-karte). Die zweite Grenze hält die Karte auf einem Bildschirm
+     mit wenig Höhe (1366 x 768) ganz im Bild - über dem Code stehen rund
+     30rem Leiste, Überschrift und Adresse. */
+  .qr-code {
+    width: max(200px, min(75cqi, 100vh - 30rem));
+  }
 }
 
 /* Die Karte mit Adresse und QR-Code ist der Maßstab für die Schriftgröße

@@ -103,9 +103,7 @@ class TestSeitenaufbau:
         Der QR-Code trägt sie vollständig, angezeigt wird sie ohne http://
         und Schrägstrich - siehe TestAbtippAdresse.
         """
-        import io
-
-        import qrcode
+        from blueprints.public import generate_qr_code
 
         make_challenge()
         html = flask_app.test_client().get("/").get_data(as_text=True)
@@ -117,10 +115,7 @@ class TestSeitenaufbau:
         assert "://" not in angezeigt
 
         # Denselben Code noch einmal erzeugen und die Bilder vergleichen
-        puffer = io.BytesIO()
-        qrcode.make(f"http://{angezeigt}/").save(puffer, format="PNG")
-        import base64
-        erwartet = base64.b64encode(puffer.getvalue()).decode("ascii")
+        erwartet = generate_qr_code(f"http://{angezeigt}/")
 
         assert erwartet in html, "QR-Code zeigt eine andere Adresse als der Text"
 

@@ -79,8 +79,13 @@ def team_zur_anmeldung(challenge, name):
 
 
 def generate_qr_code(adresse):
-    """QR-Code der Adresse, unter der die Teams beitreten."""
-    qr_img = qrcode.make(adresse)
+    """QR-Code der Adresse, unter der die Teams beitreten.
+
+    Der weiße Rand ist zwei statt der üblichen vier Kästchen breit: Um das
+    Bild liegt in style.css ohnehin noch ein weißer Rand, und so nimmt der
+    Code selbst mehr von der Fläche ein.
+    """
+    qr_img = qrcode.make(adresse, border=2)
     buffer = io.BytesIO()
     qr_img.save(buffer, format="PNG")
     return base64.b64encode(buffer.getvalue()).decode("ascii")
