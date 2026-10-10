@@ -261,7 +261,8 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   nicht.
 - **Rangliste** `/scoreboard` aktualisiert sich alle 30 Sekunden von selbst und
   trägt die Restzeit oben — sie ist die Seite für den Beamer, den ganzen
-  Wettbewerb über. Nach dem Ende wechselt sie von selbst zur Siegerehrung.
+  Wettbewerb über. Nach dem Ende führt sie zur Siegerehrung, am Beamer von
+  selbst und genauso bei jedem neuen Aufruf.
   Eine eigene Countdown-Seite gibt es nicht mehr.
 - **Rangliste einfrieren**, wenn es am Ende spannend bleiben soll: unter
   *Name & Zeiten* das Häkchen **❄️ Rangliste vor Schluss einfrieren** setzen
@@ -282,7 +283,8 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 3. **Siegerehrung** `/siegerehrung` an die Wand werfen. Hängt die Rangliste
    schon am Beamer, musst du nichts tun: Spätestens 30 Sekunden nach dem
    Ende wechselt sie von selbst zur Siegerehrung, sobald die erste Abgabe
-   Punkte hat. Bis der erste Platz verkündet ist, holt sich die
+   Punkte hat. Wer die Rangliste nach dem Ende aufruft, landet ebenfalls
+   dort. Bis der erste Platz verkündet ist, holt sich die
    Siegerehrung alle 30 Sekunden den neuesten Stand, du kannst also in
    Ruhe zu Ende bewerten. Dort steht ein
    Siegerpodest mit Fragezeichen über den Stufen. **🥁 Nächsten Platz
@@ -297,8 +299,8 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
    angemeldet bist; sonst bleibt sie bis zum Auflösen stehen. Nach dem letzten
    Platz **❄️ Rangliste auflösen und ansehen** drücken (der Knopf steht auch
    auf der Wettbewerbsseite), dann zeigt die Rangliste wieder alles.
-   **Vollständige Rangliste ansehen** unter dem Podest führt zur ganzen
-   Rangliste, und die bleibt dann auch stehen.
+   Die ganze Rangliste gibt es nach dem Ende über **Vollständige Rangliste
+   ansehen** unter dem Podest, und die bleibt dann auch stehen.
 4. **Urkunden**: als Sammel-PDF über `/admin/urkunden.pdf` oder einzeln.
    Die Teams können ihre eigene Urkunde nach dem Beenden selbst
    herunterladen – bei eingefrorener Rangliste erst nach dem Auflösen, denn

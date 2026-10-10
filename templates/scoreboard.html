@@ -106,17 +106,11 @@
 
 {% if challenge %}{{ zeitleiste_skript(challenge, status, seconds) }}{% endif %}
 
-<!-- Auto Refresh alle 30 Sekunden. Solange der Wettbewerb nicht vorbei ist,
-     fragt das Neuladen mit, ob er es inzwischen ist: Dann wechselt die Seite
-     zum Siegerpodest. Eine Rangliste, die erst nach dem Ende aufgerufen
-     wurde, bleibt eine Rangliste. -->
+<!-- Auto Refresh alle 30 Sekunden. Ist der Wettbewerb inzwischen vorbei,
+     führt das Neuladen zum Siegerpodest. -->
 <script>
   setTimeout(() => {
-    {% if status == "finished" %}
     location.reload();
-    {% else %}
-    location.replace("{{ url_for('public.scoreboard', zum_podest=1) }}");
-    {% endif %}
   }, 30000);
 </script>
 

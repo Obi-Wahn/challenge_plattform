@@ -77,11 +77,11 @@
        zeigt die Rangliste am Beamer noch den eingefrorenen. -->
   <form method="post" action="{{ url_for('admin.challenge_reveal', cid=challenge.id) }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <input type="hidden" name="next" value="{{ url_for('public.scoreboard') }}">
+    <input type="hidden" name="next" value="{{ url_for('public.scoreboard', vollstaendig=1) }}">
     <button class="btn btn-outline-info">❄️ Rangliste auflösen und ansehen</button>
   </form>
   {% else %}
-  <a href="{{ url_for('public.scoreboard') }}" class="text-secondary">
+  <a href="{{ url_for('public.scoreboard', vollstaendig=1) }}" class="text-secondary">
     Vollständige Rangliste ansehen
   </a>
   {% endif %}

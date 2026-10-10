@@ -1,9 +1,9 @@
-"""Nach dem Ende wechselt die Rangliste am Beamer von selbst zum Siegerpodest.
+"""Nach dem Ende führt die Rangliste zum Siegerpodest.
 
 Die Rangliste hängt den ganzen Wettbewerb über am Beamer und lädt sich alle
-30 Sekunden neu. Solange der Wettbewerb läuft, fragt sie dabei mit
-`zum_podest`, ob er inzwischen vorbei ist; dann geht es zur Siegerehrung.
-Wer die Rangliste nach dem Ende eigens aufruft, bekommt die Rangliste.
+30 Sekunden neu. Ist der Wettbewerb vorbei, geht es dabei zur Siegerehrung -
+und genauso bei jedem neuen Aufruf. Die ganze Rangliste gibt es danach mit
+`vollstaendig`, über den Link unter dem Podest.
 """
 
 from datetime import datetime, timedelta
@@ -24,6 +24,11 @@ def beendet(make_challenge, **kwargs):
                           end_time=datetime.now() - timedelta(minutes=1), **kwargs)
 
 
+def laufend(make_challenge, **kwargs):
+    return make_challenge(start_time=datetime.now() - timedelta(minutes=5),
+                          end_time=datetime.now() + timedelta(minutes=40), **kwargs)
+
+
 def mit_punkten(challenge, make_task, make_team):
     task = make_task(challenge)
     abgabe(make_team(challenge, name="Füchse"), task, 8)
@@ -31,8 +36,8 @@ def mit_punkten(challenge, make_task, make_team):
     return challenge
 
 
-def wechselt(client):
-    antwort = client.get("/scoreboard?zum_podest=1")
+def wechselt(client, pfad="/scoreboard"):
+    antwort = client.get(pfad)
     if antwort.status_code == 302:
         assert antwort.headers["Location"].endswith("/siegerehrung")
         return True
@@ -40,71 +45,46 @@ def wechselt(client):
     return False
 
 
-class TestDasNeuladenFragtMit:
-    def test_waehrend_des_wettbewerbs_mit_zum_podest(self, client, make_challenge):
-        make_challenge(start_time=datetime.now() - timedelta(minutes=5),
-                       end_time=datetime.now() + timedelta(minutes=40))
-        html = client.get("/scoreboard").get_data(as_text=True)
-        assert 'location.replace("/scoreboard?zum_podest=1")' in html
-
-    def test_vor_dem_start_und_ohne_zeiten_ebenso(self, client, make_challenge):
-        """Auch „Wettbewerb beenden“ ohne gesetzte Zeiten soll umschalten."""
-        make_challenge()
-        html = client.get("/scoreboard").get_data(as_text=True)
-        assert "zum_podest=1" in html
-
-    def test_in_der_pause_ebenso(self, client, make_challenge):
-        make_challenge(start_time=datetime.now() - timedelta(minutes=5),
-                       end_time=datetime.now() + timedelta(minutes=40),
-                       paused=True, paused_at=datetime.now())
-        html = client.get("/scoreboard").get_data(as_text=True)
-        assert "zum_podest=1" in html
-
-    def test_nach_dem_ende_bleibt_es_beim_neuladen(self, client, make_challenge):
-        """Wer die Rangliste erst nach dem Ende öffnet, will die Rangliste."""
-        beendet(make_challenge)
-        html = client.get("/scoreboard").get_data(as_text=True)
-        assert "zum_podest" not in html
-        assert "location.reload()" in html
-
-
 class TestWannDieRanglisteWechselt:
     def test_nach_dem_ende_zum_podest(self, client, make_challenge, make_task, make_team):
+        """Auch wenn die Rangliste erst nach dem Ende geöffnet wird."""
         mit_punkten(beendet(make_challenge), make_task, make_team)
         assert wechselt(client)
 
+    def test_die_offene_rangliste_laedt_sich_neu(self, client, make_challenge):
+        """Das Neuladen alle 30 Sekunden bringt den Beamer zum Podest."""
+        laufend(make_challenge)
+        html = client.get("/scoreboard").get_data(as_text=True)
+        assert "location.reload()" in html
+
     def test_nicht_solange_der_wettbewerb_laeuft(self, client, make_challenge,
                                                  make_task, make_team):
-        challenge = make_challenge(start_time=datetime.now() - timedelta(minutes=5),
-                                   end_time=datetime.now() + timedelta(minutes=40))
-        mit_punkten(challenge, make_task, make_team)
+        mit_punkten(laufend(make_challenge), make_task, make_team)
         assert not wechselt(client)
 
     def test_nicht_in_der_pause(self, client, make_challenge, make_task, make_team):
-        challenge = make_challenge(start_time=datetime.now() - timedelta(minutes=5),
-                                   end_time=datetime.now() + timedelta(minutes=40),
-                                   paused=True, paused_at=datetime.now())
+        challenge = laufend(make_challenge, paused=True, paused_at=datetime.now())
         mit_punkten(challenge, make_task, make_team)
         assert not wechselt(client)
 
     def test_ohne_punkte_bleibt_die_rangliste(self, client, make_challenge, make_team):
         """Ein leeres Podest wäre nichts zum Verkünden - es geht mit dem
-        ersten bewerteten Punkt weiter, und dafür bleibt `zum_podest` stehen."""
+        ersten bewerteten Punkt weiter."""
         challenge = beendet(make_challenge)
         make_team(challenge, name="Füchse")
-        antwort = client.get("/scoreboard?zum_podest=1")
+        antwort = client.get("/scoreboard")
         assert antwort.status_code == 200
         assert "location.reload()" in antwort.get_data(as_text=True)
 
-    def test_ohne_zum_podest_bleibt_die_rangliste(self, client, make_challenge,
-                                                  make_task, make_team):
+    def test_vollstaendig_bleibt_die_rangliste(self, client, make_challenge,
+                                               make_task, make_team):
         mit_punkten(beendet(make_challenge), make_task, make_team)
-        antwort = client.get("/scoreboard")
+        antwort = client.get("/scoreboard?vollstaendig=1")
         assert antwort.status_code == 200
         assert "Füchse" in antwort.get_data(as_text=True)
 
     def test_ohne_aktiven_wettbewerb_keine_umleitung(self, client):
-        assert client.get("/scoreboard?zum_podest=1").status_code == 200
+        assert client.get("/scoreboard").status_code == 200
 
 
 class TestEingefroren:
@@ -135,6 +115,31 @@ class TestEingefroren:
         assert wechselt(client)
 
 
+class TestVonDerSiegerehrungZurRangliste:
+    def test_der_link_unter_dem_podest_fuehrt_zur_ganzen_rangliste(
+            self, client, make_challenge, make_task, make_team):
+        """Ohne `vollstaendig` schickte die Rangliste gleich zurück zum Podest."""
+        mit_punkten(beendet(make_challenge), make_task, make_team)
+        html = client.get("/siegerehrung").get_data(as_text=True)
+        assert 'href="/scoreboard?vollstaendig=1"' in html
+        assert not wechselt(client, "/scoreboard?vollstaendig=1")
+
+    def test_nach_dem_aufloesen_zur_ganzen_rangliste(self, admin, make_challenge,
+                                                    make_task, make_team):
+        from tests.helpers import csrf_token
+
+        challenge = beendet(make_challenge, freeze_enabled=True, freeze_minutes=15)
+        mit_punkten(challenge, make_task, make_team)
+        html = admin.get("/siegerehrung").get_data(as_text=True)
+        assert 'name="next" value="/scoreboard?vollstaendig=1"' in html
+
+        antwort = admin.post(f"/admin/challenges/{challenge.id}/rangliste-aufloesen", data={
+            "csrf_token": csrf_token(admin, "/admin/challenges/new"),
+            "next": "/scoreboard?vollstaendig=1",
+        })
+        assert antwort.headers["Location"].endswith("/scoreboard?vollstaendig=1")
+
+
 class TestDieSiegerehrungHoltSichDenStand:
     def test_neu_laden_bis_zum_ersten_platz(self, client, make_challenge,
                                             make_task, make_team):
@@ -150,11 +155,3 @@ class TestDieSiegerehrungHoltSichDenStand:
         html = client.get("/siegerehrung").get_data(as_text=True)
         assert "Noch keine bewerteten Abgaben" in html
         assert "location.reload()" in html
-
-    def test_der_link_unter_dem_podest_fuehrt_zur_ganzen_rangliste(
-            self, client, make_challenge, make_task, make_team):
-        """Sonst schickte die Rangliste gleich wieder zurück zum Podest."""
-        mit_punkten(beendet(make_challenge), make_task, make_team)
-        html = client.get("/siegerehrung").get_data(as_text=True)
-        assert 'href="/scoreboard"' in html
-        assert "zum_podest" not in html

@@ -82,7 +82,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Eigene Fehlerseiten**: deutscher Satz und ein Weg zurück statt der englischen Seite des Webservers. Die gewöhnlichen Missgeschicke landen gar nicht dort, sondern als Meldung auf der Wettbewerbsseite des Teams.
 
 ### Für den Beamer
-*   **Rangliste**: Punkte je Aufgabe und Gesamtstand, über jeder Spalte Nummer und Titel der Aufgabe („A1: Die Katze läuft im Kreis“, der Titel lässt sich abschalten), auch mit fünfzehn Aufgaben ohne seitliches Schieben, lädt sich alle 30 Sekunden selbst neu. Oben läuft dieselbe Restzeit mit, die die Teams sehen — die Seite für den ganzen Wettbewerb. Nach dem Ende wechselt sie von selbst zum Siegerpodest.
+*   **Rangliste**: Punkte je Aufgabe und Gesamtstand, über jeder Spalte Nummer und Titel der Aufgabe („A1: Die Katze läuft im Kreis“, der Titel lässt sich abschalten), auch mit fünfzehn Aufgaben ohne seitliches Schieben, lädt sich alle 30 Sekunden selbst neu. Oben läuft dieselbe Restzeit mit, die die Teams sehen — die Seite für den ganzen Wettbewerb. Nach dem Ende führt sie zum Siegerpodest, am Beamer von selbst; die ganze Rangliste gibt es dann über einen Link darunter.
 *   **Rangliste einfrieren**: je Wettbewerb einschaltbar – ab einstellbaren Minuten vor Schluss zeigt der Beamer nur noch, was bis dahin abgegeben war. Die eigenen Punkte sieht jedes Team weiter aktuell, den echten Stand verkündet die Siegerehrung.
 *   **Hell oder dunkel**: Die Seiten folgen der Einstellung des Geräts; **☀️ Hell** oder **🌙 Dunkel** in der Leiste oben wechselt, etwa für den Beamer in einem hellen Raum. Die Wahl merkt sich nur der Browser dieses Geräts, der Server speichert nichts.
 *   **Siegerehrung**: Siegerpodest der besten drei, Platz für Platz von 3 bis 1 aufzudecken (Leertaste oder Knopf), jeder Platz erscheint auf seiner Stufe. Bei Gleichstand teilen sich Teams einen Platz, und der nächste rückt nach: 10, 10 und 8 Punkte ergeben zwei erste Plätze und einen zweiten, kein Platz bleibt leer.
@@ -661,7 +661,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_dauer_und_pause.py` | Dauer in Minuten, „Jetzt starten“, Pause hält die Uhr an |
 | `test_zeitleiste.py` | die Restzeit-Leiste auf Wettbewerbsseite und Rangliste |
 | `test_rangliste_einfrieren.py` | die Rangliste vor Schluss einfrieren, von der Einstellung über Pause und Ende bis zum Auflösen |
-| `test_podest_nach_ende.py` | die Rangliste am Beamer wechselt nach dem Ende von selbst zum Siegerpodest |
+| `test_podest_nach_ende.py` | nach dem Ende führt die Rangliste zum Siegerpodest, die ganze Rangliste über den Link darunter |
 | `test_durchsage.py` | Durchsagen an alle Teams, vom Schalter im Formular bis auf Teamseite und Rangliste |
 | `test_korrektur_ohne_freigabe.py` | Teams korrigieren ihre Abgabe selbst, vom Schalter im Formular über Teamseite und Bewertungsseite bis zur Sicherung |
 | `test_aktualisierung.py` | die Teamseite holt sich den Stand von selbst |
