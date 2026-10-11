@@ -358,8 +358,8 @@ class TestAbruf:
 
 class TestKlammernPassenZurSeite:
     def test_die_seite_kennt_jede_klammer_aus_snap(self):
-        """Steht der Text nicht genau so in review.html, fehlt die Klammer."""
-        seite = (Path(__file__).resolve().parent.parent / "templates" / "admin" / "review.html").read_text()
+        """Steht der Text nicht genau so in _skripte.html, fehlt die Klammer."""
+        seite = (Path(__file__).resolve().parent.parent / "templates" / "_skripte.html").read_text()
         for name in ("doFor", "doForEach", "doWarp"):
             vorlage = snap_skripte.BLOECKE[name]
             nummer = iter(range(1, 10))

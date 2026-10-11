@@ -7,6 +7,7 @@ from sitzung import angemeldetes_team
 from uploads import safe_name, zum_loeschen_vormerken
 from scoring import get_standings
 from protokoll import ereignis
+from skripte import als_bloecke, skripte_antwort
 from certificates import build_certificates_for, certificate_entry, names_line
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
@@ -185,8 +186,34 @@ def view():
         # Damit die Seite selbst merkt, wenn sie veraltet ist - siehe
         # seitenstand().
         stand=seitenstand(challenge),
-        stand_takt=STAND_TAKT_MS
+        stand_takt=STAND_TAKT_MS,
+        # Welche Abgaben sich als Blöcke zeigen lassen. Die Bibliothek dafür
+        # kommt nur mit, wenn es etwas zu zeichnen gibt.
+        mit_skripten={s.id for s in submissions if als_bloecke(s.filename)}
     )
+
+
+@challenge_bp.route("/challenge/abgabe/<int:submission_id>/skripte")
+def abgabe_skripte(submission_id):
+    """Die Skripte der eigenen Abgabe, nachgeladen beim Aufklappen.
+
+    Ein Team sieht nur, was es selbst abgegeben hat, und nur im aktiven
+    Wettbewerb. Eine fremde Abgabe beantwortet der Server genau wie eine,
+    die es nicht gibt: Wer die Nummer hochzählt, erfährt so nicht einmal,
+    ob es sie gibt. Herunterladen kann das Team die Datei hier nicht, es
+    bekommt nur die Blöcke.
+    """
+    challenge = Challenge.current()
+    team = angemeldetes_team(challenge)
+    if team is None:
+        abort(404)
+
+    submission = db.session.get(Submission, submission_id)
+    if (submission is None or submission.team_id != team.id
+            or submission.task.challenge_id != challenge.id):
+        abort(404)
+
+    return skripte_antwort(submission, fuer_team=True)
 
 
 @challenge_bp.route("/team/namen", methods=["POST"])

@@ -232,6 +232,10 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   der sie gehören, oder ganz unten unter *Eigene Blöcke für alle Figuren*.
   Ein Programm aus Open Roberta, das ebenfalls als `.xml` kommt, zeigt die
   Plattform nicht als Blöcke, sondern sagt das.
+  Dieselben Blöcke sehen die Teams auf ihrer Seite unter jeder abgegebenen
+  Aufgabe mit **🧩 Unsere Skripte anzeigen**, so lässt sich nach dem Abgeben
+  oder nach einem Feedback noch einmal darauf schauen. Jedes Team sieht nur
+  seine eigene Abgabe, herunterladen kann es sie dort nicht.
 - **Durchsage an alle Teams**, etwa „Noch 10 Minuten, bitte speichern“:
   einmal unter *Name & Zeiten* das Häkchen **📢 Durchsagen an die Teams**
   setzen, dann steht auf der Wettbewerbsseite unter den Knöpfen für die Uhr

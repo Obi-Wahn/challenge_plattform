@@ -213,7 +213,7 @@ BLOECKE = {
     "reportFindFirst": "(finde das erste Element, das {r} in {l} :: list)",
     "reportCombine": "(kombiniere die Elemente von {l} mit {r} :: list)",
     # Klammern, die Scratch nicht kennt. Die Bewertungsseite meldet sie
-    # scratchblocks als eigene Blöcke an (SNAP_KLAMMERN in review.html), der
+    # scratchblocks als eigene Blöcke an (SNAP_KLAMMERN in _skripte.html), der
     # Text muss deshalb genau so bleiben.
     "doFor": "für {u} = {n} bis {n}{c}",
     "doForEach": "für jedes {u} von {l}{c}",

@@ -59,6 +59,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Schwierigkeit auf einen Blick**: Unter dem einleitenden Satz jeder Aufgabe stehen Punkte und Stufe — 🟢 einfach, 🟡 mittel, 🔴 schwer.
 *   **Aktualisiert sich selbst**: Die Seite fragt alle 15 Sekunden nach dem Stand — Pause, Fortsetzen, ein freigeschalteter Tipp, eine Durchsage und eine neue Dauer kommen an, ohne dass jemand neu laden muss.
 *   **Abgabe je Aufgabe**: Processing (`.pde`), Scratch (`.sb`/`.sb3`), Python (`.py`), Java (`.java`), MakeCode/Calliope (`.hex`/`.mkcd`), Open Roberta und Snap! (`.xml`), Arduino (`.ino`), App Inventor (`.aia`), Jupyter (`.ipynb`) — welches Format erlaubt ist, legt die Aufgabe fest.
+*   **Eigene Skripte ansehen**: Unter einer abgegebenen Scratch- oder Snap!-Aufgabe zeigt „🧩 Unsere Skripte anzeigen“ die Skripte des Teams als Blöcke, wie die Lehrkraft sie beim Bewerten sieht. Jedes Team sieht nur seine eigene Abgabe.
 *   **Tipps**: Kommt ein Team nicht weiter, schaltet die Lehrkraft den Hinweis zur Aufgabe frei.
 *   **Korrektur**: Solange der Wettbewerb läuft, ersetzt ein Team seine Abgabe einfach durch eine neue Datei; eine schon bewertete wird dabei wieder offen. Je Wettbewerb abschaltbar, dann gibt die Lehrkraft jede Korrektur einzeln frei.
 *   **Namen für die Urkunde**: Das Team trägt sie selbst ein, einen pro Zeile; auf die Urkunde kommen sie nach der Freigabe durch die Lehrkraft.
@@ -679,6 +680,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_bewertungszugang.py` | das Passwort nur zum Bewerten: einrichten, anmelden, was es darf und was nicht, abmelden beim Wechsel |
 | `test_scratch_skripte.py` | die Skripte einer `.sb3` als Blöcke, auf Deutsch und robust gegen kaputte oder bearbeitete Dateien |
 | `test_snap_skripte.py` | die Skripte eines Snap!-Projekts als Blöcke, an echten Exporten aus Snap! 12 (`tests/snap/`), dazu Open Roberta und bearbeitete Dateien |
+| `test_skripte_teamseite.py` | ein Team sieht die Skripte seiner eigenen Abgabe, eine fremde bekommt es nicht zu sehen |
 | `test_aufraeumen.py` | hochgeladene Dateien verschwinden mit ihrer Abgabe |
 | `test_ablageort.py` | Abgaben werden auch nach einem Update in einen neuen Ordner gefunden und aufgeräumt |
 | `test_scoring.py` | Rangliste und Podium, auch bei Gleichstand |
@@ -746,8 +748,9 @@ challenge_plattform/
 ├── protokoll.py           # die Zeilen, die in logs/anwendung.log gehen
 ├── uploads.py             # löscht Dateien mit ihrer Abgabe
 ├── task_rules.py          # Regeln für Aufgabenwerte, für Formular und Import
-├── scratch_skripte.py     # liest die Skripte aus einer .sb3 für die Bewertungsseite
-├── snap_skripte.py        # liest die Skripte aus einem Snap!-Projekt (.xml) für die Bewertungsseite
+├── skripte.py             # die Skripte einer Abgabe als Blöcke, für Bewertungs- und Teamseite
+├── scratch_skripte.py     # liest die Skripte aus einer .sb3
+├── snap_skripte.py        # liest die Skripte aus einem Snap!-Projekt (.xml)
 ├── requirements.txt       # Abhängigkeiten
 ├── requirements-dev.txt   # zusätzlich zum Testen
 ├── pytest.ini             # Test-Einstellungen

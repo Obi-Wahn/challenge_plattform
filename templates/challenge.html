@@ -175,6 +175,23 @@
         <strong>Feedback:</strong> {{ submission.feedback }}
       </div>
       {% endif %}
+
+      {# Die eigenen Skripte, nachgeladen beim Aufklappen - dieselbe Anzeige
+         wie auf der Bewertungsseite, siehe templates/_skripte.html. #}
+      {% if submission.id in mit_skripten %}
+      <div class="mt-2">
+        <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="collapse"
+          data-bs-target="#skripte-{{ submission.id }}" aria-expanded="false"
+          aria-controls="skripte-{{ submission.id }}"
+          data-skripte-url="{{ url_for('challenge.abgabe_skripte', submission_id=submission.id) }}"
+          data-skripte-ziel="skripte-inhalt-{{ submission.id }}">
+          🧩 Unsere Skripte anzeigen
+        </button>
+      </div>
+      <div class="collapse mt-2" id="skripte-{{ submission.id }}">
+        <div class="card card-body scratch-skripte" id="skripte-inhalt-{{ submission.id }}">Wird geladen …</div>
+      </div>
+      {% endif %}
       {% endif %}
 
       {# Ohne Freigabe nur, solange abgegeben werden kann: Nach dem Ende oder
@@ -230,6 +247,10 @@
 </div>
 
 {{ zeitleiste_skript(challenge, status, seconds) }}
+
+{% if mit_skripten %}
+{% include "_skripte.html" %}
+{% endif %}
 
 <!-- Die Uhr selbst lädt die Seite nie neu, auch nicht bei null: Sie weiß
      nichts davon, wie der Server die Zeit sieht. Neu geladen wird allein über
