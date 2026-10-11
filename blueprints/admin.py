@@ -19,8 +19,7 @@ from wettbewerb_sicherung import (sicherung_bauen, sicherung_einlesen,
 from protokoll import ereignis, stoerung
 from sitzung import bewertung_angemeldet
 from uploads import safe_name
-import scratch_skripte
-import snap_skripte
+from skripte import als_bloecke, skripte_antwort
 from datenschutz import (groesse_text, protokoll_leeren, protokolldateien,
                          sicherungskopien, sicherungskopien_loeschen,
                          wettbewerb_aufraeumen)
@@ -966,36 +965,15 @@ def submission_code(submission_id):
     return antwort
 
 
-# Welche Abgaben sich als Blöcke anzeigen lassen, und wer sie liest. Hinter
-# .xml kann auch ein Programm aus Open Roberta stecken; das merkt erst
-# snap_skripte beim Lesen und sagt es dann.
-BLOCK_LESER = {
-    ".sb3": scratch_skripte.skripte_der_abgabe,
-    ".xml": snap_skripte.skripte_der_abgabe,
-}
-
-
 @admin_bp.route("/submissions/<int:submission_id>/skripte")
 def submission_skripte(submission_id):
     """Die Skripte einer Scratch- oder Snap!-Abgabe, nachgeladen beim Aufklappen.
 
-    Der Server liest nur die Blöcke aus der .sb3 oder dem XML von Snap! und
-    schreibt sie als scratchblocks-Text; die Bilder zeichnet der Browser.
-    Als JSON aus demselben Grund wie submission_code().
+    Dieselben Skripte sieht ein Team auf seiner Seite, siehe
+    challenge.abgabe_skripte(); gelesen werden sie in skripte.py.
     """
     submission = db.get_or_404(Submission, submission_id)
-    leser = BLOCK_LESER.get(os.path.splitext(submission.filename)[1].lower())
-    if leser is None:
-        figuren, hinweis = [], ("Nur Projekte aus Scratch 3 (.sb3) und Snap! (.xml) "
-                                "lassen sich so anzeigen.")
-    elif not os.path.isfile(submission.pfad):
-        figuren, hinweis = [], "Die Datei liegt nicht mehr an ihrem Platz."
-    else:
-        figuren, hinweis = leser(submission.pfad)
-
-    antwort = jsonify({"figuren": figuren, "hinweis": hinweis})
-    antwort.headers["X-Content-Type-Options"] = "nosniff"
-    return antwort
+    return skripte_antwort(submission)
 
 
 @admin_bp.route("/submissions", methods=["GET", "POST"])
@@ -1064,7 +1042,7 @@ def submissions():
             "abgegeben": s.timestamp,
             "endung": endung,
             "als_text_lesbar": endung in TEXT_FORMATS,
-            "als_bloecke": endung in BLOCK_LESER,
+            "als_bloecke": als_bloecke(s.filename),
             "groesse": dateigroesse(s.pfad),
         })
 
