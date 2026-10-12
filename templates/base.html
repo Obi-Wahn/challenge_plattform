@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="de"{% block seitenklasse %}{% endblock %}>
 
 <head>
   <meta charset="utf-8">
@@ -96,7 +96,7 @@
   {% endif %}
   {% endwith %}
 
-  <div class="{% block container_class %}container{% endblock %} py-3 py-md-5">
+  <div class="{% block container_class %}container{% endblock %} {% block container_abstand %}py-3 py-md-5{% endblock %}">
     {% block content %}{% endblock %}
   </div>
 

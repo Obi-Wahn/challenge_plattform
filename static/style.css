@@ -142,14 +142,101 @@ input::placeholder, textarea::placeholder {
   image-rendering: pixelated;
 }
 
+.qr-flaeche {
+  display: flex;
+  justify-content: center;
+}
+
+/* Abstände der Startseite. Bis lg wie auf den übrigen Seiten (py-3 py-md-5,
+   mb-4); ab lg rechnet sie "Startseite ohne Scrollen" weiter unten aus. */
+.startinhalt {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.startkopf {
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .startinhalt {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+}
+
+/* ====== Startseite ohne Scrollen ======
+   Ab lg steht die Startseite am Beamer oder am Smart-Display und soll ganz
+   im Bild sein, ohne dass jemand scrollt. Dafür ist die Seite genau so hoch
+   wie der Bildschirm: Leiste, Überschrift und Fußzeile nehmen, was sie
+   brauchen, die beiden Karten den Rest, und in der linken Karte bekommt
+   der QR-Code die Höhe, die neben Adresse und Hinweis übrig bleibt. */
 @media (min-width: 992px) {
-  /* Ab lg steht die Startseite am Beamer, und der Code soll von weiter
-     hinten im Raum scanbar sein: drei Viertel der Kartenbreite (cqi, siehe
-     .beitritt-karte). Die zweite Grenze hält die Karte auf einem Bildschirm
-     mit wenig Höhe (1366 x 768) ganz im Bild - über dem Code stehen rund
-     30rem Leiste, Überschrift und Adresse. */
+  /* Auf einem großen Bildschirm ohne Skalierung (4K mit 3840 x 2160) bliebe
+     die Seite sonst klein in der Mitte stehen. Ab 1920 x 1080 wächst die
+     Grundschrift deshalb mit, und mit ihr alles, was in rem rechnet:
+     Schrift, Abstände, Karten. Darunter bleibt es bei der Grundschrift des
+     Browsers. */
+  html.startseite {
+    font-size: max(100%, min(100vh / 67.5, 100vw / 120));
+  }
+
+  .startseite body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  .startinhalt {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    padding-top: clamp(0.5rem, 2.5vh, 3rem);
+    padding-bottom: clamp(0.5rem, 2.5vh, 3rem);
+  }
+
+  .startkopf {
+    margin-bottom: clamp(1rem, 3vh, 3rem);
+  }
+
+  /* Auf einem niedrigen Fenster werden Name und Gruß etwas kleiner, damit
+     für den QR-Code mehr Höhe bleibt. */
+  .startseite .willkommen {
+    font-size: clamp(2.2rem, min(3.4vw, 5.5vh), 3rem);
+  }
+
+  .startseite .gruss {
+    font-size: clamp(1.1rem, min(2vw, 3.2vh), 1.75rem);
+  }
+
+  .startinhalt > .row {
+    flex: 1 1 0;
+  }
+
+  /* Die Fläche ist ein Container mit Breite und Höhe (cqw, cqh). Der Code
+     nimmt davon die kleinere Seite, in der Breite neun Zehntel. Unter
+     160px wird er nicht kleiner, sonst ist er von hinten im Raum nicht mehr
+     scanbar; auf einem sehr niedrigen Fenster wird dann eben gescrollt. */
+  .qr-flaeche {
+    flex: 1 1 0;
+    min-height: 160px;
+    container-type: size;
+    align-items: center;
+  }
+
   .qr-code {
-    width: max(200px, min(75cqi, 100vh - 30rem));
+    width: min(90cqw, 100cqh);
+  }
+}
+
+@media (min-width: 1400px) {
+  /* Bootstrap hält den Inhalt ab xxl bei 1320px Breite. Mit der wachsenden
+     Grundschrift wächst auch diese Grenze, sonst stünden auf dem
+     4K-Display große Schrift und schmale Karten zusammen. Bis 1920px Breite
+     sind 82,5rem genau 1320px. */
+  .startseite .container {
+    max-width: 82.5rem;
   }
 }
 

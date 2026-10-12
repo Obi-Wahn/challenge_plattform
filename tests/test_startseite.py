@@ -74,7 +74,7 @@ class TestSeitenaufbau:
         html = client.get("/").get_data(as_text=True)
 
         willkommen = html.index("Los geht")
-        adresse = html.index("Adresse eintippen")
+        adresse = html.index("Tippt diese Adresse in den Browser")
         qr = html.index("data:image/png;base64")
         anmeldung = html.index('name="team"')
 
@@ -90,6 +90,24 @@ class TestSeitenaufbau:
 
         # Nach der Zeichenzahl richtet style.css die Schriftgröße aus
         assert int(treffer.group(1)) == len(treffer.group(2))
+
+    def test_die_hinweise_nennen_kein_geraet(self, client, make_challenge):
+        """Getippt und gescannt wird am PC, am Tablet und am Handy."""
+        make_challenge()
+        html = client.get("/").get_data(as_text=True)
+
+        assert "Tippt diese Adresse in den Browser:" in html
+        assert "Oder scannt den QR-Code mit der Kamera" in html
+        assert "Am Computer" not in html
+        assert "Mit dem Handy" not in html
+
+    def test_der_qr_code_steht_in_seiner_flaeche(self, client, make_challenge):
+        """Ab lg gibt die Fläche dem Code die Höhe, die in der Karte bleibt."""
+        make_challenge()
+        html = client.get("/").get_data(as_text=True)
+
+        import re
+        assert re.search(r'<div class="qr-flaeche">\s*<img src="data:image/png;base64,', html)
 
     def test_der_qr_code_ist_da(self, client, make_challenge):
         make_challenge()
@@ -138,3 +156,38 @@ class TestSeitenaufbau:
         html = client.get("/").get_data(as_text=True)
 
         assert "beitritt-adresse" in html
+
+
+class TestOhneScrollen:
+    """Ab lg passt die Startseite auf den Bildschirm (style.css)."""
+
+    def test_die_startseite_traegt_ihre_klasse(self, client, make_challenge):
+        make_challenge()
+        html = client.get("/").get_data(as_text=True)
+
+        assert '<html lang="de" class="startseite">' in html
+        assert 'class="container startinhalt"' in html
+
+    def test_andere_seiten_scrollen_wie_bisher(self, client, make_challenge):
+        """Die Klasse macht die Seite so hoch wie den Bildschirm. Auf einer
+        langen Seite wie der Rangliste wäre das falsch."""
+        make_challenge()
+
+        for pfad in ("/login", "/admin/login", "/scoreboard"):
+            html = client.get(pfad).get_data(as_text=True)
+            assert '<html lang="de">' in html, pfad
+            assert "startinhalt" not in html, pfad
+            assert "py-3 py-md-5" in html, pfad
+
+    def test_die_regeln_gelten_erst_ab_lg(self):
+        """Auf dem Handy stehen die Karten untereinander und es wird
+        gescrollt; die Seite darf dort nicht auf Bildschirmhöhe schrumpfen."""
+        from pathlib import Path
+
+        css = (Path(__file__).resolve().parent.parent / "static" / "style.css").read_text(
+            encoding="utf-8")
+        abschnitt = css[css.index("====== Startseite ohne Scrollen"):]
+        media = abschnitt.index("@media (min-width: 992px)")
+
+        assert abschnitt.index(".startseite body") > media
+        assert abschnitt.index("container-type: size") > media
