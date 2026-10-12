@@ -34,7 +34,7 @@
       </p>
       {# Die Zeichenzahl braucht style.css, um die Schrift so groß zu machen,
          dass die Adresse die Karte gerade ausfüllt. #}
-      <p class="beitritt-adresse {{ 'mb-4' if qr_code_data else 'mb-0' }}" style="--zeichen: {{ beitritt|length }}">{{ beitritt }}</p>
+      <p class="beitritt-adresse {{ 'mb-4 mb-lg-2' if qr_code_data else 'mb-0' }}" style="--zeichen: {{ beitritt|length }}">{{ beitritt }}</p>
 
       {% if qr_code_data %}
       {# Die Fläche nimmt ab lg die Höhe, die in der Karte übrig bleibt;
