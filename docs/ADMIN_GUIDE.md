@@ -88,9 +88,10 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 
    **Titel möglichst kurz halten**, zwei, drei Wörter wie „Ballon-Jagd“
    oder „Geheimes Passwort“. Über den Spalten der Rangliste steht
-   „A1: Titel“, und die Spalten teilen sich die Breite des Beamers: Bei
+   „A1: Titel“, und die Spalten teilen sich die Breite des großen Bildschirms
+   (Display, Smartboard oder Beamer): Bei
    fünfzehn Aufgaben bleiben von einem langen Titel nur Wortanfänge. Was
-   die Teams genau tun sollen, gehört in den Aufgabentext. Reicht am Beamer
+   die Teams genau tun sollen, gehört in den Aufgabentext. Reicht am großen Bildschirm
    die Nummer, schaltest du die Titel unter *Einstellungen* → *Rangliste*
    ab.
 
@@ -107,7 +108,7 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    in der Rangliste (A1, A2 …) und in den Sicherungen. Die Nummern sind
    dieselben, du kannst also im Raum von „Aufgabe 3“ sprechen. Neue und eingelesene Aufgaben kommen ans Ende. Am besten
    vor dem Start sortieren: Wer mitten im Wettbewerb umstellt, ändert auch
-   die Nummern über den Spalten der Rangliste am Beamer – die Punkte bleiben
+   die Nummern über den Spalten der Rangliste am großen Bildschirm – die Punkte bleiben
    dabei, wo sie hingehören.
 
 ---
@@ -135,8 +136,8 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
       dem QR-Code und lässt sich abtippen – wichtig, weil an normalen PCs und
       Laptops ein QR-Code nichts nützt. Dort fehlt das `http://` davor: Das
       ergänzt der Browser beim Eintippen selbst.
-      Am Beamer oder am Smart-Display passt die Startseite ohne Scrollen auf
-      den Bildschirm, vom Laptop bis zu 4K; der QR-Code wird so groß, wie
+      Auf dem großen Bildschirm passt die Startseite ohne Scrollen ganz
+      hinein, vom Laptop bis zu 4K; der QR-Code wird so groß, wie
       neben Adresse und Gruß Platz bleibt. Auf dem Handy stehen die beiden
       Karten untereinander, dort wird wie gewohnt gescrollt.
 - [ ] **Hilft jemand beim Bewerten?** Dann unter *Einstellungen* →
@@ -147,10 +148,10 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
       der Bewertungsseite und kommt von dort nirgendwo anders hin. Löschen
       und Freigeben sind dort ausgeblendet. Ohne Passwort gibt es diesen
       Zugang nicht.
-- [ ] **Beamer testen** mit der Rangliste `/scoreboard`. Die Restzeit steht
+- [ ] **Großen Bildschirm testen** mit der Rangliste `/scoreboard`. Die Restzeit steht
       dort oben, dieselbe, die die Teams sehen. Ist der Raum hell und die
       Tabelle blass, oben in der Leiste auf **☀️ Hell** wechseln. Der
-      Browser des Beamer-Rechners merkt sich das; die Geräte der Teams
+      Browser an diesem Bildschirm merkt sich das; die Geräte der Teams
       zeigen weiter, was dort eingestellt ist.
 
 ---
@@ -175,7 +176,7 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    *Weitere Wettbewerbe* – dort **✅ Aktivieren**. „▶ Jetzt starten“ auf einem
    nicht aktiven Wettbewerb startet nur seine Uhr; die Meldung danach sagt,
    dass die Teams ihn erst nach dem Aktivieren sehen.
-3. Rangliste `/scoreboard` an die Wand werfen. Oben läuft die Zeit, darunter
+3. Rangliste `/scoreboard` auf dem großen Bildschirm öffnen. Oben läuft die Zeit, darunter
    füllt sich die Tabelle, sobald du bewertest. Über jeder Spalte stehen
    Nummer und Titel der Aufgabe, ein langer Titel gekürzt; ab Laptopbreite
    passt die Tabelle mit „Gesamt“ immer ganz auf die Seite.
@@ -244,7 +245,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   einmal unter *Name & Zeiten* das Häkchen **📢 Durchsagen an die Teams**
   setzen, dann steht auf der Wettbewerbsseite unter den Knöpfen für die Uhr
   ein Feld mit **📢 Senden**. Der Satz erscheint innerhalb von etwa 15 Sekunden oben auf
-  jeder Teamseite und über der Rangliste am Beamer. Es gilt immer nur eine
+  jeder Teamseite und über der Rangliste am großen Bildschirm. Es gilt immer nur eine
   Durchsage – eine neue ersetzt die alte, **Entfernen** nimmt sie weg. Ins
   Protokoll kommt nur, dass es eine gab, nicht ihr Text.
 - **Korrekturen** machen die Teams selbst: Unter jeder abgegebenen Aufgabe
@@ -262,15 +263,15 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   schiebt die Endzeit um die Dauer der Pause nach hinten. Den Teams geht also
   keine Arbeitszeit verloren, und du musst nichts nachrechnen. Auf den
   Teamseiten erscheint innerhalb von etwa 15 Sekunden von selbst ein Kasten
-  *⏸ Kurze Pause*, die Zeitleiste wird orange, und die Rangliste am Beamer
-  zeigt dieselbe stillstehende Zeit. Beim Fortsetzen verschwindet der
+  *⏸ Kurze Pause*, die Zeitleiste wird orange, und die Rangliste am großen
+  Bildschirm zeigt dieselbe stillstehende Zeit. Beim Fortsetzen verschwindet der
   Kasten genauso von selbst wieder. Die Aufgaben bleiben in der Pause
   absichtlich lesbar – nachdenken und nachlesen darf ein Team, nur abgeben
   nicht.
 - **Rangliste** `/scoreboard` aktualisiert sich alle 30 Sekunden von selbst und
-  trägt die Restzeit oben — sie ist die Seite für den Beamer, den ganzen
-  Wettbewerb über. Nach dem Ende führt sie zur Siegerehrung, am Beamer von
-  selbst und genauso bei jedem neuen Aufruf.
+  trägt die Restzeit oben — sie ist die Seite für den großen Bildschirm, den ganzen
+  Wettbewerb über. Nach dem Ende führt sie zur Siegerehrung, am großen Bildschirm
+  von selbst und genauso bei jedem neuen Aufruf.
   Eine eigene Countdown-Seite gibt es nicht mehr.
 - **Rangliste einfrieren**, wenn es am Ende spannend bleiben soll: unter
   *Name & Zeiten* das Häkchen **❄️ Rangliste vor Schluss einfrieren** setzen
@@ -288,8 +289,8 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 1. **🏁 Wettbewerb beenden** auf der Wettbewerbsseite. Das setzt die Endzeit
    auf jetzt; Abgaben sind gesperrt. Gelöscht wird nichts.
 2. **Letzte Abgaben zu Ende bewerten** – das geht nach dem Beenden weiter.
-3. **Siegerehrung** `/siegerehrung` an die Wand werfen. Hängt die Rangliste
-   schon am Beamer, musst du nichts tun: Spätestens 30 Sekunden nach dem
+3. **Siegerehrung** `/siegerehrung` auf dem großen Bildschirm öffnen. Hängt die Rangliste
+   schon am großen Bildschirm, musst du nichts tun: Spätestens 30 Sekunden nach dem
    Ende wechselt sie von selbst zur Siegerehrung, sobald die erste Abgabe
    Punkte hat. Wer die Rangliste nach dem Ende aufruft, landet ebenfalls
    dort. Bis der erste Platz verkündet ist, holt sich die
@@ -303,7 +304,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
    Ist die Rangliste eingefroren, zeigt die Siegerehrung nur dir als
    angemeldeter Lehrkraft den echten Stand; wer die Adresse am Handy
    aufruft, sieht bloß *❄️ Die Rangliste ist eingefroren*. Darum wechselt
-   eine eingefrorene Rangliste am Beamer nur dann zum Podest, wenn du dort
+   eine eingefrorene Rangliste am großen Bildschirm nur dann zum Podest, wenn du dort
    angemeldet bist; sonst bleibt sie bis zum Auflösen stehen. Nach dem letzten
    Platz **❄️ Rangliste auflösen und ansehen** drücken (der Knopf steht auch
    auf der Wettbewerbsseite), dann zeigt die Rangliste wieder alles.
@@ -333,7 +334,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Ein Team hat die falsche Datei hochgeladen | Normalerweise nichts zu tun: Das Team lädt über **🔁 Korrektur abgeben** die richtige hoch. Hast du das Häkchen **🔁 Teams dürfen ihre Abgabe selbst korrigieren** herausgenommen: `/admin` → *Bewertungen* → **🔓 Erneut abgeben erlauben** – das geht auch, bevor die Abgabe Punkte hat. Die Freigabe gilt **einmal**. Sobald das Team neu abgibt, verschwindet die bisherige Bewertung und die Abgabe landet wieder in der Warteschlange; bis dahin bleibt alles, wie es ist. |
 | „Abgaben sind gerade gesperrt“ bei einem Team | Wettbewerb pausiert oder Endzeit überschritten. Die Meldung steht auf der Wettbewerbsseite des Teams. Gehört das Team zu einem anderen als dem aktiven Wettbewerb, landet es gar nicht erst dort, sondern auf der Startseite. |
 | Falsches Dateiformat wird abgewiesen | Das erlaubte Format steht pro Aufgabe und in der Meldung, die das Team bekommt. Prüfen, ob es zu dem passt, was die Umgebung tatsächlich exportiert (Scratch: `.sb3`, MakeCode-Calliope: `.hex`, Open Roberta und Snap!: `.xml`, Arduino: `.ino`, App Inventor: `.aia`, Jupyter: `.ipynb`). Open Roberta und Snap! teilen sich `.xml` – aus welcher der beiden Umgebungen die Datei stammt, prüft die Plattform beim Abgeben nicht; erst **🧩 Skripte anzeigen** merkt es. |
-| Ein Team will sich noch registrieren, der Wettbewerb ist beendet oder pausiert | Die Startseite nimmt dann keine neuen Teams an – sonst stünde das Team mit null Punkten in der Rangliste am Beamer. Soll es doch noch mitmachen: **🔓 Wieder öffnen** bzw. **▶ Fortsetzen** auf der Wettbewerbsseite, dann registrieren lassen. |
+| Ein Team will sich noch registrieren, der Wettbewerb ist beendet oder pausiert | Die Startseite nimmt dann keine neuen Teams an – sonst stünde das Team mit null Punkten in der Rangliste am großen Bildschirm. Soll es doch noch mitmachen: **🔓 Wieder öffnen** bzw. **▶ Fortsetzen** auf der Wettbewerbsseite, dann registrieren lassen. |
 | Start- oder Anmeldeseite sagt „Gerade ist kein Wettbewerb aktiv“ | Der aktive Wettbewerb wurde gelöscht, und noch ist kein anderer gewählt. `/admin` → auf der Steuerzentrale beim richtigen **✅ Aktivieren**. Danach können sich die Teams wieder registrieren und anmelden. |
 | Wettbewerb gelöscht, ein Team sitzt noch davor | Mit dem Wettbewerb sind seine Teams weg. Das Team landet beim nächsten Klick auf der Startseite und registriert sich dort für den nächsten Wettbewerb neu. |
 | Nach dem Update auf v1.1.0 waren alle Teams abgemeldet | Einmalig und so gewollt: Anmeldungen aus der Zeit davor galten nicht mehr. Teamname und Passwort blieben, die Teams meldeten sich einmal neu an. Spätere Updates melden niemanden ab. Ein Update spielt man trotzdem besser vor dem Wettbewerb ein als mittendrin. |
