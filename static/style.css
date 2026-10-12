@@ -215,7 +215,8 @@ input::placeholder, textarea::placeholder {
   }
 
   /* Die Fläche ist ein Container mit Breite und Höhe (cqw, cqh). Der Code
-     nimmt davon die kleinere Seite, in der Breite neun Zehntel. Unter
+     nimmt davon die kleinere Seite und wird höchstens so breit wie die
+     Adresse darüber. Unter
      160px wird er nicht kleiner, sonst ist er von hinten im Raum nicht mehr
      scanbar; auf einem sehr niedrigen Fenster wird dann eben gescrollt. */
   .qr-flaeche {
@@ -226,7 +227,19 @@ input::placeholder, textarea::placeholder {
   }
 
   .qr-code {
-    width: min(90cqw, 100cqh);
+    width: min(100cqw, 100cqh);
+  }
+
+  /* Meist begrenzt die Höhe der Karte den Code, nicht ihre Breite. Weniger
+     Rand oben und unten und eine Adresse ohne Zeilenabstand geben ihm gut
+     60px mehr, ohne dass sich Karten, Überschrift oder Fußzeile bewegen. */
+  .beitritt-karte {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .beitritt-adresse {
+    line-height: 1;
   }
 }
 
