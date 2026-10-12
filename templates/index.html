@@ -1,7 +1,12 @@
 {% extends "base.html" %}
+{# Ab lg passt die Startseite ohne Scrollen auf den Bildschirm, siehe
+   „Startseite ohne Scrollen“ in style.css. Den Abstand oben und unten
+   rechnet sie dort selbst aus. #}
+{% block seitenklasse %} class="startseite"{% endblock %}
+{% block container_abstand %}startinhalt{% endblock %}
 {% block content %}
 
-<div class="text-center mb-4 mb-lg-5">
+<div class="text-center startkopf">
   <!-- Der Name allein als Überschrift, der Gruß als eigener Satz darunter:
        "Willkommen beim ..." bräuchte einen Artikel, der vom Namen abhängt
        ("beim Scratch-Cup", "bei der Calliope-Challenge"). -->
@@ -25,16 +30,20 @@
   <div class="col-lg-6 col-xl-5">
     <div class="event-card beitritt-karte text-center h-100 d-flex flex-column justify-content-center">
       <p class="text-secondary small mb-1">
-        💻 Am Computer diese Adresse eintippen:
+        ⌨️ Tippt diese Adresse in den Browser:
       </p>
       {# Die Zeichenzahl braucht style.css, um die Schrift so groß zu machen,
          dass die Adresse die Karte gerade ausfüllt. #}
       <p class="beitritt-adresse {{ 'mb-4' if qr_code_data else 'mb-0' }}" style="--zeichen: {{ beitritt|length }}">{{ beitritt }}</p>
 
       {% if qr_code_data %}
-      <img src="data:image/png;base64,{{ qr_code_data }}" alt="QR-Code zu dieser Seite" class="qr-code mx-auto">
+      {# Die Fläche nimmt ab lg die Höhe, die in der Karte übrig bleibt;
+         der Code wird so groß, wie sie es zulässt. #}
+      <div class="qr-flaeche">
+        <img src="data:image/png;base64,{{ qr_code_data }}" alt="QR-Code zu dieser Seite" class="qr-code">
+      </div>
       <p class="text-secondary small mt-2 mb-0">
-        📱 Mit dem Handy scannen
+        📷 Oder scannt den QR-Code mit der Kamera
       </p>
       {% endif %}
     </div>

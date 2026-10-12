@@ -135,6 +135,10 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
       dem QR-Code und lässt sich abtippen – wichtig, weil an normalen PCs und
       Laptops ein QR-Code nichts nützt. Dort fehlt das `http://` davor: Das
       ergänzt der Browser beim Eintippen selbst.
+      Am Beamer oder am Smart-Display passt die Startseite ohne Scrollen auf
+      den Bildschirm, vom Laptop bis zu 4K; der QR-Code wird so groß, wie
+      neben Adresse und Gruß Platz bleibt. Auf dem Handy stehen die beiden
+      Karten untereinander, dort wird wie gewohnt gescrollt.
 - [ ] **Hilft jemand beim Bewerten?** Dann unter *Einstellungen* →
       *Bewertungszugang* ein eigenes Passwort setzen (mindestens 6 Zeichen,
       nicht das Admin-Passwort) und weitergeben. Angemeldet wird sich wie du
