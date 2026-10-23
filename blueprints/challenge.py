@@ -407,13 +407,16 @@ def submit_task(task_id):
         bedingung = {"id": existing.id, "filename": existing.filename}
         if not challenge.self_correction:
             bedingung["resubmit_allowed"] = True
-        umgestellt = Submission.query.filter_by(**bedingung).update({
+        jetzt = datetime.now()
+        werte = {
             Submission.filename: ablage_von(filepath),
-            Submission.timestamp: datetime.now(),
+            Submission.timestamp: jetzt,
             Submission.points: None,
             Submission.feedback: None,
             Submission.resubmit_allowed: False,
-        })
+        }
+        werte.update(eingefrorener_stand(existing, challenge.freeze_point, jetzt))
+        umgestellt = Submission.query.filter_by(**bedingung).update(werte)
         if not umgestellt:
             return doppelt_abgeschickt(filepath, team, task)
 
@@ -448,6 +451,23 @@ def submit_task(task_id):
         raise
 
     return redirect(url_for("challenge.view"))
+
+
+def eingefrorener_stand(abgabe, punkt, jetzt):
+    """Was eine Korrektur für die eingefrorene Rangliste festhält.
+
+    Zählte die alte Fassung beim Einfrieren schon, behält die Abgabe ihre
+    Punkte und ihren Zeitpunkt; die eingefrorene Rangliste zeigt sie weiter.
+    Vor dem Einfrieren gibt es nichts festzuhalten. War die alte Fassung
+    selbst schon eine Korrektur nach dem Einfrieren, bleibt der festgehaltene
+    Stand, wie er ist.
+    """
+    if punkt is not None and abgabe.timestamp and abgabe.timestamp <= punkt < jetzt:
+        return {Submission.frozen_points: abgabe.points,
+                Submission.frozen_timestamp: abgabe.timestamp}
+    if punkt is None or jetzt <= punkt:
+        return {Submission.frozen_points: None, Submission.frozen_timestamp: None}
+    return {}
 
 
 def certificate_filename(team_name):

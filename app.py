@@ -401,6 +401,8 @@ ADDED_COLUMNS = {
     },
     "submissions": {
         "resubmit_allowed": "BOOLEAN DEFAULT 0",
+        "frozen_points": "INTEGER",
+        "frozen_timestamp": "DATETIME",
     },
     "settings": {
         "signature_name": "VARCHAR(100) NOT NULL DEFAULT ''",

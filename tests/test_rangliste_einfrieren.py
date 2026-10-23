@@ -20,6 +20,14 @@ def frisch(challenge):
     return db.session.get(Challenge, challenge.id)
 
 
+def frisch_abgabe(eintrag):
+    from extensions import db
+    from models import Submission
+
+    db.session.expire_all()
+    return db.session.get(Submission, eintrag.id)
+
+
 def abgabe(team, task, punkte, vor_minuten):
     """Eine bewertete Abgabe, die vor `vor_minuten` Minuten hochgeladen wurde."""
     from extensions import db
@@ -165,6 +173,91 @@ class TestRangliste:
         assert gesamt_auf_der_rangliste(client, "Team Frost") == 0
         posten(admin, f"/admin/challenges/{challenge.id}/rangliste-aufloesen")
         assert gesamt_auf_der_rangliste(client, "Team Frost") == 9
+
+
+class TestKorrekturNachDemEinfrieren:
+    """Korrigiert ein Team nach dem Einfrieren, bleibt der eingefrorene Stand.
+
+    Vorher fiel die Abgabe mit neuem Zeitpunkt und ohne Punkte aus der
+    eingefrorenen Ansicht: Am großen Bildschirm sanken die Punkte des Teams,
+    und alle sahen, dass es noch etwas abgegeben hatte (Durchsicht Oktober 2026).
+    """
+
+    @staticmethod
+    def korrigieren(client, task):
+        import io
+
+        return client.post(f"/submit/{task.id}", data={
+            "csrf_token": csrf_token(client, "/login"),
+            "file": (io.BytesIO(b"neue fassung"), "neu.sb3"),
+        }, content_type="multipart/form-data")
+
+    @staticmethod
+    def eingefroren_mit_abgabe(make_challenge, make_task, logged_in_team,
+                               vor_minuten=30, minuten_bis_ende=10):
+        challenge = laufender_wettbewerb(make_challenge, minuten_bis_ende=minuten_bis_ende)
+        task = make_task(challenge, max_points=10)
+        client, team = logged_in_team(challenge, name="Team Frost")
+        eintrag = abgabe(team, task, 8, vor_minuten=vor_minuten)
+        return challenge, task, client, eintrag
+
+    def test_die_alten_punkte_bleiben_stehen(self, client, make_challenge, make_task,
+                                             logged_in_team):
+        _challenge, task, team_client, eintrag = self.eingefroren_mit_abgabe(
+            make_challenge, make_task, logged_in_team)
+
+        assert self.korrigieren(team_client, task).status_code == 302
+
+        eintrag = frisch_abgabe(eintrag)
+        assert eintrag.points is None
+        assert eintrag.frozen_points == 8
+        assert gesamt_auf_der_rangliste(client, "Team Frost") == 8
+
+    def test_die_neue_bewertung_zeigt_erst_der_echte_stand(
+            self, client, make_challenge, make_task, logged_in_team):
+        from extensions import db
+        from scoring import get_standings
+
+        challenge, task, team_client, eintrag = self.eingefroren_mit_abgabe(
+            make_challenge, make_task, logged_in_team)
+        self.korrigieren(team_client, task)
+        eintrag = frisch_abgabe(eintrag)
+        eintrag.points = 3
+        db.session.commit()
+
+        assert gesamt_auf_der_rangliste(client, "Team Frost") == 8
+        _tasks, echt = get_standings(frisch(challenge))
+        assert echt[0]["total"] == 3
+
+    def test_eine_zweite_korrektur_behaelt_den_stand(
+            self, client, make_challenge, make_task, logged_in_team):
+        _challenge, task, team_client, eintrag = self.eingefroren_mit_abgabe(
+            make_challenge, make_task, logged_in_team)
+        self.korrigieren(team_client, task)
+        self.korrigieren(team_client, task)
+
+        assert frisch_abgabe(eintrag).frozen_points == 8
+        assert gesamt_auf_der_rangliste(client, "Team Frost") == 8
+
+    def test_vor_dem_einfrieren_wird_nichts_festgehalten(
+            self, client, make_challenge, make_task, logged_in_team):
+        _challenge, task, team_client, eintrag = self.eingefroren_mit_abgabe(
+            make_challenge, make_task, logged_in_team, minuten_bis_ende=40)
+        self.korrigieren(team_client, task)
+
+        eintrag = frisch_abgabe(eintrag)
+        assert eintrag.frozen_points is None
+        assert eintrag.frozen_timestamp is None
+        assert gesamt_auf_der_rangliste(client, "Team Frost") == 0
+
+    def test_erst_nach_dem_einfrieren_abgegeben_zaehlt_weiter_nicht(
+            self, client, make_challenge, make_task, logged_in_team):
+        _challenge, task, team_client, eintrag = self.eingefroren_mit_abgabe(
+            make_challenge, make_task, logged_in_team, vor_minuten=2)
+        self.korrigieren(team_client, task)
+
+        assert frisch_abgabe(eintrag).frozen_points is None
+        assert gesamt_auf_der_rangliste(client, "Team Frost") == 0
 
 
 class TestEigenePunkte:

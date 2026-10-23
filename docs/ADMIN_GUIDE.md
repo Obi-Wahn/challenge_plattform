@@ -281,9 +281,11 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   und die Minuten vor Schluss eintragen (vorgeschlagen sind 15). Ab dann
   zeigt die Rangliste nur noch, was bis dahin abgegeben war, mit dem Hinweis
   *❄️ Eingefroren seit …*. Du bewertest weiter wie immer; eine Abgabe von
-  davor zählt auch, wenn du sie erst danach bewertest. Jedes Team sieht seine
-  eigenen Punkte auf seiner Seite weiter aktuell – nur den Vergleich mit den
-  anderen nicht mehr. Eine Pause vor dem Einfrieren schiebt es mit dem Ende
+  davor zählt auch, wenn du sie erst danach bewertest. Korrigiert ein Team
+  danach noch eine Abgabe, behält die Rangliste deren alte Punkte, bis du
+  sie auflöst; die neue Fassung bewertest du wie jede andere. Jedes Team
+  sieht seine eigenen Punkte auf seiner Seite weiter aktuell – nur den
+  Vergleich mit den anderen nicht mehr. Eine Pause vor dem Einfrieren schiebt es mit dem Ende
   nach hinten, eine Pause danach nicht. Die Einstellung gilt je Wettbewerb
   und ist bei einem neuen aus.
 
