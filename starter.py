@@ -48,7 +48,7 @@ UMGEBUNG = ".venv"
 # Update etwa -, wird neu installiert, sonst nicht.
 PAKETSTAND = ".starter-pakete"
 
-# Die Beispielwerte aus .env.example und der README. Sie stehen öffentlich im
+# Die Beispielwerte aus .env.example und docs/ENTWICKLUNG.md. Sie stehen öffentlich im
 # Repository, mit einem davon startet die Anwendung nicht (siehe config.py,
 # dort steht dieselbe Liste - diese Datei kann config.py nicht laden, weil
 # die beim Laden schon nach der .env fragt). Steht einer in der .env,

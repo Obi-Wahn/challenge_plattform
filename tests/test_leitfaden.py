@@ -52,8 +52,7 @@ class TestAngaben:
         assert len(genannte_adressen()) >= 5
 
     def test_genannte_dateien_und_ordner_gibt_es(self):
-        erwartet = ["beispiele", "data", "requirements.txt",
-                    "requirements-dev.txt", "werkzeuge/vendor_aktualisieren.py"]
+        erwartet = ["beispiele", "data"]
         inhalt = text()
         for eintrag in erwartet:
             assert eintrag in inhalt, f"{eintrag} wird im Leitfaden nicht erwähnt"
@@ -73,3 +72,32 @@ class TestAngaben:
     def test_readme_verweist_auf_den_leitfaden(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         assert "ADMIN_GUIDE.md" in readme
+
+
+class TestEntwicklung:
+    """Die Anleitung für die Arbeit am Code, docs/ENTWICKLUNG.md.
+
+    Seit der Durchsicht vom Oktober 2026 steht der Entwicklerteil nicht mehr
+    in der README; wer die ZIP holt, liest dort nicht mehr daran vorbei.
+    """
+
+    ANLEITUNG = ROOT / "docs" / "ENTWICKLUNG.md"
+
+    def inhalt(self):
+        return self.ANLEITUNG.read_text(encoding="utf-8")
+
+    def test_readme_und_leitfaden_verweisen_darauf(self):
+        assert "docs/ENTWICKLUNG.md" in (ROOT / "README.md").read_text(encoding="utf-8")
+        assert "ENTWICKLUNG.md" in text()
+
+    def test_genannte_dateien_gibt_es(self):
+        for eintrag in ["requirements.txt", "requirements-dev.txt",
+                        "werkzeuge/vendor_aktualisieren.py", "werkzeuge/pakete_pruefen.py",
+                        "static/vendor/versionen.json", ".github/workflows/tests.yml"]:
+            assert eintrag in self.inhalt(), f"{eintrag} wird nicht erwähnt"
+            assert (ROOT / eintrag).exists(), f"{eintrag} gibt es im Projekt nicht"
+
+    def test_jede_testdatei_steht_in_der_uebersicht(self):
+        fehlt = [pfad.name for pfad in sorted((ROOT / "tests").glob("test_*.py"))
+                 if f"| `{pfad.name}` |" not in self.inhalt()]
+        assert not fehlt, f"In der Testübersicht fehlen: {fehlt}"
