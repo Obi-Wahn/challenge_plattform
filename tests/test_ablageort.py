@@ -10,6 +10,7 @@ import os
 import shutil
 import sqlite3
 import zipfile
+from contextlib import closing
 
 import pytest
 
@@ -201,7 +202,8 @@ class TestUmstellungBeimStart:
 
         kopie = anwendung._backup_path
         assert kopie and "-vor-pfade-" in kopie
-        with sqlite3.connect(kopie) as verbindung:
+        # „with“ allein schließt eine sqlite3-Verbindung nicht, closing schon.
+        with closing(sqlite3.connect(kopie)) as verbindung:
             alt = verbindung.execute("SELECT filename FROM submissions").fetchone()[0]
         assert alt == f"/alt/uploads/{team.id}/task_1_a.sb3"
 

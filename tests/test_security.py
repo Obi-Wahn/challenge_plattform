@@ -1,5 +1,7 @@
 """Schutzmechanismen, die im Schul-LAN wirken sollen."""
 
+from pathlib import Path
+
 import pytest
 
 from tests.helpers import ADMIN_PASSWORD, csrf_token
@@ -41,6 +43,17 @@ class TestPasswoerter:
         assert "geheim" not in team.password_hash
         assert team.check_password("geheim")
         assert not team.check_password("falsch")
+
+    def test_im_betrieb_mit_scrypt(self, make_challenge, make_team, monkeypatch):
+        # Die Tests hashen schneller (conftest.py); die Anwendung nicht.
+        import werkzeug.security
+
+        echt = werkzeug.security.generate_password_hash.echt
+        monkeypatch.setattr(werkzeug.security, "generate_password_hash", echt)
+        team = make_team(make_challenge(), name="Team Blitz", password="geheim")
+
+        assert team.password_hash.startswith("scrypt:")
+        assert team.check_password("geheim")
 
     def test_team_ohne_passwort_kommt_nicht_rein(self, make_challenge, database):
         from models import Team
@@ -213,7 +226,7 @@ class TestBetriebsmodus:
         """SECRET_KEY und ADMIN_PASSWORD müssen aus der Umgebung kommen."""
         import config
 
-        quelltext = open(config.__file__, encoding="utf-8").read()
+        quelltext = Path(config.__file__).read_text(encoding="utf-8")
         assert '_require_env("SECRET_KEY")' in quelltext
         assert '_require_env("ADMIN_PASSWORD")' in quelltext
 
