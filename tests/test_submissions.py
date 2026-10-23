@@ -390,6 +390,95 @@ class TestBewertung:
         database.session.refresh(abgabe)
         assert abgabe.points == 10
 
+    # Korrigiert ein Team, während die Bewertungsseite offen ist, darf die
+    # Bewertung nicht auf der neuen, ungesehenen Fassung landen.
+    def bewertungsseite_mit_abgabe(self, admin, make_challenge, make_task,
+                                   logged_in_team):
+        from models import Submission
+
+        challenge = make_challenge()
+        task = make_task(challenge, title="Katze", max_points=10)
+        client, _team = logged_in_team(challenge)
+        abgeben(client, task, "erste.sb3")
+        abgabe = Submission.query.one()
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+        return client, task, abgabe, html
+
+    def test_seite_schickt_die_gesehene_fassung_mit(
+            self, admin, make_challenge, make_task, logged_in_team):
+        _client, _task, abgabe, html = self.bewertungsseite_mit_abgabe(
+            admin, make_challenge, make_task, logged_in_team)
+        assert 'name="fassung"' in html
+        assert f'value="{abgabe.fassung}"' in html
+
+    def test_gesehene_fassung_wird_bewertet(
+            self, admin, make_challenge, make_task, logged_in_team, database):
+        _client, _task, abgabe, _html = self.bewertungsseite_mit_abgabe(
+            admin, make_challenge, make_task, logged_in_team)
+        admin.post("/admin/submissions", data={
+            "csrf_token": csrf_token(admin, "/admin/submissions"),
+            "submission_id": abgabe.id,
+            "fassung": abgabe.fassung,
+            "points": "7",
+        })
+        database.session.refresh(abgabe)
+        assert abgabe.points == 7
+
+    def test_neue_fassung_wird_nicht_mitbewertet(
+            self, admin, make_challenge, make_task, logged_in_team, database):
+        client, task, abgabe, _html = self.bewertungsseite_mit_abgabe(
+            admin, make_challenge, make_task, logged_in_team)
+        gesehen = abgabe.fassung
+        abgeben(client, task, "zweite.sb3")
+        database.session.refresh(abgabe)
+        assert abgabe.fassung != gesehen
+
+        antwort = admin.post("/admin/submissions", data={
+            "csrf_token": csrf_token(admin, "/admin/submissions"),
+            "submission_id": abgabe.id,
+            "fassung": gesehen,
+            "points": "7",
+            "feedback": "Passt",
+        }, follow_redirects=True)
+
+        database.session.refresh(abgabe)
+        assert abgabe.points is None
+        assert abgabe.feedback is None
+        assert "inzwischen eine neue Fassung" in antwort.get_data(as_text=True)
+
+    def test_neue_fassung_wird_nicht_zurueckgesetzt(
+            self, admin, make_challenge, make_task, logged_in_team, database):
+        client, task, abgabe, _html = self.bewertungsseite_mit_abgabe(
+            admin, make_challenge, make_task, logged_in_team)
+        gesehen = abgabe.fassung
+        abgeben(client, task, "zweite.sb3")
+        abgabe.points = 4
+        database.session.commit()
+
+        admin.post("/admin/submissions", data={
+            "csrf_token": csrf_token(admin, "/admin/submissions"),
+            "submission_id": abgabe.id,
+            "fassung": gesehen,
+            "soft_reset": "1",
+        })
+
+        database.session.refresh(abgabe)
+        assert abgabe.points == 4
+
+    def test_ohne_fassung_wie_bisher(
+            self, admin, make_challenge, make_task, logged_in_team, database):
+        # Eine Seite, die noch vor dem Update geladen wurde, kennt das Feld nicht.
+        client, task, abgabe, _html = self.bewertungsseite_mit_abgabe(
+            admin, make_challenge, make_task, logged_in_team)
+        abgeben(client, task, "zweite.sb3")
+        admin.post("/admin/submissions", data={
+            "csrf_token": csrf_token(admin, "/admin/submissions"),
+            "submission_id": abgabe.id,
+            "points": "6",
+        })
+        database.session.refresh(abgabe)
+        assert abgabe.points == 6
+
     def test_negative_punkte_werden_zu_null(
             self, admin, make_challenge, make_task, logged_in_team, database):
         from models import Submission
@@ -470,7 +559,7 @@ class TestLangeDateinamen:
             self, make_challenge, make_task, logged_in_team, database):
         import os
 
-        from blueprints.challenge import MAX_DATEINAME
+        from uploads import MAX_DATEINAME
         from models import Submission
 
         challenge = make_challenge()
@@ -500,12 +589,12 @@ class TestLangeDateinamen:
 
 class TestGekuerzterDateiname:
     def test_kurze_namen_bleiben_unveraendert(self):
-        from blueprints.challenge import gekuerzter_dateiname
+        from uploads import gekuerzter_dateiname
 
         assert gekuerzter_dateiname("loesung.sb3") == "loesung.sb3"
 
     def test_lange_namen_werden_auf_die_grenze_gebracht(self):
-        from blueprints.challenge import MAX_DATEINAME, gekuerzter_dateiname
+        from uploads import MAX_DATEINAME, gekuerzter_dateiname
 
         ergebnis = gekuerzter_dateiname("a" * 300 + ".sb3")
 
@@ -514,14 +603,14 @@ class TestGekuerzterDateiname:
 
     def test_auch_eine_absurde_endung_wird_mitgekuerzt(self):
         """Was länger ist als jede erlaubte Endung, ist auch nur Name."""
-        from blueprints.challenge import MAX_DATEINAME, gekuerzter_dateiname
+        from uploads import MAX_DATEINAME, gekuerzter_dateiname
 
         ergebnis = gekuerzter_dateiname("a.b" + "c" * 400)
 
         assert len(ergebnis) <= MAX_DATEINAME
 
     def test_ein_name_ohne_punkt_wird_einfach_gekuerzt(self):
-        from blueprints.challenge import MAX_DATEINAME, gekuerzter_dateiname
+        from uploads import MAX_DATEINAME, gekuerzter_dateiname
 
         ergebnis = gekuerzter_dateiname("a" * 300)
 
@@ -563,3 +652,71 @@ class TestWeitereFormate:
         abgeben(client, task, dateiname="blinken.ino")
 
         assert Submission.query.count() == 0
+
+
+class TestEndungBleibt:
+    """Ein Dateiname ohne lateinische Buchstaben behält seine Endung.
+
+    secure_filename() machte aus „Кот.sb3“ oder „🐱.sb3“ ein „sb3“ ohne
+    Punkt. Die Abgabe lag dann ohne Endung da: keine Skripte, Download ohne
+    .sb3. Gefunden in der Durchsicht vom Oktober 2026.
+    """
+
+    @pytest.mark.parametrize("original, erwartet", [
+        ("Кот.sb3", "abgabe.sb3"),
+        ("🐱.sb3", "abgabe.sb3"),
+        ("猫.SB3", "abgabe.sb3"),
+        (".sb3", "abgabe.sb3"),
+        ("Übung.sb3", "Ubung.sb3"),
+        ("Projekt (1).sb3", "Projekt_1.sb3"),
+        ("Katze.SB3", "Katze.SB3"),
+    ])
+    def test_abgelegter_dateiname(self, original, erwartet):
+        from uploads import abgelegter_dateiname
+
+        assert abgelegter_dateiname(original, ".sb3") == erwartet
+
+    def test_ein_langer_name_behaelt_die_endung(self):
+        from uploads import MAX_DATEINAME, abgelegter_dateiname
+
+        name = abgelegter_dateiname("Ж" * 50 + "a" * 300 + ".py", ".py")
+
+        assert name.endswith(".py")
+        assert len(name) <= MAX_DATEINAME
+
+    def test_kyrillischer_name_wird_mit_endung_abgelegt(
+            self, admin, make_challenge, make_task, logged_in_team):
+        from models import Submission
+
+        challenge = make_challenge()
+        task = make_task(challenge, allowed_extension=".sb3")
+        client, _team = logged_in_team(challenge)
+        abgeben(client, task, "Кот.sb3")
+
+        abgabe = Submission.query.one()
+        assert abgabe.filename.endswith(".sb3")
+        # Daran hängt der Knopf für die Skripte, auf beiden Seiten.
+        assert "Unsere Skripte anzeigen" in client.get("/challenge").get_data(as_text=True)
+        assert "Skripte anzeigen" in admin.get("/admin/submissions").get_data(as_text=True)
+
+    def test_alte_abgabe_ohne_endung_kommt_mit_endung_herunter(
+            self, flask_app, admin, make_challenge, make_task, make_team, database):
+        """Abgaben von vor der Korrektur liegen weiter als „task_1_sb3“ da."""
+        from models import Submission
+
+        challenge = make_challenge()
+        task = make_task(challenge, allowed_extension=".sb3")
+        team = make_team(challenge, name="Pixel")
+        ordner = os.path.join(flask_app.config["UPLOAD_FOLDER"], str(team.id))
+        os.makedirs(ordner, exist_ok=True)
+        with open(os.path.join(ordner, f"task_{task.id}_sb3"), "wb") as datei:
+            datei.write(b"projekt")
+        abgabe = Submission(team_id=team.id, task_id=task.id,
+                            filename=f"{team.id}/task_{task.id}_sb3")
+        database.session.add(abgabe)
+        database.session.commit()
+
+        antwort = admin.get(f"/admin/download/{abgabe.id}")
+
+        assert antwort.status_code == 200
+        assert "Pixel_A1.sb3" in antwort.headers["Content-Disposition"]

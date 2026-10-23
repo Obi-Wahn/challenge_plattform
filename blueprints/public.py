@@ -203,8 +203,7 @@ def login():
         if team and team.check_password(password):
             team_anmelden(team)
             return redirect(url_for("challenge.view"))
-        else:
-             return render_template("login.html", error="Ungültiger Teamname oder Passwort.")
+        return render_template("login.html", error="Ungültiger Teamname oder Passwort.")
 
     return render_template("login.html")
 

@@ -4,13 +4,12 @@ from extensions import db
 from models import (Challenge, Task, Submission, Settings, MAX_MEMBERS, ablage_von,
                     MAX_MEMBER_TEXT_LENGTH, format_member_names, parse_member_names)
 from sitzung import angemeldetes_team
-from uploads import safe_name, zum_loeschen_vormerken
+from uploads import abgelegter_dateiname, safe_name, zum_loeschen_vormerken
 from scoring import get_standings
 from protokoll import ereignis
 from skripte import als_bloecke, skripte_antwort
 from certificates import build_certificates_for, certificate_entry, names_line
 from sqlalchemy.exc import IntegrityError
-from werkzeug.utils import secure_filename
 import io
 import os
 import secrets
@@ -18,37 +17,8 @@ from datetime import datetime
 
 challenge_bp = Blueprint('challenge', __name__)
 
-# Wie lang der Name einer abgelegten Abgabe werden darf. Dateisysteme lassen
-# meist 255 Zeichen je Namensbestandteil zu; darüber scheitert das Speichern
-# mit einem OSError, und die Abgabe endete für das Team in einer Fehlerseite.
-# 100 Zeichen sind mehr, als ein Mensch tippt, und lassen Luft für das
-# vorangestellte "task_<nummer>_".
-MAX_DATEINAME = 100
-
-# So lang ist Task.allowed_extension höchstens (String(10)). Was darüber
-# hinausgeht, ist keine Endung mehr, sondern Name.
-MAX_ENDUNG = 10
-
 def allowed_file(filename, allowed_ext):
     return "." in filename and filename.lower().endswith(allowed_ext.lower())
-
-def gekuerzter_dateiname(filename):
-    """Kürzt einen zu langen Dateinamen, behält dabei aber die Endung.
-
-    Gekürzt statt abgewiesen: Wie die Datei heißt, ist nebensächlich - es
-    zählt, was darin steht -, und ein Team hat pro Aufgabe nur einen
-    Versuch. Die Endung bleibt, weil der Download in der Verwaltung sie aus
-    dem abgelegten Namen nimmt.
-
-    secure_filename() hat den Namen vorher auf ASCII gebracht, ein Zeichen
-    ist hier also auch ein Byte.
-    """
-    if len(filename) <= MAX_DATEINAME:
-        return filename
-
-    stamm, endung = os.path.splitext(filename)
-    endung = endung[:MAX_ENDUNG]
-    return stamm[:MAX_DATEINAME - len(endung)] + endung
 
 def freier_pfad(pfad):
     """Weicht auf einen noch unbelegten Pfad aus, ohne die Endung zu ändern.
@@ -409,7 +379,7 @@ def submit_task(task_id):
             team, task
         )
 
-    filename = gekuerzter_dateiname(secure_filename(file.filename))
+    filename = abgelegter_dateiname(file.filename, task.allowed_extension)
     team_folder = os.path.join(current_app.config["UPLOAD_FOLDER"], str(team_id))
     os.makedirs(team_folder, exist_ok=True)
     

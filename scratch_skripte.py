@@ -19,6 +19,7 @@ von einem Team, also wird jeder Wert geprüft, bevor er benutzt wird.
 
 import json
 import zipfile
+import zlib
 
 # Eine echte project.json hat selten mehr als ein paar hundert KB; die
 # Bilder und Klänge liegen nicht darin. Die Grenze schützt vor einer
@@ -516,7 +517,10 @@ def lies_projekt(pfad):
             with archiv.open(info) as datei:
                 # Die Angabe im Verzeichnis der ZIP-Datei kann gelogen sein.
                 roh = datei.read(MAX_PROJECT_JSON + 1)
-    except (OSError, KeyError, zipfile.BadZipFile, RuntimeError, NotImplementedError):
+    # zlib.error und EOFError: kaputte oder abgeschnittene Daten zeigen sich
+    # erst beim Auspacken, nicht im Verzeichnis der ZIP-Datei.
+    except (OSError, KeyError, zipfile.BadZipFile, RuntimeError, NotImplementedError,
+            zlib.error, EOFError):
         return None
     if len(roh) > MAX_PROJECT_JSON:
         return None

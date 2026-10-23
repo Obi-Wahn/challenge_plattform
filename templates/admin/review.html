@@ -153,6 +153,9 @@
   <form method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="hidden" name="submission_id" value="{{ submission.id }}">
+    {# Welche Fassung hier zu sehen war - korrigiert das Team inzwischen,
+       gehen die Punkte nicht auf die neue, siehe admin.submissions(). #}
+    <input type="hidden" name="fassung" value="{{ submission.fassung }}">
 
     <div class="row g-4 align-items-end">
 

@@ -36,7 +36,7 @@ def admin_login():
         password = request.form.get("password")
         if passwort_stimmt(password, current_app.config['ADMIN_PASSWORD']):
             session["is_admin"] = True
-            return redirect(url_for('admin.dashboard')) # Assuming admin blueprint has a dashboard route
+            return redirect(url_for('admin.dashboard'))
         if site_settings.check_review_password(password):
             bewertung_anmelden(site_settings)
             return redirect(url_for('admin.submissions'))

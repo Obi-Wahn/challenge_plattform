@@ -523,6 +523,16 @@ class Submission(db.Model):
         """Wo die Datei dieser Abgabe gerade liegt - siehe abgabe_pfad()."""
         return abgabe_pfad(self.filename)
 
+    @property
+    def fassung(self):
+        """Kennung der abgegebenen Fassung: Ablageort und Zeitpunkt.
+
+        Eine Korrektur ändert beides. Die Bewertungsseite schickt die Kennung
+        mit, damit Punkte nur für die Fassung gelten, die zu sehen war.
+        """
+        zeit = self.timestamp.isoformat() if self.timestamp else ""
+        return f"{self.filename}|{zeit}"
+
 STANDARDGRUSS = "Schön, dass ihr dabei seid!"
 
 class Settings(db.Model):

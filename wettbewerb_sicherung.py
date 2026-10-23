@@ -40,13 +40,12 @@ import zipfile
 import zlib
 from datetime import datetime
 
-from werkzeug.utils import secure_filename
-
 from extensions import db
 from models import (Challenge, Submission, Task, Team, ablage_von, format_member_names,
                     parse_member_names, MAX_ABGABE_BYTES, MAX_DAUER_MINUTEN,
                     MAX_GRUSS, MAX_MEMBERS, MAX_TEAMNAME, MAX_TITEL, MAX_UNTERTITEL)
 from task_rules import clean_task_values
+from uploads import abgelegter_dateiname
 
 FORMAT_NAME = "coding-wettbewerb-sicherung"
 FORMAT_VERSION = 1
@@ -449,12 +448,14 @@ def _datei_auspacken(zf, name, namen_in_zip, upload_ordner, team, task, geschrie
     if info.is_dir() or info.file_size > MAX_DATEI_BYTES:
         return None
 
-    dateiname = secure_filename(os.path.basename(name))
+    dateiname = os.path.basename(name)
     # Beim Sichern trägt der Name schon das „task_<alte Nummer>_“ vom
     # Hochladen. Das fällt weg, die neue Nummer kommt davor.
     if dateiname.startswith("task_"):
         dateiname = dateiname.split("_", 2)[-1]
-    dateiname = (dateiname or "abgabe")[:100]
+    # Benannt wie beim Hochladen, also auch mit der Endung der Aufgabe -
+    # eine Abgabe, die sie früher verloren hatte, bekommt sie hier zurück.
+    dateiname = abgelegter_dateiname(dateiname, task.allowed_extension)
 
     ordner = os.path.join(upload_ordner, str(team.id))
     os.makedirs(ordner, exist_ok=True)
