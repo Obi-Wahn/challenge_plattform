@@ -419,9 +419,12 @@ besonders: Dort ändern sich schon mal Klassennamen oder Symbole.
 ## 🐍 Python-Pakete aktuell halten
 
 Die Pakete in `requirements.txt` sind auf feste Fassungen genagelt – so läuft
-auf dem Schul-PC genau das, was hier getestet wurde. Der Preis: Sie
-aktualisieren sich nicht von selbst, und niemand sagt einem, wenn eine
-Sicherheitskorrektur erschienen ist.
+auf dem Schul-PC genau das, was hier getestet wurde. Genagelt ist alles, was
+die Plattform selbst importiert, darunter SQLAlchemy und MarkupSafe;
+`tests/test_pakete.py` passt darauf auf. Was diese Pakete ihrerseits brauchen,
+etwa Jinja2 oder Pillow, wählt pip beim Installieren. Der Preis fürs Nageln:
+Die Pakete aktualisieren sich nicht von selbst, und niemand sagt einem, wenn
+eine Sicherheitskorrektur erschienen ist.
 
 Nachsehen, ob es Neueres gibt (ändert nichts):
 

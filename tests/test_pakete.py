@@ -6,6 +6,9 @@ wenn eine Sicherheitskorrektur erschienen ist. Diese Tests prüfen das
 Werkzeug, das genau das tut - ohne Internet.
 """
 
+import ast
+import importlib.metadata
+import re
 import sys
 from pathlib import Path
 
@@ -291,3 +294,56 @@ class TestPruefenOhneInternet:
 
         assert werkzeug.pruefen() is False
         assert "99.0.0a1" not in capsys.readouterr().out
+
+
+class TestAllesGenagelt:
+    """Was der Code selbst importiert, steht mit fester Fassung in der Liste.
+
+    SQLAlchemy kam lange nur als Abhängigkeit von Flask-SQLAlchemy mit, in
+    irgendeiner Fassung, obwohl die Plattform es direkt benutzt (Durchsicht
+    Oktober 2026). Was die Pakete ihrerseits brauchen, wählt weiter pip.
+    """
+
+    @staticmethod
+    def normiert(name):
+        return re.sub(r"[-_.]+", "-", name).lower()
+
+    @staticmethod
+    def fremde_module(dateien):
+        eigene = {pfad.stem for pfad in WURZEL.glob("*.py")}
+        eigene |= {pfad.stem for pfad in (WURZEL / "werkzeuge").glob("*.py")}
+        eigene |= {"blueprints", "tests"}
+        module = set()
+        for pfad in dateien:
+            baum = ast.parse(pfad.read_text(encoding="utf-8"))
+            for knoten in ast.walk(baum):
+                if isinstance(knoten, ast.Import):
+                    module |= {alias.name.split(".")[0] for alias in knoten.names}
+                elif isinstance(knoten, ast.ImportFrom) and knoten.level == 0:
+                    module.add(knoten.module.split(".")[0])
+        return module - eigene - set(sys.stdlib_module_names)
+
+    def genagelt(self, *dateinamen):
+        return {self.normiert(name)
+                for dateiname in dateinamen
+                for name, _extras, _version, _zeile
+                in werkzeug.gepinnte_pakete(WURZEL / dateiname)}
+
+    def fehlende(self, dateien, genagelt):
+        verteilungen = importlib.metadata.packages_distributions()
+        fehlt = []
+        for modul in sorted(self.fremde_module(dateien)):
+            pakete = {self.normiert(name) for name in verteilungen.get(modul, [modul])}
+            if not pakete & genagelt:
+                fehlt.append(modul)
+        return fehlt
+
+    def test_anwendung(self):
+        dateien = [*WURZEL.glob("*.py"), *(WURZEL / "blueprints").glob("*.py"),
+                   *(WURZEL / "werkzeuge").glob("*.py")]
+        assert self.fehlende(dateien, self.genagelt("requirements.txt")) == []
+
+    def test_tests(self):
+        dateien = list((WURZEL / "tests").glob("*.py"))
+        genagelt = self.genagelt("requirements.txt", "requirements-dev.txt")
+        assert self.fehlende(dateien, genagelt) == []
