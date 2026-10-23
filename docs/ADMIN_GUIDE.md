@@ -323,8 +323,9 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 5. **Eine Urkunde nachreichen**, wenn jemand gefehlt hat: Auf der
    Steuerzentrale unten *Beendet* aufklappen, beim gesuchten Wettbewerb
    **Öffnen →**, dort die Urkunden-Kachel. Das geht auch dann noch, wenn
-   längst ein anderer Wettbewerb aktiv ist. Punkte, Namen und der Name des
-   Wettbewerbs sind die von damals.
+   längst ein anderer Wettbewerb aktiv ist. Punkte, Namen, der Name des
+   Wettbewerbs und das Datum sind die von damals: Auf jeder Urkunde steht der
+   Tag, an dem der Wettbewerb endete.
 
 ---
 

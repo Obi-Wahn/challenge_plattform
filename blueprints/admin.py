@@ -10,6 +10,7 @@ from models import (Team, Challenge, Task, Submission, Settings, TASK_FORMATS,
 from scoring import get_standings
 from task_rules import KEIN_TITEL, PUNKTE_KEINE_ZAHL, clean_task_values
 from certificates import (build_certificates_for, certificate_entry, signature_font,
+                          urkundendatum,
                           SIGNATURE_FONTS, DEFAULT_SIGNATURE_FONT,
                           certificate_orientation, CERTIFICATE_ORIENTATIONS,
                           DEFAULT_ORIENTATION, names_line)
@@ -1303,7 +1304,7 @@ def certificates_print():
         challenge=challenge,
         entries=standings,
         task_count=task_count,
-        today=datetime.now().strftime("%d.%m.%Y"),
+        today=urkundendatum(challenge),
         signature_css=signature_font(Settings.get().signature_font)["css"],
         orientation=certificate_orientation(Settings.get().certificate_orientation),
         # Der Veranstaltungsname dieses Wettbewerbs, nicht der des aktiven -

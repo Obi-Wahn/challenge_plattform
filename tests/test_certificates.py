@@ -809,3 +809,51 @@ class TestNamenDerTeammitglieder:
         luft = (text_unten - block_oben) / 72 * 25.4
 
         assert luft > 7, f"nur {luft:.1f} mm über dem Unterschriftsblock"
+
+
+class TestDatum:
+    """Auf der Urkunde steht der Tag, an dem der Wettbewerb endete.
+
+    Vorher stand dort der Tag des Druckens: Eine Wochen später nachgereichte
+    Urkunde trug ein anderes Datum als die vom Wettbewerbstag (Durchsicht
+    Oktober 2026).
+    """
+
+    @staticmethod
+    def tag(datum):
+        return datum.strftime("%d.%m.%Y")
+
+    def test_nachgereicht_mit_dem_tag_des_endes(self, admin, make_challenge, make_team):
+        ende = datetime.now() - timedelta(days=30)
+        challenge = make_challenge(start_time=ende - timedelta(hours=2), end_time=ende)
+        make_team(challenge, name="Team A")
+
+        text = pdf_text(admin.get(f"/admin/urkunden.pdf?wettbewerb={challenge.id}").data)
+
+        assert self.tag(ende) in text
+        assert self.tag(datetime.now()) not in text
+
+    def test_druckansicht_ebenso(self, admin, make_challenge, make_team):
+        ende = datetime.now() - timedelta(days=30)
+        challenge = make_challenge(start_time=ende - timedelta(hours=2), end_time=ende)
+        make_team(challenge, name="Team A")
+
+        html = admin.get(f"/admin/urkunden?wettbewerb={challenge.id}").get_data(as_text=True)
+
+        assert self.tag(ende) in html
+        assert self.tag(datetime.now()) not in html
+
+    def test_vor_dem_ende_steht_der_heutige_tag(self, admin, make_challenge, make_team):
+        challenge = make_challenge(start_time=datetime.now() - timedelta(hours=1),
+                                   end_time=datetime.now() + timedelta(days=2))
+        make_team(challenge, name="Team A")
+
+        text = pdf_text(admin.get("/admin/urkunden.pdf").data)
+
+        assert self.tag(datetime.now()) in text
+
+    def test_ohne_ende_steht_der_heutige_tag(self, admin, make_challenge, make_team):
+        challenge = make_challenge()
+        make_team(challenge, name="Team A")
+
+        assert self.tag(datetime.now()) in pdf_text(admin.get("/admin/urkunden.pdf").data)
