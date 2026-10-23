@@ -515,6 +515,11 @@ class Submission(db.Model):
     feedback = db.Column(db.Text, nullable=True)
     # Set by an admin to let the team replace this submission once.
     resubmit_allowed = db.Column(db.Boolean, default=False)
+    # Korrigiert ein Team nach dem Einfrieren eine Abgabe von davor, bleibt
+    # hier deren Stand. Die eingefrorene Rangliste zeigt ihn weiter, statt
+    # die Punkte am großen Bildschirm verschwinden zu lassen.
+    frozen_points = db.Column(db.Integer, nullable=True)
+    frozen_timestamp = db.Column(db.DateTime, nullable=True)
 
     __table_args__ = (db.UniqueConstraint('team_id', 'task_id', name='_team_task_uc'),)
 

@@ -1,5 +1,7 @@
 """Shared ranking logic for the scoreboard, the award ceremony and the certificates."""
 
+from sqlalchemy import or_
+
 from models import Task, Team, Submission
 
 
@@ -8,7 +10,8 @@ def get_standings(challenge, bis=None):
 
     With `bis`, only submissions handed in up to that moment count - the
     frozen scoreboard. Their points are the current ones: a submission from
-    before the freeze that is marked afterwards still shows up.
+    before the freeze that is marked afterwards still shows up. One that the
+    team corrected after the freeze counts with what it had before.
 
     Only teams registered for this competition are included, each of them even
     without a submission. Teams on the
@@ -20,7 +23,8 @@ def get_standings(challenge, bis=None):
     teams = Team.query.filter_by(challenge_id=challenge.id).order_by(Team.name).all()
     query = Submission.query.join(Task).filter(Task.challenge_id == challenge.id)
     if bis is not None:
-        query = query.filter(Submission.timestamp <= bis)
+        query = query.filter(or_(Submission.timestamp <= bis,
+                                 Submission.frozen_timestamp <= bis))
     submissions = query.all()
 
     standings = {
@@ -42,6 +46,9 @@ def get_standings(challenge, bis=None):
         if entry is None:
             continue
         points = submission.points or 0
+        if bis is not None and submission.timestamp and submission.timestamp > bis:
+            # Nach dem Einfrieren korrigiert: Es gilt der Stand von davor.
+            points = submission.frozen_points or 0
         entry["task_points"][submission.task_id] = points
         entry["total"] += points
         entry["solved"] += 1
