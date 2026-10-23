@@ -25,25 +25,10 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    **Version**, etwa „1.7.0 (Stand 27.09.2026)“. Mit der Nummer des neuesten
    Releases auf GitHub vergleichen.
 
-2. **Tests laufen lassen**, wenn eine Entwicklungsumgebung eingerichtet ist:
-   ```bash
-   pip install -r requirements.txt -r requirements-dev.txt
-   pytest
-   ```
-   Wenn `pytest` durchläuft, funktionieren Registrierung, Anmeldung, Abgabe,
-   Bewertung, Rangliste und Urkunden.
+   Wer am Code arbeitet, lässt danach noch die Tests laufen und sieht nach
+   neuen Paketen, siehe [docs/ENTWICKLUNG.md](ENTWICKLUNG.md#-vor-einem-wettbewerb).
 
-3. **Auf Updates sehen:**
-   ```bash
-   python werkzeuge/vendor_aktualisieren.py   # Frontend
-   python werkzeuge/pakete_pruefen.py         # Python-Pakete
-   ```
-   Beide brauchen Internet und ändern nichts, sie zeigen nur an. Eine neue
-   Hauptversion kurz vor dem Wettbewerb **nicht** mehr einspielen – und wenn
-   doch etwas aktualisiert wird, dann eines nach dem anderen und danach
-   `pytest`.
-
-4. **Wettbewerb anlegen** unter `/admin` → *Neuer Wettbewerb*: Name,
+2. **Wettbewerb anlegen** unter `/admin` → *Neuer Wettbewerb*: Name,
    Startzeit, Endzeit. Der Name ist der, unter dem die Teams den Wettbewerb
    sehen – „Scratch-Wettbewerb der Klasse 6b“ etwa. Er steht auf der
    Startseite, der Rangliste, den Urkunden und auch im Browsertitel, in der
@@ -71,17 +56,17 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    Urkunden ausprobieren. Danach den echten Wettbewerb aktivieren; den
    Beispiel-Wettbewerb kannst du löschen.
 
-5. **Aufgaben anlegen oder einlesen.** Fertige Sätze liegen unter
+3. **Aufgaben anlegen oder einlesen.** Fertige Sätze liegen unter
    `beispiele/` (Scratch, Snap!, Calliope) und werden auf der Aufgaben-Seite mit
    **⬆️ Datei einlesen** übernommen; sie bringen auch ihre Schwierigkeit
    mit. Aufgaben aus einem früheren Wettbewerb lassen sich dort ebenso
    einzeln oder als Satz exportieren und wieder einlesen.
 
-6. **Urkundenformat wählen** unter *Einstellungen*: Querformat oder Hochformat.
+4. **Urkundenformat wählen** unter *Einstellungen*: Querformat oder Hochformat.
    Am besten jetzt schon eine Probeurkunde ausdrucken – dann weißt du, ob
    Drucker und Papier mitspielen.
 
-7. **Pro Aufgabe festlegen:** Punkte, erlaubtes Dateiformat
+5. **Pro Aufgabe festlegen:** Punkte, erlaubtes Dateiformat
    (z. B. `.sb3` für Scratch, `.xml` für Snap!, `.hex` für Calliope), die Schwierigkeit und
    optional einen Hinweis. Der Hinweis bleibt verborgen, bis er
    freigeschaltet wird.

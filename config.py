@@ -3,7 +3,7 @@ import os
 from models import MAX_ABGABE_BYTES
 
 # Werte, die öffentlich im Repository stehen: in .env.example und als Beispiel
-# in der README. Mit einem bekannten SECRET_KEY kann sich jeder ein
+# in docs/ENTWICKLUNG.md. Mit einem bekannten SECRET_KEY kann sich jeder ein
 # Sitzungs-Cookie mit „is_admin“ selbst unterschreiben, ganz ohne Passwort -
 # mit diesen Werten startet die Anwendung deshalb nicht. Dieselbe Liste steht
 # in starter.py, der sie beim Start selbst ersetzt.

@@ -426,13 +426,15 @@ class TestBeispielwerteErsetzen:
         assert starter.PLATZHALTER == config.PLATZHALTER
         assert starter.MIN_SCHLUESSEL == config.MIN_SCHLUESSEL
 
-    def test_beispielwerte_aus_vorlage_und_readme_sind_erfasst(self):
+    def test_beispielwerte_aus_vorlage_und_anleitung_sind_erfasst(self):
         root = Path(starter.__file__).parent
         vorlage = dotenv_values(root / ".env.example")
         assert vorlage["SECRET_KEY"] in starter.PLATZHALTER
         assert vorlage["ADMIN_PASSWORD"] in starter.PLATZHALTER
-        readme = (root / "README.md").read_text(encoding="utf-8")
-        for zeile in readme.splitlines():
+        texte = [(root / "README.md").read_text(encoding="utf-8"),
+                 (root / "docs" / "ENTWICKLUNG.md").read_text(encoding="utf-8")]
+        assert any("SECRET_KEY=" in text for text in texte)
+        for zeile in "\n".join(texte).splitlines():
             zeile = zeile.strip()
             if zeile.startswith(("SECRET_KEY=", "ADMIN_PASSWORD=")):
                 assert zeile.split("=", 1)[1] in starter.PLATZHALTER, zeile
