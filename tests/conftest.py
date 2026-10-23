@@ -17,6 +17,22 @@ sys.path.insert(0, str(ROOT))
 
 from tests.helpers import ADMIN_PASSWORD, TMP_DIR, csrf_token # noqa: E402
 
+# Im Betrieb hasht werkzeug jedes Passwort mit scrypt, gut eine Zehntelsekunde
+# lang - das soll Erraten teuer machen. In den Tests ist es nur Wartezeit: Fast
+# jeder legt Teams an oder meldet sich an, zusammen kostete das rund anderthalb
+# Minuten je Lauf. Hier hasht deshalb ein schnelles Verfahren, das
+# check_password_hash genauso versteht. Die Anwendung selbst bleibt bei scrypt,
+# das prüft test_security.py mit dem echten Verfahren.
+import werkzeug.security  # noqa: E402
+
+
+def schnell_hashen(password, method="pbkdf2:sha256:1", salt_length=16):
+    return schnell_hashen.echt(password, method=method, salt_length=salt_length)
+
+
+schnell_hashen.echt = werkzeug.security.generate_password_hash
+werkzeug.security.generate_password_hash = schnell_hashen
+
 
 def pytest_sessionfinish(session, exitstatus):
     shutil.rmtree(TMP_DIR, ignore_errors=True)
@@ -24,9 +40,23 @@ def pytest_sessionfinish(session, exitstatus):
 
 @pytest.fixture(scope="session")
 def flask_app():
+    from flask.testing import FlaskClient
+
     from app import app as application
     from extensions import limiter
 
+    class GepufferterClient(FlaskClient):
+        """Liest jede Antwort gleich ganz und schließt sie wieder.
+
+        Downloads und Sicherungen kommen aus einer offenen Datei. Im Betrieb
+        schließt waitress sie nach dem Senden, im Test bliebe sie offen, und
+        Python meldete ResourceWarnings.
+        """
+
+        def open(self, *args, buffered=True, **kwargs):
+            return super().open(*args, buffered=buffered, **kwargs)
+
+    application.test_client_class = GepufferterClient
     application.config.update(
         TESTING=True,
         UPLOAD_FOLDER=os.path.join(TMP_DIR, "uploads"),

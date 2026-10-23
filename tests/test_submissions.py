@@ -288,7 +288,8 @@ class TestDoppeltAbgeschickt:
                        verbindung.exec_driver_sql(
                            "INSERT INTO submissions (team_id, task_id, filename, "
                            "timestamp, resubmit_allowed) VALUES (?, ?, ?, ?, 0)",
-                           (team.id, task.id, name, datetime.now())))
+                           (team.id, task.id, name,
+                            datetime.now().isoformat(sep=" "))))
 
         antwort = abgeben(client, task)
 
@@ -314,7 +315,8 @@ class TestDoppeltAbgeschickt:
                        verbindung.exec_driver_sql(
                            "INSERT INTO submissions (team_id, task_id, filename, "
                            "timestamp, resubmit_allowed) VALUES (?, ?, ?, ?, 0)",
-                           (team.id, task.id, name, datetime.now())))
+                           (team.id, task.id, name,
+                            datetime.now().isoformat(sep=" "))))
 
         assert abgeben(client, task).status_code == 302
 
