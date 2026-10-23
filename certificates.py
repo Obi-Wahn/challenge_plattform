@@ -436,6 +436,19 @@ def certificate_entry(team, standings):
             "total": 0, "solved": 0, "rank": 0}
 
 
+def urkundendatum(challenge):
+    """Das Datum auf der Urkunde: der Tag, an dem der Wettbewerb endete.
+
+    Eine nachgereichte Urkunde trägt so dasselbe Datum wie die vom
+    Wettbewerbstag. Ohne Ende, oder solange es noch bevorsteht, steht der
+    heutige Tag darauf.
+    """
+    jetzt = datetime.now()
+    ende = challenge.end_time if challenge else None
+    tag = ende if ende and ende <= jetzt else jetzt
+    return tag.strftime("%d.%m.%Y")
+
+
 def build_certificates_for(challenge, entries, task_count):
     """Certificates for a competition, using the configured signature."""
     from models import Settings, event_branding
@@ -448,6 +461,7 @@ def build_certificates_for(challenge, entries, task_count):
         event_branding(challenge)["name"],
         entries,
         task_count,
+        date_text=urkundendatum(challenge),
         signature_name=settings.signature_name,
         signature_font_key=settings.signature_font,
         orientation_key=settings.certificate_orientation
