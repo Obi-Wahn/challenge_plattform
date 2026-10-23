@@ -247,6 +247,57 @@ class TestWasErlaubtIst:
         assert b"miau" in antwort.data
 
 
+class TestNurDerAktiveWettbewerb:
+    """Der Zugang reicht nur bis zu den Abgaben, die die Bewertungsseite zeigt.
+
+    Über hochgezählte Nummern kamen sonst auch Abgaben anderer Klassen aus
+    älteren Wettbewerben heraus (Durchsicht Oktober 2026).
+    """
+
+    @pytest.fixture
+    def alte_abgabe(self, abgabe, make_challenge):
+        from extensions import db
+
+        abgabe.task.challenge.active = False
+        db.session.commit()
+        make_challenge(title="Neue Klasse")
+        return abgabe
+
+    @pytest.mark.parametrize("adresse", [
+        "/admin/download/{}",
+        "/admin/submissions/{}/code",
+        "/admin/submissions/{}/skripte",
+    ])
+    def test_ansehen_geht_nicht(self, bewerter, alte_abgabe, adresse):
+        antwort = bewerter.get(adresse.format(alte_abgabe.id))
+        assert antwort.status_code == 404
+
+    def test_ohne_aktiven_wettbewerb_auch_nicht(self, bewerter, abgabe):
+        from extensions import db
+
+        abgabe.task.challenge.active = False
+        db.session.commit()
+        assert bewerter.get(f"/admin/download/{abgabe.id}").status_code == 404
+
+    def test_bewerten_geht_nicht(self, bewerter, alte_abgabe):
+        from extensions import db
+
+        # Die Bewertungsseite des neuen Wettbewerbs ist leer und trägt kein
+        # Formular, das Token kommt deshalb von der Anmeldeseite der Teams.
+        bewerter.post("/admin/submissions", data={
+            "csrf_token": csrf_token(bewerter, "/login"),
+            "submission_id": alte_abgabe.id,
+            "points": "7",
+        })
+        db.session.refresh(alte_abgabe)
+        assert alte_abgabe.points is None
+
+    def test_admin_darf_weiter_alles(self, admin, alte_abgabe):
+        for adresse in ("/admin/download/{}", "/admin/submissions/{}/code",
+                        "/admin/submissions/{}/skripte"):
+            assert admin.get(adresse.format(alte_abgabe.id)).status_code == 200
+
+
 class TestWasBeimAdminBleibt:
     def test_keine_knoepfe_zum_loeschen_und_freigeben(self, bewerter, abgabe):
         from extensions import db

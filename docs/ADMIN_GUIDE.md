@@ -221,7 +221,8 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   zurück zu dieser Leiste.
 - **Mit Hilfe bewerten**: Wer mit dem Passwort für die Bewertung angemeldet
   ist, sieht dieselbe Seite, nur ohne **🗑 Abgabe vollständig löschen** und
-  **🔓 Erneut abgeben erlauben**. Wer was bewertet hat, merkt sich die
+  **🔓 Erneut abgeben erlauben**. Abgaben älterer Wettbewerbe erreicht der
+  Zugang nicht, nur die des aktiven. Wer was bewertet hat, merkt sich die
   Plattform nicht. Soll niemand mehr mitbewerten, unter *Einstellungen* ein
   neues Passwort setzen oder **Bewertungszugang abschalten** – wer noch
   angemeldet ist, ist beim nächsten Klick draußen.
@@ -252,6 +253,9 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   steht **🔁 Korrektur abgeben**, die neue Datei ersetzt die alte. War die
   Abgabe schon bewertet, fallen Punkte und Feedback weg, und sie steht wieder
   als offen unter *Bewertungen*. Das geht, solange der Wettbewerb läuft.
+  Kommt die Korrektur, während du die Abgabe gerade bewertest, speichert
+  die Plattform deine Punkte nicht, sondern meldet die neue Fassung; einmal
+  ansehen, dann bewerten.
   Willst du jede Korrektur selbst freigeben, nimm unter *Name & Zeiten* das
   Häkchen **🔁 Teams dürfen ihre Abgabe selbst korrigieren** heraus; dann
   steht unter jeder Abgabe wieder **🔓 Erneut abgeben erlauben**.
@@ -272,7 +276,6 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   trägt die Restzeit oben — sie ist die Seite für den großen Bildschirm, den ganzen
   Wettbewerb über. Nach dem Ende führt sie zur Siegerehrung, am großen Bildschirm
   von selbst und genauso bei jedem neuen Aufruf.
-  Eine eigene Countdown-Seite gibt es nicht mehr.
 - **Rangliste einfrieren**, wenn es am Ende spannend bleiben soll: unter
   *Name & Zeiten* das Häkchen **❄️ Rangliste vor Schluss einfrieren** setzen
   und die Minuten vor Schluss eintragen (vorgeschlagen sind 15). Ab dann

@@ -16,6 +16,7 @@ import os
 
 from sqlalchemy import event
 from sqlalchemy.orm import object_session
+from werkzeug.utils import secure_filename
 
 from extensions import db
 from models import Submission
@@ -31,6 +32,54 @@ DATEINAMEN_ZEICHEN = frozenset(
 def safe_name(text):
     """Text als Teil eines Dateinamens, etwa „Bit & Byte“ als „Bit___Byte“."""
     return "".join(c if c in DATEINAMEN_ZEICHEN else "_" for c in text)
+
+
+# Wie lang der Name einer abgelegten Abgabe werden darf. Dateisysteme lassen
+# meist 255 Zeichen je Namensbestandteil zu; darüber scheitert das Speichern
+# mit einem OSError, und die Abgabe endete für das Team in einer Fehlerseite.
+# 100 Zeichen sind mehr, als ein Mensch tippt, und lassen Luft für das
+# vorangestellte "task_<nummer>_".
+MAX_DATEINAME = 100
+
+# So lang ist Task.allowed_extension höchstens (String(10)). Was darüber
+# hinausgeht, ist keine Endung mehr, sondern Name.
+MAX_ENDUNG = 10
+
+
+def gekuerzter_dateiname(filename):
+    """Kürzt einen zu langen Dateinamen, behält dabei aber die Endung.
+
+    Gekürzt statt abgewiesen: Wie die Datei heißt, ist nebensächlich - es
+    zählt, was darin steht -, und ein Team hat pro Aufgabe nur einen
+    Versuch. Die Endung bleibt, weil der Download in der Verwaltung sie aus
+    dem abgelegten Namen nimmt.
+
+    secure_filename() hat den Namen vorher auf ASCII gebracht, ein Zeichen
+    ist hier also auch ein Byte.
+    """
+    if len(filename) <= MAX_DATEINAME:
+        return filename
+
+    stamm, endung = os.path.splitext(filename)
+    endung = endung[:MAX_ENDUNG]
+    return stamm[:MAX_DATEINAME - len(endung)] + endung
+
+
+def abgelegter_dateiname(original, endung):
+    """Der Name, unter dem eine Abgabe abgelegt wird - immer mit ihrer Endung.
+
+    secure_filename() lässt nur ASCII übrig und nimmt einen Punkt am Anfang
+    weg. Aus „Кот.sb3“ oder „🐱.sb3“ wurde so „sb3“, ganz ohne Punkt: Die
+    Datei lag ohne Endung da, die Skripte ließen sich nicht anzeigen, und
+    der Download kam ohne .sb3. Fehlt die Endung der Aufgabe hinterher,
+    kommt sie wieder dran; bleibt vom Namen nichts übrig, heißt die Datei
+    „abgabe“.
+    """
+    name = secure_filename(original or "")
+    if endung and not name.lower().endswith(endung.lower()):
+        stamm = name if name.lower() != endung.lstrip(".").lower() else ""
+        name = (stamm or "abgabe") + endung
+    return gekuerzter_dateiname(name or "abgabe")
 
 
 # Schlüssel, unter dem die Pfade bis zum Abschluss der Transaktion warten.

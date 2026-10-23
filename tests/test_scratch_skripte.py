@@ -280,7 +280,50 @@ class TestTextAusDerDatei:
         assert p.skripte() == ["set pen color to [#ff0000]"]
 
 
+def zerstoerte_sb3(pfad):
+    """Eine .sb3, deren project.json beim Auspacken scheitert, nicht schon beim Öffnen.
+
+    Das Verzeichnis der ZIP-Datei ist heil, nur der Anfang der gepackten
+    Daten ist überschrieben. So sieht ein Projekt aus, das beim Speichern
+    oder Kopieren beschädigt wurde.
+    """
+    puffer = io.BytesIO()
+    with zipfile.ZipFile(puffer, "w", zipfile.ZIP_DEFLATED) as archiv:
+        archiv.writestr("project.json", json.dumps({"targets": []}) + "x" * 10_000)
+    daten = bytearray(puffer.getvalue())
+    # Lokaler Kopf: 30 Bytes und der Name „project.json“, danach die Daten.
+    beginn = 30 + len("project.json")
+    daten[beginn:beginn + 4] = b"\xff\xff\xff\xff"
+    pfad.write_bytes(bytes(daten))
+    return pfad
+
+
 class TestKaputteDateien:
+    def test_kaputte_gepackte_daten(self, tmp_path):
+        """zlib.error kam bis zur Route durch und ergab einen Serverfehler."""
+        pfad = zerstoerte_sb3(tmp_path / "a.sb3")
+
+        assert skripte_der_abgabe(pfad) == ([], scratch_skripte.KEIN_PROJEKT)
+
+    def test_kaputte_gepackte_daten_ueber_die_route(
+            self, admin, make_challenge, make_task, logged_in_team, tmp_path):
+        from models import Submission
+
+        challenge = make_challenge()
+        task = make_task(challenge, allowed_extension=".sb3")
+        client, _team = logged_in_team(challenge)
+        zerstoert = zerstoerte_sb3(tmp_path / "z.sb3")
+        client.post(f"/submit/{task.id}", data={
+            "csrf_token": csrf_token(client, "/login"),
+            "file": (io.BytesIO(zerstoert.read_bytes()), "kaputt.sb3"),
+        }, content_type="multipart/form-data")
+        abgabe = Submission.query.one()
+
+        antwort = admin.get(f"/admin/submissions/{abgabe.id}/skripte")
+
+        assert antwort.status_code == 200
+        assert antwort.get_json()["hinweis"] == scratch_skripte.KEIN_PROJEKT
+
     def test_keine_zip_datei(self, tmp_path):
         pfad = tmp_path / "a.sb3"
         pfad.write_bytes(b"kein Projekt")

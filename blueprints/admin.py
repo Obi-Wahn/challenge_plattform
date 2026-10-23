@@ -107,6 +107,32 @@ def restrict_admin():
         return redirect(url_for('admin.submissions'))
     return redirect(url_for('auth.admin_login'))
 
+
+def bewertbare_abgabe(submission_id):
+    """Die Abgabe zu einer Nummer, wenn die angemeldete Person sie sehen darf.
+
+    Der Admin darf jede, auch aus einem längst beendeten Wettbewerb. Mit dem
+    Bewertungszugang gibt es nur die des aktiven Wettbewerbs - die zeigt
+    die Bewertungsseite. Ohne diese Prüfung ließen sich über hochgezählte
+    Nummern auch die Abgaben anderer Klassen herunterladen, lesen und
+    bewerten. Eine fremde Abgabe gibt es für den Zugang so wenig wie eine,
+    die es nicht gibt: beides None.
+    """
+    submission = db.session.get(Submission, submission_id)
+    if submission is None or session.get("is_admin"):
+        return submission
+    aktiv = Challenge.current()
+    if aktiv is None or submission.task.challenge_id != aktiv.id:
+        return None
+    return submission
+
+
+def bewertbare_abgabe_or_404(submission_id):
+    submission = bewertbare_abgabe(submission_id)
+    if submission is None:
+        abort(404)
+    return submission
+
 # Was der Lehrkraft angezeigt wird, wenn aus dem Formular keine Aufgabe wird.
 PROBLEM_MELDUNG = {
     KEIN_TITEL: "Die Aufgabe braucht einen Titel - nichts gespeichert.",
@@ -955,7 +981,7 @@ def submission_code(submission_id):
     Als JSON und nicht als Seite: So kann der Browser den Inhalt einer
     fremden Datei unter keinen Umständen als HTML auffassen.
     """
-    submission = db.get_or_404(Submission, submission_id)
+    submission = bewertbare_abgabe_or_404(submission_id)
     text, hinweis = code_der_abgabe(submission)
 
     antwort = jsonify({"code": text, "hinweis": hinweis})
@@ -972,32 +998,43 @@ def submission_skripte(submission_id):
     Dieselben Skripte sieht ein Team auf seiner Seite, siehe
     challenge.abgabe_skripte(); gelesen werden sie in skripte.py.
     """
-    submission = db.get_or_404(Submission, submission_id)
+    submission = bewertbare_abgabe_or_404(submission_id)
     return skripte_antwort(submission)
 
 
 @admin_bp.route("/submissions", methods=["GET", "POST"])
 def submissions():
     if request.method == "POST":
-        submission_id = request.form.get("submission_id")
-        submission = db.session.get(Submission, submission_id)
+        submission = bewertbare_abgabe(request.form.get("submission_id"))
+
+        # Das Formular nennt die Fassung, die beim Laden der Seite zu sehen
+        # war. Hat das Team inzwischen korrigiert, gälten die Punkte sonst für
+        # eine Datei, die niemand angesehen hat - und die Abgabe stünde als
+        # bewertet da, obwohl sie gerade wieder offen geworden ist. Fehlt das
+        # Feld, kommt das Formular von einer Seite aus der Zeit davor.
+        gesehen = request.form.get("fassung")
+        if submission and gesehen is not None and gesehen != submission.fassung:
+            flash(f"Team „{submission.team.name}“ hat zu „{submission.task.title}“ "
+                  "inzwischen eine neue Fassung abgegeben - nichts gespeichert. "
+                  "Bitte die neue Fassung ansehen und dann bewerten.", "warning")
+            return redirect(url_for('admin.submissions'))
 
         if "soft_reset" in request.form:
-             if submission:
-                 submission.points = None
-                 submission.feedback = None
-                 db.session.commit()
+            if submission:
+                submission.points = None
+                submission.feedback = None
+                db.session.commit()
         else:
-             points = request.form.get("points")
-             feedback = request.form.get("feedback", "")
-             if submission and points: # Check if points is not empty string
-                 punkte, fehler = gelesene_punkte(points, submission.task.max_points)
-                 if fehler:
-                     flash(fehler, "warning")
-                     return redirect(url_for('admin.submissions'))
-                 submission.points = punkte
-                 submission.feedback = feedback
-                 db.session.commit()
+            points = request.form.get("points")
+            feedback = request.form.get("feedback", "")
+            if submission and points: # Check if points is not empty string
+                punkte, fehler = gelesene_punkte(points, submission.task.max_points)
+                if fehler:
+                    flash(fehler, "warning")
+                    return redirect(url_for('admin.submissions'))
+                submission.points = punkte
+                submission.feedback = feedback
+                db.session.commit()
         return redirect(url_for('admin.submissions'))
 
     # Only the submissions of the current competition - older events stay in the
@@ -1039,6 +1076,7 @@ def submissions():
             "points": s.points,
             "feedback": s.feedback,
             "resubmit_allowed": s.resubmit_allowed,
+            "fassung": s.fassung,
             "abgegeben": s.timestamp,
             "endung": endung,
             "als_text_lesbar": endung in TEXT_FORMATS,
@@ -1087,7 +1125,7 @@ def submission_reset(submission_id):
 
 @admin_bp.route("/download/<int:submission_id>")
 def download_submission(submission_id):
-    submission = db.get_or_404(Submission, submission_id)
+    submission = bewertbare_abgabe_or_404(submission_id)
     
     filepath = submission.pfad
     directory = os.path.dirname(filepath)
@@ -1102,7 +1140,10 @@ def download_submission(submission_id):
         return redirect(url_for('admin.submissions'))
 
     team_clean = safe_name(submission.team.name)
-    ext = os.path.splitext(original_filename)[1]  # z.B. ".sb3" oder ".pde"
+    # Die Endung aus dem abgelegten Namen, etwa ".sb3" oder ".pde". Fehlt
+    # sie - bis v1.22 wurde aus „Кот.sb3“ ein „sb3“ ohne Punkt -, die der
+    # Aufgabe: Ohne Endung lässt sich die Datei nicht per Doppelklick öffnen.
+    ext = os.path.splitext(original_filename)[1] or submission.task.allowed_extension
     # Die Nummer, unter der die Aufgabe in der Rangliste steht (A1, A2 …),
     # nicht die der Datenbank - die zählt über alle Wettbewerbe weiter.
     nummern = [t.id for t in Task.geordnet(submission.task.challenge_id)]
