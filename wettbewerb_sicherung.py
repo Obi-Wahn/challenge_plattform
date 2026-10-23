@@ -44,6 +44,7 @@ from extensions import db
 from models import (Challenge, Submission, Task, Team, ablage_von, format_member_names,
                     parse_member_names, MAX_ABGABE_BYTES, MAX_DAUER_MINUTEN,
                     MAX_GRUSS, MAX_MEMBERS, MAX_TEAMNAME, MAX_TITEL, MAX_UNTERTITEL)
+from task_exchange import MAX_TASKS  # dieselbe Grenze wie beim Einlesen von Aufgaben
 from task_rules import clean_task_values
 from uploads import abgelegter_dateiname
 
@@ -57,7 +58,6 @@ ABGABEN_ORDNER = "abgaben"
 # enden, nicht mit einer vollen Platte.
 MAX_JSON_BYTES = 20 * 1024 * 1024
 MAX_TEAMS = 500
-MAX_TASKS = 200
 MAX_FEEDBACK = 20000
 # So groß darf eine einzelne Abgabe sein - dieselbe Grenze wie beim Hochladen.
 MAX_DATEI_BYTES = MAX_ABGABE_BYTES

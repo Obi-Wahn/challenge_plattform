@@ -178,7 +178,7 @@ class TestUpdateVonFrueher:
     """
 
     def test_der_bisher_angezeigte_wird_aktiv(self, make_challenge):
-        from app import ensure_active_challenge
+        from migrationen import ensure_active_challenge
         from extensions import db
         from models import Challenge
         make_challenge(title="Erster", active=False)
@@ -190,7 +190,7 @@ class TestUpdateVonFrueher:
         assert Challenge.current().id == zweiter.id
 
     def test_ein_aktiver_bleibt_unberuehrt(self, make_challenge):
-        from app import ensure_active_challenge
+        from migrationen import ensure_active_challenge
         from extensions import db
         from models import Challenge
         aktiv = make_challenge(title="Aktiv")
@@ -203,7 +203,7 @@ class TestUpdateVonFrueher:
         assert Challenge.query.filter_by(active=True).count() == 1
 
     def test_ohne_wettbewerb_passiert_nichts(self, database):
-        from app import ensure_active_challenge
+        from migrationen import ensure_active_challenge
         ensure_active_challenge()
 
 
