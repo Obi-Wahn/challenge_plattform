@@ -147,7 +147,7 @@ class TestUmstellungBeimStart:
         ("/srv/plattform/uploads/7/task_2_fehlt.sb3", "7/task_2_fehlt.sb3"),
     ])
     def test_ganzer_pfad_wird_zum_ablageort(self, gespeichert, erwartet):
-        from app import gedeuteter_ablageort
+        from migrationen import gedeuteter_ablageort
         assert gedeuteter_ablageort(gespeichert) == erwartet
 
     @pytest.mark.parametrize("gespeichert", [
@@ -157,12 +157,12 @@ class TestUmstellungBeimStart:
         "",
     ])
     def test_anderes_bleibt_unangetastet(self, gespeichert):
-        from app import gedeuteter_ablageort
+        from migrationen import gedeuteter_ablageort
         assert gedeuteter_ablageort(gespeichert) is None
 
     def test_alte_abgaben_werden_umgestellt_und_gefunden(
             self, make_challenge, make_task, make_team, database, flask_app):
-        import app as anwendung
+        import migrationen as umbau
         from models import Submission
 
         challenge = make_challenge()
@@ -178,7 +178,7 @@ class TestUmstellungBeimStart:
             filename=f"/home/lehrer/plattform-1.14/uploads/{team.id}/task_{task.id}_alt.sb3"))
         database.session.commit()
 
-        anwendung.ensure_relative_upload_paths()
+        umbau.ensure_relative_upload_paths()
         database.session.expire_all()
 
         eintrag = Submission.query.one()
@@ -188,7 +188,7 @@ class TestUmstellungBeimStart:
 
     def test_vorher_entsteht_eine_kopie_der_datenbank(
             self, make_challenge, make_task, make_team, database):
-        import app as anwendung
+        import migrationen as umbau
         from models import Submission
 
         challenge = make_challenge()
@@ -198,9 +198,9 @@ class TestUmstellungBeimStart:
                                         filename=f"/alt/uploads/{team.id}/task_1_a.sb3"))
         database.session.commit()
 
-        anwendung.ensure_relative_upload_paths()
+        umbau.ensure_relative_upload_paths()
 
-        kopie = anwendung._backup_path
+        kopie = umbau._backup_path
         assert kopie and "-vor-pfade-" in kopie
         # „with“ allein schließt eine sqlite3-Verbindung nicht, closing schon.
         with closing(sqlite3.connect(kopie)) as verbindung:
@@ -208,7 +208,7 @@ class TestUmstellungBeimStart:
         assert alt == f"/alt/uploads/{team.id}/task_1_a.sb3"
 
     def test_ohne_alte_pfade_keine_kopie(self, abgabe):
-        import app as anwendung
+        import migrationen as umbau
 
-        anwendung.ensure_relative_upload_paths()
-        assert anwendung._backup_path is None
+        umbau.ensure_relative_upload_paths()
+        assert umbau._backup_path is None

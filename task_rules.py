@@ -16,9 +16,9 @@ from models import (
     DEFAULT_TASK_FORMAT,
     TASK_DIFFICULTIES,
     NO_TASK_DIFFICULTY,
+    MAX_AUFGABENTITEL,
 )
 
-MAX_TITLE = 200
 MAX_POINTS = 1000
 # Großzügig, aber nicht unbegrenzt: Die Beschreibung soll eine Aufgabe
 # erklären, keine Datenbank füllen.
@@ -52,9 +52,9 @@ def clean_task_values(title, description, points, extension, hint, difficulty=No
     if not title:
         return None, hinweise, KEIN_TITEL
 
-    if len(title) > MAX_TITLE:
-        title = title[:MAX_TITLE]
-        hinweise.append(f"Titel auf {MAX_TITLE} Zeichen gekürzt")
+    if len(title) > MAX_AUFGABENTITEL:
+        title = title[:MAX_AUFGABENTITEL]
+        hinweise.append(f"Titel auf {MAX_AUFGABENTITEL} Zeichen gekürzt")
 
     try:
         points = int(points)

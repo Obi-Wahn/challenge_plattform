@@ -15,6 +15,7 @@ import os
 from flask import current_app
 
 from extensions import db
+from migrationen import datenbankdatei
 
 # Der Name des Handlers, der in logs/anwendung.log schreibt (siehe
 # configure_logging in app.py).
@@ -44,21 +45,14 @@ def wettbewerb_aufraeumen(challenge):
     return len(teams), abgaben
 
 
-def _datenbankdatei():
-    uri = current_app.config["SQLALCHEMY_DATABASE_URI"]
-    if not uri.startswith("sqlite:///"):
-        return None
-    return uri[len("sqlite:///"):]
-
-
 def sicherungskopien():
     """Die Kopien, die der Start vor einem Umbau der Datenbank angelegt hat.
 
     Als Liste von (Dateiname, Größe in Bytes), älteste zuerst. Sie heißen wie
     die Datenbank mit „-vor-…“ dahinter, siehe backup_before_migration in
-    app.py - nur solche Dateien werden hier je angefasst.
+    migrationen.py - nur solche Dateien werden hier je angefasst.
     """
-    pfad = _datenbankdatei()
+    pfad = datenbankdatei()
     if not pfad:
         return []
     stamm = os.path.splitext(os.path.basename(pfad))[0]
@@ -68,7 +62,7 @@ def sicherungskopien():
 
 def sicherungskopien_loeschen():
     """Löscht die Sicherungskopien, gibt (gelöscht, nicht gelöscht) zurück."""
-    pfad = _datenbankdatei()
+    pfad = datenbankdatei()
     geloescht, fehler = 0, 0
     for name, _groesse in sicherungskopien():
         try:

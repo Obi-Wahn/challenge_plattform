@@ -85,9 +85,9 @@ def database(flask_app):
 
     # Sicherungen, die eine Migration angelegt hat, dürfen nicht in den
     # nächsten Test hineinragen.
-    import app as anwendung
+    import migrationen
 
-    anwendung._backup_path = None
+    migrationen._backup_path = None
     for kopie in glob.glob(os.path.join(TMP_DIR, "*-vor-*.db")):
         os.remove(kopie)
 

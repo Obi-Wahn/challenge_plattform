@@ -27,6 +27,7 @@ MAX_MEMBER_TEXT_LENGTH = 220
 # andere Zahl kennt.
 MAX_TEAMNAME = 100
 MAX_TITEL = 200
+MAX_AUFGABENTITEL = 200
 MAX_SEITENNAME = 100
 MAX_UNTERTITEL = 300
 MAX_GRUSS = 200
@@ -438,7 +439,7 @@ class Task(db.Model):
     __tablename__ = 'tasks'
     id = db.Column(db.Integer, primary_key=True)
     challenge_id = db.Column(db.Integer, db.ForeignKey('challenges.id'), nullable=False)
-    title = db.Column(db.String(200), nullable=False)
+    title = db.Column(db.String(MAX_AUFGABENTITEL), nullable=False)
     description = db.Column(db.Text, nullable=True)
     max_points = db.Column(db.Integer, default=0)
     allowed_extension = db.Column(db.String(10), default=".pde")

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "admin/_steuerung.html" import statusabzeichen, pause_knopf, ende_knopf %}
 {% from "_schwierigkeit.html" import schwierigkeit %}
 {% block content %}
 
@@ -17,15 +18,7 @@
       <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
         <h3 class="mb-0">{{ challenge.title }}</h3>
 
-        {% if finished %}
-        <span class="badge bg-secondary fs-6">🏁 beendet</span>
-        {% elif challenge.paused %}
-        <span class="badge bg-warning text-dark fs-6">⏸ pausiert</span>
-        {% elif challenge.status() == "upcoming" %}
-        <span class="badge bg-info text-dark fs-6">🕒 geplant</span>
-        {% else %}
-        <span class="badge bg-success fs-6">🟢 läuft</span>
-        {% endif %}
+        {{ statusabzeichen(challenge, finished) }}
 
         {% if not is_current %}
         <span class="badge bg-dark border border-secondary fs-6">nicht aktiv</span>
@@ -83,35 +76,10 @@
         </div>
       </form>
 
-      {% if challenge.paused %}
-      <form method="post" action="{{ url_for('admin.challenge_resume', cid=challenge.id) }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="next" value="{{ here }}">
-        <button class="btn btn-success">▶ Fortsetzen</button>
-      </form>
-      {% else %}
-      <form method="post" action="{{ url_for('admin.challenge_pause', cid=challenge.id) }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="next" value="{{ here }}">
-        <button class="btn btn-warning">⏸ Pause</button>
-      </form>
-      {% endif %}
+      {{ pause_knopf(challenge, here) }}
       {% endif %}
 
-      {% if finished %}
-      <form method="post" action="{{ url_for('admin.challenge_reopen', cid=challenge.id) }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="next" value="{{ here }}">
-        <button class="btn btn-outline-light">🔓 Wieder öffnen</button>
-      </form>
-      {% else %}
-      <form method="post" action="{{ url_for('admin.challenge_finish', cid=challenge.id) }}"
-        onsubmit="return confirm('Wettbewerb jetzt beenden? Teams können danach nichts mehr abgeben. Das lässt sich wieder rückgängig machen.');">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="next" value="{{ here }}">
-        <button class="btn btn-danger">🏁 Wettbewerb beenden</button>
-      </form>
-      {% endif %}
+      {{ ende_knopf(challenge, finished, here) }}
 
     </div>
   </div>

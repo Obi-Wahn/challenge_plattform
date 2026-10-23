@@ -8,7 +8,7 @@ wurde, ging über das Formular durch.
 
 import pytest
 
-from task_rules import (KEIN_TITEL, MAX_POINTS, MAX_TITLE, PUNKTE_KEINE_ZAHL,
+from task_rules import (KEIN_TITEL, MAX_AUFGABENTITEL, MAX_POINTS, PUNKTE_KEINE_ZAHL,
                         clean_task_values)
 from tests.helpers import csrf_token
 
@@ -55,7 +55,7 @@ class TestAufgabenRegeln:
 
     def test_langer_titel_wird_gekuerzt(self):
         werte, hinweise, _problem = clean_task_values("x" * 500, "", 10, ".sb3", "")
-        assert len(werte["title"]) == MAX_TITLE
+        assert len(werte["title"]) == MAX_AUFGABENTITEL
         assert any("gekürzt" in h for h in hinweise)
 
     def test_leere_beschreibung_wird_zu_nichts(self):
@@ -137,7 +137,7 @@ class TestAufgabeUeberDasFormular:
         challenge = make_challenge()
         self.aufgabe_anlegen(admin, challenge, title="T" * 500)
 
-        assert len(Task.query.first().title) == MAX_TITLE
+        assert len(Task.query.first().title) == MAX_AUFGABENTITEL
 
     def test_bearbeiten_gilt_dieselbe_regel(self, admin, make_challenge, make_task,
                                             database):
@@ -473,16 +473,21 @@ class TestGrenzenAnEinerStelle:
 
         assert models.Team.__table__.c.name.type.length == models.MAX_TEAMNAME
         assert models.Challenge.__table__.c.title.type.length == models.MAX_TITEL
+        assert models.Task.__table__.c.title.type.length == models.MAX_AUFGABENTITEL
         assert models.Challenge.__table__.c.tagline.type.length == models.MAX_UNTERTITEL
         assert models.Challenge.__table__.c.greeting.type.length == models.MAX_GRUSS
         assert models.Settings.__table__.c.site_name.type.length == models.MAX_SEITENNAME
 
     def test_alle_pruefen_mit_denselben_grenzen(self, flask_app):
         import models
+        import task_exchange
+        import task_rules
         import wettbewerb_sicherung
         from blueprints import admin, public
 
         assert public.MAX_TEAMNAME is wettbewerb_sicherung.MAX_TEAMNAME is models.MAX_TEAMNAME
         assert admin.MAX_TITEL is wettbewerb_sicherung.MAX_TITEL
         assert admin.MAX_DAUER_MINUTEN is wettbewerb_sicherung.MAX_DAUER_MINUTEN
+        assert task_rules.MAX_AUFGABENTITEL is models.MAX_AUFGABENTITEL
+        assert task_exchange.MAX_TASKS is wettbewerb_sicherung.MAX_TASKS
         assert flask_app.config["MAX_CONTENT_LENGTH"] == wettbewerb_sicherung.MAX_DATEI_BYTES

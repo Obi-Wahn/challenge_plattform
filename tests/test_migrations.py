@@ -9,9 +9,9 @@ import sqlite3
 
 import pytest
 
-from app import (ensure_added_columns, ensure_pause_timestamp,
-                 ensure_team_challenge_binding, ensure_team_uids,
-                 run_startup_migrations)
+from migrationen import (ensure_added_columns, ensure_pause_timestamp,
+                         ensure_team_challenge_binding, ensure_team_uids,
+                         run_startup_migrations)
 
 
 @pytest.fixture
@@ -409,11 +409,11 @@ class TestSicherungVorDerAenderung:
     @pytest.fixture(autouse=True)
     def _ohne_vorherige_sicherung(self):
         """Der Merker gilt je Start - im Test je Test."""
-        import app as anwendung
+        import migrationen as umbau
 
-        anwendung._backup_path = None
+        umbau._backup_path = None
         yield
-        anwendung._backup_path = None
+        umbau._backup_path = None
 
     def sicherungen(self, pfad):
         import glob
@@ -460,8 +460,8 @@ class TestSicherungVorDerAenderung:
         ensure_team_challenge_binding()
         vorher = self.sicherungen(pfad)
 
-        import app as anwendung
-        anwendung._backup_path = None
+        import migrationen as umbau
+        umbau._backup_path = None
         ensure_added_columns()
         ensure_team_challenge_binding()
 
@@ -477,23 +477,23 @@ class TestSicherungVorDerAenderung:
         assert len(self.sicherungen(pfad)) == 1
 
     def test_auf_einer_frischen_installation_wird_nichts_gesichert(self, database):
-        import app as anwendung
+        import migrationen as umbau
 
         ensure_added_columns()
         ensure_team_challenge_binding()
 
-        assert anwendung._backup_path is None
+        assert umbau._backup_path is None
 
     def test_scheitert_die_sicherung_wird_nicht_umgebaut(self, alte_datenbank, monkeypatch):
         """Lieber gar nicht starten als ungesichert umbauen."""
-        import app as anwendung
+        import migrationen as umbau
 
         pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
 
         def geht_schief(*args, **kwargs):
             raise OSError("kein Platz auf dem Gerät")
 
-        monkeypatch.setattr(anwendung.sqlite3, "connect", geht_schief)
+        monkeypatch.setattr(umbau.sqlite3, "connect", geht_schief)
 
         with pytest.raises(RuntimeError) as fehler:
             ensure_team_challenge_binding()

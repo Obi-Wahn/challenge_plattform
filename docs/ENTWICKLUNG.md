@@ -298,6 +298,7 @@ challenge_plattform/
 ├── task_exchange.py       # Aufgaben sichern und einlesen
 ├── wettbewerb_sicherung.py # einen ganzen Wettbewerb als ZIP sichern und einlesen
 ├── datenschutz.py         # aufräumen: Teams und Abgaben, Protokolldatei, Sicherungskopien
+├── migrationen.py         # Umbauten an einer bestehenden Datenbank beim Start
 ├── network.py             # Adresse, unter der die Teams beitreten
 ├── sitzung.py             # Anmeldung eines Teams oder zum Bewerten und ihre Gültigkeit
 ├── protokoll.py           # die Zeilen, die in logs/anwendung.log gehen

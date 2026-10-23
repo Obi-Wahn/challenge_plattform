@@ -1,0 +1,49 @@
+{# Abzeichen und Knöpfe für die Uhr eines Wettbewerbs. Sie stehen auf der
+   Steuerzentrale und auf der Wettbewerbsseite gleich; ändert sich einer,
+   ändert er sich an beiden Stellen. `here` ist die Seite, auf die es nach
+   dem Drücken zurückgeht. #}
+
+{% macro statusabzeichen(challenge, finished) %}
+{% if finished %}
+<span class="badge bg-secondary fs-6">🏁 beendet</span>
+{% elif challenge.paused %}
+<span class="badge bg-warning text-dark fs-6">⏸ pausiert</span>
+{% elif challenge.status() == "upcoming" %}
+<span class="badge bg-info text-dark fs-6">🕒 geplant</span>
+{% else %}
+<span class="badge bg-success fs-6">🟢 läuft</span>
+{% endif %}
+{% endmacro %}
+
+{% macro pause_knopf(challenge, here) %}
+{% if challenge.paused %}
+<form method="post" action="{{ url_for('admin.challenge_resume', cid=challenge.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="next" value="{{ here }}">
+  <button class="btn btn-success">▶ Fortsetzen</button>
+</form>
+{% else %}
+<form method="post" action="{{ url_for('admin.challenge_pause', cid=challenge.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="next" value="{{ here }}">
+  <button class="btn btn-warning">⏸ Pause</button>
+</form>
+{% endif %}
+{% endmacro %}
+
+{% macro ende_knopf(challenge, finished, here) %}
+{% if finished %}
+<form method="post" action="{{ url_for('admin.challenge_reopen', cid=challenge.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="next" value="{{ here }}">
+  <button class="btn btn-outline-light">🔓 Wieder öffnen</button>
+</form>
+{% else %}
+<form method="post" action="{{ url_for('admin.challenge_finish', cid=challenge.id) }}"
+  onsubmit="return confirm('Wettbewerb jetzt beenden? Teams können danach nichts mehr abgeben. Das lässt sich wieder rückgängig machen.');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="next" value="{{ here }}">
+  <button class="btn btn-danger">🏁 Wettbewerb beenden</button>
+</form>
+{% endif %}
+{% endmacro %}
