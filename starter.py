@@ -93,8 +93,7 @@ def python_pruefen(version=None):
         noetig = ".".join(str(teil) for teil in MINDEST_PYTHON)
         raise Abbruch(
             f"Gefunden wurde Python {text}, die Plattform braucht {noetig} oder neuer.\n"
-            "Ein aktuelles Python gibt es unter https://www.python.org/downloads/\n"
-            "Unter Windows beim Installieren \"Add python.exe to PATH\" ankreuzen."
+            "Ein aktuelles Python gibt es unter https://www.python.org/downloads/"
         )
 
     return text

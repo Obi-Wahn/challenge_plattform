@@ -15,8 +15,8 @@ if not defined PYTHON python3 -c "pass" >nul 2>nul && set "PYTHON=python3"
 
 if not defined PYTHON (
     echo Python wurde nicht gefunden.
-    echo Bitte von https://www.python.org/downloads/ installieren und dabei
-    echo "Add python.exe to PATH" ankreuzen. Danach diese Datei erneut oeffnen.
+    echo Bitte von https://www.python.org/downloads/ installieren, am einfachsten
+    echo mit dem Python install manager. Danach diese Datei erneut oeffnen.
     echo.
     pause
     exit /b 1

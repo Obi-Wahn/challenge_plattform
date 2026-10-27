@@ -159,7 +159,7 @@ ließen sich darin nicht mehr installieren.
 Coding-Wettbewerb-Plattform
 ===========================
 
-Version ................ 1.7.0 (Stand 27.09.2026)
+Version ................ 1.23.1 (Stand 27.10.2026)
 Python ................. 3.13.1
 Virtuelle Umgebung ..... vorhanden (Python 3.13)
 Pakete ................. aktuell
@@ -171,7 +171,7 @@ Die erste Zeile sagt, **welche Fassung** hier liegt. Die Nummer kommt aus
 dem Release, von Hand gepflegt wird sie nirgends: Bei git fragt die
 Startdatei git, bei einem ZIP hat GitHub sie beim Packen in `stand.txt`
 eingetragen. Enthält der Stand Änderungen nach dem letzten Release, steht
-das dabei, etwa „1.7.0 + 3 Änderungen (Stand 30.09.2026)“. Steht dort
+das dabei, etwa „1.23.1 + 3 Änderungen (Stand 30.10.2026)“. Steht dort
 „unbekannt“ – etwa bei einem von Hand kopierten Ordner –, läuft die
 Plattform trotzdem. Die Zeile steht auch im Protokoll.
 
@@ -195,93 +195,10 @@ ohne Bildschirm siehe den nächsten Abschnitt.
 
 ### Auf einem Rechner ohne Bildschirm (etwa Raspberry Pi)
 
-Die Plattform braucht keine Oberfläche und läuft auch auf einem kleinen
-Linux-Rechner, der nur per SSH erreichbar ist. Raspberry Pi OS bringt ab
-Bookworm ein passendes Python mit (3.11, bei Trixie 3.13).
-
-1.  **Holen und einrichten**, per SSH auf dem Rechner, einmal mit Internet:
-    ```bash
-    git clone https://github.com/Obi-Wahn/challenge_plattform.git
-    cd challenge_plattform
-    ./start_linux.sh --ohne-browser
-    ```
-    Wer das ZIP nimmt, kopiert es vorher hinüber (etwa mit `scp`) und
-    entpackt es dort mit `unzip`. Der erste Start fragt wie gewohnt das
-    Admin-Passwort ab. Bedient wird die Plattform danach vom Browser eines
-    anderen Geräts aus, über die Adresse in der Startübersicht.
-
-2.  **Feste Adresse.** Bekommt der Rechner seine Adresse per DHCP, kann sie
-    sich ändern – und mit ihr der QR-Code. Die Adresse darum im Router
-    reservieren oder am Rechner fest einstellen (unter Raspberry Pi OS mit
-    `sudo nmtui`) und als `LAN_ADRESSE=192.168.…` in die `.env` schreiben.
-
-3.  **Uhrzeit prüfen.** Ein Raspberry Pi hat meist keine Uhr mit Batterie.
-    Ohne Internet läuft er nach dem Einschalten mit der Zeit weiter, zu der er
-    zuletzt lief – und Restzeit, Pause und Zeitstempel richten sich nach
-    dieser Uhr. Vor dem Wettbewerb darum `timedatectl` aufrufen: Datum,
-    Uhrzeit und Zeitzone (`Europe/Berlin`) müssen stimmen. Sonst von Hand
-    setzen, **bevor** die Plattform startet:
-    ```bash
-    sudo timedatectl set-timezone Europe/Berlin
-    sudo date -s "2026-10-05 08:00"
-    ```
-    Ein Raspberry Pi 5 mit eingesetzter Uhrbatterie oder ein RTC-Modul
-    erspart das.
-
-4.  **Weiterlaufen lassen.** Schließt man das SSH-Fenster, endet auch die
-    Plattform. Der einfache Weg ist `tmux`. Es läuft **auf dem Rechner mit
-    der Plattform**, also auf dem Raspberry Pi, nicht auf dem Gerät, von dem
-    aus man sich per SSH verbindet. Dort einmal `sudo apt install tmux`,
-    dann in der SSH-Sitzung:
-    ```bash
-    tmux new -s wettbewerb
-    ./start_linux.sh --ohne-browser
-    ```
-    Mit STRG+B, dann D, löst man sich davon, die Plattform läuft weiter. Nach
-    dem nächsten Anmelden holt `tmux attach -t wettbewerb` das Fenster zurück,
-    dort beendet STRG+C sie wie gewohnt.
-
-**Optional: als Dienst, der beim Einschalten startet.** Wer den Rechner nur
-einstecken will, richtet einen systemd-Dienst ein. Vorher muss der erste
-Start aus Schritt 1 durchgelaufen sein. Benutzer und Pfad anpassen, dann als
-`/etc/systemd/system/challenge-plattform.service` speichern:
-
-```ini
-[Unit]
-Description=Challenge-Plattform
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-User=pi
-WorkingDirectory=/home/pi/challenge_plattform
-ExecStart=/home/pi/challenge_plattform/.venv/bin/python app.py
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-```
-
-```bash
-sudo systemctl enable --now challenge-plattform   # einschalten und starten
-sudo systemctl status challenge-plattform         # läuft er?
-sudo systemctl disable --now challenge-plattform  # wieder abschalten
-```
-
-Die Uhrzeit aus Schritt 3 gilt dann genauso – der Dienst startet ja schon
-beim Einschalten. Zum **Aktualisieren** den Dienst mit
-`sudo systemctl stop challenge-plattform` anhalten, sonst meldet die
-Startdatei den Port als belegt. Dann `./start_linux.sh --aktualisieren
---ohne-browser`, nach der Startübersicht mit STRG+C beenden und den Dienst
-mit `sudo systemctl start challenge-plattform` wieder starten.
-
-**SD-Karte.** Das Protokoll schreibt kaum etwas, der gewöhnliche Betrieb
-bleibt darin still (siehe [Protokolldatei](#-protokolldatei)). Geschrieben
-wird vor allem in die Datenbank und in `uploads/`, und beides wird gebraucht.
-Eine SD-Karte fällt aber eher aus als eine Festplatte: nach dem Wettbewerb
-sichern, wie unter [Daten und Sicherungen](#-daten-und-sicherungen)
-beschrieben. Auf der Karte stehen Teamnamen und Abgaben – ein Rechner, der
-danach in der Schublade liegt, wird genauso aufgeräumt wie jeder andere.
+Die Plattform läuft auch auf einem kleinen Linux-Rechner, der nur per SSH
+erreichbar ist. Wie man ihn einrichtet, ihm eine feste Adresse gibt, die Uhrzeit
+prüft und die Plattform als Dienst starten lässt, steht in
+**[docs/RASPBERRY_PI.md](docs/RASPBERRY_PI.md)**.
 
 ### Aktualisieren
 

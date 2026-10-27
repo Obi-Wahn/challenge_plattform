@@ -334,6 +334,7 @@ challenge_plattform/
 ├── docs/
 │   ├── ADMIN_GUIDE.md      # Leitfaden für den Wettbewerbstag
 │   ├── ENTWICKLUNG.md      # diese Anleitung
+│   ├── RASPBERRY_PI.md     # Betrieb auf einem Rechner ohne Bildschirm
 │   └── bilder/             # Screenshots für die README
 ├── uploads/                # Hochgeladene Abgaben (wird erstellt)
 ├── logs/                   # Protokolldatei (wird erstellt)
