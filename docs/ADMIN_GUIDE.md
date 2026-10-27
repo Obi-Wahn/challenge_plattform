@@ -366,9 +366,8 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 
 ## 💬 Rückmeldung aus der Praxis
 
-Hast du die Plattform mit einer Klasse oder AG eingesetzt? Eine Rückmeldung
-ist sehr willkommen: was gut lief, was gehakt hat, wie viele Aufgaben in eure
-Zeit gepasst haben. Am einfachsten als
-[Issue auf GitHub](https://github.com/Obi-Wahn/challenge_plattform/issues) –
-bitte ohne Namen von Schülerinnen und Schülern und ohne Auszüge aus der
+Erfahrungen aus dem Einsatz mit Klassen und AGs sind sehr willkommen: was gut
+lief, was gehakt hat, wie viele Aufgaben in die Zeit gepasst haben. Am
+einfachsten als [Issue auf GitHub](https://github.com/Obi-Wahn/challenge_plattform/issues),
+ohne Namen von Schülerinnen und Schülern und ohne Auszüge aus der
 Protokolldatei, denn dort stehen Teamnamen.
