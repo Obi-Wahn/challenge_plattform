@@ -601,7 +601,14 @@ class TestStartdateien:
 
     def test_windows_datei_nimmt_zuerst_den_py_starter(self):
         text = (ROOT / "start_windows.bat").read_text(encoding="utf-8")
-        assert text.index("where py ") < text.index("where python ")
+        assert text.index("py -3 -c ") < text.index("python -c ") < text.index("python3 -c ")
+
+    def test_windows_datei_probiert_python_wirklich_aus(self):
+        # "where py" fand bei Tobias ein py, das cmd dann nicht starten konnte.
+        text = (ROOT / "start_windows.bat").read_text(encoding="utf-8")
+        assert "where " not in text
+        for kandidat in ("py -3", "python", "python3"):
+            assert f'{kandidat} -c "pass" >nul 2>nul && set "PYTHON={kandidat}"' in text
 
     @pytest.mark.parametrize("name", ["start_macos.command", "start_linux.sh"])
     def test_unix_dateien_sind_reines_sh(self, name):
