@@ -49,45 +49,44 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 ## 🌟 Features
 
 ### Für die Teams
-*   **Beitritt per QR-Code**: Der Code auf der Startseite führt das Smartphone direkt hin, sonst tippt man die Adresse aus dem Schulnetz ein. Die Seiten sind für Desktop, Tablet und Smartphone gemacht.
-*   **Registrierung je Wettbewerb**: Teamname und Passwort; derselbe Teamname darf in mehreren Wettbewerben vorkommen. Ist der Wettbewerb beendet oder pausiert oder gerade keiner aktiv, nimmt die Startseite keine neuen Teams an – wer schon dabei ist, kommt weiter hinein.
-*   **Wettbewerbsseite**: alle Aufgaben unter einer eigenen Überschrift, durchnummeriert wie in der Rangliste, mit Fortschritt, eigenen Punkten und dem Feedback der Lehrkraft, dazu die Restzeit als Leiste.
-*   **Schwierigkeit auf einen Blick**: Unter dem einleitenden Satz jeder Aufgabe stehen Punkte und Stufe — 🟢 einfach, 🟡 mittel, 🔴 schwer.
-*   **Aktualisiert sich selbst**: Die Seite fragt alle 15 Sekunden nach dem Stand — Pause, Fortsetzen, ein freigeschalteter Hinweis, eine Durchsage und eine neue Dauer kommen an, ohne dass jemand neu laden muss.
-*   **Abgabe je Aufgabe**: Processing (`.pde`), Scratch (`.sb`/`.sb3`), Python (`.py`), Java (`.java`), MakeCode/Calliope (`.hex`/`.mkcd`), Open Roberta und Snap! (`.xml`), Arduino (`.ino`), App Inventor (`.aia`), Jupyter (`.ipynb`) — welches Format erlaubt ist, legt die Aufgabe fest.
-*   **Eigene Skripte ansehen**: Unter einer abgegebenen Scratch- oder Snap!-Aufgabe zeigt „🧩 Unsere Skripte anzeigen“ die Skripte des Teams als Blöcke, wie die Lehrkraft sie beim Bewerten sieht. Jedes Team sieht nur seine eigene Abgabe.
-*   **Hinweise**: Kommt ein Team nicht weiter, schaltet die Lehrkraft den Hinweis zur Aufgabe frei.
-*   **Korrektur**: Solange der Wettbewerb läuft, ersetzt ein Team seine Abgabe einfach durch eine neue Datei; eine schon bewertete wird dabei wieder offen. Je Wettbewerb abschaltbar, dann gibt die Lehrkraft jede Korrektur einzeln frei.
-*   **Namen für die Urkunde**: Das Team trägt sie selbst ein, einen pro Zeile; auf die Urkunde kommen sie nach der Freigabe durch die Lehrkraft.
-*   **Eigene Urkunde als PDF**: nach dem Ende des Wettbewerbs selbst herunterladbar, bei eingefrorener Rangliste nach der Siegerehrung.
+*   **Beitritt per QR-Code** oder über die abgetippte Adresse, auf Desktop, Tablet und Smartphone.
+*   **Registrierung je Wettbewerb** mit Teamname und Passwort. Ist der Wettbewerb beendet oder pausiert oder keiner aktiv, nimmt die Startseite keine neuen Teams an.
+*   **Wettbewerbsseite**: alle Aufgaben durchnummeriert wie in der Rangliste, mit Schwierigkeit (🟢 einfach, 🟡 mittel, 🔴 schwer), Punkten, Feedback und der Restzeit als Leiste.
+*   **Aktualisiert sich selbst** alle 15 Sekunden: Pause, Hinweise, Durchsagen und neue Zeiten kommen ohne Neuladen an.
+*   **Abgabe je Aufgabe**: Processing (`.pde`), Scratch (`.sb`/`.sb3`), Python (`.py`), Java (`.java`), MakeCode/Calliope (`.hex`/`.mkcd`), Open Roberta und Snap! (`.xml`), Arduino (`.ino`), App Inventor (`.aia`), Jupyter (`.ipynb`) — das Format legt die Aufgabe fest.
+*   **Eigene Skripte ansehen**: Scratch- und Snap!-Abgaben als Blöcke, jedes Team nur seine eigene.
+*   **Hinweise**, die die Lehrkraft freischaltet, wenn ein Team nicht weiterkommt.
+*   **Korrektur**: Solange der Wettbewerb läuft, ersetzt ein Team seine Abgabe selbst; je Wettbewerb abschaltbar.
+*   **Namen für die Urkunde** trägt das Team selbst ein, auf die Urkunde kommen sie nach der Freigabe.
+*   **Eigene Urkunde als PDF** nach dem Ende zum Herunterladen.
 
 ### Für die Lehrkraft
-*   **Steuerzentrale**: Zustand, Teams, Aufgaben und offene Bewertungen auf einen Blick, die Kacheln nach Vorbereitung, Während des Wettbewerbs und Zum Abschluss sortiert. Eine Linie am Rand hält zusammen, was zum laufenden Wettbewerb gehört; darunter stehen abgesetzt die Einstellungen der Installation und die anderen Wettbewerbe, die beendeten zugeklappt für sich.
-*   **Wettbewerbe verwalten**: anlegen, aktivieren, pausieren, beenden, wieder öffnen und löschen – alles auf der Steuerzentrale. Welcher Wettbewerb gilt, entscheidet die Lehrkraft mit „Aktivieren“; nur ein neu angelegter wird von selbst aktiv, wenn gerade keiner es ist. Beim Anlegen lassen sich die Teams eines früheren Wettbewerbs übernehmen, mit Passwort und den Namen für die Urkunde.
-*   **Eigener Name je Wettbewerb**: Name und Untertitel stehen überall – Startseite, Rangliste, Teamseite, Urkunden, Browsertitel, Leiste oben und Fußzeile – und bleiben beim Wettbewerb, wenn längst ein anderer läuft. Unter dem Namen begrüßt die Startseite die Teams, mit „Schön, dass ihr dabei seid!“ oder einem eigenen Gruß je Wettbewerb.
-*   **Aufgaben**: Beschreibung in Markdown, erlaubtes Dateiformat, Schwierigkeit (einfach, mittel, schwer oder keine Angabe), optionaler Hinweis; die Reihenfolge lässt sich mit ▲ und ▼ ändern. Aufgaben lassen sich als JSON sichern, weitergeben und in einen anderen Wettbewerb einlesen — ohne Abgaben und Punkte. Fertige Sätze für Scratch, Snap! und Calliope liegen unter `beispiele/` und sind mit einem Klick eingelesen.
-*   **Wettbewerb sichern**: ein ganzer Wettbewerb als ZIP – Aufgaben, Teams, Abgaben samt Dateien, Punkte und Feedback. Unter „Neuer Wettbewerb“ wieder eingelesen, entsteht daraus ein neuer, inaktiver Wettbewerb, etwa auf einem anderen Rechner. Die Namen für die Urkunde und die Passwörter der Teams kommen nur auf ausdrücklichen Wunsch mit, die Passwörter nie im Klartext. Zum Ausprobieren liegt unter `beispiele/` ein fertiger Scratch-Wettbewerb mit ausgedachten Teams, Abgaben und Punkten.
-*   **Aufräumen**: Bei einem beendeten Wettbewerb löscht ein Knopf alle Teams samt Namen und Passwörtern und alle Abgaben mit Dateien; Wettbewerb, Einstellungen und Aufgaben bleiben für das nächste Mal. Protokolldatei und alte Sicherungskopien der Datenbank lassen sich unter Einstellungen löschen.
-*   **Zeit im Griff**: Start- und Endzeit oder eine Dauer in Minuten samt „Jetzt starten für … Minuten"; die Pause hält die Uhr an, „Fortsetzen" schiebt das Ende um die Pausendauer nach hinten.
-*   **Durchsagen**: je Wettbewerb einschaltbar – ein kurzer Satz wie „Noch 10 Minuten, bitte speichern“ erscheint oben auf jeder Teamseite und über der Rangliste. Es gilt immer nur einer; ins Protokoll und in die Sicherung kommt der Text nicht.
-*   **Bewerten**: Abgaben nach Aufgaben geordnet, oben eine Sprungleiste, die zeigt, wo noch etwas offen ist, dazu die Aufgabenbeschreibung, Textformate direkt im Browser lesbar, die Skripte einer Scratch- oder Snap!-Abgabe (`.sb3`, `.xml`) als Blöcke wie in Scratch, Download für lokale Tests, Punkte und Feedback, Korrektur freigeben (wenn die Teams nicht selbst korrigieren dürfen) oder Abgabe löschen.
-*   **Bewertungszugang**: ein eigenes Passwort für alle, die beim Bewerten helfen. Damit geht es nur auf die Bewertungsseite des aktiven Wettbewerbs – Abgaben ansehen, herunterladen, Punkte und Feedback geben. Löschen, Freigeben und alles andere bleiben beim Admin; ein neues Passwort meldet alle ab, die mit dem alten angemeldet waren.
-*   **Teams**: Passwort zurücksetzen, die eingetragenen Namen kontrollieren, freigeben oder die Freigabe zurücknehmen; eine Zeile oben zeigt, wie viele noch auf die Kontrolle warten.
-*   **Urkunden**: als PDF und Druckansicht, für alle Teams oder einzeln, im Quer- oder Hochformat, mit Namen und Handschrift unter der Unterschriftslinie — auch für einen längst beendeten Wettbewerb, mit den Punkten und dem Datum von damals.
-*   **Einstellungen**: Standardname, -untertitel und -gruß für eine Installation, in der noch kein Wettbewerb angelegt oder keiner aktiv ist, ob über den Spalten der Rangliste die Aufgabentitel stehen, Quer- oder Hochformat der Urkunden, ob die Teams ihre Namen eintragen dürfen, Name und Handschrift unter der Unterschriftslinie und das Passwort für den Bewertungszugang; ganz unten Protokolldatei und alte Sicherungskopien aufräumen.
-*   **Protokolldatei**: Was anlegt, ändert oder wegnimmt, steht mit Zeitstempel in `logs/anwendung.log` – samt jeder **abgewiesenen** Abgabe mit Grund. Damit ist „Wir haben doch abgegeben!“ nach dem Wettbewerbstag beantwortbar.
-*   **Eigene Fehlerseiten**: deutscher Satz und ein Weg zurück statt der englischen Seite des Webservers. Die gewöhnlichen Missgeschicke landen gar nicht dort, sondern als Meldung auf der Wettbewerbsseite des Teams.
+*   **Steuerzentrale**: Zustand, Teams, Aufgaben und offene Bewertungen auf einen Blick, geordnet nach Vorbereitung, Wettbewerb und Abschluss.
+*   **Wettbewerbe verwalten**: anlegen, aktivieren, pausieren, beenden, wieder öffnen und löschen; beim Anlegen lassen sich die Teams eines früheren Wettbewerbs übernehmen.
+*   **Eigener Name je Wettbewerb**, mit Untertitel und Gruß auf der Startseite, auf allen Seiten und Urkunden, auch wenn längst ein anderer läuft.
+*   **Aufgaben** in Markdown mit Dateiformat, Schwierigkeit und Hinweis, sortierbar mit ▲ und ▼, als JSON zu sichern und wieder einzulesen; fertige Sätze für Scratch, Snap! und Calliope liegen unter `beispiele/`.
+*   **Wettbewerb sichern** als ZIP und als neuen Wettbewerb wieder einlesen, auch auf einem anderen Rechner; Namen und Passwörter nur auf Wunsch. Ein Beispiel-Wettbewerb liegt unter `beispiele/`.
+*   **Aufräumen**: Nach dem Ende löscht ein Knopf alle Teams und Abgaben; Protokolldatei und alte Sicherungskopien lassen sich unter Einstellungen löschen.
+*   **Zeit im Griff**: Start- und Endzeit oder eine Dauer, „Jetzt starten für … Minuten“; die Pause hält die Uhr an.
+*   **Durchsagen** an alle Teams und über der Rangliste, je Wettbewerb einschaltbar.
+*   **Bewerten**: nach Aufgaben geordnet, offene zuerst, Scratch- und Snap!-Skripte als Blöcke, Textformate im Browser, Download, Punkte und Feedback.
+*   **Bewertungszugang**: ein eigenes Passwort für Helfende, das nur die Bewertungsseite des aktiven Wettbewerbs öffnet.
+*   **Teams**: Passwort zurücksetzen, Namen für die Urkunde kontrollieren und freigeben.
+*   **Urkunden** als PDF, quer oder hoch, mit Unterschrift in Handschrift, auch für einen längst beendeten Wettbewerb.
+*   **Einstellungen**: Standardname, Rangliste, Urkundenformat, Namen der Teammitglieder, Unterschrift, Bewertungszugang.
+*   **Protokolldatei**: Was angelegt, geändert oder gelöscht wird, steht in `logs/anwendung.log`, dazu jede abgewiesene Abgabe mit Grund.
+*   **Eigene Fehlerseiten** auf Deutsch mit einem Weg zurück.
 
 ### Für den großen Bildschirm (Display, Smartboard oder Beamer)
-*   **Startseite ohne Scrollen**: Gruß, Adresse und QR-Code passen ohne Scrollen auf den Bildschirm, vom Laptop bis zum 4K-Display; der QR-Code bekommt den Platz, der übrig bleibt.
-*   **Rangliste**: Punkte je Aufgabe und Gesamtstand, über jeder Spalte Nummer und Titel der Aufgabe („A1: Die Katze läuft im Kreis“, der Titel lässt sich abschalten), auch mit fünfzehn Aufgaben ohne seitliches Schieben, lädt sich alle 30 Sekunden selbst neu. Oben läuft dieselbe Restzeit mit, die die Teams sehen — die Seite für den ganzen Wettbewerb. Nach dem Ende führt sie zum Siegerpodest, am großen Bildschirm von selbst; die ganze Rangliste gibt es dann über einen Link darunter.
-*   **Rangliste einfrieren**: je Wettbewerb einschaltbar – ab einstellbaren Minuten vor Schluss zeigt der große Bildschirm nur noch, was bis dahin abgegeben war, auch wenn ein Team danach noch korrigiert. Die eigenen Punkte sieht jedes Team weiter aktuell, den echten Stand verkündet die Siegerehrung.
-*   **Hell oder dunkel**: Die Seiten folgen der Einstellung des Geräts; **☀️ Hell** oder **🌙 Dunkel** in der Leiste oben wechselt, etwa für den großen Bildschirm in einem hellen Raum. Die Wahl merkt sich nur der Browser dieses Geräts, der Server speichert nichts.
-*   **Siegerehrung**: Siegerpodest der besten drei, Platz für Platz von 3 bis 1 aufzudecken (Leertaste oder Knopf), jeder Platz erscheint auf seiner Stufe. Bei Gleichstand teilen sich Teams einen Platz, und der nächste rückt nach: 10, 10 und 8 Punkte ergeben zwei erste Plätze und einen zweiten, kein Platz bleibt leer.
+*   **Startseite** mit Gruß, Adresse zum Abtippen und QR-Code, ohne Scrollen.
+*   **Rangliste** mit Punkten je Aufgabe, „A1: Titel“ über den Spalten und der Restzeit, lädt sich alle 30 Sekunden neu; nach dem Ende führt sie zum Siegerpodest.
+*   **Rangliste einfrieren** ab einstellbaren Minuten vor Schluss, je Wettbewerb; jedes Team sieht seine eigenen Punkte weiter aktuell.
+*   **Hell oder dunkel** wie das Gerät, umschaltbar in der Leiste; die Wahl merkt sich nur der Browser.
+*   **Siegerehrung**: Podest der besten drei, Platz für Platz aufgedeckt; Gleichstände teilen sich einen Platz.
 
 ### Ohne Installationsaufwand
 *   **Startdateien** für Windows, macOS und Linux richten beim ersten Öffnen alles ein und starten die Plattform.
-*   **Version beim Start**: Die Übersicht nennt, welcher Stand läuft, etwa „1.7.0 (Stand 27.09.2026)“ – bei einem ZIP genauso wie bei git.
+*   **Version beim Start**: Die Übersicht nennt, welcher Stand läuft, bei einem ZIP genauso wie bei git.
 *   **Läuft im Schul-LAN, ganz ohne Internet**; Port und angezeigte Netzwerkadresse lassen sich in der `.env` setzen.
 
 ## 🛠 Technologien
@@ -154,9 +153,7 @@ deinstalliert, merkt die Startdatei das und legt die Umgebung selbst neu an.
 Ebenso eine Umgebung mit Python 3.10 von vor der Anhebung auf 3.11: Die Pakete
 ließen sich darin nicht mehr installieren.
 
-**Beenden** mit STRG+C im Fenster. Unter Windows fragt die Eingabeaufforderung
-danach noch „Batchvorgang abbrechen (J/N)?“ – die Plattform ist da schon
-beendet, J und N führen beide zum selben Ergebnis.
+**Beenden** mit STRG+C im Fenster.
 
 ```text
 Coding-Wettbewerb-Plattform
@@ -301,11 +298,7 @@ danach in der Schublade liegt, wird genauso aufgeräumt wie jeder andere.
     Startdatei im neuen Ordner öffnen. `--aktualisieren` sagt dasselbe.
 
 In beiden Fällen passt die Plattform die Datenbank beim Start selbst an,
-siehe [Daten und Sicherungen](#-daten-und-sicherungen). Die Datenbank merkt
-sich zu jeder Abgabe nur den Ort innerhalb von `uploads/`, nicht den Ordner der
-Installation. Nach dem Umzug in den neuen Ordner oder auf einen anderen Rechner
-finden Download, Sicherung und Aufräumen die Dateien deshalb dort, wo sie jetzt
-liegen.
+siehe [Daten und Sicherungen](#-daten-und-sicherungen).
 
 ### Adresse und Port
 
@@ -357,8 +350,10 @@ braucht man beide:
 | `uploads/` | die abgegebenen Dateien der Teams |
 
 Die Datenbank merkt sich zu jeder Abgabe nur, **wo in `uploads/`** die Datei
-liegt, nicht die Datei selbst. Wer nur `data/` sichert, hat nach einem Ausfall zwar die
-Punktestände, aber nicht die Programme, für die sie vergeben wurden. Beide
+liegt, nicht die Datei selbst und nicht den Ordner der Installation. Nach einem
+Umzug in einen neuen Ordner oder auf einen anderen Rechner findet sie die
+Dateien also wieder. Wer aber nur `data/` sichert, hat nach einem Ausfall zwar
+die Punktestände, aber nicht die Programme, für die sie vergeben wurden. Beide
 Verzeichnisse gehören **nicht** ins Repository und werden von `.gitignore`
 ausgeschlossen.
 
@@ -431,10 +426,8 @@ Die ZIP entsteht beim Klick und bleibt nicht auf dem Server liegen. Sichern und
 Einlesen stehen im Protokoll. Ist die ZIP beschädigt – etwa weil der USB-Stick
 zu früh abgezogen wurde –, sagt die Seite das, und es wird nichts angelegt.
 
-**Was sie nicht ersetzt:** Fällt der Rechner mitten im Wettbewerb aus, bleibt
-die Kopie von `data/` und `uploads/` der sichere Weg – nur sie enthält alle
-Wettbewerbe und die Einstellungen auf einmal, sodass nach dem Zurückkopieren
-alle einfach weitermachen.
+**Was sie nicht ersetzt:** die Kopie von `data/` und `uploads/`. Nur sie
+enthält alle Wettbewerbe und die Einstellungen auf einmal.
 
 ### Beispiel-Wettbewerb zum Ausprobieren
 

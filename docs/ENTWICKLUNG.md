@@ -61,12 +61,8 @@ Ohne Startdatei, etwa um am Code zu arbeiten:
 Rechtzeitig vorher, nachdem die Plattform auf den neuen Stand gebracht ist
 (siehe [Leitfaden](ADMIN_GUIDE.md#-rechtzeitig-vorher)):
 
-**Tests laufen lassen:**
-```bash
-pip install -r requirements.txt -r requirements-dev.txt
-pytest
-```
-Wenn `pytest` durchläuft, funktionieren Registrierung, Anmeldung, Abgabe,
+**Tests laufen lassen**, wie unter [Tests](#-tests) beschrieben. Wenn
+`pytest` durchläuft, funktionieren Registrierung, Anmeldung, Abgabe,
 Bewertung, Rangliste und Urkunden.
 
 **Auf Updates sehen:**

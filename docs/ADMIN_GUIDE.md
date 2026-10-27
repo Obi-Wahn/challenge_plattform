@@ -67,39 +67,37 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    mit. Aufgaben aus einem früheren Wettbewerb lassen sich dort ebenso
    einzeln oder als Satz exportieren und wieder einlesen.
 
-4. **Urkundenformat wählen** unter *Einstellungen*: Querformat oder Hochformat.
-   Am besten jetzt schon eine Probeurkunde ausdrucken – dann weißt du, ob
-   Drucker und Papier mitspielen.
-
-5. **Pro Aufgabe festlegen:** Punkte, erlaubtes Dateiformat
+4. **Pro Aufgabe festlegen:** Punkte, erlaubtes Dateiformat
    (z. B. `.sb3` für Scratch, `.xml` für Snap!, `.hex` für Calliope), die Schwierigkeit und
    optional einen Hinweis. Der Hinweis bleibt verborgen, bis er
    freigeschaltet wird.
 
    **Titel möglichst kurz halten**, zwei, drei Wörter wie „Ballon-Jagd“
    oder „Geheimes Passwort“. Über den Spalten der Rangliste steht
-   „A1: Titel“, und die Spalten teilen sich die Breite des großen Bildschirms
-   (Display, Smartboard oder Beamer): Bei
-   fünfzehn Aufgaben bleiben von einem langen Titel nur Wortanfänge. Was
-   die Teams genau tun sollen, gehört in den Aufgabentext. Reicht am großen Bildschirm
-   die Nummer, schaltest du die Titel unter *Einstellungen* → *Rangliste*
-   ab.
+   „A1: Titel“, und die Spalten teilen sich die Breite des großen
+   Bildschirms (Display, Smartboard oder Beamer): Bei fünfzehn Aufgaben
+   bleiben von einem langen Titel nur Wortanfänge. Was die Teams genau tun
+   sollen, gehört in den Aufgabentext. Reicht die Nummer, schaltest du die
+   Titel unter *Einstellungen* → *Rangliste* ab.
 
    Die Schwierigkeit ist *einfach*, *mittel* oder *schwer*; „keine Angabe“
    ist auch eine Antwort, dann steht bei der Aufgabe nichts. Die Teams sehen
-   sie als farbiges Schild unter dem ersten Satz der Aufgabe, gleich neben
-   den Punkten, und finden so schnell etwas Passendes. Beim Sichern reist
-   sie in der JSON-Datei mit; ältere Dateien ohne diese Angabe lassen sich
-   unverändert einlesen.
+   sie neben den Punkten und finden so schnell etwas Passendes. Beim Sichern
+   reist sie in der JSON-Datei mit.
 
    Die **Reihenfolge** änderst du in der Aufgabenliste mit ▲ und ▼ – je
    Klick rückt die Aufgabe eine Stelle. In dieser Reihenfolge stehen die
    Aufgaben auf der Seite der Teams (über jeder „Aufgabe 1“, „Aufgabe 2“ …),
    in der Rangliste (A1, A2 …) und in den Sicherungen. Die Nummern sind
-   dieselben, du kannst also im Raum von „Aufgabe 3“ sprechen. Neue und eingelesene Aufgaben kommen ans Ende. Am besten
-   vor dem Start sortieren: Wer mitten im Wettbewerb umstellt, ändert auch
-   die Nummern über den Spalten der Rangliste am großen Bildschirm – die Punkte bleiben
-   dabei, wo sie hingehören.
+   dieselben, du kannst also im Raum von „Aufgabe 3“ sprechen. Neue und
+   eingelesene Aufgaben kommen ans Ende. Am besten vor dem Start sortieren:
+   Wer mitten im Wettbewerb umstellt, ändert auch die Nummern in der
+   Rangliste – die Punkte bleiben dabei, wo sie hingehören.
+
+5. **Urkunden einstellen** unter *Einstellungen*: Quer- oder Hochformat, der
+   Name unter der Unterschriftslinie und die Handschrift. Am besten jetzt
+   schon eine Probeurkunde ausdrucken – dann weißt du, ob Drucker und Papier
+   mitspielen.
 
 ---
 
@@ -113,11 +111,9 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
       danach keiner mehr aktiv: Die Steuerzentrale sagt das und zeigt die
       übrigen Wettbewerbe mit **✅ Aktivieren** – dort den richtigen wählen.
       Bis dahin können sich Teams weder registrieren noch anmelden.
-- [ ] **`data/` und `uploads/` auf einen USB-Stick kopieren.** Beide: In
-      `data/` steckt die Datenbank, in `uploads/` die abgegebenen Dateien.
-      Die Datenbank merkt sich zu jeder Abgabe nur den Pfad, nicht die Datei.
-      Die automatische Sicherung der Anwendung liegt im selben Ordner und
-      hilft nicht, wenn der Rechner ausfällt.
+- [ ] **`data/` und `uploads/` auf einen USB-Stick kopieren**, beide: in
+      `data/` die Datenbank, in `uploads/` die abgegebenen Dateien (siehe
+      README, [Daten und Sicherungen](../README.md#-daten-und-sicherungen)).
 - [ ] **Netzwerk testen:** Server starten und von einem *anderen* Gerät die
       Adresse aufrufen, die im Terminal steht. Klappt das nicht, liegt es
       meist an der Firewall des Schul-PCs (Port 8000 eingehend erlauben,
@@ -126,10 +122,6 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
       dem QR-Code und lässt sich abtippen – wichtig, weil an normalen PCs und
       Laptops ein QR-Code nichts nützt. Dort fehlt das `http://` davor: Das
       ergänzt der Browser beim Eintippen selbst.
-      Auf dem großen Bildschirm passt die Startseite ohne Scrollen ganz
-      hinein, vom Laptop bis zu 4K; der QR-Code wird so groß, wie
-      neben Adresse und Gruß Platz bleibt. Auf dem Handy stehen die beiden
-      Karten untereinander, dort wird wie gewohnt gescrollt.
 - [ ] **Hilft jemand beim Bewerten?** Dann unter *Einstellungen* →
       *Bewertungszugang* ein eigenes Passwort setzen (mindestens 6 Zeichen,
       nicht das Admin-Passwort) und weitergeben. Angemeldet wird sich wie du
@@ -156,10 +148,7 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    Im Terminal stehen beide Adressen (lokal und fürs Netzwerk) und der Pfad
    der Protokolldatei. **Das Fenster offen lassen.**
 
-   Läuft die Plattform auf einem Rechner ohne Bildschirm, etwa einem
-   Raspberry Pi, vorher per SSH mit `timedatectl` die Uhrzeit prüfen: Ohne
-   Internet stimmt sie dort nach dem Einschalten oft nicht, und die Restzeit
-   richtet sich nach ihr. Wie man sie setzt, steht in der README unter
+   Auf einem Raspberry Pi vorher mit `timedatectl` die Uhrzeit prüfen, siehe
    [Auf einem Rechner ohne Bildschirm](../README.md#auf-einem-rechner-ohne-bildschirm-etwa-raspberry-pi).
 2. Wettbewerb unter `/admin` **aktivieren**: Steht der richtige schon oben in
    der Statuszeile, ist nichts zu tun. Sonst steht er weiter unten unter
@@ -167,9 +156,7 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    nicht aktiven Wettbewerb startet nur seine Uhr; die Meldung danach sagt,
    dass die Teams ihn erst nach dem Aktivieren sehen.
 3. Rangliste `/scoreboard` auf dem großen Bildschirm öffnen. Oben läuft die Zeit, darunter
-   füllt sich die Tabelle, sobald du bewertest. Über jeder Spalte stehen
-   Nummer und Titel der Aufgabe, ein langer Titel gekürzt; ab Laptopbreite
-   passt die Tabelle mit „Gesamt“ immer ganz auf die Seite.
+   füllt sich die Tabelle, sobald du bewertest.
 4. Teams registrieren sich selbst auf der Startseite `/`: Teamname und ein
    Passwort, das sie sich ausdenken. Jedes Team merkt sich beides. Danach
    landen sie auf ihrer Wettbewerbsseite `/challenge`, wo die Restzeit über
@@ -218,20 +205,12 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   angemeldet ist, ist beim nächsten Klick draußen.
 - **Scratch- und Snap!-Abgaben ansehen**: Bei einer `.sb3` und bei einer
   `.xml` aus Snap! zeigt **🧩 Skripte anzeigen** die Skripte jeder Figur als
-  Blöcke, so wie in Scratch, nur ohne sie auszuführen. Ob das Projekt tut,
-  was es soll, zeigt weiterhin erst **⬇️ Datei herunterladen** und Öffnen in
-  Scratch oder Snap!. Blöcke, die die Plattform nicht kennt, erscheinen grau
-  mit ihrem englischen Namen; Kommentare aus dem Projekt fehlen.
-  Bei Snap! stehen Blöcke, die es auch in Scratch gibt, im Wortlaut von
-  Scratch („gehe 10er Schritt“), die übrigen so wie im deutschen Snap!
-  („wende … an auf“). Eigene Blöcke stehen mit ihrem Inhalt bei der Figur,
-  der sie gehören, oder ganz unten unter *Eigene Blöcke für alle Figuren*.
-  Ein Programm aus Open Roberta, das ebenfalls als `.xml` kommt, zeigt die
-  Plattform nicht als Blöcke, sondern sagt das.
-  Dieselben Blöcke sehen die Teams auf ihrer Seite unter jeder abgegebenen
-  Aufgabe mit **🧩 Unsere Skripte anzeigen**, so lässt sich nach dem Abgeben
-  oder nach einem Feedback noch einmal darauf schauen. Jedes Team sieht nur
-  seine eigene Abgabe, herunterladen kann es sie dort nicht.
+  Blöcke, nur ohne sie auszuführen. Ob das Projekt tut, was es soll, zeigt
+  erst **⬇️ Datei herunterladen** und Öffnen in Scratch oder Snap!. Unbekannte
+  Blöcke erscheinen grau mit ihrem englischen Namen, Kommentare fehlen. Ein
+  Programm aus Open Roberta, ebenfalls `.xml`, zeigt die Plattform nicht als
+  Blöcke, sondern sagt das. Die Teams sehen dieselben Blöcke ihrer eigenen
+  Abgabe unter **🧩 Unsere Skripte anzeigen**.
 - **Durchsage an alle Teams**, etwa „Noch 10 Minuten, bitte speichern“:
   einmal unter *Name & Zeiten* das Häkchen **📢 Durchsagen an die Teams**
   setzen, dann steht auf der Wettbewerbsseite unter den Knöpfen für die Uhr
@@ -257,15 +236,13 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   schiebt die Endzeit um die Dauer der Pause nach hinten. Den Teams geht also
   keine Arbeitszeit verloren, und du musst nichts nachrechnen. Auf den
   Teamseiten erscheint innerhalb von etwa 15 Sekunden von selbst ein Kasten
-  *⏸ Kurze Pause*, die Zeitleiste wird orange, und die Rangliste am großen
-  Bildschirm zeigt dieselbe stillstehende Zeit. Beim Fortsetzen verschwindet der
-  Kasten genauso von selbst wieder. Die Aufgaben bleiben in der Pause
+  *⏸ Kurze Pause*, die Rangliste zeigt dieselbe stillstehende Zeit. Beim
+  Fortsetzen verschwindet der Kasten von selbst wieder. Die Aufgaben bleiben in der Pause
   absichtlich lesbar – nachdenken und nachlesen darf ein Team, nur abgeben
   nicht.
 - **Rangliste** `/scoreboard` aktualisiert sich alle 30 Sekunden von selbst und
-  trägt die Restzeit oben — sie ist die Seite für den großen Bildschirm, den ganzen
-  Wettbewerb über. Nach dem Ende führt sie zur Siegerehrung, am großen Bildschirm
-  von selbst und genauso bei jedem neuen Aufruf.
+  trägt die Restzeit oben — sie ist die Seite für den großen Bildschirm, den
+  ganzen Wettbewerb über.
 - **Rangliste einfrieren**, wenn es am Ende spannend bleiben soll: unter
   *Name & Zeiten* das Häkchen **❄️ Rangliste vor Schluss einfrieren** setzen
   und die Minuten vor Schluss eintragen (vorgeschlagen sind 15). Ab dann
@@ -275,41 +252,38 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   danach noch eine Abgabe, behält die Rangliste deren alte Punkte, bis du
   sie auflöst; die neue Fassung bewertest du wie jede andere. Jedes Team
   sieht seine eigenen Punkte auf seiner Seite weiter aktuell – nur den
-  Vergleich mit den anderen nicht mehr. Eine Pause vor dem Einfrieren schiebt es mit dem Ende
-  nach hinten, eine Pause danach nicht. Die Einstellung gilt je Wettbewerb
-  und ist bei einem neuen aus.
+  Vergleich mit den anderen nicht mehr. Eine Pause vor dem Einfrieren
+  schiebt es mit dem Ende nach hinten, eine Pause danach nicht.
 
 ### Schluss und Siegerehrung
 
 1. **🏁 Wettbewerb beenden** auf der Wettbewerbsseite. Das setzt die Endzeit
    auf jetzt; Abgaben sind gesperrt. Gelöscht wird nichts.
 2. **Letzte Abgaben zu Ende bewerten** – das geht nach dem Beenden weiter.
-3. **Siegerehrung** `/siegerehrung` auf dem großen Bildschirm öffnen. Hängt die Rangliste
-   schon am großen Bildschirm, musst du nichts tun: Spätestens 30 Sekunden nach dem
-   Ende wechselt sie von selbst zur Siegerehrung, sobald die erste Abgabe
-   Punkte hat. Wer die Rangliste nach dem Ende aufruft, landet ebenfalls
-   dort. Bis der erste Platz verkündet ist, holt sich die
-   Siegerehrung alle 30 Sekunden den neuesten Stand, du kannst also in
-   Ruhe zu Ende bewerten. Dort steht ein
-   Siegerpodest mit Fragezeichen über den Stufen. **🥁 Nächsten Platz
-   verkünden** (oder die Leertaste) stellt erst den dritten, dann den
-   zweiten und zuletzt den ersten Platz auf seine Stufe; der Knopf bleibt
-   dabei oben stehen, scrollen musst du nicht. Gleichstände teilen
-   sich einen Platz, niemand fällt durch eine willkürliche Reihung heraus.
-   Ist die Rangliste eingefroren, zeigt die Siegerehrung nur dir als
-   angemeldeter Lehrkraft den echten Stand; wer die Adresse am Handy
-   aufruft, sieht bloß *❄️ Die Rangliste ist eingefroren*. Darum wechselt
-   eine eingefrorene Rangliste am großen Bildschirm nur dann zum Podest, wenn du dort
-   angemeldet bist; sonst bleibt sie bis zum Auflösen stehen. Nach dem letzten
-   Platz **❄️ Rangliste auflösen und ansehen** drücken (der Knopf steht auch
-   auf der Wettbewerbsseite), dann zeigt die Rangliste wieder alles.
-   Die ganze Rangliste gibt es nach dem Ende über **Vollständige Rangliste
-   ansehen** unter dem Podest, und die bleibt dann auch stehen.
+3. **Siegerehrung** `/siegerehrung` auf dem großen Bildschirm öffnen. Hängt
+   dort schon die Rangliste, musst du nichts tun: Spätestens 30 Sekunden nach
+   dem Ende wechselt sie von selbst zur Siegerehrung, sobald die erste Abgabe
+   Punkte hat; wer die Rangliste danach aufruft, landet ebenfalls dort. Bis
+   der erste Platz verkündet ist, holt sich die Siegerehrung alle 30 Sekunden
+   den neuesten Stand, du kannst also in Ruhe zu Ende bewerten.
+
+   **🥁 Nächsten Platz verkünden** (oder die Leertaste) stellt erst den
+   dritten, dann den zweiten und zuletzt den ersten Platz auf seine Stufe.
+   Gleichstände teilen sich einen Platz, niemand fällt durch eine
+   willkürliche Reihung heraus. Die ganze Rangliste gibt es danach über
+   **Vollständige Rangliste ansehen** unter dem Podest.
+
+   **Mit eingefrorener Rangliste** zeigt die Siegerehrung den echten Stand
+   nur dir als angemeldeter Lehrkraft; wer die Adresse am Handy aufruft,
+   sieht bloß *❄️ Die Rangliste ist eingefroren*. Darum wechselt die
+   Rangliste am großen Bildschirm nur zum Podest, wenn du dort angemeldet
+   bist. Nach dem letzten Platz **❄️ Rangliste auflösen und ansehen**
+   drücken (der Knopf steht auch auf der Wettbewerbsseite), dann sehen alle
+   wieder alles.
 4. **Urkunden**: als Sammel-PDF über `/admin/urkunden.pdf` oder einzeln.
    Die Teams können ihre eigene Urkunde nach dem Beenden selbst
    herunterladen – bei eingefrorener Rangliste erst nach dem Auflösen, denn
-   auf der Urkunde steht der Platz. Unter *Einstellungen* stellst du ein: Quer- oder Hochformat,
-   den Namen unter der Unterschriftslinie und die Handschrift.
+   auf der Urkunde steht der Platz.
 5. **Eine Urkunde nachreichen**, wenn jemand gefehlt hat: Auf der
    Steuerzentrale unten *Beendet* aufklappen, beim gesuchten Wettbewerb
    **Öffnen →**, dort die Urkunden-Kachel. Das geht auch dann noch, wenn
@@ -366,18 +340,14 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
       und Bewertungen, in `uploads/` die Programme der Teams.
 - [ ] **Den Wettbewerb als ZIP sichern**, wenn er aufgehoben oder auf einen
       anderen Rechner gebracht werden soll: auf seiner Seite unten
-      **💾 Wettbewerb sichern** → **⬇️ Sichern**. In der Datei stecken
-      Aufgaben, Teams, Abgaben, Punkte und Feedback. Zwei Häkchen sind
-      zunächst aus: **Namen der Teammitglieder** braucht es nur, wenn die
-      Urkunden später aus der Sicherung gedruckt werden sollen,
-      **Passwörter der Teams** nur, wenn der Wettbewerb auf einem anderen
-      Rechner weiterlaufen soll. Die Passwörter stehen nicht im Klartext
-      darin, ein schwaches wie „1234“ lässt sich aber zurückraten. Mit Namen
-      oder Passwörtern gehört die Datei nicht auf private Geräte oder in eine
-      Cloud.
-- [ ] **Gut gelaufene Aufgaben exportieren** (Aufgaben-Seite: **⬇️ Alle Aufgaben sichern**, oder das ⬇️ neben einer
-      einzelnen Aufgabe) und
-      die Datei aufheben. Beim nächsten Mal wieder einlesen – Punkte,
+      **💾 Wettbewerb sichern** → **⬇️ Sichern**. Die Häkchen für Namen und
+      Passwörter nur setzen, wenn es nötig ist; was sie bedeuten, steht in der
+      README unter [Einen einzelnen Wettbewerb sichern](../README.md#einen-einzelnen-wettbewerb-sichern).
+      Mit Namen oder Passwörtern gehört die Datei nicht auf private Geräte
+      oder in eine Cloud.
+- [ ] **Gut gelaufene Aufgaben exportieren** (Aufgaben-Seite:
+      **⬇️ Alle Aufgaben sichern**, oder das ⬇️ neben einer einzelnen
+      Aufgabe) und die Datei aufheben. Beim nächsten Mal wieder einlesen – Punkte,
       Dateiformat, Schwierigkeit und Hinweis kommen mit.
 - [ ] **Protokolldatei durchsehen**, falls etwas hakte – und die Erkenntnis
       unten unter **💡 Aus der Praxis** eintragen.
@@ -385,8 +355,8 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
       Seite des beendeten Wettbewerbs **🧹 Aufräumen**. Das löscht alle Teams
       samt Namen und Passwörtern und alle Abgaben mit Dateien, Punkten und
       Feedback, dazu eine noch stehende Durchsage. Wettbewerb, Einstellungen
-      und Aufgaben bleiben, beim nächsten Mal ist also alles vorbereitet. Rangliste, Siegerehrung und Urkunden
-      dieses Wettbewerbs sind danach leer – wer etwas aufheben will, sichert
+      und Aufgaben bleiben, beim nächsten Mal ist also alles vorbereitet.
+      Rangliste, Siegerehrung und Urkunden dieses Wettbewerbs sind danach leer – wer etwas aufheben will, sichert
       den Wettbewerb vorher als ZIP (siehe oben).
 - [ ] **Alte Sicherungskopien löschen**, sobald klar ist, dass nach einem
       Update alles passt: unter *Einstellungen* ganz unten **🧹 Kopien
