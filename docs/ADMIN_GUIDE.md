@@ -4,10 +4,6 @@ Die README erklärt, **wie** die Anwendung installiert wird und **welche**
 Funktionen es gibt. Dieser Leitfaden beschreibt den **Ablauf**: was wann zu
 tun ist, und was zu tun ist, wenn etwas klemmt.
 
-Die Kästen unter **💡 Aus der Praxis** am Ende sind absichtlich leer oder knapp
-gehalten – sie sind zum Selberfüllen gedacht, nach dem ersten und zweiten Durchlauf.
-Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
-
 ---
 
 ## 📅 Rechtzeitig vorher
@@ -22,7 +18,7 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    Wettbewerbstag.
 
    Welche Fassung danach läuft, steht in der Startübersicht in der Zeile
-   **Version**, etwa „1.7.0 (Stand 27.09.2026)“. Mit der Nummer des neuesten
+   **Version**, etwa „1.23.1 (Stand 27.10.2026)“. Mit der Nummer des neuesten
    Releases auf GitHub vergleichen.
 
    Wer am Code arbeitet, lässt danach noch die Tests laufen und sieht nach
@@ -34,18 +30,18 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    Startseite, der Rangliste, den Urkunden und auch im Browsertitel, in der
    Leiste oben und in der Fußzeile, und er bleibt bei diesem Wettbewerb, auch
    wenn später ein anderer läuft; seine Urkunden tragen ihn also auch nächstes
-   Jahr noch. Einen eigenen Untertitel kannst du dazuschreiben, ebenso einen
-   eigenen Gruß, der auf der Startseite unter dem Namen steht (sonst „Schön,
+   Jahr noch. Dazu kommen nach Wunsch ein eigener Untertitel und ein
+   eigener Gruß, der auf der Startseite unter dem Namen steht (sonst „Schön,
    dass ihr dabei seid!“); leer gelassen gilt jeweils der aus *Einstellungen*. Die Werte dort sind nur die Vorgabe für die
    Zeit, in der noch kein Wettbewerb angelegt oder keiner aktiv ist.
 
    Ist gerade kein Wettbewerb aktiv, wird der neue es von selbst. Läuft schon
-   einer, bleibt der aktiv; den neuen aktivierst du dann am Wettbewerbstag.
+   einer, bleibt der aktiv; der neue wird dann am Wettbewerbstag aktiviert.
 
-   Treffen sich dieselben Teams wieder, etwa in einer AG, setzt du beim
-   Anlegen das Häkchen **Teams aus „…“ übernehmen**: Die Teams des letzten
+   Treffen sich dieselben Teams wieder, etwa in einer AG, hilft beim Anlegen
+   das Häkchen **Teams aus „…“ übernehmen**: Die Teams des letzten
    Wettbewerbs kommen mit Passwort mit und melden sich gleich an, ihre Namen
-   für die Urkunde warten wieder auf deine Freigabe.
+   für die Urkunde warten wieder auf die Freigabe.
 
    Drei Häkchen gibt es erst nach dem Anlegen, auf der Seite des Wettbewerbs
    unter *Name & Zeiten*: **❄️ Rangliste vor Schluss einfrieren** und
@@ -59,7 +55,7 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    `beispiele/scratch-wettbewerb.zip` wählen. Er bringt ausgedachte Teams,
    Abgaben und Punkte mit, an ihm lassen sich Bewertungen, Rangliste und
    Urkunden ausprobieren. Danach den echten Wettbewerb aktivieren; den
-   Beispiel-Wettbewerb kannst du löschen.
+   Beispiel-Wettbewerb danach löschen.
 
 3. **Aufgaben anlegen oder einlesen.** Fertige Sätze liegen unter
    `beispiele/` (Scratch, Snap!, Calliope) und werden auf der Aufgaben-Seite mit
@@ -77,26 +73,26 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    „A1: Titel“, und die Spalten teilen sich die Breite des großen
    Bildschirms (Display, Smartboard oder Beamer): Bei fünfzehn Aufgaben
    bleiben von einem langen Titel nur Wortanfänge. Was die Teams genau tun
-   sollen, gehört in den Aufgabentext. Reicht die Nummer, schaltest du die
-   Titel unter *Einstellungen* → *Rangliste* ab.
+   sollen, gehört in den Aufgabentext. Reicht die Nummer, lassen sich die
+   Titel unter *Einstellungen* → *Rangliste* abschalten.
 
    Die Schwierigkeit ist *einfach*, *mittel* oder *schwer*; „keine Angabe“
    ist auch eine Antwort, dann steht bei der Aufgabe nichts. Die Teams sehen
    sie neben den Punkten und finden so schnell etwas Passendes. Beim Sichern
    reist sie in der JSON-Datei mit.
 
-   Die **Reihenfolge** änderst du in der Aufgabenliste mit ▲ und ▼ – je
-   Klick rückt die Aufgabe eine Stelle. In dieser Reihenfolge stehen die
+   Die **Reihenfolge** lässt sich in der Aufgabenliste mit ▲ und ▼ ändern –
+   je Klick rückt die Aufgabe eine Stelle. In dieser Reihenfolge stehen die
    Aufgaben auf der Seite der Teams (über jeder „Aufgabe 1“, „Aufgabe 2“ …),
    in der Rangliste (A1, A2 …) und in den Sicherungen. Die Nummern sind
-   dieselben, du kannst also im Raum von „Aufgabe 3“ sprechen. Neue und
+   dieselben, im Raum lässt sich also von „Aufgabe 3“ sprechen. Neue und
    eingelesene Aufgaben kommen ans Ende. Am besten vor dem Start sortieren:
    Wer mitten im Wettbewerb umstellt, ändert auch die Nummern in der
    Rangliste – die Punkte bleiben dabei, wo sie hingehören.
 
 5. **Urkunden einstellen** unter *Einstellungen*: Quer- oder Hochformat, der
    Name unter der Unterschriftslinie und die Handschrift. Am besten jetzt
-   schon eine Probeurkunde ausdrucken – dann weißt du, ob Drucker und Papier
+   schon eine Probeurkunde ausdrucken – dann ist klar, ob Drucker und Papier
    mitspielen.
 
 ---
@@ -124,10 +120,10 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
       ergänzt der Browser beim Eintippen selbst.
 - [ ] **Hilft jemand beim Bewerten?** Dann unter *Einstellungen* →
       *Bewertungszugang* ein eigenes Passwort setzen (mindestens 6 Zeichen,
-      nicht das Admin-Passwort) und weitergeben. Angemeldet wird sich wie du
-      über **Jury-Anmeldung** unten auf jeder Seite (die Seite heißt
-      „Anmeldung für Admin und Bewertungszugang“), landet aber direkt auf
-      der Bewertungsseite und kommt von dort nirgendwo anders hin. Löschen
+      nicht das Admin-Passwort) und weitergeben. Die Anmeldung läuft wie beim
+      Admin über **Jury-Anmeldung** unten auf jeder Seite (die Seite heißt
+      „Anmeldung für Admin und Bewertungszugang“), führt aber direkt auf die
+      Bewertungsseite, und von dort geht es nirgendwo anders hin. Löschen
       und Freigeben sind dort ausgeblendet. Ohne Passwort gibt es diesen
       Zugang nicht.
 - [ ] **Großen Bildschirm testen** mit der Rangliste `/scoreboard`. Die Restzeit steht
@@ -149,14 +145,14 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
    der Protokolldatei. **Das Fenster offen lassen.**
 
    Auf einem Raspberry Pi vorher mit `timedatectl` die Uhrzeit prüfen, siehe
-   [Auf einem Rechner ohne Bildschirm](../README.md#auf-einem-rechner-ohne-bildschirm-etwa-raspberry-pi).
+   [Auf einem Rechner ohne Bildschirm](RASPBERRY_PI.md).
 2. Wettbewerb unter `/admin` **aktivieren**: Steht der richtige schon oben in
    der Statuszeile, ist nichts zu tun. Sonst steht er weiter unten unter
    *Weitere Wettbewerbe* – dort **✅ Aktivieren**. „▶ Jetzt starten“ auf einem
    nicht aktiven Wettbewerb startet nur seine Uhr; die Meldung danach sagt,
    dass die Teams ihn erst nach dem Aktivieren sehen.
 3. Rangliste `/scoreboard` auf dem großen Bildschirm öffnen. Oben läuft die Zeit, darunter
-   füllt sich die Tabelle, sobald du bewertest.
+   füllt sich die Tabelle mit jeder Bewertung.
 4. Teams registrieren sich selbst auf der Startseite `/`: Teamname und ein
    Passwort, das sie sich ausdenken. Jedes Team merkt sich beides. Danach
    landen sie auf ihrer Wettbewerbsseite `/challenge`, wo die Restzeit über
@@ -179,8 +175,8 @@ Drei Wege führen zur Endzeit, und gespeichert wird immer sie:
 
 Alles davon geht auch **während** der Wettbewerb läuft: Die Teamseiten laden
 sich innerhalb von etwa 15 Sekunden von selbst neu und zeigen dann die neue
-Restzeit. Sag trotzdem kurz Bescheid – eine Uhr, die plötzlich anders steht,
-verunsichert sonst.
+Restzeit. Ein kurzer Hinweis an die Teams schadet trotzdem nicht – eine Uhr,
+die plötzlich anders steht, verunsichert sonst.
 
 **In der nächsten Woche weitermachen:** am Ende der Stunde **⏸ Pause**
 drücken, in der nächsten Woche **▶ Fortsetzen**. Bei einer so langen Pause
@@ -222,19 +218,19 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   steht **🔁 Korrektur abgeben**, die neue Datei ersetzt die alte. War die
   Abgabe schon bewertet, fallen Punkte und Feedback weg, und sie steht wieder
   als offen unter *Bewertungen*. Das geht, solange der Wettbewerb läuft.
-  Kommt die Korrektur, während du die Abgabe gerade bewertest, speichert
-  die Plattform deine Punkte nicht, sondern meldet die neue Fassung; einmal
+  Kommt die Korrektur, während die Abgabe gerade bewertet wird, speichert
+  die Plattform die Punkte nicht, sondern meldet die neue Fassung; einmal
   ansehen, dann bewerten.
-  Willst du jede Korrektur selbst freigeben, nimm unter *Name & Zeiten* das
-  Häkchen **🔁 Teams dürfen ihre Abgabe selbst korrigieren** heraus; dann
-  steht unter jeder Abgabe wieder **🔓 Erneut abgeben erlauben**.
+  Soll jede Korrektur einzeln freigegeben werden, unter *Name & Zeiten* das
+  Häkchen **🔁 Teams dürfen ihre Abgabe selbst korrigieren** herausnehmen;
+  dann steht unter jeder Abgabe wieder **🔓 Erneut abgeben erlauben**.
 - **Hinweis freischalten**, wenn eine Aufgabe zu schwer ist: auf der
   Aufgaben-Seite umschalten. Der Hinweis erscheint bei allen Teams innerhalb
   von etwa 15 Sekunden, ohne dass jemand neu laden muss.
 - **Pausieren**, wenn etwas geklärt werden muss: **⏸ Pause** sperrt alle
   Abgaben und hält die Uhr an, **▶ Fortsetzen** gibt sie wieder frei und
   schiebt die Endzeit um die Dauer der Pause nach hinten. Den Teams geht also
-  keine Arbeitszeit verloren, und du musst nichts nachrechnen. Auf den
+  keine Arbeitszeit verloren, und niemand muss nachrechnen. Auf den
   Teamseiten erscheint innerhalb von etwa 15 Sekunden von selbst ein Kasten
   *⏸ Kurze Pause*, die Rangliste zeigt dieselbe stillstehende Zeit. Beim
   Fortsetzen verschwindet der Kasten von selbst wieder. Die Aufgaben bleiben in der Pause
@@ -247,10 +243,10 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   *Name & Zeiten* das Häkchen **❄️ Rangliste vor Schluss einfrieren** setzen
   und die Minuten vor Schluss eintragen (vorgeschlagen sind 15). Ab dann
   zeigt die Rangliste nur noch, was bis dahin abgegeben war, mit dem Hinweis
-  *❄️ Eingefroren seit …*. Du bewertest weiter wie immer; eine Abgabe von
-  davor zählt auch, wenn du sie erst danach bewertest. Korrigiert ein Team
-  danach noch eine Abgabe, behält die Rangliste deren alte Punkte, bis du
-  sie auflöst; die neue Fassung bewertest du wie jede andere. Jedes Team
+  *❄️ Eingefroren seit …*. Bewertet wird weiter wie immer; eine Abgabe von
+  davor zählt auch, wenn sie erst danach bewertet wird. Korrigiert ein Team
+  danach noch eine Abgabe, behält die Rangliste deren alte Punkte bis zum
+  Auflösen; die neue Fassung wird bewertet wie jede andere. Jedes Team
   sieht seine eigenen Punkte auf seiner Seite weiter aktuell – nur den
   Vergleich mit den anderen nicht mehr. Eine Pause vor dem Einfrieren
   schiebt es mit dem Ende nach hinten, eine Pause danach nicht.
@@ -261,11 +257,11 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
    auf jetzt; Abgaben sind gesperrt. Gelöscht wird nichts.
 2. **Letzte Abgaben zu Ende bewerten** – das geht nach dem Beenden weiter.
 3. **Siegerehrung** `/siegerehrung` auf dem großen Bildschirm öffnen. Hängt
-   dort schon die Rangliste, musst du nichts tun: Spätestens 30 Sekunden nach
+   dort schon die Rangliste, ist nichts zu tun: Spätestens 30 Sekunden nach
    dem Ende wechselt sie von selbst zur Siegerehrung, sobald die erste Abgabe
    Punkte hat; wer die Rangliste danach aufruft, landet ebenfalls dort. Bis
    der erste Platz verkündet ist, holt sich die Siegerehrung alle 30 Sekunden
-   den neuesten Stand, du kannst also in Ruhe zu Ende bewerten.
+   den neuesten Stand, es lässt sich also in Ruhe zu Ende bewerten.
 
    **🥁 Nächsten Platz verkünden** (oder die Leertaste) stellt erst den
    dritten, dann den zweiten und zuletzt den ersten Platz auf seine Stufe.
@@ -274,10 +270,10 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
    **Vollständige Rangliste ansehen** unter dem Podest.
 
    **Mit eingefrorener Rangliste** zeigt die Siegerehrung den echten Stand
-   nur dir als angemeldeter Lehrkraft; wer die Adresse am Handy aufruft,
+   nur der angemeldeten Lehrkraft; wer die Adresse am Handy aufruft,
    sieht bloß *❄️ Die Rangliste ist eingefroren*. Darum wechselt die
-   Rangliste am großen Bildschirm nur zum Podest, wenn du dort angemeldet
-   bist. Nach dem letzten Platz **❄️ Rangliste auflösen und ansehen**
+   Rangliste am großen Bildschirm nur zum Podest, wenn dort jemand als
+   Admin angemeldet ist. Nach dem letzten Platz **❄️ Rangliste auflösen und ansehen**
    drücken (der Knopf steht auch auf der Wettbewerbsseite), dann sehen alle
    wieder alles.
 4. **Urkunden**: als Sammel-PDF über `/admin/urkunden.pdf` oder einzeln.
@@ -299,16 +295,16 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 |---|---|
 | Team tippt seinen Namen anders geschrieben | Beim **Anmelden** ist das in Ordnung: „die pixelpiraten“ findet „Die Pixelpiraten“, solange es nur ein Team dieses Namens gibt. Nur wenn zwei Teams nebeneinander existieren, die sich allein in der Schreibweise unterscheiden, muss die Schreibweise stimmen. |
 | Zwei Teams mit fast gleichem Namen | Beim **Registrieren** zählt die Schreibweise: „Die Hacker“ und „die hacker“ werden zwei verschiedene Teams. Umgebende Leerzeichen werden dagegen entfernt, `„ Team A “` wird zu `„Team A“`. Wenn das stört, Team löschen und neu registrieren lassen. |
-| Ein Team kommt nicht mehr rein | Passwort vergessen. `/admin` → *Teams* → neues Passwort setzen und dem Team sagen. Das alte wird nicht angezeigt – auch nicht dir. |
+| Ein Team kommt nicht mehr rein | Passwort vergessen. `/admin` → *Teams* → neues Passwort setzen und dem Team sagen. Das alte zeigt die Plattform niemandem an, auch nicht dem Admin. |
 | Wer beim Bewerten hilft, landet wieder auf der Anmeldung | Das Passwort für die Bewertung wurde geändert oder der Zugang abgeschaltet – beides meldet ab. Unter *Einstellungen* → *Bewertungszugang* steht, ob er eingerichtet ist; das aktuelle Passwort weitergeben oder ein neues setzen. |
-| Ein Team hat die falsche Datei hochgeladen | Normalerweise nichts zu tun: Das Team lädt über **🔁 Korrektur abgeben** die richtige hoch. Hast du das Häkchen **🔁 Teams dürfen ihre Abgabe selbst korrigieren** herausgenommen: `/admin` → *Bewertungen* → **🔓 Erneut abgeben erlauben** – das geht auch, bevor die Abgabe Punkte hat. Die Freigabe gilt **einmal**. Sobald das Team neu abgibt, verschwindet die bisherige Bewertung und die Abgabe landet wieder in der Warteschlange; bis dahin bleibt alles, wie es ist. |
+| Ein Team hat die falsche Datei hochgeladen | Normalerweise nichts zu tun: Das Team lädt über **🔁 Korrektur abgeben** die richtige hoch. Ist das Häkchen **🔁 Teams dürfen ihre Abgabe selbst korrigieren** herausgenommen: `/admin` → *Bewertungen* → **🔓 Erneut abgeben erlauben** – das geht auch, bevor die Abgabe Punkte hat. Die Freigabe gilt **einmal**. Sobald das Team neu abgibt, verschwindet die bisherige Bewertung und die Abgabe landet wieder in der Warteschlange; bis dahin bleibt alles, wie es ist. |
 | „Abgaben sind gerade gesperrt“ bei einem Team | Wettbewerb pausiert oder Endzeit überschritten. Die Meldung steht auf der Wettbewerbsseite des Teams. Gehört das Team zu einem anderen als dem aktiven Wettbewerb, landet es gar nicht erst dort, sondern auf der Startseite. |
 | Falsches Dateiformat wird abgewiesen | Das erlaubte Format steht pro Aufgabe und in der Meldung, die das Team bekommt. Prüfen, ob es zu dem passt, was die Umgebung tatsächlich exportiert (Scratch: `.sb3`, MakeCode-Calliope: `.hex`, Open Roberta und Snap!: `.xml`, Arduino: `.ino`, App Inventor: `.aia`, Jupyter: `.ipynb`). Open Roberta und Snap! teilen sich `.xml` – aus welcher der beiden Umgebungen die Datei stammt, prüft die Plattform beim Abgeben nicht; erst **🧩 Skripte anzeigen** merkt es. |
 | Ein Team will sich noch registrieren, der Wettbewerb ist beendet oder pausiert | Die Startseite nimmt dann keine neuen Teams an – sonst stünde das Team mit null Punkten in der Rangliste am großen Bildschirm. Soll es doch noch mitmachen: **🔓 Wieder öffnen** bzw. **▶ Fortsetzen** auf der Wettbewerbsseite, dann registrieren lassen. |
 | Start- oder Anmeldeseite sagt „Gerade ist kein Wettbewerb aktiv“ | Der aktive Wettbewerb wurde gelöscht, und noch ist kein anderer gewählt. `/admin` → auf der Steuerzentrale beim richtigen **✅ Aktivieren**. Danach können sich die Teams wieder registrieren und anmelden. |
 | Wettbewerb gelöscht, ein Team sitzt noch davor | Mit dem Wettbewerb sind seine Teams weg. Das Team landet beim nächsten Klick auf der Startseite und registriert sich dort für den nächsten Wettbewerb neu. |
 | Nach dem Start sind alle Teams abgemeldet | Die Startdatei hat einen neuen `SECRET_KEY` gewürfelt, weil in der `.env` noch ein Beispielwert stand oder der Schlüssel zu kurz war; die Startübersicht sagt das. Einmalig: Teamname und Passwort bleiben, die Teams melden sich neu an. Ein Update spielt man darum besser vor dem Wettbewerb ein als mittendrin. |
-| Die Rangliste bewegt sich nicht mehr, obwohl du bewertest | Sie ist eingefroren – das Häkchen **❄️ Rangliste vor Schluss einfrieren** unter *Name & Zeiten* ist gesetzt. Oben auf der Rangliste steht dann *❄️ Eingefroren seit …*, und die Wettbewerbsseite sagt es auch. Den echten Stand zeigt dir die Siegerehrung; **❄️ Rangliste auflösen** zeigt ihn allen. |
+| Die Rangliste bewegt sich nicht mehr, obwohl bewertet wird | Sie ist eingefroren – das Häkchen **❄️ Rangliste vor Schluss einfrieren** unter *Name & Zeiten* ist gesetzt. Oben auf der Rangliste steht dann *❄️ Eingefroren seit …*, und die Wettbewerbsseite sagt es auch. Den echten Stand zeigt der Lehrkraft die Siegerehrung; **❄️ Rangliste auflösen** zeigt ihn allen. |
 | Ein Team bekommt seine Urkunde nicht | Ist der Wettbewerb beendet und die Rangliste eingefroren, gibt es die Urkunde erst nach dem Auflösen – auf ihr steht der Platz. Die Teamseite sagt dann „Eure Urkunde gibt es nach der Siegerehrung“. **❄️ Rangliste auflösen** am Ende der Siegerehrung oder auf der Wettbewerbsseite drücken; der Knopf zur Urkunde erscheint danach von selbst. |
 | Auf der Wettbewerbsseite fehlt das Feld für die Durchsage | Durchsagen sind für diesen Wettbewerb aus. Unter *Name & Zeiten* das Häkchen **📢 Durchsagen an die Teams** setzen und speichern. |
 | Der Knopf **🧹 Aufräumen** fehlt | Er erscheint erst, wenn der Wettbewerb beendet ist und noch Teams hat. Mitten im Wettbewerb wäre Aufräumen ein Unfall. |
@@ -317,7 +313,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Teams sehen die geänderte Zeit nicht | Normalerweise kommt sie innerhalb von etwa 15 Sekunden von selbst an; die Teamseiten fragen den Server in diesem Takt nach dem Stand. Bleibt die alte Zeit stehen, hat das Gerät die Verbindung zum Server verloren oder das Tablet hat geschlafen. Einmal neu laden, dann stimmt sie wieder. |
 | Ein Gerät erreicht den Server nicht | Zuerst die Adresse auf der Startseite mit der im Terminal vergleichen. Dann Firewall. Dann, ob das Gerät im selben Netz hängt (nicht im Gast-WLAN). |
 | „Die Adresse für andere Geräte konnte nicht ermittelt werden“ beim Start, oder auf der Startseite steht `127.0.0.1` | Das Netz hat kein Gateway, die Anwendung kann ihre eigene Adresse nicht erfragen – sie sagt das beim Start. Adresse am Server ablesen (`ip addr` bzw. `ipconfig`) und als `LAN_ADRESSE=192.168.…` in die `.env` eintragen, dann neu starten. |
-| Restzeit oder Uhrzeiten liegen weit daneben | Die Uhr des Servers geht falsch – typisch für einen Raspberry Pi ohne Internet, der keine Uhr mit Batterie hat. Plattform beenden, mit `timedatectl` nachsehen, Zeit und Zeitzone setzen (siehe README, [Auf einem Rechner ohne Bildschirm](../README.md#auf-einem-rechner-ohne-bildschirm-etwa-raspberry-pi)), neu starten und die Zeit des Wettbewerbs neu einstellen. |
+| Restzeit oder Uhrzeiten liegen weit daneben | Die Uhr des Servers geht falsch – typisch für einen Raspberry Pi ohne Internet, der keine Uhr mit Batterie hat. Plattform beenden, mit `timedatectl` nachsehen, Zeit und Zeitzone setzen (siehe [Rechner ohne Bildschirm](RASPBERRY_PI.md)), neu starten und die Zeit des Wettbewerbs neu einstellen. |
 | Datenbank fehlt oder ist kaputt | Anwendung beenden. `data/challenge.db` zur Seite legen, die passende Sicherung `data/challenge-vor-…​.db` nach `data/challenge.db` umbenennen, neu starten. Die Sicherungen entstehen automatisch vor jeder Strukturänderung – eine regelmäßige Sicherung ersetzen sie nicht. |
 | Ein gesicherter Wettbewerb soll zurück | **➕ Neuer Wettbewerb** → unten **Oder aus einer Sicherung einlesen**, die ZIP wählen. Es entsteht ein neuer Wettbewerb, nicht aktiv – auch dann nicht, wenn gerade keiner aktiv ist. Der alte bleibt, wie er ist. Soll er weiterlaufen, ihn aktivieren. Waren die Passwörter mitgesichert, melden sich die Teams wie gewohnt an; sonst haben sie kein Passwort und bekommen nach dem Aktivieren unter **Teams** neue. Für Rangliste und Urkunden braucht es keins. Meldet die Seite, die ZIP sei beschädigt, ist nichts angelegt – eine andere Kopie der Datei nehmen. |
 | Hochgeladene Dateien fehlen | Der Download sagt dann „liegt nicht mehr auf dem Server“. Die Abgaben liegen unter `uploads/<Team-Nummer>/`. Aus der letzten Sicherung dieses Verzeichnisses zurückkopieren; die Datenbank kennt nur den Ort innerhalb von `uploads/` und findet sie dort wieder, auch in einem anderen Ordner oder auf einem anderen Rechner. Ohne Sicherung bleiben Punkte und Bewertungen erhalten, nur die Programme sind weg. |
@@ -349,8 +345,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
       **⬇️ Alle Aufgaben sichern**, oder das ⬇️ neben einer einzelnen
       Aufgabe) und die Datei aufheben. Beim nächsten Mal wieder einlesen – Punkte,
       Dateiformat, Schwierigkeit und Hinweis kommen mit.
-- [ ] **Protokolldatei durchsehen**, falls etwas hakte – und die Erkenntnis
-      unten unter **💡 Aus der Praxis** eintragen.
+- [ ] **Protokolldatei durchsehen**, falls etwas hakte.
 - [ ] **Aufräumen**, sobald Urkunden und Nachfragen erledigt sind: auf der
       Seite des beendeten Wettbewerbs **🧹 Aufräumen**. Das löscht alle Teams
       samt Namen und Passwörtern und alle Abgaben mit Dateien, Punkten und
@@ -369,37 +364,10 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 
 ---
 
-## 💡 Aus der Praxis
+## 💬 Rückmeldung aus der Praxis
 
-### Rechtzeitig vorher
-
-> Wie viele Aufgaben passen in die zur Verfügung stehende
-> Zeit? Welche Punktverteilung hat sich bewährt?
->
-> _(hier eintragen, wenn du es weißt)_
-
-### Am Vortag
-
-> Welche Hürde gab es im Schulnetz?
->
-> _(hier eintragen)_
-
-### Während des Wettbewerbs
-
-> Ab wann die Rangliste zeigen, und wie viele Minuten vor Schluss
-> einfrieren? (Von Anfang an motiviert sie – kurz vor Schluss kann sie
-> auch lähmen.)
->
-> _(hier eintragen)_
-
-### Wenn etwas klemmt
-
-> Was ist dir tatsächlich passiert, das hier noch fehlt?
->
-> _(hier eintragen)_
-
-### Nach dem Wettbewerb
-
-> Was würdest du beim nächsten Mal anders machen?
->
-> _(hier eintragen)_
+Erfahrungen aus dem Einsatz mit Klassen und AGs sind sehr willkommen: was gut
+lief, was gehakt hat, wie viele Aufgaben in die Zeit gepasst haben. Am
+einfachsten als [Issue auf GitHub](https://github.com/Obi-Wahn/challenge_plattform/issues),
+ohne Namen von Schülerinnen und Schülern und ohne Auszüge aus der
+Protokolldatei, denn dort stehen Teamnamen.

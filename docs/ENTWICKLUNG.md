@@ -33,7 +33,7 @@ Ohne Startdatei, etwa um am Code zu arbeiten:
     ```
 
 3.  **Konfiguration**
-    Erstelle eine `.env` Datei im Hauptverzeichnis (siehe `.env.example`):
+    Eine `.env` im Hauptverzeichnis anlegen (siehe `.env.example`):
     ```ini
     SECRET_KEY=dein-geheimer-schluessel
     ADMIN_PASSWORD=dein-sicheres-passwort
@@ -334,6 +334,7 @@ challenge_plattform/
 ├── docs/
 │   ├── ADMIN_GUIDE.md      # Leitfaden für den Wettbewerbstag
 │   ├── ENTWICKLUNG.md      # diese Anleitung
+│   ├── RASPBERRY_PI.md     # Betrieb auf einem Rechner ohne Bildschirm
 │   └── bilder/             # Screenshots für die README
 ├── uploads/                # Hochgeladene Abgaben (wird erstellt)
 ├── logs/                   # Protokolldatei (wird erstellt)
