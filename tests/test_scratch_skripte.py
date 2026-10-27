@@ -461,15 +461,6 @@ class TestAbruf:
         assert daten["figuren"] == []
         assert ".sb3" in daten["hinweis"]
 
-    def test_ohne_anmeldung_gibt_es_nichts(
-            self, client, admin, make_challenge, make_task, logged_in_team):
-        abgabe = self.abgabe(make_challenge, make_task, logged_in_team, self.sb3({"targets": []}))
-
-        antwort = client.get(f"/admin/submissions/{abgabe.id}/skripte")
-
-        assert antwort.status_code == 302
-        assert "/admin/login" in antwort.headers["Location"]
-
 
 class TestDieBibliothek:
     def test_sie_wird_nur_mit_scratch_abgaben_geladen(

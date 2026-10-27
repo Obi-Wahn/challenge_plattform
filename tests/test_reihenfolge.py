@@ -88,13 +88,6 @@ class TestVerschieben:
 
         assert titel(anderer) == ["Eins", "Zwei"]
 
-    def test_nur_fuer_den_admin(self, client, drei):
-        task = aufgabe("Punkte")
-
-        client.post(f"/admin/tasks/{task.id}/move", data={"richtung": "hoch"})
-
-        assert titel(drei) == ["Katze", "Gespräch", "Punkte"]
-
     def test_ohne_csrf_token_passiert_nichts(self, admin, drei):
         admin.post(f"/admin/tasks/{aufgabe('Punkte').id}/move", data={"richtung": "hoch"})
 

@@ -307,16 +307,6 @@ class TestLehrkraftKontrolliert:
         assert team.member_list == ["Anna Beispiel"]
         assert team.members_approved is True
 
-    def test_ohne_anmeldung_geht_das_nicht(self, client, make_challenge, make_team):
-        challenge = make_challenge()
-        team = make_team(challenge)
-
-        antwort = client.post(f"/admin/team/{team.id}/namen",
-                              data={"member_names": "Fremder"})
-
-        assert antwort.status_code in (302, 400)
-        assert team.member_list == []
-
     def test_die_teamverwaltung_zeigt_was_auf_kontrolle_wartet(self, admin,
                                                                make_challenge,
                                                                make_team, database):

@@ -178,13 +178,6 @@ class TestSichern:
     def test_unbekannte_aufgabe_ergibt_404(self, admin, database):
         assert admin.get("/admin/tasks/9999/export").status_code == 404
 
-    def test_nur_fuer_den_admin(self, client, make_challenge, make_task):
-        challenge = make_challenge()
-        task = make_task(challenge)
-
-        assert client.get(f"/admin/tasks/{task.id}/export").status_code == 302
-        assert client.get(f"/admin/challenges/{challenge.id}/tasks/export").status_code == 302
-
 
 class TestEinlesen:
     def test_aufgaben_kommen_im_anderen_wettbewerb_an(

@@ -98,6 +98,18 @@ INSERT INTO submissions (id, team_id, task_id, filename, points)
 """
 
 
+ALTES_SETTINGS_SCHEMA = """
+DROP TABLE IF EXISTS settings;
+CREATE TABLE settings (
+    id INTEGER NOT NULL PRIMARY KEY,
+    site_name VARCHAR(100) NOT NULL,
+    tagline VARCHAR(300) NOT NULL
+);
+INSERT INTO settings (id, site_name, tagline)
+    VALUES (1, 'Alter Name', 'Alter Untertitel');
+"""
+
+
 class TestTeamsAnWettbewerbBinden:
     def test_teams_bekommen_den_aktuellen_wettbewerb(self, alte_datenbank):
         pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
@@ -153,13 +165,25 @@ class TestTeamsAnWettbewerbBinden:
 
 
 class TestNachtraeglicheSpalten:
-    def test_hinweis_spalten_werden_ergaenzt(self, alte_datenbank):
-        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
+    def test_nach_dem_start_hat_jede_tabelle_jede_spalte_des_modells(
+            self, alte_datenbank):
+        """Eine Datenbank von ganz früher, danach der Start wie im Betrieb.
 
-        ensure_added_columns()
+        Verglichen wird mit models.py statt mit einer Liste im Test: Bekommt
+        ein Modell eine Spalte und fehlt sie in ADDED_COLUMNS, fällt das hier
+        auf - nicht erst auf dem Schul-Rechner mit der alten Datenbank.
+        """
+        from extensions import db
 
-        spalten = {zeile[1] for zeile in lies(pfad, "PRAGMA table_info(tasks)")}
-        assert {"hint", "hint_visible"} <= spalten
+        pfad = alte_datenbank(ALTES_TEAM_SCHEMA + ALTES_SETTINGS_SCHEMA)
+
+        run_startup_migrations()
+
+        for tabelle in db.metadata.sorted_tables:
+            vorhanden = {zeile[1] for zeile in
+                         lies(pfad, f"PRAGMA table_info({tabelle.name})")}
+            fehlend = {spalte.name for spalte in tabelle.columns} - vorhanden
+            assert not fehlend, f"{tabelle.name}: es fehlen {sorted(fehlend)}"
 
     def test_schwierigkeit_wird_ergaenzt_und_bleibt_leer(self, alte_datenbank):
         """Aufgaben von vorher haben keine Schwierigkeit - und sollen keine bekommen."""
@@ -197,14 +221,6 @@ class TestNachtraeglicheSpalten:
         ensure_added_columns()
 
         assert lies(pfad, "SELECT scoreboard_task_titles FROM settings") == [(1,)]
-
-    def test_korrektur_spalte_wird_ergaenzt(self, alte_datenbank):
-        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
-
-        ensure_added_columns()
-
-        spalten = {zeile[1] for zeile in lies(pfad, "PRAGMA table_info(submissions)")}
-        assert "resubmit_allowed" in spalten
 
     def test_unterschrift_spalten_werden_ergaenzt_und_vorbelegt(self, alte_datenbank):
         pfad = alte_datenbank("""
@@ -252,14 +268,6 @@ class TestNachtraeglicheSpalten:
         assert lies(pfad, "SELECT greeting FROM challenges") == [("",), ("",)]
         assert lies(pfad, "SELECT greeting FROM settings") == \
             [("Schön, dass ihr dabei seid!",)]
-
-    def test_spalte_fuer_den_zeitpunkt_der_pause_wird_ergaenzt(self, alte_datenbank):
-        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
-
-        ensure_added_columns()
-
-        spalten = {zeile[1] for zeile in lies(pfad, "PRAGMA table_info(challenges)")}
-        assert "paused_at" in spalten
 
     def test_eine_laufende_pause_bekommt_einen_zeitpunkt(self, alte_datenbank):
         """Wer beim Update gerade pausiert hat, soll die Uhr angehalten sehen.
@@ -326,22 +334,6 @@ class TestNachtraeglicheSpalten:
 
         assert not rohe, f"Ein datetime-Objekt ging unverwandelt weiter: {rohe}"
         assert lies(pfad, "SELECT paused_at FROM challenges WHERE id = 2")[0][0]
-
-    def test_spalten_fuer_die_namen_werden_ergaenzt(self, alte_datenbank):
-        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
-
-        ensure_added_columns()
-
-        spalten = {zeile[1] for zeile in lies(pfad, "PRAGMA table_info(teams)")}
-        assert {"member_names", "members_approved"} <= spalten
-
-    def test_spalte_fuer_das_kennzeichen_wird_ergaenzt(self, alte_datenbank):
-        pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
-
-        ensure_added_columns()
-
-        spalten = {zeile[1] for zeile in lies(pfad, "PRAGMA table_info(teams)")}
-        assert "uid" in spalten
 
     def test_zweiter_aufruf_tut_nichts(self, alte_datenbank):
         alte_datenbank(ALTES_TEAM_SCHEMA)
