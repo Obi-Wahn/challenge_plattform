@@ -267,15 +267,6 @@ class TestDerInhaltWirdNachgeladen:
         assert daten["code"] == ""
         assert "nicht mehr" in daten["hinweis"]
 
-    def test_ohne_anmeldung_gibt_es_keinen_inhalt(
-            self, client, admin, make_challenge, make_task, logged_in_team):
-        abgabe = self.abgabe_anlegen(make_challenge, make_task, logged_in_team)
-
-        antwort = client.get(f"/admin/submissions/{abgabe.id}/code")
-
-        assert antwort.status_code == 302
-        assert "/admin/login" in antwort.headers["Location"]
-
 
 class TestPunkteEintragen:
     def test_eine_punktzahl_die_keine_zahl_ist_wird_gemeldet(

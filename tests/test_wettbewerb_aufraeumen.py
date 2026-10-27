@@ -125,16 +125,6 @@ class TestAufraeumen:
         html = admin.get(f"/admin/wettbewerb/{challenge.id}").get_data(as_text=True)
         assert "🧹 Aufräumen" not in html
 
-    def test_nur_fuer_die_lehrkraft(self, client, flask_app, database, make_challenge,
-                                    make_team, make_task):
-        from models import Team
-
-        challenge, _pfad = beendeter_wettbewerb(flask_app, database, make_challenge,
-                                                make_team, make_task)
-        client.post(f"/admin/challenges/{challenge.id}/aufraeumen",
-                    data={"csrf_token": csrf_token(client, "/admin/login")})
-        assert Team.query.count() == 1
-
     def test_das_protokoll_nennt_zahlen_aber_keine_namen(
             self, admin, flask_app, database, make_challenge, make_team, make_task):
         challenge, _pfad = beendeter_wettbewerb(flask_app, database, make_challenge,
@@ -186,15 +176,6 @@ class TestProtokollLeeren:
         html = admin.get("/admin/settings").get_data(as_text=True)
         assert "🧹 Protokoll leeren" in html
         assert "🧹 Kopien löschen" in html
-
-    def test_nur_fuer_die_lehrkraft(self, client, flask_app):
-        from protokoll import ereignis
-
-        ereignis("Bleibt stehen: Team Tom")
-        client.post("/admin/protokoll-leeren",
-                    data={"csrf_token": csrf_token(client, "/admin/login")})
-        with open(self.pfad(flask_app), encoding="utf-8") as datei:
-            assert "Bleibt stehen: Team Tom" in datei.read()
 
 
 class TestSicherungskopienLoeschen:

@@ -1,5 +1,6 @@
 """Der Admin-Bereich: Steuerzentrale, Wettbewerbs-Seite und die Knöpfe darauf."""
 
+import re
 from datetime import datetime, timedelta
 
 from tests.helpers import csrf_token
@@ -13,21 +14,36 @@ def aktion(admin, pfad, quelle="/admin/dashboard", **felder):
 
 
 class TestZugriffsschutz:
-    def test_admin_seiten_verlangen_eine_anmeldung(self, client, make_challenge):
+    def test_jede_admin_adresse_verlangt_eine_anmeldung(
+            self, flask_app, client, make_challenge):
+        """Alle Adressen unter /admin, so wie Flask sie kennt - auch künftige.
+
+        Formulare gehen mit gültigem CSRF-Token hinaus: Ohne Token scheiterte
+        die Anfrage schon an CSRF, und die Anmeldung würde gar nicht gefragt.
+        """
         challenge = make_challenge()
-        seiten = [
-            "/admin/dashboard",
-            "/admin/challenges",
-            f"/admin/wettbewerb/{challenge.id}",
-            "/admin/teams",
-            "/admin/submissions",
-            "/admin/settings",
-            "/admin/urkunden",
-        ]
-        for seite in seiten:
-            antwort = client.get(seite)
-            assert antwort.status_code == 302, seite
-            assert "/admin/login" in antwort.headers["Location"], seite
+        token = csrf_token(client, "/login")
+
+        geprueft = []
+        for regel in flask_app.url_map.iter_rules():
+            if not regel.endpoint.startswith("admin."):
+                continue
+            pfad = re.sub(r"<[^>]+>", str(challenge.id), regel.rule)
+            for methode in sorted(regel.methods - {"HEAD", "OPTIONS"}):
+                if methode == "GET":
+                    antwort = client.get(pfad)
+                else:
+                    antwort = client.post(pfad, data={"csrf_token": token})
+                anfrage = f"{methode} {pfad}"
+                assert antwort.status_code == 302, anfrage
+                assert "/admin/login" in antwort.headers["Location"], anfrage
+                geprueft.append(anfrage)
+
+        # Steuerzentrale, Formulare, Bewertung, Urkunden, Einstellungen: Die
+        # Liste darf nicht still leer bleiben, etwa nach einer Umbenennung.
+        assert len(geprueft) >= 40, geprueft
+        assert "GET /admin/dashboard" in geprueft
+        assert "POST /admin/settings" in geprueft
 
     def test_das_passwort_wird_zeichenweise_gleich_lang_geprueft(self):
         """secrets.compare_digest statt „==" - dieselbe Zeile, ohne Zeitverrat."""

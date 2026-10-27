@@ -90,12 +90,6 @@ class TestSenden:
         assert "<script>alert(1)</script>" not in html
         assert "&lt;script&gt;" in html
 
-    def test_nur_fuer_die_lehrkraft(self, client, make_challenge):
-        challenge = wettbewerb(make_challenge)
-        client.post(f"/admin/challenges/{challenge.id}/durchsage",
-                    data={"csrf_token": csrf_token(client, "/login"), "text": "Hallo"})
-        assert frisch(challenge).announcement is None
-
 
 class TestAnUndAus:
     def formular(self, challenge, **mehr):

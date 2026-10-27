@@ -189,12 +189,6 @@ class TestSichern:
 
         assert "mit Namen, mit Passwörtern" in caplog.text
 
-    def test_nur_fuer_die_lehrkraft(self, client, wettbewerb):
-        antwort = client.get(f"/admin/challenges/{wettbewerb.id}/sichern")
-
-        assert antwort.status_code == 302
-        assert "/admin/login" in antwort.headers["Location"]
-
 
 class TestHinUndZurueck:
 
@@ -397,12 +391,6 @@ class TestEinlesenPrueft:
         einlesen(admin, zip_aus(daten))
 
         assert Team.query.count() == 1
-
-    def test_nur_fuer_die_lehrkraft(self, client):
-        antwort = client.post("/admin/challenges/einlesen")
-
-        assert antwort.status_code in (302, 400)
-        assert Challenge.query.count() == 0
 
     def test_ohne_datei(self, admin):
         antwort = admin.post("/admin/challenges/einlesen", data={
