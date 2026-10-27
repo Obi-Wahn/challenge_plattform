@@ -17,10 +17,10 @@ jobs:
       fail-fast: false
       matrix:
         # 3.11 ist die älteste Version, mit der die Abhängigkeiten laufen
-        # (Markdown verlangt sie). 3.14 ist die Fassung auf dem Entwicklungs-
-        # rechner - was dort auffällt, soll hier auffallen -, 3.13 die
-        # Zwischenstufe dazwischen.
-        python-version: ["3.11", "3.13", "3.14"]
+        # (Markdown verlangt sie). 3.15 ist die neueste Fassung und läuft auf
+        # dem Windows-Rechner, 3.14 auf den Fedora-Rechnern - was dort
+        # auffällt, soll hier auffallen. 3.13 bringt Debian 13 mit.
+        python-version: ["3.11", "3.13", "3.14", "3.15"]
 
     steps:
       - uses: actions/checkout@v7
