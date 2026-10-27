@@ -580,6 +580,27 @@ def starten(basis=BASIS, browser=True):
     return 0
 
 
+def neu_starten(basis=BASIS, browser=True, starten_mit=subprocess.Popen):
+    """Startet die eben geholte Fassung dieser Datei, ohne erneut zu aktualisieren.
+
+    Python hat starter.py schon vor dem git pull geladen. Ohne Neustart liefen
+    die übrigen Schritte noch mit dem alten Code - nach #166 suchte der etwa
+    network.py an einer Stelle, wo es nicht mehr lag, und brach ab.
+    """
+    befehl = [sys.executable, os.path.join(basis, "starter.py")]
+    if not browser:
+        befehl.append("--ohne-browser")
+
+    print()
+    prozess = starten_mit(befehl, cwd=basis)
+    try:
+        return prozess.wait()
+    except KeyboardInterrupt:
+        # STRG+C erreicht die neue Fassung im selben Fenster ebenfalls, sie
+        # beendet die Plattform selbst und meldet sich dabei.
+        return prozess.wait()
+
+
 def main(argumente=None):
     parser = argparse.ArgumentParser(description="Richtet die Plattform ein und startet sie.")
     parser.add_argument("--aktualisieren", action="store_true",
@@ -599,7 +620,10 @@ def main(argumente=None):
             zeile("Version", version_ermitteln())
         zeile("Python", python_pruefen())
         if optionen.aktualisieren:
-            zeile("Aktualisieren", aktualisieren())
+            stand = aktualisieren()
+            zeile("Aktualisieren", stand)
+            if stand == "aktualisiert":
+                return neu_starten(browser=not optionen.ohne_browser)
             zeile("Version", version_ermitteln())
         zeile("Virtuelle Umgebung", umgebung_sicherstellen())
         zeile("Pakete", pakete_sicherstellen())
