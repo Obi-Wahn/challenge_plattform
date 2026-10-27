@@ -156,6 +156,7 @@ class TestStartuebersicht:
                         "konfiguration_sicherstellen", "datenbank_stand"):
             monkeypatch.setattr(starter, schritt, lambda: "vorhanden")
         monkeypatch.setattr(starter, "starten", lambda browser: 0)
+        monkeypatch.setattr(starter, "neu_starten", lambda browser: reihenfolge.append("neu") or 0)
         return reihenfolge
 
     def test_version_steht_oben(self, ablauf, capsys):
@@ -165,8 +166,18 @@ class TestStartuebersicht:
         assert zeilen[3].endswith(" 1.5.1 (Stand 27.09.2026)")
         assert zeilen[4].startswith("Python ")
 
-    def test_nach_dem_update_der_neue_stand(self, ablauf, capsys):
+    def test_nach_dem_update_nennt_die_neue_fassung_den_stand(self, ablauf, capsys):
+        # Der alte Starter übergibt nach dem pull an den neuen, und der
+        # beginnt seine Übersicht mit der Version.
+        assert starter.main(["--aktualisieren"]) == 0
+        zeilen = capsys.readouterr().out.splitlines()
+        assert [zeile.split(" ")[0] for zeile in zeilen[3:]] == ["Python", "Aktualisieren"]
+        assert ablauf == ["pull", "neu"]
+
+    def test_schon_aktuell_dann_gleich_der_stand(self, ablauf, monkeypatch, capsys):
+        monkeypatch.setattr(starter, "aktualisieren", lambda: "schon aktuell")
         assert starter.main(["--aktualisieren"]) == 0
         zeilen = capsys.readouterr().out.splitlines()
         namen = [zeile.split(" ")[0] for zeile in zeilen[3:6]]
         assert namen == ["Python", "Aktualisieren", "Version"]
+        assert ablauf == []

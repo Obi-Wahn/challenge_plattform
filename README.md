@@ -205,7 +205,8 @@ prüft und die Plattform als Dienst starten lässt, steht in
 *   **Mit git geholt:** die Startdatei mit `--aktualisieren` aufrufen, also
     `./start_linux.sh --aktualisieren` bzw. `start_windows.bat --aktualisieren`
     in der Eingabeaufforderung. Sie holt die neue Fassung mit
-    `git pull --ff-only`, installiert geänderte Pakete nach und startet.
+    `git pull --ff-only`, ruft sich danach selbst in der neuen Fassung auf,
+    installiert geänderte Pakete nach und startet.
     Sind Dateien der Plattform von Hand geändert worden, bricht sie ab,
     statt sie zu überschreiben. Was dann zu tun ist, steht im Leitfaden
     unter [Wenn etwas klemmt](docs/ADMIN_GUIDE.md#-wenn-etwas-klemmt).

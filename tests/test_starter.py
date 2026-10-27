@@ -522,6 +522,76 @@ class TestAktualisieren:
             assert eintrag in ignoriert
 
 
+class Prozess:
+    """Steht für subprocess.Popen und merkt sich den Befehl."""
+
+    def __init__(self, code=0, unterbrochen=False):
+        self.code = code
+        self.unterbrochen = unterbrochen
+        self.befehl = None
+        self.cwd = None
+
+    def __call__(self, befehl, cwd=None):
+        self.befehl, self.cwd = befehl, cwd
+        return self
+
+    def wait(self):
+        if self.unterbrochen:
+            self.unterbrochen = False
+            raise KeyboardInterrupt
+        return self.code
+
+
+class TestNachDemAktualisieren:
+    """Nach einem Update übernimmt die neue Fassung von starter.py."""
+
+    @pytest.fixture
+    def schritte(self, monkeypatch):
+        gelaufen = []
+        for name in ("umgebung_sicherstellen", "pakete_sicherstellen",
+                     "konfiguration_sicherstellen", "datenbank_stand", "version_ermitteln"):
+            monkeypatch.setattr(starter, name, lambda name=name: gelaufen.append(name) or "ok")
+        monkeypatch.setattr(starter, "starten", lambda browser: gelaufen.append("starten") or 0)
+        return gelaufen
+
+    def test_neue_fassung_startet_statt_der_alten(self, monkeypatch, schritte):
+        neu = []
+        monkeypatch.setattr(starter, "aktualisieren", lambda: "aktualisiert")
+        monkeypatch.setattr(starter, "neu_starten", lambda browser: neu.append(browser) or 0)
+
+        assert starter.main(["--aktualisieren", "--ohne-browser"]) == 0
+        assert neu == [False]
+        assert schritte == []
+
+    def test_ohne_neue_fassung_geht_es_gleich_weiter(self, monkeypatch, schritte):
+        monkeypatch.setattr(starter, "aktualisieren", lambda: "schon aktuell")
+        monkeypatch.setattr(starter, "neu_starten", lambda browser: pytest.fail("kein Neustart"))
+
+        assert starter.main(["--aktualisieren"]) == 0
+        assert schritte[-1] == "starten"
+
+    def test_neustart_ohne_erneutes_aktualisieren(self, ordner):
+        prozess = Prozess()
+        assert starter.neu_starten(str(ordner), starten_mit=prozess) == 0
+        assert prozess.befehl == [sys.executable, os.path.join(str(ordner), "starter.py")]
+        assert prozess.cwd == str(ordner)
+
+    def test_ohne_browser_bleibt_ohne_browser(self, ordner):
+        prozess = Prozess()
+        starter.neu_starten(str(ordner), browser=False, starten_mit=prozess)
+        assert prozess.befehl[-1] == "--ohne-browser"
+
+    def test_fehler_der_neuen_fassung_kommt_durch(self, ordner):
+        # Die Startdatei hält das Fenster dann offen, damit man die Meldung liest.
+        assert starter.neu_starten(str(ordner), starten_mit=Prozess(code=1)) == 1
+
+    def test_strg_c_beendet_ohne_fehler(self, ordner):
+        # Die neue Fassung beendet die Plattform selbst; die alte wartet
+        # nur darauf und meldet keinen Abbruch.
+        prozess = Prozess(unterbrochen=True)
+        assert starter.neu_starten(str(ordner), starten_mit=prozess) == 0
+
+
 class TestStart:
     def test_port_kommt_aus_der_env(self, ordner, monkeypatch):
         monkeypatch.delenv("PORT", raising=False)
