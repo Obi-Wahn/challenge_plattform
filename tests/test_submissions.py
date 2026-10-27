@@ -21,7 +21,7 @@ def abgeben(client, task, dateiname="loesung.sb3", inhalt=b"projekt"):
 
 
 def test_abgabe_wird_gespeichert(make_challenge, make_task, logged_in_team, database):
-    from models import Submission
+    from plattform.models import Submission
 
     challenge = make_challenge()
     task = make_task(challenge)
@@ -36,7 +36,7 @@ def test_abgabe_wird_gespeichert(make_challenge, make_task, logged_in_team, data
 
 
 def test_falsches_dateiformat_wird_abgewiesen(make_challenge, make_task, logged_in_team):
-    from models import Submission
+    from plattform.models import Submission
 
     challenge = make_challenge()
     task = make_task(challenge, allowed_extension=".sb3")
@@ -52,7 +52,7 @@ def test_falsches_dateiformat_wird_abgewiesen(make_challenge, make_task, logged_
 
 
 def test_ohne_anmeldung_keine_abgabe(client, make_challenge, make_task):
-    from models import Submission
+    from plattform.models import Submission
 
     challenge = make_challenge()
     task = make_task(challenge)
@@ -89,7 +89,7 @@ def test_team_eines_anderen_wettbewerbs_darf_nicht_abgeben(
 
 
 def test_pause_sperrt_die_abgabe(make_challenge, make_task, logged_in_team, database):
-    from models import Submission
+    from plattform.models import Submission
 
     challenge = make_challenge()
     task = make_task(challenge)
@@ -104,7 +104,7 @@ def test_pause_sperrt_die_abgabe(make_challenge, make_task, logged_in_team, data
 
 def test_beendeter_wettbewerb_sperrt_die_abgabe(
         make_challenge, make_task, logged_in_team, database):
-    from models import Submission
+    from plattform.models import Submission
 
     challenge = make_challenge()
     task = make_task(challenge)
@@ -119,7 +119,7 @@ def test_beendeter_wettbewerb_sperrt_die_abgabe(
 
 def test_zweite_abgabe_ohne_freigabe_wird_abgewiesen(
         make_challenge, make_task, logged_in_team):
-    from models import Submission
+    from plattform.models import Submission
 
     challenge = make_challenge(self_correction=False)
     task = make_task(challenge)
@@ -137,7 +137,7 @@ def test_zweite_abgabe_ohne_freigabe_wird_abgewiesen(
 class TestKorrektur:
     def test_freigabe_erlaubt_genau_eine_weitere_abgabe(
             self, admin, make_challenge, make_task, logged_in_team, database):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge(self_correction=False)
         task = make_task(challenge)
@@ -159,7 +159,7 @@ class TestKorrektur:
     def test_korrektur_loescht_die_alte_bewertung(
             self, admin, make_challenge, make_task, logged_in_team, database):
         """Die Abgabe muss zurück in die Warteschlange der Lehrkraft."""
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge(self_correction=False)
         task = make_task(challenge)
@@ -181,7 +181,7 @@ class TestKorrektur:
 
     def test_korrektur_legt_keine_zweite_abgabe_an(
             self, admin, make_challenge, make_task, logged_in_team, database):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge(self_correction=False)
         task = make_task(challenge)
@@ -201,7 +201,7 @@ class TestLeereDatei:
     """Eine leere Datei verbrauchte sonst den einen Versuch je Aufgabe."""
 
     def test_wird_abgewiesen(self, make_challenge, make_task, logged_in_team):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -216,7 +216,7 @@ class TestLeereDatei:
 
     def test_danach_geht_die_richtige_datei(self, make_challenge, make_task,
                                             logged_in_team):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -246,7 +246,7 @@ class TestDoppeltAbgeschickt:
         """
         from werkzeug.datastructures import FileStorage
 
-        from extensions import db
+        from plattform.extensions import db
 
         erste = {}
         speichern = FileStorage.save
@@ -279,7 +279,7 @@ class TestDoppeltAbgeschickt:
 
     def test_neue_abgabe_ohne_serverfehler(self, flask_app, make_challenge, make_task,
                                            logged_in_team, andere_anfrage):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -306,7 +306,7 @@ class TestDoppeltAbgeschickt:
     def test_gleicher_name_die_gespeicherte_datei_bleibt(
             self, flask_app, make_challenge, make_task, logged_in_team, andere_anfrage):
         """Beide Anfragen schrieben in dieselbe Datei - sie gehört der gespeicherten."""
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -327,7 +327,7 @@ class TestDoppeltAbgeschickt:
             self, flask_app, make_challenge, make_task, logged_in_team, andere_anfrage,
             database):
         """Ohne die Prüfung gewann die spätere, die Datei der früheren blieb liegen."""
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -354,7 +354,7 @@ class TestDoppeltAbgeschickt:
 class TestBewertung:
     def test_punkte_und_feedback_werden_gespeichert(
             self, admin, make_challenge, make_task, logged_in_team, database):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, max_points=10)
@@ -375,7 +375,7 @@ class TestBewertung:
 
     def test_punkte_werden_auf_das_maximum_begrenzt(
             self, admin, make_challenge, make_task, logged_in_team, database):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, max_points=10)
@@ -396,7 +396,7 @@ class TestBewertung:
     # Bewertung nicht auf der neuen, ungesehenen Fassung landen.
     def bewertungsseite_mit_abgabe(self, admin, make_challenge, make_task,
                                    logged_in_team):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, title="Katze", max_points=10)
@@ -483,7 +483,7 @@ class TestBewertung:
 
     def test_negative_punkte_werden_zu_null(
             self, admin, make_challenge, make_task, logged_in_team, database):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, max_points=10)
@@ -530,7 +530,7 @@ class TestLangeDateinamen:
             self, make_challenge, make_task, logged_in_team, database):
         import os
 
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -545,7 +545,7 @@ class TestLangeDateinamen:
 
     def test_die_endung_bleibt_erhalten(
             self, make_challenge, make_task, logged_in_team, database):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -561,8 +561,8 @@ class TestLangeDateinamen:
             self, make_challenge, make_task, logged_in_team, database):
         import os
 
-        from uploads import MAX_DATEINAME
-        from models import Submission
+        from plattform.uploads import MAX_DATEINAME
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -577,7 +577,7 @@ class TestLangeDateinamen:
 
     def test_ein_gewoehnlicher_name_bleibt_wie_er_ist(
             self, make_challenge, make_task, logged_in_team, database):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -591,12 +591,12 @@ class TestLangeDateinamen:
 
 class TestGekuerzterDateiname:
     def test_kurze_namen_bleiben_unveraendert(self):
-        from uploads import gekuerzter_dateiname
+        from plattform.uploads import gekuerzter_dateiname
 
         assert gekuerzter_dateiname("loesung.sb3") == "loesung.sb3"
 
     def test_lange_namen_werden_auf_die_grenze_gebracht(self):
-        from uploads import MAX_DATEINAME, gekuerzter_dateiname
+        from plattform.uploads import MAX_DATEINAME, gekuerzter_dateiname
 
         ergebnis = gekuerzter_dateiname("a" * 300 + ".sb3")
 
@@ -605,14 +605,14 @@ class TestGekuerzterDateiname:
 
     def test_auch_eine_absurde_endung_wird_mitgekuerzt(self):
         """Was länger ist als jede erlaubte Endung, ist auch nur Name."""
-        from uploads import MAX_DATEINAME, gekuerzter_dateiname
+        from plattform.uploads import MAX_DATEINAME, gekuerzter_dateiname
 
         ergebnis = gekuerzter_dateiname("a.b" + "c" * 400)
 
         assert len(ergebnis) <= MAX_DATEINAME
 
     def test_ein_name_ohne_punkt_wird_einfach_gekuerzt(self):
-        from uploads import MAX_DATEINAME, gekuerzter_dateiname
+        from plattform.uploads import MAX_DATEINAME, gekuerzter_dateiname
 
         ergebnis = gekuerzter_dateiname("a" * 300)
 
@@ -632,7 +632,7 @@ class TestWeitereFormate:
     def test_abgabe_im_format_der_aufgabe_kommt_an(
             self, make_challenge, make_task, logged_in_team, database,
             endung, dateiname):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, allowed_extension=endung)
@@ -645,7 +645,7 @@ class TestWeitereFormate:
 
     def test_ein_anderes_der_neuen_formate_wird_abgewiesen(
             self, make_challenge, make_task, logged_in_team, database):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, allowed_extension=".xml")
@@ -674,12 +674,12 @@ class TestEndungBleibt:
         ("Katze.SB3", "Katze.SB3"),
     ])
     def test_abgelegter_dateiname(self, original, erwartet):
-        from uploads import abgelegter_dateiname
+        from plattform.uploads import abgelegter_dateiname
 
         assert abgelegter_dateiname(original, ".sb3") == erwartet
 
     def test_ein_langer_name_behaelt_die_endung(self):
-        from uploads import MAX_DATEINAME, abgelegter_dateiname
+        from plattform.uploads import MAX_DATEINAME, abgelegter_dateiname
 
         name = abgelegter_dateiname("Ж" * 50 + "a" * 300 + ".py", ".py")
 
@@ -688,7 +688,7 @@ class TestEndungBleibt:
 
     def test_kyrillischer_name_wird_mit_endung_abgelegt(
             self, admin, make_challenge, make_task, logged_in_team):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, allowed_extension=".sb3")
@@ -704,7 +704,7 @@ class TestEndungBleibt:
     def test_alte_abgabe_ohne_endung_kommt_mit_endung_herunter(
             self, flask_app, admin, make_challenge, make_task, make_team, database):
         """Abgaben von vor der Korrektur liegen weiter als „task_1_sb3“ da."""
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, allowed_extension=".sb3")

@@ -56,7 +56,7 @@ class TestPasswoerter:
         assert team.check_password("geheim")
 
     def test_team_ohne_passwort_kommt_nicht_rein(self, make_challenge, database):
-        from models import Team
+        from plattform.models import Team
 
         challenge = make_challenge()
         team = Team(name="Ohne Passwort", challenge_id=challenge.id)
@@ -84,7 +84,7 @@ class TestDateiUpload:
     def test_nur_das_erlaubte_format(self, make_challenge, make_task, logged_in_team):
         import io
 
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, allowed_extension=".sb3")
@@ -106,7 +106,7 @@ class TestDateiUpload:
         import io
         import os
 
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, allowed_extension=".sb3")
@@ -144,7 +144,7 @@ class TestCodeAnzeige:
         """
         import io
 
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, allowed_extension=".py")
@@ -173,7 +173,7 @@ class TestCodeAnzeige:
 
 class TestRateLimit:
     def test_wiederholte_fehlversuche_werden_gebremst(self, flask_app, make_challenge):
-        from extensions import limiter
+        from plattform.extensions import limiter
 
         make_challenge()
         limiter.enabled = True
@@ -199,7 +199,7 @@ class TestRateLimit:
 
     def test_das_blosse_aufrufen_der_seite_zaehlt_nicht(self, flask_app, make_challenge):
         """Sonst sperrt sich eine Klasse beim Nachladen selbst aus."""
-        from extensions import limiter
+        from plattform.extensions import limiter
 
         make_challenge()
         limiter.enabled = True
@@ -224,7 +224,7 @@ class TestBetriebsmodus:
 
     def test_es_gibt_keine_eingebauten_zugangsdaten(self):
         """SECRET_KEY und ADMIN_PASSWORD müssen aus der Umgebung kommen."""
-        import config
+        from plattform import config
 
         quelltext = Path(config.__file__).read_text(encoding="utf-8")
         assert '_require_env("SECRET_KEY")' in quelltext
@@ -302,7 +302,7 @@ class TestAufgabentext:
         import io
         import json
 
-        from models import Submission, Task
+        from plattform.models import Submission, Task
 
         challenge = make_challenge()
         datei = json.dumps({
@@ -362,7 +362,7 @@ class TestGeheimerSchluessel:
         "change-this-in-production-random-string", "dein-geheimer-schluessel",
     ])
     def test_beispielschluessel_startet_nicht(self, monkeypatch, wert):
-        import config
+        from plattform import config
         monkeypatch.setenv("SECRET_KEY", wert)
         with pytest.raises(RuntimeError) as fehler:
             config._require_env("SECRET_KEY")
@@ -370,13 +370,13 @@ class TestGeheimerSchluessel:
 
     @pytest.mark.parametrize("wert", ["change-this-password", "dein-sicheres-passwort"])
     def test_beispielpasswort_startet_nicht(self, monkeypatch, wert):
-        import config
+        from plattform import config
         monkeypatch.setenv("ADMIN_PASSWORD", wert)
         with pytest.raises(RuntimeError):
             config._require_env("ADMIN_PASSWORD")
 
     def test_eigener_wert_geht_durch(self, monkeypatch):
-        import config
+        from plattform import config
         monkeypatch.setenv("ADMIN_PASSWORD", "Sommerfest2026")
         assert config._require_env("ADMIN_PASSWORD") == "Sommerfest2026"
 

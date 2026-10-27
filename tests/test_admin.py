@@ -80,7 +80,7 @@ class TestSteuerzentrale:
 
     def test_zeigt_die_zahl_offener_bewertungen(
             self, admin, make_challenge, make_task, make_team, database):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -285,7 +285,7 @@ class TestAktivieren:
         assert admin.get(f"/admin/challenge/{challenge.id}/activate").status_code == 405
 
     def test_aktivieren_macht_ihn_zum_aktuellen(self, admin, make_challenge, database):
-        from models import Challenge
+        from plattform.models import Challenge
 
         alt = make_challenge(title="Alt", active=True)
         neu = make_challenge(title="Neu", active=False)
@@ -335,7 +335,7 @@ class TestRuecksprung:
 
 class TestWettbewerbAnlegen:
     def test_anlegen_fuehrt_zur_neuen_wettbewerbs_seite(self, admin, database):
-        from models import Challenge
+        from plattform.models import Challenge
 
         antwort = admin.post("/admin/challenges/new", data={
             "csrf_token": csrf_token(admin, "/admin/challenges/new"),
@@ -346,7 +346,7 @@ class TestWettbewerbAnlegen:
         assert antwort.headers["Location"].endswith(f"/admin/wettbewerb/{challenge.id}")
 
     def test_zeiten_werden_uebernommen(self, admin, database):
-        from models import Challenge
+        from plattform.models import Challenge
 
         admin.post("/admin/challenges/new", data={
             "csrf_token": csrf_token(admin, "/admin/challenges/new"),
@@ -360,7 +360,7 @@ class TestWettbewerbAnlegen:
         assert challenge.end_time == datetime(2026, 9, 20, 16, 0)
 
     def test_unlesbare_zeit_bedeutet_keine_zeit(self, admin, database):
-        from models import Challenge
+        from plattform.models import Challenge
 
         admin.post("/admin/challenges/new", data={
             "csrf_token": csrf_token(admin, "/admin/challenges/new"),
@@ -371,7 +371,7 @@ class TestWettbewerbAnlegen:
         assert Challenge.query.filter_by(title="Krumme Zeit").one().start_time is None
 
     def test_teams_lassen_sich_uebernehmen(self, admin, make_challenge, make_team, database):
-        from models import Challenge, Team
+        from plattform.models import Challenge, Team
 
         alt = make_challenge(title="Alt")
         make_team(alt, name="Die Pixelpiraten", password="geheim")
@@ -391,7 +391,7 @@ class TestWettbewerbAnlegen:
     def test_die_namen_fuer_die_urkunde_kommen_mit(
             self, admin, make_challenge, make_team, database):
         """Die Teams sollen sie nicht jedes Mal neu eintippen müssen."""
-        from models import Challenge, Team
+        from plattform.models import Challenge, Team
 
         alt = make_challenge(title="Alt")
         team = make_team(alt, name="Die Pixelpiraten")
@@ -412,7 +412,7 @@ class TestWettbewerbAnlegen:
     def test_die_freigabe_der_namen_kommt_nicht_mit(
             self, admin, make_challenge, make_team, database):
         """Wer mitmacht, kann sich geändert haben - also noch einmal ansehen."""
-        from models import Challenge, Team
+        from plattform.models import Challenge, Team
 
         alt = make_challenge(title="Alt")
         team = make_team(alt, name="Die Pixelpiraten")
@@ -433,7 +433,7 @@ class TestWettbewerbAnlegen:
 
     def test_ohne_haekchen_bleibt_der_wettbewerb_leer(
             self, admin, make_challenge, make_team, database):
-        from models import Challenge, Team
+        from plattform.models import Challenge, Team
 
         alt = make_challenge(title="Alt")
         make_team(alt, name="Die Pixelpiraten")
@@ -450,7 +450,7 @@ class TestWettbewerbAnlegen:
 class TestNameDesWettbewerbs:
     def test_ein_name_aus_leerzeichen_legt_keinen_wettbewerb_an(self, admin, database):
         """Das HTML-„required" lässt ein Leerzeichen als Eingabe gelten."""
-        from models import Challenge
+        from plattform.models import Challenge
 
         antwort = admin.post("/admin/challenges/new", data={
             "csrf_token": csrf_token(admin, "/admin/challenges/new"),
@@ -461,7 +461,7 @@ class TestNameDesWettbewerbs:
         assert "braucht einen Namen" in antwort.get_data(as_text=True)
 
     def test_leerzeichen_am_rand_fallen_weg(self, admin, database):
-        from models import Challenge
+        from plattform.models import Challenge
 
         admin.post("/admin/challenges/new", data={
             "csrf_token": csrf_token(admin, "/admin/challenges/new"),
@@ -473,7 +473,7 @@ class TestNameDesWettbewerbs:
     def test_ein_absurd_langer_name_wird_gekuerzt(self, admin, database):
         """SQLite setzt die Spaltenbreite nicht selbst durch."""
         from blueprints.admin import MAX_TITEL
-        from models import Challenge
+        from plattform.models import Challenge
 
         admin.post("/admin/challenges/new", data={
             "csrf_token": csrf_token(admin, "/admin/challenges/new"),
@@ -500,7 +500,7 @@ class TestWettbewerbLoeschen:
 
     def test_loeschen_nimmt_aufgaben_teams_und_abgaben_mit(
             self, admin, make_challenge, make_task, make_team, database):
-        from models import Submission, Task, Team
+        from plattform.models import Submission, Task, Team
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -567,7 +567,7 @@ class TestHinweise:
 
 class TestEinstellungen:
     def test_name_und_untertitel_werden_gespeichert(self, admin, client, database):
-        from models import Settings
+        from plattform.models import Settings
 
         admin.post("/admin/settings", data={
             "csrf_token": csrf_token(admin, "/admin/settings"),

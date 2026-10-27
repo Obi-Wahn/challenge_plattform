@@ -2,7 +2,7 @@
 
 from sqlalchemy import or_
 
-from models import Task, Team, Submission
+from plattform.models import Task, Team, Submission
 
 
 def get_standings(challenge, bis=None):

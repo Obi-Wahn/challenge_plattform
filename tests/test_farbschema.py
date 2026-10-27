@@ -108,8 +108,8 @@ class TestStil:
 
     def test_rangliste_nutzt_die_eigenen_klassen(self, client, make_challenge,
                                                  make_task, make_team):
-        from extensions import db
-        from models import Submission
+        from plattform.extensions import db
+        from plattform.models import Submission
 
         challenge = make_challenge(end_time=datetime.now() + timedelta(hours=1))
         erste = make_task(challenge, title="Labyrinth")

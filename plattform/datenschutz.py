@@ -14,8 +14,8 @@ import os
 
 from flask import current_app
 
-from extensions import db
-from migrationen import datenbankdatei
+from plattform.extensions import db
+from plattform.migrationen import datenbankdatei
 
 # Der Name des Handlers, der in logs/anwendung.log schreibt (siehe
 # configure_logging in app.py).

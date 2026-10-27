@@ -9,9 +9,9 @@ import json
 
 import pytest
 
-from models import TASK_DIFFICULTIES
-from task_exchange import parse_tasks
-from task_rules import clean_task_values
+from plattform.models import TASK_DIFFICULTIES
+from plattform.task_exchange import parse_tasks
+from plattform.task_rules import clean_task_values
 from tests.helpers import csrf_token
 
 
@@ -69,7 +69,7 @@ class TestFormular:
     """Anlegen und Bearbeiten im Adminbereich."""
 
     def test_neue_aufgabe_bekommt_die_stufe(self, admin, make_challenge):
-        from models import Task
+        from plattform.models import Task
 
         challenge = make_challenge()
         pfad = f"/admin/challenges/{challenge.id}/tasks"
@@ -289,7 +289,7 @@ class TestSichernUndEinlesen:
 
     def test_der_weg_durch_die_anwendung(self, admin, make_challenge, database):
         """Sichern und in einem anderen Wettbewerb wieder einlesen."""
-        from models import Task
+        from plattform.models import Task
 
         quelle = make_challenge(title="Quelle")
         database.session.add(Task(challenge_id=quelle.id, title="Würfel",

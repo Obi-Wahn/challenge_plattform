@@ -8,7 +8,7 @@ import re
 
 import pytest
 
-from scoring import get_podium, get_standings
+from plattform.scoring import get_podium, get_standings
 
 
 @pytest.fixture
@@ -18,7 +18,7 @@ def wettbewerb_mit_punkten(make_challenge, make_task, make_team, database):
     punkte_je_team: {Teamname: [Punkte für Aufgabe 1, Aufgabe 2, ...]},
     None bedeutet „nicht abgegeben“.
     """
-    from models import Submission
+    from plattform.models import Submission
 
     def _bauen(punkte_je_team, aufgaben=2):
         challenge = make_challenge()

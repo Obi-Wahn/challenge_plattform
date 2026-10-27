@@ -5,7 +5,9 @@ from datetime import datetime
 
 from fpdf import FPDF
 
-FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "vendor", "fonts")
+# static/ sits in the project folder, one level above plattform/.
+PROJEKTORDNER = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FONT_DIR = os.path.join(PROJEKTORDNER, "static", "vendor", "fonts")
 
 # Fonts the admin can pick for the signature under a certificate. All three
 # handwriting faces are SIL Open Font License and ship with the repo, so this
@@ -451,7 +453,7 @@ def urkundendatum(challenge):
 
 def build_certificates_for(challenge, entries, task_count):
     """Certificates for a competition, using the configured signature."""
-    from models import Settings, event_branding
+    from plattform.models import Settings, event_branding
 
     settings = Settings.get()
     # Der Name kommt vom Wettbewerb selbst, nicht aus den Einstellungen: Eine

@@ -18,9 +18,9 @@ from sqlalchemy import event
 from sqlalchemy.orm import object_session
 from werkzeug.utils import secure_filename
 
-from extensions import db
-from models import Submission
-from protokoll import stoerung
+from plattform.extensions import db
+from plattform.models import Submission
+from plattform.protokoll import stoerung
 
 # Zeichen, die in einem Dateinamen zum Herunterladen stehen bleiben - alles
 # andere wird zu "_". So übersteht der Name jedes Betriebssystem, auch mit

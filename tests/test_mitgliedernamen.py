@@ -7,8 +7,8 @@ durch die Lehrkraft stehen sie auf der Urkunde.
 
 import pytest
 
-from certificates import names_line
-from models import (MAX_MEMBERS, MAX_MEMBER_NAME_LENGTH, MAX_MEMBER_TEXT_LENGTH,
+from plattform.certificates import names_line
+from plattform.models import (MAX_MEMBERS, MAX_MEMBER_NAME_LENGTH, MAX_MEMBER_TEXT_LENGTH,
                     parse_member_names)
 from tests.helpers import csrf_token
 
@@ -33,7 +33,7 @@ def admin_namen(admin, team, *namen, knopf=None):
 
 
 def moeglichkeit_freigeben(database, an=True):
-    from models import Settings
+    from plattform.models import Settings
 
     einstellungen = Settings.get()
     einstellungen.member_names_enabled = an
@@ -113,7 +113,7 @@ class TestFreigabeDerMoeglichkeit:
         assert "Urkunde" in seite
 
     def test_die_lehrkraft_schaltet_sie_in_den_einstellungen_ein(self, admin, database):
-        from models import Settings
+        from plattform.models import Settings
 
         admin.post("/admin/settings", data={
             "csrf_token": csrf_token(admin, "/admin/settings"),
@@ -125,7 +125,7 @@ class TestFreigabeDerMoeglichkeit:
         assert Settings.get().member_names_enabled is True
 
     def test_ohne_haekchen_ist_sie_wieder_aus(self, admin, database):
-        from models import Settings
+        from plattform.models import Settings
 
         moeglichkeit_freigeben(database)
 

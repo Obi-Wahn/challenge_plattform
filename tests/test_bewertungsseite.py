@@ -92,7 +92,7 @@ class TestAufgabentextNurEinmalUmwandeln:
         import markdown
 
         import app as anwendung
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, description="Die Katze **läuft** im Kreis.")
@@ -199,7 +199,7 @@ class TestWasSichAlsTextLesenLaesst:
 class TestDerInhaltWirdNachgeladen:
     def abgabe_anlegen(self, make_challenge, make_task, logged_in_team,
                        endung=".py", inhalt=b"print('hallo')"):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, allowed_extension=endung)
@@ -272,7 +272,7 @@ class TestPunkteEintragen:
     def test_eine_punktzahl_die_keine_zahl_ist_wird_gemeldet(
             self, admin, make_challenge, make_task, logged_in_team):
         """Über das Formular kommt das nicht vor - von Hand abgeschickt schon."""
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, max_points=10, allowed_extension=".py")
@@ -319,7 +319,7 @@ class TestNachAufgabenSortiert:
     und wer eine Aufgabe nach der anderen bewerten wollte, musste suchen."""
 
     def abgabe(self, database, team, task, punkte=None):
-        from models import Submission
+        from plattform.models import Submission
         database.session.add(Submission(team_id=team.id, task_id=task.id, points=punkte,
                                         filename=f"{team.id}/task_{task.id}_a.sb3"))
         database.session.commit()
@@ -418,7 +418,7 @@ class TestDownload:
     def test_eine_fehlende_datei_meldet_die_bewertungsseite(
             self, admin, make_challenge, make_task, logged_in_team):
         import os
-        from models import Submission
+        from plattform.models import Submission
         challenge = make_challenge()
         task = make_task(challenge, title="Katze", allowed_extension=".py")
         client, _team = logged_in_team(challenge)
@@ -435,7 +435,7 @@ class TestDownload:
 
     def test_der_name_nennt_die_aufgabe_wie_die_rangliste(
             self, admin, make_challenge, make_task, logged_in_team):
-        from models import Submission
+        from plattform.models import Submission
         # Ein früherer Wettbewerb treibt die Nummern der Datenbank hoch.
         alt = make_challenge(title="Alt", active=False)
         make_task(alt, title="Alt 1")

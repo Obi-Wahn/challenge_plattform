@@ -13,8 +13,8 @@ Version des Formats bleibt deshalb dieselbe.
 import json
 from datetime import datetime
 
-from models import DEFAULT_TASK_FORMAT
-from task_rules import KEIN_TITEL, PUNKTE_KEINE_ZAHL, clean_task_values
+from plattform.models import DEFAULT_TASK_FORMAT
+from plattform.task_rules import KEIN_TITEL, PUNKTE_KEINE_ZAHL, clean_task_values
 
 FORMAT_NAME = "coding-wettbewerb-aufgaben"
 FORMAT_VERSION = 1

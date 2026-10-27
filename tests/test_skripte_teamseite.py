@@ -10,7 +10,7 @@ import io
 import json
 import zipfile
 
-import snap_skripte
+from plattform import snap_skripte
 from tests.helpers import csrf_token
 
 
@@ -38,7 +38,7 @@ ROBERTA = (b'<export xmlns="http://de.fhg.iais.roberta.blockly"><program>'
 
 
 def abgeben(client, task, inhalt, endung=".sb3"):
-    from models import Submission
+    from plattform.models import Submission
 
     client.post(f"/submit/{task.id}", data={
         "csrf_token": csrf_token(client, "/challenge"),

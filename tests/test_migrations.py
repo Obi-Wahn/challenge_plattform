@@ -9,7 +9,7 @@ import sqlite3
 
 import pytest
 
-from migrationen import (ensure_added_columns, ensure_pause_timestamp,
+from plattform.migrationen import (ensure_added_columns, ensure_pause_timestamp,
                          ensure_team_challenge_binding, ensure_team_uids,
                          run_startup_migrations)
 
@@ -21,7 +21,7 @@ def alte_datenbank(flask_app, database):
     Gibt einen Pfad zur Datei zurück, über den die Tests direkt in die
     Datenbank schauen können.
     """
-    from extensions import db
+    from plattform.extensions import db
 
     pfad = flask_app.config["SQLALCHEMY_DATABASE_URI"].replace("sqlite:///", "")
 
@@ -169,11 +169,11 @@ class TestNachtraeglicheSpalten:
             self, alte_datenbank):
         """Eine Datenbank von ganz früher, danach der Start wie im Betrieb.
 
-        Verglichen wird mit models.py statt mit einer Liste im Test: Bekommt
+        Verglichen wird mit plattform/models.py statt mit einer Liste im Test: Bekommt
         ein Modell eine Spalte und fehlt sie in ADDED_COLUMNS, fällt das hier
         auf - nicht erst auf dem Schul-Rechner mit der alten Datenbank.
         """
-        from extensions import db
+        from plattform.extensions import db
 
         pfad = alte_datenbank(ALTES_TEAM_SCHEMA + ALTES_SETTINGS_SCHEMA)
 
@@ -313,7 +313,7 @@ class TestNachtraeglicheSpalten:
 
         from sqlalchemy import event
 
-        from extensions import db
+        from plattform.extensions import db
 
         pfad = alte_datenbank(ALTES_TEAM_SCHEMA + """
             UPDATE challenges SET paused = 1 WHERE id = 2;
@@ -401,7 +401,7 @@ class TestSicherungVorDerAenderung:
     @pytest.fixture(autouse=True)
     def _ohne_vorherige_sicherung(self):
         """Der Merker gilt je Start - im Test je Test."""
-        import migrationen as umbau
+        from plattform import migrationen as umbau
 
         umbau._backup_path = None
         yield
@@ -452,7 +452,7 @@ class TestSicherungVorDerAenderung:
         ensure_team_challenge_binding()
         vorher = self.sicherungen(pfad)
 
-        import migrationen as umbau
+        from plattform import migrationen as umbau
         umbau._backup_path = None
         ensure_added_columns()
         ensure_team_challenge_binding()
@@ -469,7 +469,7 @@ class TestSicherungVorDerAenderung:
         assert len(self.sicherungen(pfad)) == 1
 
     def test_auf_einer_frischen_installation_wird_nichts_gesichert(self, database):
-        import migrationen as umbau
+        from plattform import migrationen as umbau
 
         ensure_added_columns()
         ensure_team_challenge_binding()
@@ -478,7 +478,7 @@ class TestSicherungVorDerAenderung:
 
     def test_scheitert_die_sicherung_wird_nicht_umgebaut(self, alte_datenbank, monkeypatch):
         """Lieber gar nicht starten als ungesichert umbauen."""
-        import migrationen as umbau
+        from plattform import migrationen as umbau
 
         pfad = alte_datenbank(ALTES_TEAM_SCHEMA)
 

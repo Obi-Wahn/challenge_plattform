@@ -24,8 +24,8 @@ def anmelden_und_posten(admin, pfad, daten):
 
 def frisch(challenge):
     """Den Wettbewerb neu aus der Datenbank holen."""
-    from extensions import db
-    from models import Challenge
+    from plattform.extensions import db
+    from plattform.models import Challenge
 
     db.session.expire_all()
     return db.session.get(Challenge, challenge.id)
@@ -94,7 +94,7 @@ class TestPauseUndFortsetzenImAdmin:
     def test_ein_zweiter_klick_verschiebt_den_zeitpunkt_nicht(self, admin, make_challenge):
         """Ein Doppelklick oder ein zweiter Tab - neu gesetzt, rückte die
         Endzeit beim Fortsetzen um weniger nach hinten, als die Uhr stand."""
-        from extensions import db
+        from plattform.extensions import db
         vorher = datetime.now() - timedelta(minutes=5)
         challenge = make_challenge(paused=True, paused_at=vorher,
                                    end_time=datetime.now() + timedelta(minutes=30))

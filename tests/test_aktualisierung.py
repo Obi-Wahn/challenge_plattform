@@ -18,8 +18,8 @@ from tests.helpers import csrf_token
 
 def frisch(challenge):
     """Den Wettbewerb neu aus der Datenbank holen."""
-    from extensions import db
-    from models import Challenge
+    from plattform.extensions import db
+    from plattform.models import Challenge
 
     db.session.expire_all()
     return db.session.get(Challenge, challenge.id)
@@ -28,7 +28,7 @@ def frisch(challenge):
 def stand_von(challenge):
     """Die Kennung, wie der Server sie gerade bilden würde."""
     from blueprints.challenge import seitenstand
-    from extensions import db
+    from plattform.extensions import db
 
     db.session.expire_all()
     return seitenstand(challenge)
@@ -132,8 +132,8 @@ class TestWasDenStandAendert:
             "csrf_token": csrf_token(admin, "/admin/challenges/new"),
         })
 
-        from extensions import db
-        from models import Task
+        from plattform.extensions import db
+        from plattform.models import Task
         db.session.expire_all()
         assert db.session.get(Task, task.id).hint_visible, "Der Hinweis ist nicht frei"
         assert stand_von(challenge) != vorher
@@ -188,7 +188,7 @@ class TestWasDenStandNichtAendert:
             "file": upload(),
         }, content_type="multipart/form-data")
 
-        from models import Submission
+        from plattform.models import Submission
         submission = Submission.query.first()
         vorher = stand_von(challenge)
 
@@ -199,7 +199,7 @@ class TestWasDenStandNichtAendert:
             "feedback": "Schön gemacht.",
         })
 
-        from extensions import db
+        from plattform.extensions import db
         db.session.expire_all()
         bewertet = db.session.get(Submission, submission.id)
         assert bewertet.points == 8, "Die Abgabe wurde gar nicht bewertet"

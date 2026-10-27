@@ -26,15 +26,15 @@ def abgeben(client, task, dateiname="loesung.sb3", inhalt=b"projekt"):
 
 
 def inhalt_der_abgabe():
-    from models import Submission
+    from plattform.models import Submission
 
     with open(Submission.query.one().pfad, "rb") as datei:
         return datei.read()
 
 
 def frisch(challenge):
-    from extensions import db
-    from models import Challenge
+    from plattform.extensions import db
+    from plattform.models import Challenge
 
     db.session.expire_all()
     return db.session.get(Challenge, challenge.id)
@@ -45,7 +45,7 @@ class TestStandard:
         assert make_challenge().self_correction is True
 
     def test_ein_im_formular_angelegter_auch(self, admin):
-        from models import Challenge
+        from plattform.models import Challenge
 
         admin.post("/admin/challenges/new", data={
             "csrf_token": csrf_token(admin, "/admin/challenges/new"),
@@ -81,7 +81,7 @@ class TestKorrigieren:
             self, make_challenge, make_task, logged_in_team, database):
         """Tobias' Wahl: Kein Team behält Punkte für eine Datei, die noch
         niemand angesehen hat."""
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -155,7 +155,7 @@ class TestTeamseite:
 
     def test_bei_einer_bewerteten_sagt_sie_was_mit_den_punkten_passiert(
             self, make_challenge, make_task, logged_in_team, database):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -260,7 +260,7 @@ class TestSicherung:
         import json
         import zipfile
 
-        from wettbewerb_sicherung import sicherung_bauen, sicherung_einlesen
+        from plattform.wettbewerb_sicherung import sicherung_bauen, sicherung_einlesen
 
         challenge = make_challenge(self_correction=False)
 
@@ -279,7 +279,7 @@ class TestSicherung:
 
     def test_eine_aeltere_sicherung_bekommt_den_standard(self, flask_app):
         """Das Beispiel stammt aus der Zeit vor dem Schalter."""
-        from wettbewerb_sicherung import sicherung_einlesen
+        from plattform.wettbewerb_sicherung import sicherung_einlesen
 
         beispiel = os.path.join(os.path.dirname(__file__), "..", "beispiele",
                                 "scratch-wettbewerb.zip")

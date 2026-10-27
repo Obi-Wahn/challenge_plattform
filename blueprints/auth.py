@@ -1,10 +1,10 @@
 import secrets
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, current_app
-from extensions import limiter
-from models import Settings
-from protokoll import absender, stoerung
-from sitzung import bewertung_abmelden, bewertung_anmelden
+from plattform.extensions import limiter
+from plattform.models import Settings
+from plattform.protokoll import absender, stoerung
+from plattform.sitzung import bewertung_abmelden, bewertung_anmelden
 
 auth_bp = Blueprint('auth', __name__)
 

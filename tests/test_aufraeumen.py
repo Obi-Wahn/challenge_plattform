@@ -16,7 +16,7 @@ from tests.helpers import csrf_token
 
 def abgabe_mit_datei(flask_app, database, challenge, team, task, inhalt=b"projektdatei"):
     """Legt eine Abgabe samt Datei an, so wie es der Upload tut."""
-    from models import Submission
+    from plattform.models import Submission
 
     ordner = os.path.join(flask_app.config["UPLOAD_FOLDER"], str(team.id))
     os.makedirs(ordner, exist_ok=True)
@@ -116,7 +116,7 @@ class TestKeinVorschnellesLoeschen:
     def test_fehlende_datei_bricht_das_loeschen_nicht_ab(
             self, admin, wettbewerb_mit_abgabe, database):
         """Eine schon verschwundene Datei darf das Löschen nicht scheitern lassen."""
-        from models import Submission
+        from plattform.models import Submission
 
         _challenge, _team, _task, abgabe, pfad = wettbewerb_mit_abgabe
         abgabe_id = abgabe.id
@@ -150,7 +150,7 @@ class TestAbgabeUeberDieOberflaeche:
     def test_hochgeladene_datei_wird_mitgeloescht(
             self, flask_app, admin, database, make_challenge, make_task,
             logged_in_team, upload):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge(
             start_time=datetime.now() - timedelta(hours=1),
@@ -196,7 +196,7 @@ class TestWennDasLoeschenNichtGeht:
                                        wettbewerb_mit_abgabe, monkeypatch):
         _challenge, _team, _task, abgabe, pfad = wettbewerb_mit_abgabe
 
-        import uploads
+        from plattform import uploads
 
         def geht_nicht(_pfad):
             raise PermissionError(13, "Keine Berechtigung")
@@ -239,7 +239,7 @@ class TestKorrekturabgabe:
     def abgabe_und_korrektur(self, flask_app, make_challenge, make_task,
                              logged_in_team, upload, database,
                              name="erste.sb3"):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge(
             start_time=datetime.now() - timedelta(hours=1),
@@ -278,7 +278,7 @@ class TestKorrekturabgabe:
     def test_neue_datei_ist_da_und_in_der_datenbank(
             self, flask_app, make_challenge, make_task, logged_in_team, upload,
             database):
-        from models import Submission
+        from plattform.models import Submission
 
         client, task, _abgabe, _erster = self.abgabe_und_korrektur(
             flask_app, make_challenge, make_task, logged_in_team, upload, database)
@@ -329,7 +329,7 @@ class TestKorrekturabgabe:
         und beim Aufräumen danach auch noch gelöscht. Übrig blieb eine
         Abgabe in der Datenbank ohne Datei auf der Platte.
         """
-        from models import Submission
+        from plattform.models import Submission
 
         client, task, abgabe, erster_pfad = self.abgabe_und_korrektur(
             flask_app, make_challenge, make_task, logged_in_team, upload, database,
@@ -364,7 +364,7 @@ class TestKorrekturabgabe:
             self, flask_app, make_challenge, make_task, logged_in_team, upload,
             database):
         """Gelingt das Speichern, zählt auch bei gleichem Namen die neue Fassung."""
-        from models import Submission
+        from plattform.models import Submission
 
         client, task, _abgabe, erster_pfad = self.abgabe_und_korrektur(
             flask_app, make_challenge, make_task, logged_in_team, upload, database,

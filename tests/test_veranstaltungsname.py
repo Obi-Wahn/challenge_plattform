@@ -37,7 +37,7 @@ def pdf_zeilen(daten):
 @pytest.fixture
 def einstellungen(database):
     """Die globalen Werte, auf die ohne Wettbewerb zurückgefallen wird."""
-    from models import Settings
+    from plattform.models import Settings
 
     settings = Settings.get()
     settings.site_name = "Coding-Wettbewerb"
@@ -48,7 +48,7 @@ def einstellungen(database):
 
 class TestAuflösung:
     def test_der_titel_ist_der_name(self, einstellungen, make_challenge):
-        from models import event_branding
+        from plattform.models import event_branding
 
         challenge = make_challenge(title="Scratch-Wettbewerb")
 
@@ -56,14 +56,14 @@ class TestAuflösung:
 
     def test_ohne_eigenen_untertitel_gilt_der_aus_den_einstellungen(self, einstellungen,
                                                                     make_challenge):
-        from models import event_branding
+        from plattform.models import event_branding
 
         marke = event_branding(make_challenge(title="Scratch-Wettbewerb"))
 
         assert marke["tagline"] == "Ein Wettbewerb für Code, Ideen und Kreativität."
 
     def test_eigener_untertitel_gewinnt(self, einstellungen, make_challenge):
-        from models import event_branding
+        from plattform.models import event_branding
 
         challenge = make_challenge(title="Scratch-Wettbewerb",
                                    tagline="Klasse 6b programmiert Spiele")
@@ -72,7 +72,7 @@ class TestAuflösung:
 
     def test_ohne_wettbewerb_gelten_die_einstellungen(self, einstellungen):
         """Auf einer frischen Installation gibt es noch keinen Wettbewerb."""
-        from models import event_branding
+        from plattform.models import event_branding
 
         marke = event_branding(None)
 
@@ -90,21 +90,21 @@ class TestGruss:
     """
 
     def test_standard(self, einstellungen, make_challenge):
-        from models import event_branding
+        from plattform.models import event_branding
 
         marke = event_branding(make_challenge(title="Scratch-Cup"))
 
         assert marke["greeting"] == "Schön, dass ihr dabei seid!"
 
     def test_eigener_gruss_gewinnt(self, einstellungen, make_challenge):
-        from models import event_branding
+        from plattform.models import event_branding
 
         challenge = make_challenge(title="Scratch-Cup", greeting="Auf geht's, 6b!")
 
         assert event_branding(challenge)["greeting"] == "Auf geht's, 6b!"
 
     def test_gruss_aus_den_einstellungen(self, einstellungen, make_challenge, database):
-        from models import event_branding
+        from plattform.models import event_branding
 
         einstellungen.greeting = "Viel Spaß beim Tüfteln!"
         database.session.commit()
@@ -125,7 +125,7 @@ class TestGruss:
         assert name < gruss < untertitel
 
     def test_neuer_wettbewerb_mit_gruss(self, einstellungen, admin):
-        from models import Challenge
+        from plattform.models import Challenge
 
         admin.post("/admin/challenges/new", data={
             "csrf_token": csrf_token(admin, "/admin/challenges/new"),
@@ -248,7 +248,7 @@ class TestSeiten:
 class TestUrkunde:
     def test_urkunde_traegt_den_namen_des_wettbewerbs(self, einstellungen, make_challenge,
                                                       make_team):
-        from certificates import build_certificates_for, certificate_entry
+        from plattform.certificates import build_certificates_for, certificate_entry
 
         challenge = make_challenge(title="Scratch-Wettbewerb")
         team = make_team(challenge, name="Die Pixelpiraten")
@@ -261,7 +261,7 @@ class TestUrkunde:
     def test_der_name_steht_nur_einmal_auf_dem_blatt(self, einstellungen, make_challenge,
                                                      make_team):
         """Kopfzeile und Teilnahme-Zeile nannten ihn vorher beide."""
-        from certificates import build_certificates_for, certificate_entry
+        from plattform.certificates import build_certificates_for, certificate_entry
 
         challenge = make_challenge(title="Scratch-Wettbewerb")
         team = make_team(challenge, name="Die Pixelpiraten")
@@ -273,7 +273,7 @@ class TestUrkunde:
 
     def test_ohne_wettbewerb_steht_der_name_aus_den_einstellungen_drauf(self,
                                                                         einstellungen):
-        from certificates import build_certificates_for
+        from plattform.certificates import build_certificates_for
 
         eintrag = {"team_id": 1, "name": "Die Pixelpiraten",
                    "total": 0, "solved": 0, "rank": 0}
@@ -292,7 +292,7 @@ class TestLangerName:
     LANG = "Calliope-mini-Wettbewerb der Klassen 5 und 6 am Gymnasium Musterstadt"
 
     def urkunde(self, name, ausrichtung):
-        from certificates import build_certificates_pdf
+        from plattform.certificates import build_certificates_pdf
 
         eintrag = {"team_id": 1, "name": "Die Pixelpiraten",
                    "total": 38, "solved": 3, "rank": 1}
@@ -369,7 +369,7 @@ class TestUrkundenFuerAeltereWettbewerbe:
     def test_einzelne_urkunde_folgt_dem_wettbewerb_des_teams(self, admin, zwei_wettbewerbe,
                                                              database):
         """Früher nahm sie immer den aktiven - mit falschem Namen und ohne Punkte."""
-        from models import Team
+        from plattform.models import Team
 
         team = Team.query.filter_by(name="Die Pixelpiraten").one()
 
@@ -391,7 +391,7 @@ class TestUrkundenFuerAeltereWettbewerbe:
 
 class TestFormular:
     def test_neuer_wettbewerb_speichert_den_untertitel(self, einstellungen, admin, database):
-        from models import Challenge
+        from plattform.models import Challenge
 
         admin.post("/admin/challenges/new", data={
             "csrf_token": csrf_token(admin, "/admin/challenges/new"),
@@ -404,7 +404,7 @@ class TestFormular:
 
     def test_neuer_wettbewerb_ohne_untertitel_bleibt_leer(self, einstellungen, admin,
                                                           database):
-        from models import Challenge
+        from plattform.models import Challenge
 
         admin.post("/admin/challenges/new", data={
             "csrf_token": csrf_token(admin, "/admin/challenges/new"),
@@ -442,7 +442,7 @@ class TestFormular:
         database.session.refresh(challenge)
         assert challenge.tagline == ""
 
-        from models import event_branding
+        from plattform.models import event_branding
         assert event_branding(challenge)["tagline"] == \
             "Ein Wettbewerb für Code, Ideen und Kreativität."
 

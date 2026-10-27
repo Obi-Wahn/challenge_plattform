@@ -22,8 +22,8 @@ von einem Team, also wird jeder Wert geprüft, bevor er benutzt wird.
 import re
 import xml.etree.ElementTree as ET
 
-from models import MAX_ABGABE_BYTES
-from scratch_skripte import MAX_TIEFE, zeichen_schuetzen
+from plattform.models import MAX_ABGABE_BYTES
+from plattform.scratch_skripte import MAX_TIEFE, zeichen_schuetzen
 
 # Größer als eine Abgabe kann die Datei nicht sein; die Grenze gilt
 # trotzdem, falls eine Datei von Hand in uploads/ gelegt wurde.

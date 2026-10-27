@@ -1,14 +1,14 @@
 from flask import (Blueprint, render_template, request, redirect, url_for,
                    abort, current_app, send_file, flash, jsonify)
-from extensions import db
-from models import (Challenge, Task, Submission, Settings, MAX_MEMBERS, ablage_von,
+from plattform.extensions import db
+from plattform.models import (Challenge, Task, Submission, Settings, MAX_MEMBERS, ablage_von,
                     MAX_MEMBER_TEXT_LENGTH, format_member_names, parse_member_names)
-from sitzung import angemeldetes_team
-from uploads import abgelegter_dateiname, safe_name, zum_loeschen_vormerken
-from scoring import get_standings
-from protokoll import ereignis
-from skripte import als_bloecke, skripte_antwort
-from certificates import build_certificates_for, certificate_entry, names_line
+from plattform.sitzung import angemeldetes_team
+from plattform.uploads import abgelegter_dateiname, safe_name, zum_loeschen_vormerken
+from plattform.scoring import get_standings
+from plattform.protokoll import ereignis
+from plattform.skripte import als_bloecke, skripte_antwort
+from plattform.certificates import build_certificates_for, certificate_entry, names_line
 from sqlalchemy.exc import IntegrityError
 import io
 import os

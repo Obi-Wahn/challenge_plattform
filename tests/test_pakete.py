@@ -312,7 +312,7 @@ class TestAllesGenagelt:
     def fremde_module(dateien):
         eigene = {pfad.stem for pfad in WURZEL.glob("*.py")}
         eigene |= {pfad.stem for pfad in (WURZEL / "werkzeuge").glob("*.py")}
-        eigene |= {"blueprints", "tests"}
+        eigene |= {"blueprints", "plattform", "tests"}
         module = set()
         for pfad in dateien:
             baum = ast.parse(pfad.read_text(encoding="utf-8"))
@@ -339,8 +339,8 @@ class TestAllesGenagelt:
         return fehlt
 
     def test_anwendung(self):
-        dateien = [*WURZEL.glob("*.py"), *(WURZEL / "blueprints").glob("*.py"),
-                   *(WURZEL / "werkzeuge").glob("*.py")]
+        dateien = [*WURZEL.glob("*.py"), *(WURZEL / "plattform").glob("*.py"),
+                   *(WURZEL / "blueprints").glob("*.py"), *(WURZEL / "werkzeuge").glob("*.py")]
         assert self.fehlende(dateien, self.genagelt("requirements.txt")) == []
 
     def test_tests(self):

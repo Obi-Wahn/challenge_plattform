@@ -7,7 +7,7 @@ sonst landen alle auf ihrem eigenen Gerät.
 
 import pytest
 
-from network import NUR_LOKAL, abtipp_adresse, join_url
+from plattform.network import NUR_LOKAL, abtipp_adresse, join_url
 
 
 class TestBeitrittsAdresse:
@@ -27,14 +27,14 @@ class TestBeitrittsAdresse:
         assert ergebnis.endswith(":8000/")
 
     def test_der_port_bleibt_erhalten(self, monkeypatch):
-        import network
+        from plattform import network
 
         monkeypatch.setattr(network, "get_local_ip", lambda: "192.168.1.50")
 
         assert network.join_url("http://localhost:8000/") == "http://192.168.1.50:8000/"
 
     def test_ohne_port_geht_es_auch(self, monkeypatch):
-        import network
+        from plattform import network
 
         monkeypatch.setattr(network, "get_local_ip", lambda: "192.168.1.50")
 

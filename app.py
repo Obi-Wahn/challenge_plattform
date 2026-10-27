@@ -23,18 +23,18 @@ load_dotenv()
 from flask import Flask, request, session
 from markupsafe import Markup, escape
 import markdown
-from config import Config, MIN_SCHLUESSEL, schluessel_zu_kurz
-from extensions import db, csrf, limiter
-from models import MAX_ABGABE_BYTES
-from wettbewerb_sicherung import MAX_ZIP_BYTES
-from network import FESTE_ADRESSE, lan_adresse, server_port
-from protokoll import ereignis
+from plattform.config import Config, MIN_SCHLUESSEL, schluessel_zu_kurz
+from plattform.extensions import db, csrf, limiter
+from plattform.models import MAX_ABGABE_BYTES
+from plattform.wettbewerb_sicherung import MAX_ZIP_BYTES
+from plattform.network import FESTE_ADRESSE, lan_adresse, server_port
+from plattform.protokoll import ereignis
 # Name des Handlers, damit ein zweiter Aufruf von create_app() - in den
 # Tests kommt das vor - nicht ein zweites Mal in dieselbe Datei schreibt.
-# Er steht in datenschutz.py, weil „Protokolldatei leeren“ den Handler
+# Er steht in plattform/datenschutz.py, weil „Protokolldatei leeren“ den Handler
 # darüber wiederfindet.
-from datenschutz import LOG_HANDLER_NAME
-from migrationen import run_startup_migrations
+from plattform.datenschutz import LOG_HANDLER_NAME
+from plattform.migrationen import run_startup_migrations
 import stand
 from blueprints.auth import auth_bp
 from blueprints.public import public_bp
@@ -42,7 +42,7 @@ from blueprints.challenge import challenge_bp
 from blueprints.admin import admin_bp
 
 # Registriert die Haken, die hochgeladene Dateien mit ihrer Abgabe löschen.
-import uploads # noqa: F401
+from plattform import uploads # noqa: F401
 
 # Verweise, die nicht ins Web zeigen. Markdown erzeugt aus [Text](ziel) ein
 # href, und "ziel" kommt aus dem Aufgabentext - javascript: gehoert da nicht
@@ -250,8 +250,8 @@ def create_app():
         Team. Sie wächst um höchstens einen Eintrag: die Urkunde, sobald der
         Wettbewerb beendet und die Rangliste nicht mehr eingefroren ist.
         """
-        from models import Challenge, Settings, event_branding
-        from sitzung import angemeldetes_team
+        from plattform.models import Challenge, Settings, event_branding
+        from plattform.sitzung import angemeldetes_team
 
         challenge = Challenge.current()
         branding = event_branding(challenge)
@@ -287,8 +287,8 @@ def register_error_handlers(app):
         zurueck = None
         try:
             from flask import url_for
-            from models import Challenge
-            from sitzung import angemeldetes_team
+            from plattform.models import Challenge
+            from plattform.sitzung import angemeldetes_team
             if angemeldetes_team(Challenge.current()):
                 zurueck = url_for("challenge.view")
         except Exception: # noqa: BLE001 - eine Fehlerseite darf nie selbst scheitern
@@ -308,8 +308,8 @@ def register_error_handlers(app):
         """
         team = task = None
         try:
-            from models import Challenge, Task
-            from sitzung import angemeldetes_team
+            from plattform.models import Challenge, Task
+            from plattform.sitzung import angemeldetes_team
             team = angemeldetes_team(Challenge.current())
             task_id = (request.view_args or {}).get("task_id")
             if task_id is not None:

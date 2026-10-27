@@ -90,11 +90,11 @@ def test_ohne_endzeit_gibt_es_keine_restzeit(make_challenge):
 
 class TestAktuellerWettbewerb:
     def test_ohne_wettbewerb_gibt_es_keinen(self, database):
-        from models import Challenge
+        from plattform.models import Challenge
         assert Challenge.current() is None
 
     def test_der_aktivierte_gewinnt(self, make_challenge):
-        from models import Challenge
+        from plattform.models import Challenge
         make_challenge(title="Alt", active=False)
         aktiv = make_challenge(title="Aktiv", active=True)
         make_challenge(title="Neuer, aber nicht aktiv", active=False)
@@ -104,7 +104,7 @@ class TestAktuellerWettbewerb:
         """Früher sprang der neueste ein - dann wurde nach dem Löschen des
         aktiven still irgendein alter zum aktuellen. Welcher gilt, wird jetzt
         ausdrücklich gewählt."""
-        from models import Challenge
+        from plattform.models import Challenge
         make_challenge(title="Erster", active=False)
         make_challenge(title="Zweiter", active=False)
         assert Challenge.current() is None

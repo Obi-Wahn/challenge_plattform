@@ -40,13 +40,13 @@ import zipfile
 import zlib
 from datetime import datetime
 
-from extensions import db
-from models import (Challenge, Submission, Task, Team, ablage_von, format_member_names,
+from plattform.extensions import db
+from plattform.models import (Challenge, Submission, Task, Team, ablage_von, format_member_names,
                     parse_member_names, MAX_ABGABE_BYTES, MAX_DAUER_MINUTEN,
                     MAX_GRUSS, MAX_MEMBERS, MAX_TEAMNAME, MAX_TITEL, MAX_UNTERTITEL)
-from task_exchange import MAX_TASKS  # dieselbe Grenze wie beim Einlesen von Aufgaben
-from task_rules import clean_task_values
-from uploads import abgelegter_dateiname
+from plattform.task_exchange import MAX_TASKS  # dieselbe Grenze wie beim Einlesen von Aufgaben
+from plattform.task_rules import clean_task_values
+from plattform.uploads import abgelegter_dateiname
 
 FORMAT_NAME = "coding-wettbewerb-sicherung"
 FORMAT_VERSION = 1

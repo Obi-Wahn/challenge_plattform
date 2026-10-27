@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 from flask import current_app
 
-from extensions import db
+from plattform.extensions import db
 
 # Wie viele Namen ein Team für seine Urkunde einträgt und wie lang einer sein
 # darf. Beides ist großzügig bemessen und nur dafür da, dass aus dem Feld kein

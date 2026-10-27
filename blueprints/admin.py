@@ -1,27 +1,27 @@
 from flask import (Blueprint, render_template, request, redirect, url_for, session,
                    send_from_directory, send_file, flash, jsonify, current_app, abort)
-from extensions import db
-from models import (Team, Challenge, Task, Submission, Settings, TASK_FORMATS,
+from plattform.extensions import db
+from plattform.models import (Team, Challenge, Task, Submission, Settings, TASK_FORMATS,
                     MAX_DAUER_MINUTEN, MAX_GRUSS, MAX_SEITENNAME, MAX_TITEL,
                     MAX_UNTERTITEL,
                     TEXT_FORMATS, TASK_DIFFICULTIES, MAX_MEMBERS,
                     MAX_MEMBER_TEXT_LENGTH, format_member_names,
                     parse_member_names, event_branding)
-from scoring import get_standings
-from task_rules import KEIN_TITEL, PUNKTE_KEINE_ZAHL, clean_task_values
-from certificates import (build_certificates_for, certificate_entry, signature_font,
+from plattform.scoring import get_standings
+from plattform.task_rules import KEIN_TITEL, PUNKTE_KEINE_ZAHL, clean_task_values
+from plattform.certificates import (build_certificates_for, certificate_entry, signature_font,
                           urkundendatum,
                           SIGNATURE_FONTS, DEFAULT_SIGNATURE_FONT,
                           certificate_orientation, CERTIFICATE_ORIENTATIONS,
                           DEFAULT_ORIENTATION, names_line)
-from task_exchange import export_bytes, parse_tasks, ImportError_
-from wettbewerb_sicherung import (sicherung_bauen, sicherung_einlesen,
+from plattform.task_exchange import export_bytes, parse_tasks, ImportError_
+from plattform.wettbewerb_sicherung import (sicherung_bauen, sicherung_einlesen,
                                   SicherungFehler)
-from protokoll import ereignis, stoerung
-from sitzung import bewertung_angemeldet
-from uploads import safe_name
-from skripte import als_bloecke, skripte_antwort
-from datenschutz import (groesse_text, protokoll_leeren, protokolldateien,
+from plattform.protokoll import ereignis, stoerung
+from plattform.sitzung import bewertung_angemeldet
+from plattform.uploads import safe_name
+from plattform.skripte import als_bloecke, skripte_antwort
+from plattform.datenschutz import (groesse_text, protokoll_leeren, protokolldateien,
                          sicherungskopien, sicherungskopien_loeschen,
                          wettbewerb_aufraeumen)
 from datetime import datetime, timedelta
@@ -31,7 +31,7 @@ import os
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 # Eine Schulstunde. Die Grenzen für Dauer, Namen und Texte stehen in
-# models.py neben den Spalten.
+# plattform/models.py neben den Spalten.
 STANDARD_DAUER_MINUTEN = 45
 
 # Eine Durchsage ist ein Satz, kein Aufsatz - so lang wie die Spalte.
@@ -595,7 +595,7 @@ def challenge_backup(cid):
 
     Die Namen der Teammitglieder und die Passwörter der Teams kommen nur
     mit, wenn sie ausdrücklich gewählt sind - voreingestellt ist beides
-    „ohne“. Mehr dazu in wettbewerb_sicherung.py.
+    „ohne“. Mehr dazu in plattform/wettbewerb_sicherung.py.
     """
     challenge = db.get_or_404(Challenge, cid)
     mit_namen = request.args.get("namen") == "mit"
@@ -997,7 +997,7 @@ def submission_skripte(submission_id):
     """Die Skripte einer Scratch- oder Snap!-Abgabe, nachgeladen beim Aufklappen.
 
     Dieselben Skripte sieht ein Team auf seiner Seite, siehe
-    challenge.abgabe_skripte(); gelesen werden sie in skripte.py.
+    challenge.abgabe_skripte(); gelesen werden sie in plattform/skripte.py.
     """
     submission = bewertbare_abgabe_or_404(submission_id)
     return skripte_antwort(submission)

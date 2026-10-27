@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import pypdf
 import pytest
 
-from certificates import build_certificates_pdf, pdf_safe
+from plattform.certificates import build_certificates_pdf, pdf_safe
 from tests.helpers import csrf_token
 
 
@@ -119,7 +119,7 @@ class TestUnterschrift:
 
 class TestEinstellungen:
     def test_unterschrift_wird_gespeichert_und_getrimmt(self, admin, database):
-        from models import Settings
+        from plattform.models import Settings
 
         admin.post("/admin/settings", data={
             "csrf_token": csrf_token(admin, "/admin/settings"),
@@ -133,7 +133,7 @@ class TestEinstellungen:
         assert settings.signature_font == "vibes"
 
     def test_unbekannte_schrift_wird_nicht_gespeichert(self, admin, database):
-        from models import Settings
+        from plattform.models import Settings
 
         admin.post("/admin/settings", data={
             "csrf_token": csrf_token(admin, "/admin/settings"),
@@ -144,7 +144,7 @@ class TestEinstellungen:
         assert Settings.get().signature_font == "caveat"
 
     def test_name_laesst_sich_wieder_leeren(self, admin, database):
-        from models import Settings
+        from plattform.models import Settings
 
         settings = Settings.get()
         settings.signature_name = "Tobias Händler"
@@ -188,7 +188,7 @@ class TestAdminDownload:
 
     def test_druckansicht_bindet_die_gewaehlte_schrift_ein(
             self, admin, make_challenge, make_team, database):
-        from models import Settings
+        from plattform.models import Settings
 
         challenge = make_challenge()
         make_team(challenge, name="Team A")
@@ -322,7 +322,7 @@ class TestLangeTexteImHochformat:
 
     @pytest.mark.parametrize("ausrichtung", ["landscape", "portrait"])
     def test_langer_teamname_laeuft_nicht_ueber_den_rand(self, ausrichtung):
-        from certificates import CertificatePDF, certificate_orientation
+        from plattform.certificates import CertificatePDF, certificate_orientation
 
         name = "Die unglaublich langen Pixelpiraten aus der 8b"
         eintrag = dict(EINTRAG, name=name)
@@ -382,7 +382,7 @@ class TestLangeTexteImHochformat:
         assert name in pdf_text(daten).replace("\n", " ")
 
     def test_kurzer_name_wird_nicht_verkleinert(self):
-        from certificates import CertificatePDF
+        from plattform.certificates import CertificatePDF
 
         pdf = CertificatePDF(orientation="P", unit="mm", format="A4")
         pdf.add_page()
@@ -479,7 +479,7 @@ class TestUnterschriftBleibtAufDerLinie:
 
     @pytest.mark.parametrize("ausrichtung", ["landscape", "portrait"])
     def test_langer_name_laeuft_nicht_ueber_die_linie(self, ausrichtung):
-        from certificates import certificate_orientation
+        from plattform.certificates import certificate_orientation
 
         ausricht = certificate_orientation(ausrichtung)
         daten = build_certificates_pdf("Site", [EINTRAG], 3,
@@ -502,7 +502,7 @@ class TestUnterschriftBleibtAufDerLinie:
 
 class TestAusrichtungEinstellen:
     def test_auswahl_wird_gespeichert(self, admin, database):
-        from models import Settings
+        from plattform.models import Settings
 
         admin.post("/admin/settings", data={
             "csrf_token": csrf_token(admin, "/admin/settings"),
@@ -514,7 +514,7 @@ class TestAusrichtungEinstellen:
         assert Settings.get().certificate_orientation == "portrait"
 
     def test_unbekannte_auswahl_wird_nicht_gespeichert(self, admin, database):
-        from models import Settings
+        from plattform.models import Settings
 
         admin.post("/admin/settings", data={
             "csrf_token": csrf_token(admin, "/admin/settings"),
@@ -532,7 +532,7 @@ class TestAusrichtungEinstellen:
 
     def test_download_folgt_der_einstellung(self, admin, make_challenge, make_team,
                                             database):
-        from models import Settings
+        from plattform.models import Settings
 
         challenge = make_challenge()
         make_team(challenge, name="Team A")
@@ -544,7 +544,7 @@ class TestAusrichtungEinstellen:
 
     def test_druckansicht_folgt_der_einstellung(self, admin, make_challenge, make_team,
                                                 database):
-        from models import Settings
+        from plattform.models import Settings
 
         challenge = make_challenge()
         make_team(challenge, name="Team A")
@@ -570,7 +570,7 @@ class TestAusrichtungEinstellen:
 
     def test_team_bekommt_seine_urkunde_im_gewaehlten_format(
             self, make_challenge, logged_in_team, database):
-        from models import Settings
+        from plattform.models import Settings
 
         challenge = make_challenge(
             end_time=datetime.now() - timedelta(minutes=5),
@@ -663,7 +663,7 @@ class TestHochformatFuelltDasBlatt:
         vom Hauptblock zum Unterschriftsblock - dazwischen soll es
         ausgewogen aussehen.
         """
-        from certificates import certificate_orientation
+        from plattform.certificates import certificate_orientation
 
         hoch = certificate_orientation("portrait")
         beginn_unterschrift = 297 - hoch["signature_offset"]
@@ -685,7 +685,7 @@ class TestHochformatFuelltDasBlatt:
         zwischen der letzten Zeile und dem Unterschriftsblock klaffte ein
         leeres Band von gut 4 cm.
         """
-        from certificates import certificate_orientation
+        from plattform.certificates import certificate_orientation
 
         beginn_unterschrift = 297 - certificate_orientation("portrait")["signature_offset"]
         hauptblock = [y for y in self.zeilen_von_oben(self.urkunde("portrait"))
@@ -702,7 +702,7 @@ class TestHochformatFuelltDasBlatt:
 
     def test_querformat_bleibt_unveraendert(self):
         """Die Größen des Querformats dürfen sich nicht mitverschieben."""
-        from certificates import CERTIFICATE_ORIENTATIONS
+        from plattform.certificates import CERTIFICATE_ORIENTATIONS
 
         assert CERTIFICATE_ORIENTATIONS["landscape"]["scale"] == 1.0
         assert CERTIFICATE_ORIENTATIONS["landscape"]["signature_offset"] == 52
@@ -795,8 +795,8 @@ class TestNamenDerTeammitglieder:
     def test_die_laengste_erlaubte_liste_laeuft_nicht_in_die_unterschrift(self,
                                                                           ausrichtung):
         """Viele lange Namen sind der Normalfall, nicht der Sonderfall."""
-        from certificates import names_line
-        from models import MAX_MEMBERS, MAX_MEMBER_TEXT_LENGTH
+        from plattform.certificates import names_line
+        from plattform.models import MAX_MEMBERS, MAX_MEMBER_TEXT_LENGTH
 
         namen = ["Anna-Lena Schmidt-Hohenzollern"] * MAX_MEMBERS
         while len(names_line(namen)) > MAX_MEMBER_TEXT_LENGTH:

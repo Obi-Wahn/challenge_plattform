@@ -27,7 +27,7 @@ def abgeben(client, task, dateiname="loesung.sb3", inhalt=b"projekt"):
 @pytest.fixture
 def abgabe(make_challenge, make_task, logged_in_team):
     """Eine echte Abgabe über die Oberfläche: (challenge, team, abgabe)."""
-    from models import Submission
+    from plattform.models import Submission
 
     challenge = make_challenge()
     task = make_task(challenge)
@@ -66,7 +66,7 @@ class TestAblageort:
 
     def test_korrektur_mit_gleichem_namen_bleibt_unter_uploads(self, abgabe, flask_app,
                                                                database):
-        from models import Task
+        from plattform.models import Task
 
         challenge, team, eintrag = abgabe
         alter_pfad = eintrag.pfad
@@ -86,7 +86,7 @@ class TestAblageort:
         assert not os.path.exists(alter_pfad)
 
     def test_eingelesene_sicherung_steht_unter_uploads(self, abgabe, admin):
-        from models import Challenge, Submission
+        from plattform.models import Challenge, Submission
 
         challenge, _team, _eintrag = abgabe
         zip_daten = admin.get(f"/admin/challenges/{challenge.id}/sichern").data
@@ -128,7 +128,7 @@ class TestNachDemUmzug:
     def test_aufraeumen_loescht_die_kopie_im_neuen_ordner(self, abgabe, umgezogen):
         # Vorher löschte das Aufräumen im alten Pfad, und die Programme der
         # Kinder blieben im neuen Ordner liegen.
-        from datenschutz import wettbewerb_aufraeumen
+        from plattform.datenschutz import wettbewerb_aufraeumen
 
         challenge, team, eintrag = abgabe
         neu = umgezogen()
@@ -147,7 +147,7 @@ class TestUmstellungBeimStart:
         ("/srv/plattform/uploads/7/task_2_fehlt.sb3", "7/task_2_fehlt.sb3"),
     ])
     def test_ganzer_pfad_wird_zum_ablageort(self, gespeichert, erwartet):
-        from migrationen import gedeuteter_ablageort
+        from plattform.migrationen import gedeuteter_ablageort
         assert gedeuteter_ablageort(gespeichert) == erwartet
 
     @pytest.mark.parametrize("gespeichert", [
@@ -157,13 +157,13 @@ class TestUmstellungBeimStart:
         "",
     ])
     def test_anderes_bleibt_unangetastet(self, gespeichert):
-        from migrationen import gedeuteter_ablageort
+        from plattform.migrationen import gedeuteter_ablageort
         assert gedeuteter_ablageort(gespeichert) is None
 
     def test_alte_abgaben_werden_umgestellt_und_gefunden(
             self, make_challenge, make_task, make_team, database, flask_app):
-        import migrationen as umbau
-        from models import Submission
+        from plattform import migrationen as umbau
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -188,8 +188,8 @@ class TestUmstellungBeimStart:
 
     def test_vorher_entsteht_eine_kopie_der_datenbank(
             self, make_challenge, make_task, make_team, database):
-        import migrationen as umbau
-        from models import Submission
+        from plattform import migrationen as umbau
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -208,7 +208,7 @@ class TestUmstellungBeimStart:
         assert alt == f"/alt/uploads/{team.id}/task_1_a.sb3"
 
     def test_ohne_alte_pfade_keine_kopie(self, abgabe):
-        import migrationen as umbau
+        from plattform import migrationen as umbau
 
         umbau.ensure_relative_upload_paths()
         assert umbau._backup_path is None

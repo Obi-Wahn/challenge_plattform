@@ -20,7 +20,7 @@ def anmelden(client, name, passwort="geheim"):
 
 
 def test_registrierung_bindet_das_team_an_den_aktiven_wettbewerb(client, make_challenge):
-    from models import Team
+    from plattform.models import Team
 
     challenge = make_challenge()
     antwort = registrieren(client, "Die Pixelpiraten")
@@ -33,7 +33,7 @@ def test_registrierung_bindet_das_team_an_den_aktiven_wettbewerb(client, make_ch
 
 
 def test_ohne_wettbewerb_entsteht_kein_team(client, database):
-    from models import Team
+    from plattform.models import Team
 
     antwort = registrieren(client, "Verfrüht")
 
@@ -53,7 +53,7 @@ def test_teamname_ist_im_selben_wettbewerb_nur_einmal_zu_haben(client, make_chal
 
 
 def test_derselbe_name_darf_in_zwei_wettbewerben_vorkommen(flask_app, make_challenge):
-    from models import Team
+    from plattform.models import Team
 
     erster = make_challenge(title="Frühjahr", active=True)
     registrieren(flask_app.test_client(), "Team Blitz")
@@ -152,7 +152,7 @@ class TestTeamVerwaltungImAdmin:
     def test_team_loeschen_nimmt_seine_abgaben_mit(
             self, admin, make_challenge, make_task, make_team, database):
         """Früher scheiterte das an der Fremdschlüssel-Beziehung."""
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -212,7 +212,7 @@ class TestAnmeldungGeschlossen:
     def test_ein_von_hand_abgeschicktes_formular_wird_abgewiesen(
             self, client, make_challenge, database):
         """Das Formular ist weg - der POST kommt trotzdem an und muss scheitern."""
-        from models import Team
+        from plattform.models import Team
 
         challenge = make_challenge()
         # Token holen, solange die Seite noch eines zeigt.
@@ -230,7 +230,7 @@ class TestAnmeldungGeschlossen:
         assert Team.query.count() == 0
 
     def test_in_der_pause_ebenso(self, client, make_challenge, database):
-        from models import Team
+        from plattform.models import Team
 
         challenge = make_challenge()
         marke = csrf_token(client, "/")
@@ -251,7 +251,7 @@ class TestAnmeldungGeschlossen:
             self, client, make_challenge, database):
         """Genau dann melden sich die Teams an."""
         from datetime import datetime, timedelta
-        from models import Team
+        from plattform.models import Team
 
         challenge = make_challenge()
         challenge.start_time = datetime.now() + timedelta(hours=1)

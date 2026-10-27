@@ -13,16 +13,16 @@ from tests.helpers import csrf_token
 
 
 def frisch(challenge):
-    from extensions import db
-    from models import Challenge
+    from plattform.extensions import db
+    from plattform.models import Challenge
 
     db.session.expire_all()
     return db.session.get(Challenge, challenge.id)
 
 
 def frisch_abgabe(eintrag):
-    from extensions import db
-    from models import Submission
+    from plattform.extensions import db
+    from plattform.models import Submission
 
     db.session.expire_all()
     return db.session.get(Submission, eintrag.id)
@@ -30,8 +30,8 @@ def frisch_abgabe(eintrag):
 
 def abgabe(team, task, punkte, vor_minuten):
     """Eine bewertete Abgabe, die vor `vor_minuten` Minuten hochgeladen wurde."""
-    from extensions import db
-    from models import Submission
+    from plattform.extensions import db
+    from plattform.models import Submission
 
     eintrag = Submission(team_id=team.id, task_id=task.id, filename="x.sb3",
                          points=punkte,
@@ -127,7 +127,7 @@ class TestRangliste:
                                              make_task, make_team):
         """Wer vor dem Einfrieren abgab, verliert nichts, weil die Lehrkraft
         erst danach zum Bewerten kam."""
-        from extensions import db
+        from plattform.extensions import db
 
         challenge = laufender_wettbewerb(make_challenge, minuten_bis_ende=10)
         task = make_task(challenge)
@@ -215,8 +215,8 @@ class TestKorrekturNachDemEinfrieren:
 
     def test_die_neue_bewertung_zeigt_erst_der_echte_stand(
             self, client, make_challenge, make_task, logged_in_team):
-        from extensions import db
-        from scoring import get_standings
+        from plattform.extensions import db
+        from plattform.scoring import get_standings
 
         challenge, task, team_client, eintrag = self.eingefroren_mit_abgabe(
             make_challenge, make_task, logged_in_team)
@@ -473,7 +473,7 @@ class TestPauseUndEnde:
 
 class TestSicherung:
     def test_die_einstellung_kommt_mit(self, flask_app, make_challenge):
-        from wettbewerb_sicherung import sicherung_bauen, sicherung_einlesen
+        from plattform.wettbewerb_sicherung import sicherung_bauen, sicherung_einlesen
 
         challenge = laufender_wettbewerb(make_challenge, freeze_minutes=25)
         datei, _zahlen = sicherung_bauen(challenge, mit_namen=False)

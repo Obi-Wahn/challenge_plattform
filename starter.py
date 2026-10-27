@@ -49,8 +49,8 @@ UMGEBUNG = ".venv"
 PAKETSTAND = ".starter-pakete"
 
 # Die Beispielwerte aus .env.example und docs/ENTWICKLUNG.md. Sie stehen öffentlich im
-# Repository, mit einem davon startet die Anwendung nicht (siehe config.py,
-# dort steht dieselbe Liste - diese Datei kann config.py nicht laden, weil
+# Repository, mit einem davon startet die Anwendung nicht (siehe plattform/config.py,
+# dort steht dieselbe Liste - diese Datei kann plattform/config.py nicht laden, weil
 # die beim Laden schon nach der .env fragt). Steht einer in der .env,
 # ersetzt ihn konfiguration_sicherstellen().
 PLATZHALTER = {
@@ -61,7 +61,7 @@ PLATZHALTER = {
 }
 
 # Kürzer darf ein SECRET_KEY nicht sein, sonst lässt er sich durchprobieren.
-# Wie MIN_SCHLUESSEL in config.py.
+# Wie MIN_SCHLUESSEL in plattform/config.py.
 MIN_SCHLUESSEL = 32
 
 # Wie lange nach dem Start auf den Server gewartet wird, bevor der Browser
@@ -352,7 +352,7 @@ def vorhandene_env_pruefen(ziel, passwort_holen, umgebung=os.environ):
     """Ersetzt in einer vorhandenen .env, was öffentlich bekannt oder zu schwach ist.
 
     Mit einem bekannten oder kurzen SECRET_KEY kann sich jeder ein Cookie als
-    Lehrkraft bauen (siehe config.py). Den Schlüssel muss niemand kennen, er
+    Lehrkraft bauen (siehe plattform/config.py). Den Schlüssel muss niemand kennen, er
     wird deshalb ohne Rückfrage neu gewürfelt - die Teams melden sich danach
     einmal neu an. Das Admin-Passwort dagegen muss die Lehrkraft kennen: Steht
     dort noch der Beispielwert, wird nach einem neuen gefragt.
@@ -494,7 +494,7 @@ def aktualisieren(basis=BASIS, ausfuehren=subprocess.run):
 def version_ermitteln(basis=BASIS):
     """Welcher Stand hier liegt, etwa "1.5.1 (Stand 27.09.2026)".
 
-    stand.py ist wie network.py nur Standardbibliothek und wird erst hier
+    stand.py ist wie plattform/network.py nur Standardbibliothek und wird erst hier
     geholt, damit starter.py oben nichts Eigenes importiert.
     """
     sys.path.insert(0, basis)
@@ -508,7 +508,7 @@ def version_ermitteln(basis=BASIS):
 def port_ermitteln(basis=BASIS):
     """Der Port aus der .env, nach denselben Regeln wie die Anwendung."""
     sys.path.insert(0, basis)
-    from network import PORT_EINTRAG, server_port
+    from plattform.network import PORT_EINTRAG, server_port
 
     alt = os.environ.get(PORT_EINTRAG)
     wert = env_lesen(os.path.join(basis, ".env")).get(PORT_EINTRAG)

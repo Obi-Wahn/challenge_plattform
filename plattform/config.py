@@ -1,6 +1,6 @@
 import os
 
-from models import MAX_ABGABE_BYTES
+from plattform.models import MAX_ABGABE_BYTES
 
 # Werte, die öffentlich im Repository stehen: in .env.example und als Beispiel
 # in docs/ENTWICKLUNG.md. Mit einem bekannten SECRET_KEY kann sich jeder ein
@@ -42,7 +42,10 @@ def schluessel_zu_kurz(schluessel):
 
 
 class Config:
-    BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+    # Der Projektordner, eine Ebene über plattform/. Darunter liegen data/,
+    # uploads/ und logs/ - zeigte das woandershin, legte die Anwendung still
+    # eine leere Datenbank an.
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Security
     SECRET_KEY = _require_env("SECRET_KEY")

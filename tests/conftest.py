@@ -43,7 +43,7 @@ def flask_app():
     from flask.testing import FlaskClient
 
     from app import app as application
-    from extensions import limiter
+    from plattform.extensions import limiter
 
     class GepufferterClient(FlaskClient):
         """Liest jede Antwort gleich ganz und schließt sie wieder.
@@ -74,7 +74,7 @@ def flask_app():
     # nur für die Testdatenbank; die Anwendung schreibt weiter wie immer.
     from sqlalchemy import event
 
-    from extensions import db
+    from plattform.extensions import db
 
     with application.app_context():
         @event.listens_for(db.engine, "connect")
@@ -88,7 +88,7 @@ def flask_app():
 @pytest.fixture(autouse=True)
 def database(flask_app):
     """Für jeden Test eine frische, leere Datenbank."""
-    from extensions import db
+    from plattform.extensions import db
 
     with flask_app.app_context():
         db.drop_all()
@@ -100,7 +100,7 @@ def database(flask_app):
 
     # Sicherungen, die eine Migration angelegt hat, dürfen nicht in den
     # nächsten Test hineinragen.
-    import migrationen
+    from plattform import migrationen
 
     migrationen._backup_path = None
     for kopie in glob.glob(os.path.join(TMP_DIR, "*-vor-*.db")):
@@ -132,7 +132,7 @@ def admin(flask_app):
 
 @pytest.fixture
 def make_challenge(database):
-    from models import Challenge
+    from plattform.models import Challenge
 
     def _make(title="Test-Wettbewerb", active=True, **kwargs):
         challenge = Challenge(title=title, active=active,
@@ -146,7 +146,7 @@ def make_challenge(database):
 
 @pytest.fixture
 def make_task(database):
-    from models import Task
+    from plattform.models import Task
 
     def _make(challenge, title="Aufgabe", max_points=10,
               allowed_extension=".sb3", **kwargs):
@@ -161,7 +161,7 @@ def make_task(database):
 
 @pytest.fixture
 def make_team(database):
-    from models import Team
+    from plattform.models import Team
 
     def _make(challenge, name="Team", password="geheim"):
         team = Team(name=name, challenge_id=challenge.id)
