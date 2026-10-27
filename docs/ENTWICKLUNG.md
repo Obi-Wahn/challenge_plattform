@@ -42,7 +42,9 @@ Ohne Startdatei, etwa um am Code zu arbeiten:
     `SECRET_KEY` und `ADMIN_PASSWORD` sind Pflicht und müssen eigene Werte sein: Mit den Beispielwerten von hier oder aus `.env.example` startet die Anwendung nicht, denn wer den Schlüssel kennt, kommt ohne Passwort in die Steuerzentrale. Einen passenden Schlüssel gibt `python -c "import secrets; print(secrets.token_hex(32))"` aus. Ist er kürzer als 32 Zeichen, warnt die Anwendung beim Start. `FLASK_DEBUG` sollte in einem Netzwerk mit mehreren Nutzern (z. B. der Schul-LAN) immer auf `false` bleiben; der eingebaute Debugger erlaubt sonst beliebige Code-Ausführung auf dem Server.
 
 4.  **Datenbank vorbereiten**
-    Beim ersten Start wird die Datenbank automatisch erstellt. Neu hinzugekommene Spalten (z. B. für die Hinweise-Funktion) werden bei bestehenden Datenbanken beim Start ebenfalls automatisch ergänzt, ohne Datenverlust.
+    Nichts zu tun: Beim ersten Start legt die Anwendung die Datenbank an. Bringt
+    ein Update neue Spalten mit, ergänzt sie sie beim Start und sichert die
+    Datenbank vorher, siehe [Daten und Sicherungen](../README.md#-daten-und-sicherungen).
 
 5.  **Anwendung starten**
     ```bash
@@ -56,8 +58,8 @@ Ohne Startdatei, etwa um am Code zu arbeiten:
 
 ## 📅 Vor einem Wettbewerb
 
-Eine Woche vorher, nachdem die Plattform auf den neuen Stand gebracht ist
-(siehe [Leitfaden](ADMIN_GUIDE.md#-eine-woche-vorher)):
+Rechtzeitig vorher, nachdem die Plattform auf den neuen Stand gebracht ist
+(siehe [Leitfaden](ADMIN_GUIDE.md#-rechtzeitig-vorher)):
 
 **Tests laufen lassen:**
 ```bash
@@ -91,14 +93,20 @@ python werkzeuge/vendor_aktualisieren.py
 ```
 
 ```
-  bootstrap                 5.3.8      aktuell
+  bootstrap                 5.3.8  ->  6.0.0     (neue Hauptversion - Darstellung vorher prüfen)
   easymde                  2.21.0      aktuell
-  fontawesome-free          6.7.2  ->  7.3.1     (neue Hauptversion - Darstellung vorher prüfen)
+  fontawesome-free          7.3.1      aktuell
+  scratchblocks             3.7.1  ->  3.7.2     (neuere Fassung)
   caveat                    0.4.2      aktuell
+  dancing-script            0.4.2      aktuell
+  great-vibes               0.4.1      aktuell
 
 Zum Übernehmen:
-  python werkzeuge/vendor_aktualisieren.py --setzen fontawesome-free=7.3.1
+  python werkzeuge/vendor_aktualisieren.py --setzen bootstrap=6.0.0
 ```
+
+Die neueren Fassungen hier sind ausgedacht; welche wirklich erscheinen, hängt
+vom Tag ab.
 
 `--setzen` trägt die Fassung in `versionen.json` ein und holt die Dateien
 gleich. Die Namen in der linken Spalte sind genau die, die `--setzen` annimmt –
@@ -284,35 +292,35 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 
 ```
 challenge_plattform/
-├── start_windows.bat     # Startdateien: doppelklicken, der Rest geht von selbst
+├── start_windows.bat       # Startdateien: doppelklicken, der Rest geht von selbst
 ├── start_macos.command
 ├── start_linux.sh
-├── starter.py            # was die Startdateien tun: einrichten, dann starten
-├── stand.py              # welche Version läuft, aus git oder stand.txt
-├── stand.txt             # von GitHub im ZIP ausgefüllt, im Repository nur Platzhalter
-├── app.py                # Einstiegspunkt
-├── config.py              # Konfiguration
-├── extensions.py          # Datenbank & Extensions
+├── starter.py              # was die Startdateien tun: einrichten, dann starten
+├── stand.py                # welche Version läuft, aus git oder stand.txt
+├── stand.txt               # von GitHub im ZIP ausgefüllt, im Repository nur Platzhalter
+├── app.py                  # Einstiegspunkt
+├── config.py               # Konfiguration
+├── extensions.py           # Datenbank & Extensions
 ├── models.py               # Datenbankmodelle
-├── scoring.py             # Rangliste und Podium
-├── certificates.py        # Urkunden als PDF
-├── task_exchange.py       # Aufgaben sichern und einlesen
+├── scoring.py              # Rangliste und Podium
+├── certificates.py         # Urkunden als PDF
+├── task_exchange.py        # Aufgaben sichern und einlesen
 ├── wettbewerb_sicherung.py # einen ganzen Wettbewerb als ZIP sichern und einlesen
-├── datenschutz.py         # aufräumen: Teams und Abgaben, Protokolldatei, Sicherungskopien
-├── migrationen.py         # Umbauten an einer bestehenden Datenbank beim Start
-├── network.py             # Adresse, unter der die Teams beitreten
-├── sitzung.py             # Anmeldung eines Teams oder zum Bewerten und ihre Gültigkeit
-├── protokoll.py           # die Zeilen, die in logs/anwendung.log gehen
-├── uploads.py             # löscht Dateien mit ihrer Abgabe
-├── task_rules.py          # Regeln für Aufgabenwerte, für Formular und Import
-├── skripte.py             # die Skripte einer Abgabe als Blöcke, für Bewertungs- und Teamseite
-├── scratch_skripte.py     # liest die Skripte aus einer .sb3
-├── snap_skripte.py        # liest die Skripte aus einem Snap!-Projekt (.xml)
-├── requirements.txt       # Abhängigkeiten
-├── requirements-dev.txt   # zusätzlich zum Testen
-├── pytest.ini             # Test-Einstellungen
-├── ruff.toml              # Einstellungen der Fehlerprüfung
-├── .github/workflows/     # Tests laufen automatisch bei jedem Push
+├── datenschutz.py          # aufräumen: Teams und Abgaben, Protokolldatei, Sicherungskopien
+├── migrationen.py          # Umbauten an einer bestehenden Datenbank beim Start
+├── network.py              # Adresse, unter der die Teams beitreten
+├── sitzung.py              # Anmeldung eines Teams oder zum Bewerten und ihre Gültigkeit
+├── protokoll.py            # die Zeilen, die in logs/anwendung.log gehen
+├── uploads.py              # Dateinamen der Abgaben, löscht Dateien mit ihrer Abgabe
+├── task_rules.py           # Regeln für Aufgabenwerte, für Formular und Import
+├── skripte.py              # die Skripte einer Abgabe als Blöcke, für Bewertungs- und Teamseite
+├── scratch_skripte.py      # liest die Skripte aus einer .sb3
+├── snap_skripte.py         # liest die Skripte aus einem Snap!-Projekt (.xml)
+├── requirements.txt        # Abhängigkeiten
+├── requirements-dev.txt    # zusätzlich zum Testen
+├── pytest.ini              # Test-Einstellungen
+├── ruff.toml               # Einstellungen der Fehlerprüfung
+├── .github/workflows/      # Tests laufen automatisch bei jedem Push
 ├── .env.example            # Vorlage für die eigene .env
 ├── blueprints/             # Modulare Routen
 │   ├── admin.py
@@ -320,19 +328,19 @@ challenge_plattform/
 │   ├── challenge.py
 │   └── public.py
 ├── static/
-│   ├── vendor/              # Lokal eingebundene Frontend-Bibliotheken (Bootstrap, EasyMDE, Font Awesome, scratchblocks)
-│   │   ├── fonts/           # Handschriften für die Unterschrift auf den Urkunden (OFL)
-│   │   └── versionen.json   # welche Fassungen hier liegen
-│   └── ...                  # eigenes CSS, Bilder
-├── templates/               # HTML Templates
-├── tests/                   # automatische Tests (pytest)
-├── beispiele/               # fertige Aufgabensätze und ein Beispiel-Wettbewerb zum Einlesen
-├── werkzeuge/               # Hilfsskripte (Bibliotheken und Pakete prüfen)
+│   ├── vendor/             # Lokal eingebundene Frontend-Bibliotheken (Bootstrap, EasyMDE, Font Awesome, scratchblocks)
+│   │   ├── fonts/          # Handschriften für die Unterschrift auf den Urkunden (OFL)
+│   │   └── versionen.json  # welche Fassungen hier liegen
+│   └── ...                 # eigenes CSS, Bilder
+├── templates/              # HTML Templates
+├── tests/                  # automatische Tests (pytest)
+├── beispiele/              # fertige Aufgabensätze und ein Beispiel-Wettbewerb zum Einlesen
+├── werkzeuge/              # Hilfsskripte (Bibliotheken und Pakete prüfen)
 ├── docs/
-│   ├── ADMIN_GUIDE.md       # Leitfaden für den Wettbewerbstag
-│   ├── ENTWICKLUNG.md       # diese Anleitung
-│   └── bilder/              # Screenshots für die README
-├── uploads/                 # Hochgeladene Abgaben (wird erstellt)
-├── logs/                    # Protokolldatei (wird erstellt)
-└── data/                    # SQLite Datenbank und ihre Sicherungen (werden erstellt)
+│   ├── ADMIN_GUIDE.md      # Leitfaden für den Wettbewerbstag
+│   ├── ENTWICKLUNG.md      # diese Anleitung
+│   └── bilder/             # Screenshots für die README
+├── uploads/                # Hochgeladene Abgaben (wird erstellt)
+├── logs/                   # Protokolldatei (wird erstellt)
+└── data/                   # SQLite Datenbank und ihre Sicherungen (werden erstellt)
 ```

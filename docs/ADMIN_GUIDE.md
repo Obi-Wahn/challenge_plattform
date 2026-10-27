@@ -10,7 +10,7 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 
 ---
 
-## 📅 Eine Woche vorher
+## 📅 Rechtzeitig vorher
 
 1. **Anwendung auf den Stand bringen.** Die Startdatei einmal mit
    `--aktualisieren` aufrufen, also `start_windows.bat --aktualisieren` in
@@ -41,6 +41,11 @@ Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
 
    Ist gerade kein Wettbewerb aktiv, wird der neue es von selbst. Läuft schon
    einer, bleibt der aktiv; den neuen aktivierst du dann am Wettbewerbstag.
+
+   Treffen sich dieselben Teams wieder, etwa in einer AG, setzt du beim
+   Anlegen das Häkchen **Teams aus „…“ übernehmen**: Die Teams des letzten
+   Wettbewerbs kommen mit Passwort mit und melden sich gleich an, ihre Namen
+   für die Urkunde warten wieder auf deine Freigabe.
 
    Drei Häkchen gibt es erst nach dem Anlegen, auf der Seite des Wettbewerbs
    unter *Name & Zeiten*: **❄️ Rangliste vor Schluss einfrieren** und
@@ -319,7 +324,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Symptom | Ursache und Abhilfe |
 |---|---|
 | Team tippt seinen Namen anders geschrieben | Beim **Anmelden** ist das in Ordnung: „die pixelpiraten“ findet „Die Pixelpiraten“, solange es nur ein Team dieses Namens gibt. Nur wenn zwei Teams nebeneinander existieren, die sich allein in der Schreibweise unterscheiden, muss die Schreibweise stimmen. |
-| Zwei Teams mit fast gleichem Namen | Beim **Registrieren** zählt die Schreibweise: „Die Hacker“ und „die hacker“ werden zwei verschiedene Teams. Umgebende Leerzeichen werden dagegen entfernt, `„ Team A “` wird zu `„Team A“`. Wenn das stört, Team löschen und neu anmelden lassen. |
+| Zwei Teams mit fast gleichem Namen | Beim **Registrieren** zählt die Schreibweise: „Die Hacker“ und „die hacker“ werden zwei verschiedene Teams. Umgebende Leerzeichen werden dagegen entfernt, `„ Team A “` wird zu `„Team A“`. Wenn das stört, Team löschen und neu registrieren lassen. |
 | Ein Team kommt nicht mehr rein | Passwort vergessen. `/admin` → *Teams* → neues Passwort setzen und dem Team sagen. Das alte wird nicht angezeigt – auch nicht dir. |
 | Wer beim Bewerten hilft, landet wieder auf der Anmeldung | Das Passwort für die Bewertung wurde geändert oder der Zugang abgeschaltet – beides meldet ab. Unter *Einstellungen* → *Bewertungszugang* steht, ob er eingerichtet ist; das aktuelle Passwort weitergeben oder ein neues setzen. |
 | Ein Team hat die falsche Datei hochgeladen | Normalerweise nichts zu tun: Das Team lädt über **🔁 Korrektur abgeben** die richtige hoch. Hast du das Häkchen **🔁 Teams dürfen ihre Abgabe selbst korrigieren** herausgenommen: `/admin` → *Bewertungen* → **🔓 Erneut abgeben erlauben** – das geht auch, bevor die Abgabe Punkte hat. Die Freigabe gilt **einmal**. Sobald das Team neu abgibt, verschwindet die bisherige Bewertung und die Abgabe landet wieder in der Warteschlange; bis dahin bleibt alles, wie es ist. |
@@ -328,7 +333,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Ein Team will sich noch registrieren, der Wettbewerb ist beendet oder pausiert | Die Startseite nimmt dann keine neuen Teams an – sonst stünde das Team mit null Punkten in der Rangliste am großen Bildschirm. Soll es doch noch mitmachen: **🔓 Wieder öffnen** bzw. **▶ Fortsetzen** auf der Wettbewerbsseite, dann registrieren lassen. |
 | Start- oder Anmeldeseite sagt „Gerade ist kein Wettbewerb aktiv“ | Der aktive Wettbewerb wurde gelöscht, und noch ist kein anderer gewählt. `/admin` → auf der Steuerzentrale beim richtigen **✅ Aktivieren**. Danach können sich die Teams wieder registrieren und anmelden. |
 | Wettbewerb gelöscht, ein Team sitzt noch davor | Mit dem Wettbewerb sind seine Teams weg. Das Team landet beim nächsten Klick auf der Startseite und registriert sich dort für den nächsten Wettbewerb neu. |
-| Nach dem Update auf v1.1.0 waren alle Teams abgemeldet | Einmalig und so gewollt: Anmeldungen aus der Zeit davor galten nicht mehr. Teamname und Passwort blieben, die Teams meldeten sich einmal neu an. Spätere Updates melden niemanden ab. Ein Update spielt man trotzdem besser vor dem Wettbewerb ein als mittendrin. |
+| Nach dem Start sind alle Teams abgemeldet | Die Startdatei hat einen neuen `SECRET_KEY` gewürfelt, weil in der `.env` noch ein Beispielwert stand oder der Schlüssel zu kurz war; die Startübersicht sagt das. Einmalig: Teamname und Passwort bleiben, die Teams melden sich neu an. Ein Update spielt man darum besser vor dem Wettbewerb ein als mittendrin. |
 | Die Rangliste bewegt sich nicht mehr, obwohl du bewertest | Sie ist eingefroren – das Häkchen **❄️ Rangliste vor Schluss einfrieren** unter *Name & Zeiten* ist gesetzt. Oben auf der Rangliste steht dann *❄️ Eingefroren seit …*, und die Wettbewerbsseite sagt es auch. Den echten Stand zeigt dir die Siegerehrung; **❄️ Rangliste auflösen** zeigt ihn allen. |
 | Ein Team bekommt seine Urkunde nicht | Ist der Wettbewerb beendet und die Rangliste eingefroren, gibt es die Urkunde erst nach dem Auflösen – auf ihr steht der Platz. Die Teamseite sagt dann „Eure Urkunde gibt es nach der Siegerehrung“. **❄️ Rangliste auflösen** am Ende der Siegerehrung oder auf der Wettbewerbsseite drücken; der Knopf zur Urkunde erscheint danach von selbst. |
 | Auf der Wettbewerbsseite fehlt das Feld für die Durchsage | Durchsagen sind für diesen Wettbewerb aus. Unter *Name & Zeiten* das Häkchen **📢 Durchsagen an die Teams** setzen und speichern. |
@@ -343,12 +348,13 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Ein gesicherter Wettbewerb soll zurück | **➕ Neuer Wettbewerb** → unten **Oder aus einer Sicherung einlesen**, die ZIP wählen. Es entsteht ein neuer Wettbewerb, nicht aktiv – auch dann nicht, wenn gerade keiner aktiv ist. Der alte bleibt, wie er ist. Soll er weiterlaufen, ihn aktivieren. Waren die Passwörter mitgesichert, melden sich die Teams wie gewohnt an; sonst haben sie kein Passwort und bekommen nach dem Aktivieren unter **Teams** neue. Für Rangliste und Urkunden braucht es keins. Meldet die Seite, die ZIP sei beschädigt, ist nichts angelegt – eine andere Kopie der Datei nehmen. |
 | Hochgeladene Dateien fehlen | Der Download sagt dann „liegt nicht mehr auf dem Server“. Die Abgaben liegen unter `uploads/<Team-Nummer>/`. Aus der letzten Sicherung dieses Verzeichnisses zurückkopieren; die Datenbank kennt nur den Ort innerhalb von `uploads/` und findet sie dort wieder, auch in einem anderen Ordner oder auf einem anderen Rechner. Ohne Sicherung bleiben Punkte und Bewertungen erhalten, nur die Programme sind weg. |
 | Etwas ist abgestürzt | In `logs/anwendung.log` steht der Fehler mit Zeitstempel und Adresse der Seite. Diese Datei ist auch nach dem Schließen des Terminals noch da. |
-| Wann wurde der Tipp freigegeben? | Steht in `logs/anwendung.log`, mit Zeitstempel und Aufgabe – auch, wenn er wieder verborgen wurde. |
+| Wann wurde der Hinweis freigeschaltet? | Steht in `logs/anwendung.log` als „Tipp freigeschaltet“, mit Zeitstempel und Aufgabe – auch, wenn er wieder verborgen wurde. |
 | „Wir haben doch abgegeben!“ | In `logs/anwendung.log` steht jede **abgelehnte** Abgabe mit Team, Aufgabe und Grund – falsche Endung, leere Datei, Datei zu groß, Wettbewerb pausiert oder beendet, schon abgegeben, oder zweimal kurz hintereinander abgeschickt (dann ist eine der beiden angekommen). Eine angekommene Abgabe steht dort nicht, die sieht man unter **Bewertungen**. |
+| Im Terminal steht „WARNING … Task queue depth is 1“ | Harmlos: Mehrere Geräte haben im selben Augenblick angefragt, und eine Anfrage hat kurz gewartet. Das passiert, wenn viele Teams zugleich abgeben oder die Seite laden. Erst wenn die Zahl dauerhaft wächst und Seiten spürbar langsam werden, ist der Rechner zu schwach. |
 | Nach STRG+C fragt Windows „Batchvorgang abbrechen (J/N)?“ | Die Frage stellt Windows bei jeder `.bat`-Datei. Die Plattform ist da schon beendet – J oder N, beides schließt das Fenster. |
 | `--aktualisieren` bricht ab: „In diesem Ordner sind Dateien der Plattform verändert worden“ | Darunter stehen die Dateien. Unter `static/vendor/` steckt nie etwas Eigenes; unter Windows sind es meist nur andere Zeilenenden, etwa nachdem `werkzeuge/vendor_aktualisieren.py` mit einer älteren Fassung gelaufen ist. Dann `git restore static/vendor`. Bei anderen Dateien erst mit `git diff <datei>` nachsehen, was sich geändert hat, Eigenes sichern, dann `git restore <datei>`. Danach die Startdatei noch einmal mit `--aktualisieren` aufrufen. |
 | Welche Fassung läuft hier? | Steht beim Start in der Übersicht in der Zeile **Version** und bei jedem Start in `logs/anwendung.log`. „+ 3 Änderungen“ heißt: drei Änderungen nach diesem Release. „unbekannt“ heißt nur, dass weder git noch die `stand.txt` aus dem ZIP es verraten – etwa bei einem von Hand kopierten Ordner. Dann auf GitHub das aktuelle Release als ZIP holen. |
-| „Gefunden wurde Python 3.10, die Plattform braucht 3.11“ | Seit der Anhebung auf Python 3.11 reicht das Python von Ubuntu 22.04 und Linux Mint 21 nicht mehr (Mint 22 und Ubuntu 24.04 haben 3.12). Dort `sudo apt install python3.11 python3.11-venv` und dann `python3.11 starter.py` statt der Startdatei, oder den Rechner auf ein neueres System bringen. Unter Windows und macOS das aktuelle Python von python.org installieren. |
+| „Gefunden wurde Python 3.10, die Plattform braucht 3.11 oder neuer.“ | Seit der Anhebung auf Python 3.11 reicht das Python von Ubuntu 22.04 und Linux Mint 21 nicht mehr (Mint 22 und Ubuntu 24.04 haben 3.12). Dort `sudo apt install python3.11 python3.11-venv` und dann `python3.11 starter.py` statt der Startdatei, oder den Rechner auf ein neueres System bringen. Unter Windows und macOS das aktuelle Python von python.org installieren. |
 | Die Anwendung startet nicht | Meldung lesen: Fehlt `SECRET_KEY` oder `ADMIN_PASSWORD` in der `.env` oder steht dort noch ein Beispielwert, sagt sie das. Die Startdatei ersetzt Beispielwerte selbst. Bricht sie beim Sichern der Datenbank ab, ist meist die Platte voll. |
 
 ---
@@ -395,7 +401,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 
 ## 💡 Aus der Praxis
 
-### Eine Woche vorher
+### Rechtzeitig vorher
 
 > Wie viele Aufgaben passen in die zur Verfügung stehende
 > Zeit? Welche Punktverteilung hat sich bewährt?
