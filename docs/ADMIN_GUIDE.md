@@ -4,10 +4,6 @@ Die README erklärt, **wie** die Anwendung installiert wird und **welche**
 Funktionen es gibt. Dieser Leitfaden beschreibt den **Ablauf**: was wann zu
 tun ist, und was zu tun ist, wenn etwas klemmt.
 
-Die Kästen unter **💡 Aus der Praxis** am Ende sind absichtlich leer oder knapp
-gehalten – sie sind zum Selberfüllen gedacht, nach dem ersten und zweiten Durchlauf.
-Was dort steht, weiß nur, wer mit einer echten Klasse im Raum stand.
-
 ---
 
 ## 📅 Rechtzeitig vorher
@@ -349,8 +345,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
       **⬇️ Alle Aufgaben sichern**, oder das ⬇️ neben einer einzelnen
       Aufgabe) und die Datei aufheben. Beim nächsten Mal wieder einlesen – Punkte,
       Dateiformat, Schwierigkeit und Hinweis kommen mit.
-- [ ] **Protokolldatei durchsehen**, falls etwas hakte – und die Erkenntnis
-      unten unter **💡 Aus der Praxis** eintragen.
+- [ ] **Protokolldatei durchsehen**, falls etwas hakte.
 - [ ] **Aufräumen**, sobald Urkunden und Nachfragen erledigt sind: auf der
       Seite des beendeten Wettbewerbs **🧹 Aufräumen**. Das löscht alle Teams
       samt Namen und Passwörtern und alle Abgaben mit Dateien, Punkten und
@@ -369,41 +364,11 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 
 ---
 
-## 💡 Aus der Praxis
+## 💬 Rückmeldung aus der Praxis
 
-### Rechtzeitig vorher
-
-> Wie viele Aufgaben passen in die zur Verfügung stehende
-> Zeit? Welche Punktverteilung hat sich bewährt?
->
-> **Programmier-AG, Herbst 2026** (13 Teams, Scratch, 80–90 Minuten):
-> zehn Aufgaben zu je 2–3 Punkten, jede in 5–10 Minuten machbar – fünf
-> einfache, vier mittlere, eine schwere. Lief gut.
->
-> _(weitere Erfahrungen hier eintragen)_
-
-### Am Vortag
-
-> Welche Hürde gab es im Schulnetz?
->
-> _(hier eintragen)_
-
-### Während des Wettbewerbs
-
-> Ab wann die Rangliste zeigen, und wie viele Minuten vor Schluss
-> einfrieren? (Von Anfang an motiviert sie – kurz vor Schluss kann sie
-> auch lähmen.)
->
-> _(hier eintragen)_
-
-### Wenn etwas klemmt
-
-> Was ist dir tatsächlich passiert, das hier noch fehlt?
->
-> _(hier eintragen)_
-
-### Nach dem Wettbewerb
-
-> Was würdest du beim nächsten Mal anders machen?
->
-> _(hier eintragen)_
+Hast du die Plattform mit einer Klasse oder AG eingesetzt? Eine Rückmeldung
+ist sehr willkommen: was gut lief, was gehakt hat, wie viele Aufgaben in eure
+Zeit gepasst haben. Am einfachsten als
+[Issue auf GitHub](https://github.com/Obi-Wahn/challenge_plattform/issues) –
+bitte ohne Namen von Schülerinnen und Schülern und ohne Auszüge aus der
+Protokolldatei, denn dort stehen Teamnamen.
