@@ -1,11 +1,11 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
-from extensions import db, limiter
+from plattform.extensions import db, limiter
 from sqlalchemy.exc import IntegrityError
-from models import Challenge, Settings, Team, MAX_TEAMNAME
-from scoring import get_standings, get_podium
-from sitzung import team_abmelden, team_anmelden
-from network import abtipp_adresse, join_url
-from protokoll import ereignis
+from plattform.models import Challenge, Settings, Team, MAX_TEAMNAME
+from plattform.scoring import get_standings, get_podium
+from plattform.sitzung import team_abmelden, team_anmelden
+from plattform.network import abtipp_adresse, join_url
+from plattform.protokoll import ereignis
 import base64
 import io
 import qrcode
@@ -15,7 +15,7 @@ public_bp = Blueprint('public', __name__)
 # Grenzen für das, was von außen ankommt. Die Registrierung ist die einzige
 # Seite, die ohne Anmeldung schreibend auf die Datenbank zugreift - und im
 # Klassenraum wird erfahrungsgemäß ausprobiert, was durchgeht. Die Länge des
-# Teamnamens kommt aus models.py, wo sie auch die Breite der Spalte ist.
+# Teamnamens kommt aus plattform/models.py, wo sie auch die Breite der Spalte ist.
 MAX_PASSWORT = 128
 
 # Warum gerade keine Anmeldung möglich ist, je Zustand des Wettbewerbs. Der

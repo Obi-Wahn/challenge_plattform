@@ -96,7 +96,7 @@ class TestWiederverwendeteTeamnummer:
 
     def test_keine_abgabe_unter_fremdem_namen(
             self, make_challenge, logged_in_team, admin, make_team, make_task):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge(title="Scratch")
         team_client, _altes_team = logged_in_team(challenge)
@@ -124,7 +124,7 @@ class TestWiederverwendeteTeamnummer:
 
 def test_anmeldung_merkt_sich_das_kennzeichen(client, make_challenge):
     """Ohne das Kennzeichen in der Sitzung ließe sich nichts davon prüfen."""
-    from models import Team
+    from plattform.models import Team
 
     make_challenge()
 

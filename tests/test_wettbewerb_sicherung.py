@@ -8,7 +8,7 @@ from datetime import datetime
 
 import pytest
 
-from models import Challenge, Submission, Task, Team
+from plattform.models import Challenge, Submission, Task, Team
 from tests.helpers import csrf_token
 
 
@@ -483,7 +483,7 @@ class TestBeispielWettbewerb:
         assert "Angepasst" not in seite
 
     def test_aufgaben_sind_die_aus_dem_aufgabensatz(self, admin):
-        from task_exchange import parse_tasks
+        from plattform.task_exchange import parse_tasks
         from pathlib import Path
 
         satz = Path(__file__).resolve().parent.parent / "beispiele" / "scratch-aufgaben.json"

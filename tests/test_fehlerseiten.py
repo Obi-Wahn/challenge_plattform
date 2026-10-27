@@ -99,7 +99,7 @@ class TestAbgabeMitMissgeschick:
 
     def test_falsche_dateiart_sagt_welche_erlaubt_ist(
             self, make_challenge, make_task, logged_in_team):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, title="Hüpfendes Ei", allowed_extension=".sb3")
@@ -116,7 +116,7 @@ class TestAbgabeMitMissgeschick:
         assert Submission.query.count() == 0
 
     def test_ohne_datei_kommt_eine_meldung(self, make_challenge, make_task, logged_in_team):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -132,7 +132,7 @@ class TestAbgabeMitMissgeschick:
 
     def test_nach_dem_ende_sagt_die_seite_warum(
             self, make_challenge, make_task, logged_in_team, database):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -149,7 +149,7 @@ class TestAbgabeMitMissgeschick:
 
     def test_die_pause_sagt_es_ebenso(
             self, make_challenge, make_task, logged_in_team, database):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)
@@ -166,7 +166,7 @@ class TestAbgabeMitMissgeschick:
 
     def test_die_zweite_abgabe_verweist_auf_die_freigabe(
             self, make_challenge, make_task, logged_in_team):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge(self_correction=False)
         task = make_task(challenge)
@@ -184,7 +184,7 @@ class TestAbgabeMitMissgeschick:
             assert datei.read() == b"projekt"
 
     def test_ohne_anmeldung_geht_es_zur_startseite(self, client, make_challenge, make_task):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge)

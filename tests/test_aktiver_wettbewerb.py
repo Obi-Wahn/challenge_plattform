@@ -46,7 +46,7 @@ def einlesen(admin, inhalt):
 
 class TestNeuerWettbewerb:
     def test_der_erste_wird_von_selbst_aktiv(self, admin, database):
-        from models import Challenge
+        from plattform.models import Challenge
 
         seite = anlegen(admin, "Scratch-Tag").get_data(as_text=True)
 
@@ -54,7 +54,7 @@ class TestNeuerWettbewerb:
         assert "der aktive Wettbewerb" in seite
 
     def test_ein_weiterer_loest_den_aktiven_nicht_ab(self, admin, make_challenge):
-        from models import Challenge
+        from plattform.models import Challenge
         aktiv = make_challenge(title="Läuft gerade")
 
         anlegen(admin, "Nächste Woche")
@@ -62,7 +62,7 @@ class TestNeuerWettbewerb:
         assert Challenge.current().id == aktiv.id
 
     def test_ohne_aktiven_wird_der_neue_aktiv(self, admin, make_challenge):
-        from models import Challenge
+        from plattform.models import Challenge
         make_challenge(title="Alt", active=False)
 
         anlegen(admin, "Neu")
@@ -72,7 +72,7 @@ class TestNeuerWettbewerb:
 
 class TestLoeschenDesAktiven:
     def test_kein_anderer_rueckt_still_nach(self, admin, make_challenge):
-        from models import Challenge
+        from plattform.models import Challenge
         make_challenge(title="Alt und beendet", active=False)
         aktiv = make_challenge(title="Aktiv")
 
@@ -115,7 +115,7 @@ class TestLoeschenDesAktiven:
             "team": "Nachzügler", "password": "geheim",
         })
 
-        from models import Team
+        from plattform.models import Team
         assert "Gerade ist kein Wettbewerb aktiv" in antwort.get_data(as_text=True)
         assert Team.query.count() == 0
 
@@ -130,7 +130,7 @@ class TestLoeschenDesAktiven:
 
 class TestEingeleseneSicherung:
     def test_wird_auch_ohne_aktiven_nicht_aktuell(self, admin, database):
-        from models import Challenge
+        from plattform.models import Challenge
 
         einlesen(admin, sicherung())
 
@@ -138,7 +138,7 @@ class TestEingeleseneSicherung:
         assert Challenge.current() is None
 
     def test_neben_einem_aktiven_bleibt_der_aktive(self, admin, make_challenge):
-        from models import Challenge
+        from plattform.models import Challenge
         aktiv = make_challenge(title="Aktiv")
 
         einlesen(admin, sicherung())
@@ -178,9 +178,9 @@ class TestUpdateVonFrueher:
     """
 
     def test_der_bisher_angezeigte_wird_aktiv(self, make_challenge):
-        from migrationen import ensure_active_challenge
-        from extensions import db
-        from models import Challenge
+        from plattform.migrationen import ensure_active_challenge
+        from plattform.extensions import db
+        from plattform.models import Challenge
         make_challenge(title="Erster", active=False)
         zweiter = make_challenge(title="Zweiter", active=False)
 
@@ -190,9 +190,9 @@ class TestUpdateVonFrueher:
         assert Challenge.current().id == zweiter.id
 
     def test_ein_aktiver_bleibt_unberuehrt(self, make_challenge):
-        from migrationen import ensure_active_challenge
-        from extensions import db
-        from models import Challenge
+        from plattform.migrationen import ensure_active_challenge
+        from plattform.extensions import db
+        from plattform.models import Challenge
         aktiv = make_challenge(title="Aktiv")
         make_challenge(title="Neuer", active=False)
 
@@ -203,7 +203,7 @@ class TestUpdateVonFrueher:
         assert Challenge.query.filter_by(active=True).count() == 1
 
     def test_ohne_wettbewerb_passiert_nichts(self, database):
-        from migrationen import ensure_active_challenge
+        from plattform.migrationen import ensure_active_challenge
         ensure_active_challenge()
 
 
@@ -252,7 +252,7 @@ class TestAnmeldungOhneAktiven:
 
     def test_richtige_angaben_bekommen_keinen_falschen_vorwurf(
             self, client, make_challenge, make_team):
-        from models import Challenge
+        from plattform.models import Challenge
         alt = make_challenge(title="Alt")
         make_team(alt, name="Pixel", password="geheim")
         alt.active = False

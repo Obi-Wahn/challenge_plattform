@@ -74,7 +74,7 @@ class TestPython:
 
     def test_starter_braucht_nur_die_standardbibliothek(self):
         # Er läuft mit dem Python des Rechners, bevor irgendein Paket
-        # installiert ist. network.py wird erst beim Start geholt und ist
+        # installiert ist. plattform/network.py wird erst beim Start geholt und ist
         # selbst nur Standardbibliothek.
         baum = ast.parse((ROOT / "starter.py").read_text(encoding="utf-8"))
         oben = {
@@ -420,9 +420,9 @@ class TestBeispielwerteErsetzen:
         assert datei.stat().st_mode & 0o777 == 0o600
 
     def test_beispielwerte_wie_in_config(self):
-        # starter.py kann config.py nicht laden, deshalb steht die Liste
+        # starter.py kann plattform/config.py nicht laden, deshalb steht die Liste
         # zweimal. Sie darf nicht auseinanderlaufen.
-        import config
+        from plattform import config
         assert starter.PLATZHALTER == config.PLATZHALTER
         assert starter.MIN_SCHLUESSEL == config.MIN_SCHLUESSEL
 

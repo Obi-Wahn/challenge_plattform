@@ -276,6 +276,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_leitfaden.py` | der Leitfaden nennt nur Seiten und Dateien, die es gibt |
 | `test_vendor.py` | Versionsliste und `static/vendor/` bleiben deckungsgleich |
 | `test_pakete.py` | das Werkzeug, das nach neueren Python-Paketen sieht |
+| `test_projektordner.py` | die Module in `plattform/` finden Datenbank, Abgaben, Protokoll und Schriften im Projektordner; oben liegen nur die Startdateien |
 
 **Sicherheit**
 
@@ -295,23 +296,25 @@ challenge_plattform/
 ├── stand.py                # welche Version läuft, aus git oder stand.txt
 ├── stand.txt               # von GitHub im ZIP ausgefüllt, im Repository nur Platzhalter
 ├── app.py                  # Einstiegspunkt
-├── config.py               # Konfiguration
-├── extensions.py           # Datenbank & Extensions
-├── models.py               # Datenbankmodelle
-├── scoring.py              # Rangliste und Podium
-├── certificates.py         # Urkunden als PDF
-├── task_exchange.py        # Aufgaben sichern und einlesen
-├── wettbewerb_sicherung.py # einen ganzen Wettbewerb als ZIP sichern und einlesen
-├── datenschutz.py          # aufräumen: Teams und Abgaben, Protokolldatei, Sicherungskopien
-├── migrationen.py          # Umbauten an einer bestehenden Datenbank beim Start
-├── network.py              # Adresse, unter der die Teams beitreten
-├── sitzung.py              # Anmeldung eines Teams oder zum Bewerten und ihre Gültigkeit
-├── protokoll.py            # die Zeilen, die in logs/anwendung.log gehen
-├── uploads.py              # Dateinamen der Abgaben, löscht Dateien mit ihrer Abgabe
-├── task_rules.py           # Regeln für Aufgabenwerte, für Formular und Import
-├── skripte.py              # die Skripte einer Abgabe als Blöcke, für Bewertungs- und Teamseite
-├── scratch_skripte.py      # liest die Skripte aus einer .sb3
-├── snap_skripte.py         # liest die Skripte aus einem Snap!-Projekt (.xml)
+├── plattform/              # die Module der Anwendung, app.py setzt sie zusammen
+│   ├── __init__.py         # bleibt ohne Import, der Starter holt network.py daraus
+│   ├── config.py           # Konfiguration
+│   ├── extensions.py       # Datenbank & Extensions
+│   ├── models.py           # Datenbankmodelle
+│   ├── scoring.py          # Rangliste und Podium
+│   ├── certificates.py     # Urkunden als PDF
+│   ├── task_exchange.py    # Aufgaben sichern und einlesen
+│   ├── wettbewerb_sicherung.py # einen ganzen Wettbewerb als ZIP sichern und einlesen
+│   ├── datenschutz.py      # aufräumen: Teams und Abgaben, Protokolldatei, Sicherungskopien
+│   ├── migrationen.py      # Umbauten an einer bestehenden Datenbank beim Start
+│   ├── network.py          # Adresse, unter der die Teams beitreten
+│   ├── sitzung.py          # Anmeldung eines Teams oder zum Bewerten und ihre Gültigkeit
+│   ├── protokoll.py        # die Zeilen, die in logs/anwendung.log gehen
+│   ├── uploads.py          # Dateinamen der Abgaben, löscht Dateien mit ihrer Abgabe
+│   ├── task_rules.py       # Regeln für Aufgabenwerte, für Formular und Import
+│   ├── skripte.py          # die Skripte einer Abgabe als Blöcke, für Bewertungs- und Teamseite
+│   ├── scratch_skripte.py  # liest die Skripte aus einer .sb3
+│   └── snap_skripte.py     # liest die Skripte aus einem Snap!-Projekt (.xml)
 ├── requirements.txt        # Abhängigkeiten
 ├── requirements-dev.txt    # zusätzlich zum Testen
 ├── pytest.ini              # Test-Einstellungen

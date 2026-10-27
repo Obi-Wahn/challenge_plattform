@@ -11,7 +11,7 @@ Serverfehler.
 Die Regeln stehen deshalb hier, und alle drei Wege benutzen sie.
 """
 
-from models import (
+from plattform.models import (
     TASK_FORMATS,
     DEFAULT_TASK_FORMAT,
     TASK_DIFFICULTIES,

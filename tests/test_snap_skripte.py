@@ -15,8 +15,8 @@ from pathlib import Path
 
 import pytest
 
-import snap_skripte
-from snap_skripte import skripte_aus_projekt, skripte_der_abgabe
+from plattform import snap_skripte
+from plattform.snap_skripte import skripte_aus_projekt, skripte_der_abgabe
 from tests.helpers import csrf_token
 
 ORDNER = Path(__file__).resolve().parent / "snap"
@@ -309,7 +309,7 @@ class TestDatei:
 
 class TestAbruf:
     def abgabe(self, make_challenge, make_task, logged_in_team, inhalt):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, allowed_extension=".xml")

@@ -8,7 +8,7 @@ wurde, ging über das Formular durch.
 
 import pytest
 
-from task_rules import (KEIN_TITEL, MAX_AUFGABENTITEL, MAX_POINTS, PUNKTE_KEINE_ZAHL,
+from plattform.task_rules import (KEIN_TITEL, MAX_AUFGABENTITEL, MAX_POINTS, PUNKTE_KEINE_ZAHL,
                         clean_task_values)
 from tests.helpers import csrf_token
 
@@ -80,7 +80,7 @@ class TestAufgabeUeberDasFormular:
 
     def test_negative_punktzahl_wird_nicht_gespeichert(self, admin, make_challenge,
                                                        database):
-        from models import Task
+        from plattform.models import Task
 
         challenge = make_challenge()
         self.aufgabe_anlegen(admin, challenge, max_points="-50")
@@ -93,7 +93,7 @@ class TestAufgabeUeberDasFormular:
 
     def test_punktzahl_die_keine_zahl_ist_ergibt_keinen_serverfehler(
             self, admin, make_challenge, database):
-        from models import Task
+        from plattform.models import Task
 
         challenge = make_challenge()
         antwort = self.aufgabe_anlegen(admin, challenge, max_points="abc")
@@ -104,7 +104,7 @@ class TestAufgabeUeberDasFormular:
 
     def test_unbekanntes_dateiformat_wird_nicht_gespeichert(self, admin,
                                                             make_challenge, database):
-        from models import Task
+        from plattform.models import Task
 
         challenge = make_challenge()
         self.aufgabe_anlegen(admin, challenge, allowed_extension=".exe")
@@ -114,7 +114,7 @@ class TestAufgabeUeberDasFormular:
     @pytest.mark.parametrize("endung", [".xml", ".ino", ".aia", ".ipynb"])
     def test_die_weiteren_formate_werden_gespeichert(self, admin, make_challenge,
                                                      database, endung):
-        from models import Task
+        from plattform.models import Task
 
         challenge = make_challenge()
         self.aufgabe_anlegen(admin, challenge, allowed_extension=endung)
@@ -122,7 +122,7 @@ class TestAufgabeUeberDasFormular:
         assert Task.query.filter_by(title="Testaufgabe").one().allowed_extension == endung
 
     def test_ohne_titel_entsteht_nichts(self, admin, make_challenge, database):
-        from models import Task
+        from plattform.models import Task
 
         challenge = make_challenge()
         antwort = self.aufgabe_anlegen(admin, challenge, title="   ")
@@ -132,7 +132,7 @@ class TestAufgabeUeberDasFormular:
 
     def test_uebermaessig_langer_titel_wird_gekuerzt(self, admin, make_challenge,
                                                      database):
-        from models import Task
+        from plattform.models import Task
 
         challenge = make_challenge()
         self.aufgabe_anlegen(admin, challenge, title="T" * 500)
@@ -141,7 +141,7 @@ class TestAufgabeUeberDasFormular:
 
     def test_bearbeiten_gilt_dieselbe_regel(self, admin, make_challenge, make_task,
                                             database):
-        from models import Task
+        from plattform.models import Task
 
         challenge = make_challenge()
         task = make_task(challenge, title="Vorher")
@@ -170,7 +170,7 @@ class TestTeamRegistrierung:
 
     def test_name_nur_aus_leerzeichen_wird_abgewiesen(self, client, make_challenge,
                                                       database):
-        from models import Team
+        from plattform.models import Team
 
         make_challenge()
         antwort = self.registrieren(client, "      ")
@@ -180,7 +180,7 @@ class TestTeamRegistrierung:
 
     def test_umgebende_leerzeichen_werden_entfernt(self, client, make_challenge,
                                                    database):
-        from models import Team
+        from plattform.models import Team
 
         make_challenge()
         self.registrieren(client, "  Die Pixelpiraten  ")
@@ -189,7 +189,7 @@ class TestTeamRegistrierung:
 
     def test_uebermaessig_langer_name_wird_abgewiesen(self, client, make_challenge,
                                                       database):
-        from models import Team
+        from plattform.models import Team
 
         make_challenge()
         antwort = self.registrieren(client, "A" * 5000)
@@ -200,7 +200,7 @@ class TestTeamRegistrierung:
         assert "100" in antwort.get_data(as_text=True)
 
     def test_name_an_der_grenze_geht_durch(self, client, make_challenge, database):
-        from models import Team
+        from plattform.models import Team
 
         make_challenge()
         self.registrieren(client, "A" * 100)
@@ -209,7 +209,7 @@ class TestTeamRegistrierung:
 
     def test_uebermaessig_langes_passwort_wird_abgewiesen(self, client, make_challenge,
                                                           database):
-        from models import Team
+        from plattform.models import Team
 
         make_challenge()
         antwort = self.registrieren(client, "Team A", passwort="x" * 5000)
@@ -239,7 +239,7 @@ class TestSchreibweiseZaehlt:
 
     def test_gross_und_kleinschreibung_ergeben_zwei_teams(self, flask_app,
                                                           make_challenge, database):
-        from models import Team
+        from plattform.models import Team
 
         make_challenge()
         for name in ("Die Hacker", "die hacker"):
@@ -254,7 +254,7 @@ class TestSchreibweiseZaehlt:
             "Die Schreibweise soll Teams unterscheiden - das ist so gewollt"
 
     def test_derselbe_name_bleibt_gesperrt(self, flask_app, make_challenge, database):
-        from models import Team
+        from plattform.models import Team
 
         make_challenge()
         for _ in range(2):
@@ -277,7 +277,7 @@ class TestGleichzeitigeRegistrierung:
         Zustand, in dem beide Anfragen gleichzeitig an der Datenbank landen.
         Ohne Behandlung des IntegrityError endet die zweite in einem 500er.
         """
-        from models import Team
+        from plattform.models import Team
 
         challenge = make_challenge()
         vorhanden = Team(name="Die Hacker", challenge_id=challenge.id)
@@ -400,7 +400,7 @@ class TestAnmeldungBeiZweiSchreibweisen:
                 "password": passwort,
             })
 
-        from models import Team
+        from plattform.models import Team
         assert Team.query.count() == 2
 
     def anmelden(self, flask_app, name, passwort):
@@ -458,18 +458,18 @@ class TestAnmeldungBeiZweiSchreibweisen:
     def test_registrierung_trennt_weiterhin(self, flask_app, make_challenge,
                                             database):
         """Die Anmeldung ist großzügig, die Registrierung bleibt strikt."""
-        from models import Team
+        from plattform.models import Team
 
         self.vorbereiten(flask_app, make_challenge, database)
         assert {t.name for t in Team.query.all()} == {"Die Hacker", "die hacker"}
 
 
 class TestGrenzenAnEinerStelle:
-    """Jede Grenze steht einmal in models.py, als Breite der Spalte und für
+    """Jede Grenze steht einmal in plattform/models.py, als Breite der Spalte und für
     jede Stelle, die prüft oder kürzt."""
 
     def test_spaltenbreiten_sind_die_grenzen(self):
-        import models
+        from plattform import models
 
         assert models.Team.__table__.c.name.type.length == models.MAX_TEAMNAME
         assert models.Challenge.__table__.c.title.type.length == models.MAX_TITEL
@@ -479,10 +479,10 @@ class TestGrenzenAnEinerStelle:
         assert models.Settings.__table__.c.site_name.type.length == models.MAX_SEITENNAME
 
     def test_alle_pruefen_mit_denselben_grenzen(self, flask_app):
-        import models
-        import task_exchange
-        import task_rules
-        import wettbewerb_sicherung
+        from plattform import models
+        from plattform import task_exchange
+        from plattform import task_rules
+        from plattform import wettbewerb_sicherung
         from blueprints import admin, public
 
         assert public.MAX_TEAMNAME is wettbewerb_sicherung.MAX_TEAMNAME is models.MAX_TEAMNAME

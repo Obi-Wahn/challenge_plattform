@@ -10,9 +10,9 @@ import socket
 
 import pytest
 
-import network
+from plattform import network
 from app import startmeldung
-from network import (
+from plattform.network import (
     FESTE_ADRESSE,
     PORT_EINTRAG,
     STANDARD_PORT,

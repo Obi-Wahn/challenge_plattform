@@ -10,8 +10,8 @@ import re
 
 from flask import jsonify
 
-import scratch_skripte
-import snap_skripte
+from plattform import scratch_skripte
+from plattform import snap_skripte
 
 # Welche Abgaben sich als Blöcke anzeigen lassen, und wer sie liest. Hinter
 # .xml kann auch ein Programm aus Open Roberta stecken; das merkt erst

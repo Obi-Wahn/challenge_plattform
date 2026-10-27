@@ -13,8 +13,8 @@ from tests.helpers import TMP_DIR, csrf_token
 
 
 def frisch(challenge):
-    from extensions import db
-    from models import Challenge
+    from plattform.extensions import db
+    from plattform.models import Challenge
 
     db.session.expire_all()
     return db.session.get(Challenge, challenge.id)
@@ -27,7 +27,7 @@ def posten(admin, pfad, daten=None):
 
 
 def abgabe_mit_datei(flask_app, database, team, task, punkte=7):
-    from models import Submission
+    from plattform.models import Submission
 
     ordner = os.path.join(flask_app.config["UPLOAD_FOLDER"], str(team.id))
     os.makedirs(ordner, exist_ok=True)
@@ -59,7 +59,7 @@ def beendeter_wettbewerb(flask_app, database, make_challenge, make_team, make_ta
 class TestAufraeumen:
     def test_teams_und_abgaben_sind_weg(self, admin, flask_app, database, make_challenge,
                                         make_team, make_task):
-        from models import Submission, Team
+        from plattform.models import Submission, Team
 
         challenge, pfad = beendeter_wettbewerb(flask_app, database, make_challenge,
                                                make_team, make_task)
@@ -96,7 +96,7 @@ class TestAufraeumen:
 
     def test_nur_bei_beendetem_wettbewerb(self, admin, flask_app, database, make_challenge,
                                           make_team, make_task):
-        from models import Team
+        from plattform.models import Team
 
         challenge = make_challenge(start_time=datetime.now() - timedelta(minutes=5),
                                    end_time=datetime.now() + timedelta(minutes=40))
@@ -151,7 +151,7 @@ class TestProtokollLeeren:
         return os.path.join(flask_app.config["LOG_DIR"], "anwendung.log")
 
     def test_leert_die_datei_und_schreibt_danach_weiter(self, admin, flask_app):
-        from protokoll import ereignis
+        from plattform.protokoll import ereignis
 
         ereignis("Team angelegt: „Team Lena“ von 10.0.0.23")
         alt = self.pfad(flask_app) + ".1"
@@ -210,7 +210,7 @@ class TestSicherungskopienLoeschen:
 
 class TestGroesseAlsText:
     def test_alle_stufen_mit_deutschem_komma(self):
-        from datenschutz import groesse_text
+        from plattform.datenschutz import groesse_text
 
         assert groesse_text(52) == "52 Byte"
         assert groesse_text(340 * 1024) == "340 KB"

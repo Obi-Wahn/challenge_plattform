@@ -9,8 +9,8 @@ Anmeldung noch gilt, und räumt sie weg, sobald sie es nicht mehr tut.
 
 from flask import session
 
-from extensions import db
-from models import Team
+from plattform.extensions import db
+from plattform.models import Team
 
 # Alles, was zu einer Team-Anmeldung gehört.
 SITZUNGSSCHLUESSEL = ("team_id", "team_name", "team_uid")
@@ -90,7 +90,7 @@ def bewertung_angemeldet():
     if not kennzeichen:
         return False
 
-    from models import Settings
+    from plattform.models import Settings
     if kennzeichen != Settings.get().review_token:
         bewertung_abmelden()
         return False

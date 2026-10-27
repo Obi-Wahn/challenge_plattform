@@ -10,8 +10,8 @@ from datetime import datetime, timedelta
 
 
 def abgabe(team, task, punkte):
-    from extensions import db
-    from models import Submission
+    from plattform.extensions import db
+    from plattform.models import Submission
 
     db.session.add(Submission(team_id=team.id, task_id=task.id, filename="x.sb3",
                               points=punkte,
@@ -107,7 +107,7 @@ class TestEingefroren:
         assert wechselt(admin)
 
     def test_nach_dem_aufloesen_ueberall(self, client, make_challenge, make_task, make_team):
-        from extensions import db
+        from plattform.extensions import db
 
         challenge = self.eingefroren(make_challenge, make_task, make_team)
         challenge.scoreboard_revealed = True

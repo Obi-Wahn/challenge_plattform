@@ -12,8 +12,8 @@ from tests.helpers import csrf_token
 
 
 def frisch(challenge):
-    from extensions import db
-    from models import Challenge
+    from plattform.extensions import db
+    from plattform.models import Challenge
 
     db.session.expire_all()
     return db.session.get(Challenge, challenge.id)
@@ -173,7 +173,7 @@ class TestDatensparsam:
         import json
         import zipfile
 
-        from wettbewerb_sicherung import sicherung_bauen, sicherung_einlesen
+        from plattform.wettbewerb_sicherung import sicherung_bauen, sicherung_einlesen
 
         challenge = wettbewerb(make_challenge)
         senden(admin, challenge, "Lena bitte zur Tafel")

@@ -260,7 +260,7 @@ class TestAufbauUndVerwaltung:
 
     def test_aufgabe_angelegt_bearbeitet_geloescht(self, admin, protokoll,
                                                   make_challenge, database):
-        from models import Task
+        from plattform.models import Task
 
         challenge = make_challenge(title="Aufgabentag")
         protokoll.neu()
@@ -324,7 +324,7 @@ class TestAufbauUndVerwaltung:
         assert "T. Henze" not in zeile
 
     def test_ungeaenderte_einstellungen_schreiben_keine_zeile(self, admin, protokoll):
-        from models import Settings
+        from plattform.models import Settings
 
         vorhanden = Settings.get()
         admin.post("/admin/settings", data={
@@ -492,7 +492,7 @@ class TestWettbewerbstag:
 
     def test_zurueckgesetzte_abgabe(self, admin, protokoll, make_challenge, make_task,
                                     logged_in_team, database):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, title="Katze bewegen")
@@ -643,7 +643,7 @@ class TestWasStillBleibt:
 
     def test_bewertung(self, admin, protokoll, make_challenge, make_task,
                        logged_in_team):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, max_points=10)

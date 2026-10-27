@@ -10,7 +10,7 @@ import os
 import re
 import tempfile
 
-# Muss gesetzt sein, bevor config.py geladen wird: Die Datei verlangt diese
+# Muss gesetzt sein, bevor plattform/config.py geladen wird: Die Datei verlangt diese
 # Werte beim Import. load_dotenv() überschreibt vorhandene Variablen nicht,
 # eine .env der Entwicklerin kann also nicht dazwischenfunken.
 os.environ.setdefault("SECRET_KEY", "test-secret")

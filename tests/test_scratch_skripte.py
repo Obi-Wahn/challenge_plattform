@@ -13,8 +13,8 @@ from pathlib import Path
 
 import pytest
 
-import scratch_skripte
-from scratch_skripte import skripte_aus_projekt, skripte_der_abgabe, zeichen_schuetzen
+from plattform import scratch_skripte
+from plattform.scratch_skripte import skripte_aus_projekt, skripte_der_abgabe, zeichen_schuetzen
 from tests.helpers import csrf_token
 
 BEISPIEL = Path(__file__).resolve().parent.parent / "beispiele" / "scratch-wettbewerb.zip"
@@ -307,7 +307,7 @@ class TestKaputteDateien:
 
     def test_kaputte_gepackte_daten_ueber_die_route(
             self, admin, make_challenge, make_task, logged_in_team, tmp_path):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, allowed_extension=".sb3")
@@ -401,7 +401,7 @@ class TestKaputteDateien:
 
 class TestAbruf:
     def abgabe(self, make_challenge, make_task, logged_in_team, inhalt, endung=".sb3"):
-        from models import Submission
+        from plattform.models import Submission
 
         challenge = make_challenge()
         task = make_task(challenge, allowed_extension=endung)

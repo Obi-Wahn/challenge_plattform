@@ -59,7 +59,7 @@ def bewerter(flask_app, eingerichtet):
 @pytest.fixture
 def abgabe(make_challenge, make_task, logged_in_team):
     """Eine Abgabe von Team Blitz im aktiven Wettbewerb."""
-    from models import Submission
+    from plattform.models import Submission
 
     challenge = make_challenge()
     task = make_task(challenge, title="Katze bewegen", allowed_extension=".py")
@@ -73,13 +73,13 @@ def abgabe(make_challenge, make_task, logged_in_team):
 
 class TestEinrichten:
     def test_ohne_passwort_gibt_es_keinen_zugang(self, flask_app):
-        from models import Settings
+        from plattform.models import Settings
 
         assert Settings.get().review_access is False
         assert Settings.get().check_review_password("") is False
 
     def test_passwort_wird_nur_als_hash_gespeichert(self, eingerichtet):
-        from models import Settings
+        from plattform.models import Settings
 
         settings = Settings.get()
         assert settings.review_access
@@ -87,14 +87,14 @@ class TestEinrichten:
         assert settings.check_review_password(PASSWORT)
 
     def test_leeres_feld_laesst_das_passwort_stehen(self, eingerichtet):
-        from models import Settings
+        from plattform.models import Settings
 
         vorher = Settings.get().review_password_hash
         passwort_setzen(eingerichtet, "")
         assert Settings.get().review_password_hash == vorher
 
     def test_zu_kurz_wird_nicht_gespeichert(self, admin):
-        from models import Settings
+        from plattform.models import Settings
 
         antwort = passwort_setzen(admin, "kurz")
         assert Settings.get().review_access is False
@@ -103,7 +103,7 @@ class TestEinrichten:
         assert "mindestens 6 Zeichen" in seite
 
     def test_admin_passwort_wird_abgelehnt(self, admin):
-        from models import Settings
+        from plattform.models import Settings
 
         antwort = passwort_setzen(admin, ADMIN_PASSWORD)
         seite = admin.get(antwort.headers["Location"]).get_data(as_text=True)
@@ -111,7 +111,7 @@ class TestEinrichten:
         assert Settings.get().review_access is False
 
     def test_die_anderen_einstellungen_werden_trotzdem_gespeichert(self, admin):
-        from models import Settings
+        from plattform.models import Settings
 
         admin.post("/admin/settings", data={
             "csrf_token": csrf_token(admin, "/admin/settings"),
@@ -122,7 +122,7 @@ class TestEinrichten:
         assert Settings.get().review_access is False
 
     def test_abschalten(self, eingerichtet):
-        from models import Settings
+        from plattform.models import Settings
 
         antwort = eingerichtet.post("/admin/bewertungszugang-abschalten", data={
             "csrf_token": csrf_token(eingerichtet, "/admin/settings"),
@@ -185,7 +185,7 @@ class TestAnmelden:
         assert "geraten" not in zeile
 
     def test_in_der_sitzung_steht_nicht_der_hash(self, bewerter):
-        from models import Settings
+        from plattform.models import Settings
 
         with bewerter.session_transaction() as sitzung:
             kennzeichen = sitzung.get("bewertung")
@@ -208,7 +208,7 @@ class TestWasErlaubtIst:
         assert "Angemeldet zum Bewerten" in html
 
     def test_bewerten(self, bewerter, abgabe):
-        from extensions import db
+        from plattform.extensions import db
 
         bewerter.post("/admin/submissions", data={
             "csrf_token": csrf_token(bewerter, "/admin/submissions"),
@@ -221,7 +221,7 @@ class TestWasErlaubtIst:
         assert abgabe.feedback == "Schön gelöst"
 
     def test_bewertung_zuruecksetzen(self, bewerter, abgabe):
-        from extensions import db
+        from plattform.extensions import db
 
         abgabe.points = 5
         db.session.commit()
@@ -256,7 +256,7 @@ class TestNurDerAktiveWettbewerb:
 
     @pytest.fixture
     def alte_abgabe(self, abgabe, make_challenge):
-        from extensions import db
+        from plattform.extensions import db
 
         abgabe.task.challenge.active = False
         db.session.commit()
@@ -273,14 +273,14 @@ class TestNurDerAktiveWettbewerb:
         assert antwort.status_code == 404
 
     def test_ohne_aktiven_wettbewerb_auch_nicht(self, bewerter, abgabe):
-        from extensions import db
+        from plattform.extensions import db
 
         abgabe.task.challenge.active = False
         db.session.commit()
         assert bewerter.get(f"/admin/download/{abgabe.id}").status_code == 404
 
     def test_bewerten_geht_nicht(self, bewerter, alte_abgabe):
-        from extensions import db
+        from plattform.extensions import db
 
         # Die Bewertungsseite des neuen Wettbewerbs ist leer und trägt kein
         # Formular, das Token kommt deshalb von der Anmeldeseite der Teams.
@@ -300,7 +300,7 @@ class TestNurDerAktiveWettbewerb:
 
 class TestWasBeimAdminBleibt:
     def test_keine_knoepfe_zum_loeschen_und_freigeben(self, bewerter, abgabe):
-        from extensions import db
+        from plattform.extensions import db
 
         abgabe.task.challenge.self_correction = False
         db.session.commit()
@@ -316,7 +316,7 @@ class TestWasBeimAdminBleibt:
         assert "Angemeldet zum Bewerten" not in html
 
     def test_loeschen_von_hand_wird_abgewiesen(self, bewerter, abgabe):
-        from models import Submission
+        from plattform.models import Submission
 
         antwort = bewerter.post(f"/admin/reset/{abgabe.id}", data={
             "csrf_token": csrf_token(bewerter, "/admin/submissions"),
@@ -325,7 +325,7 @@ class TestWasBeimAdminBleibt:
         assert Submission.query.count() == 1
 
     def test_freigeben_von_hand_wird_abgewiesen(self, bewerter, abgabe):
-        from extensions import db
+        from plattform.extensions import db
 
         antwort = bewerter.post(f"/admin/submissions/{abgabe.id}/allow_resubmit", data={
             "csrf_token": csrf_token(bewerter, "/admin/submissions"),
@@ -335,7 +335,7 @@ class TestWasBeimAdminBleibt:
         assert not abgabe.resubmit_allowed
 
     def test_eigenes_passwort_aendern_geht_nicht(self, bewerter):
-        from models import Settings
+        from plattform.models import Settings
 
         vorher = Settings.get().review_password_hash
         antwort = bewerter.post("/admin/settings", data={

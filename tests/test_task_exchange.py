@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from task_exchange import ImportError_, parse_tasks
+from plattform.task_exchange import ImportError_, parse_tasks
 from tests.helpers import csrf_token
 
 
@@ -182,7 +182,7 @@ class TestSichern:
 class TestEinlesen:
     def test_aufgaben_kommen_im_anderen_wettbewerb_an(
             self, admin, make_challenge, make_task, database):
-        from models import Task
+        from plattform.models import Task
 
         quelle = make_challenge(title="Quelle")
         make_task(quelle, title="Katze läuft im Kreis", max_points=10,
@@ -200,7 +200,7 @@ class TestEinlesen:
         assert eingelesen.hint == "Tipp"
 
     def test_hinweise_starten_verborgen(self, admin, make_challenge, make_task, database):
-        from models import Task
+        from plattform.models import Task
 
         quelle = make_challenge(title="Quelle")
         make_task(quelle, hint="Tipp", hint_visible=True)
@@ -213,7 +213,7 @@ class TestEinlesen:
 
     def test_einlesen_haengt_an_statt_zu_ersetzen(
             self, admin, make_challenge, make_task, database):
-        from models import Task
+        from plattform.models import Task
 
         challenge = make_challenge()
         make_task(challenge, title="War schon da")
@@ -225,7 +225,7 @@ class TestEinlesen:
 
     def test_die_quelle_bleibt_unveraendert(
             self, admin, make_challenge, make_task, database):
-        from models import Task
+        from plattform.models import Task
 
         quelle = make_challenge(title="Quelle")
         make_task(quelle, title="Original")
@@ -255,7 +255,7 @@ class TestEinlesen:
 
     def test_teilweise_brauchbare_datei_meldet_beides(
             self, admin, make_challenge, database):
-        from models import Task
+        from plattform.models import Task
 
         challenge = make_challenge()
 
@@ -321,7 +321,7 @@ class TestBeispieldateien:
             assert uebersprungen == [], f"{datei.name}: {uebersprungen}"
 
     def test_beispiele_haben_titel_punkte_und_format(self):
-        from models import TASK_FORMATS
+        from plattform.models import TASK_FORMATS
 
         for datei in self.beispiele():
             tasks, _ = parse_tasks(datei.read_bytes())
@@ -331,7 +331,7 @@ class TestBeispieldateien:
                 assert task["allowed_extension"] in TASK_FORMATS, datei.name
 
     def test_beispiel_laesst_sich_einlesen(self, admin, make_challenge, database):
-        from models import Task
+        from plattform.models import Task
 
         challenge = make_challenge()
         datei = self.beispiele()[0]

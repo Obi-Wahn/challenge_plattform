@@ -17,7 +17,7 @@ from datetime import datetime
 
 from flask import current_app
 
-from extensions import db
+from plattform.extensions import db
 
 # Columns added after the initial schema, as {table: {column: definition}}.
 # db.create_all() only creates missing tables, not missing columns on a table

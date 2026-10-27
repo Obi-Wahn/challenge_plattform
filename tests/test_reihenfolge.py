@@ -12,7 +12,7 @@ import zipfile
 
 import pytest
 
-from models import Challenge, Submission, Task
+from plattform.models import Challenge, Submission, Task
 from tests.helpers import csrf_token
 
 
@@ -218,7 +218,7 @@ class TestTitelInDerRangliste:
     """Unter Einstellungen → Rangliste lassen sich die Titel abschalten."""
 
     def einstellen(self, admin, an):
-        from models import Settings
+        from plattform.models import Settings
 
         vorhanden = Settings.get()
         daten = {
