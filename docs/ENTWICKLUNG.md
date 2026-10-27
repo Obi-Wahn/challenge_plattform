@@ -196,7 +196,7 @@ ruff check .
 ```
 
 Beides läuft auch automatisch: Bei jedem Push und jedem Pull Request führt
-GitHub dieselben zwei Befehle aus, auf Python 3.11, 3.13 und 3.14. Am Pull Request
+GitHub dieselben zwei Befehle aus, auf Python 3.11, 3.13, 3.14 und 3.15. Am Pull Request
 steht dann ein grünes Häkchen oder ein rotes Kreuz – man muss also nicht
 daran denken, selbst zu testen. Die Einstellungen dazu stehen in
 `.github/workflows/tests.yml`.
