@@ -67,6 +67,21 @@ def flask_app():
     # seine eigene Prüfung gezielt wieder ein.
     limiter.enabled = False
 
+    # Jeder Test bekommt eine frische Datenbank (siehe database unten), und
+    # SQLite wartet nach jedem Anlegen der Tabellen, bis die Platte das
+    # Schreiben bestätigt. Bei einer Datenbank, die der Test gleich wieder
+    # wegwirft, ist das nur Wartezeit: gut die Hälfte eines Laufs. Das gilt
+    # nur für die Testdatenbank; die Anwendung schreibt weiter wie immer.
+    from sqlalchemy import event
+
+    from extensions import db
+
+    with application.app_context():
+        @event.listens_for(db.engine, "connect")
+        def ohne_warten_auf_die_platte(verbindung, _eintrag):
+            verbindung.execute("PRAGMA synchronous=OFF")
+            verbindung.execute("PRAGMA journal_mode=MEMORY")
+
     return application
 
 

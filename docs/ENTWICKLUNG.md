@@ -188,8 +188,9 @@ pytest
 Die Tests laufen gegen eine eigene Datenbank in einem temporären Verzeichnis.
 `data/challenge.db` wird dabei nie angefasst – ein Testlauf kann also keine
 echten Wettbewerbsdaten beschädigen. Passwörter hashen die Tests mit einem
-schnellen Verfahren statt mit scrypt, so dauert ein Lauf rund eine Minute; die
-Anwendung selbst bleibt bei scrypt.
+schnellen Verfahren statt mit scrypt, und die Testdatenbank wartet nicht, bis
+die Platte jedes Schreiben bestätigt. So dauert ein Lauf rund eine halbe
+Minute; die Anwendung selbst bleibt bei scrypt und schreibt wie immer.
 
 Zusätzlich prüft `ruff` den Code auf echte Fehler – unbenutzte Importe,
 unbekannte Namen, Tippfehler in Variablen. Stil und Formatierung bleiben
