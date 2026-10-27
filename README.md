@@ -10,8 +10,7 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
 
 ## ⚡ Schnellstart
 
-1.  [Python 3.11 oder höher](https://www.python.org/downloads/) installieren
-    (unter Windows „Add python.exe to PATH“ ankreuzen).
+1.  [Python 3.11 oder höher](https://www.python.org/downloads/) installieren.
 2.  Das Projekt als ZIP von der
     [Release-Seite](https://github.com/Obi-Wahn/challenge_plattform/releases)
     herunterladen und entpacken.
@@ -54,10 +53,10 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Registrierung je Wettbewerb**: Teamname und Passwort; derselbe Teamname darf in mehreren Wettbewerben vorkommen. Ist der Wettbewerb beendet oder pausiert oder gerade keiner aktiv, nimmt die Startseite keine neuen Teams an – wer schon dabei ist, kommt weiter hinein.
 *   **Wettbewerbsseite**: alle Aufgaben unter einer eigenen Überschrift, durchnummeriert wie in der Rangliste, mit Fortschritt, eigenen Punkten und dem Feedback der Lehrkraft, dazu die Restzeit als Leiste.
 *   **Schwierigkeit auf einen Blick**: Unter dem einleitenden Satz jeder Aufgabe stehen Punkte und Stufe — 🟢 einfach, 🟡 mittel, 🔴 schwer.
-*   **Aktualisiert sich selbst**: Die Seite fragt alle 15 Sekunden nach dem Stand — Pause, Fortsetzen, ein freigeschalteter Tipp, eine Durchsage und eine neue Dauer kommen an, ohne dass jemand neu laden muss.
+*   **Aktualisiert sich selbst**: Die Seite fragt alle 15 Sekunden nach dem Stand — Pause, Fortsetzen, ein freigeschalteter Hinweis, eine Durchsage und eine neue Dauer kommen an, ohne dass jemand neu laden muss.
 *   **Abgabe je Aufgabe**: Processing (`.pde`), Scratch (`.sb`/`.sb3`), Python (`.py`), Java (`.java`), MakeCode/Calliope (`.hex`/`.mkcd`), Open Roberta und Snap! (`.xml`), Arduino (`.ino`), App Inventor (`.aia`), Jupyter (`.ipynb`) — welches Format erlaubt ist, legt die Aufgabe fest.
 *   **Eigene Skripte ansehen**: Unter einer abgegebenen Scratch- oder Snap!-Aufgabe zeigt „🧩 Unsere Skripte anzeigen“ die Skripte des Teams als Blöcke, wie die Lehrkraft sie beim Bewerten sieht. Jedes Team sieht nur seine eigene Abgabe.
-*   **Tipps**: Kommt ein Team nicht weiter, schaltet die Lehrkraft den Hinweis zur Aufgabe frei.
+*   **Hinweise**: Kommt ein Team nicht weiter, schaltet die Lehrkraft den Hinweis zur Aufgabe frei.
 *   **Korrektur**: Solange der Wettbewerb läuft, ersetzt ein Team seine Abgabe einfach durch eine neue Datei; eine schon bewertete wird dabei wieder offen. Je Wettbewerb abschaltbar, dann gibt die Lehrkraft jede Korrektur einzeln frei.
 *   **Namen für die Urkunde**: Das Team trägt sie selbst ein, einen pro Zeile; auf die Urkunde kommen sie nach der Freigabe durch die Lehrkraft.
 *   **Eigene Urkunde als PDF**: nach dem Ende des Wettbewerbs selbst herunterladbar, bei eingefrorener Rangliste nach der Siegerehrung.
@@ -66,7 +65,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Steuerzentrale**: Zustand, Teams, Aufgaben und offene Bewertungen auf einen Blick, die Kacheln nach Vorbereitung, Während des Wettbewerbs und Zum Abschluss sortiert. Eine Linie am Rand hält zusammen, was zum laufenden Wettbewerb gehört; darunter stehen abgesetzt die Einstellungen der Installation und die anderen Wettbewerbe, die beendeten zugeklappt für sich.
 *   **Wettbewerbe verwalten**: anlegen, aktivieren, pausieren, beenden, wieder öffnen und löschen – alles auf der Steuerzentrale. Welcher Wettbewerb gilt, entscheidet die Lehrkraft mit „Aktivieren“; nur ein neu angelegter wird von selbst aktiv, wenn gerade keiner es ist. Beim Anlegen lassen sich die Teams eines früheren Wettbewerbs übernehmen, mit Passwort und den Namen für die Urkunde.
 *   **Eigener Name je Wettbewerb**: Name und Untertitel stehen überall – Startseite, Rangliste, Teamseite, Urkunden, Browsertitel, Leiste oben und Fußzeile – und bleiben beim Wettbewerb, wenn längst ein anderer läuft. Unter dem Namen begrüßt die Startseite die Teams, mit „Schön, dass ihr dabei seid!“ oder einem eigenen Gruß je Wettbewerb.
-*   **Aufgaben**: Beschreibung in Markdown, erlaubtes Dateiformat, Schwierigkeit (einfach, mittel, schwer oder keine Angabe), optionaler Tipp; die Reihenfolge lässt sich mit ▲ und ▼ ändern. Aufgaben lassen sich als JSON sichern, weitergeben und in einen anderen Wettbewerb einlesen — ohne Abgaben und Punkte. Fertige Sätze für Scratch, Snap! und Calliope liegen unter `beispiele/` und sind mit einem Klick eingelesen.
+*   **Aufgaben**: Beschreibung in Markdown, erlaubtes Dateiformat, Schwierigkeit (einfach, mittel, schwer oder keine Angabe), optionaler Hinweis; die Reihenfolge lässt sich mit ▲ und ▼ ändern. Aufgaben lassen sich als JSON sichern, weitergeben und in einen anderen Wettbewerb einlesen — ohne Abgaben und Punkte. Fertige Sätze für Scratch, Snap! und Calliope liegen unter `beispiele/` und sind mit einem Klick eingelesen.
 *   **Wettbewerb sichern**: ein ganzer Wettbewerb als ZIP – Aufgaben, Teams, Abgaben samt Dateien, Punkte und Feedback. Unter „Neuer Wettbewerb“ wieder eingelesen, entsteht daraus ein neuer, inaktiver Wettbewerb, etwa auf einem anderen Rechner. Die Namen für die Urkunde und die Passwörter der Teams kommen nur auf ausdrücklichen Wunsch mit, die Passwörter nie im Klartext. Zum Ausprobieren liegt unter `beispiele/` ein fertiger Scratch-Wettbewerb mit ausgedachten Teams, Abgaben und Punkten.
 *   **Aufräumen**: Bei einem beendeten Wettbewerb löscht ein Knopf alle Teams samt Namen und Passwörtern und alle Abgaben mit Dateien; Wettbewerb, Einstellungen und Aufgaben bleiben für das nächste Mal. Protokolldatei und alte Sicherungskopien der Datenbank lassen sich unter Einstellungen löschen.
 *   **Zeit im Griff**: Start- und Endzeit oder eine Dauer in Minuten samt „Jetzt starten für … Minuten"; die Pause hält die Uhr an, „Fortsetzen" schiebt das Ende um die Pausendauer nach hinten.
@@ -101,7 +100,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Sicherheit**:
     *   Passwort-Hashing (Werkzeug Security).
     *   CSRF Protection (Flask-WTF).
-    *   Rate-Limiting auf Login-Routen (Flask-Limiter).
+    *   Rate-Limiting auf den Anmeldeseiten (Flask-Limiter).
     *   Secure Filename Handling.
     *   Kein Debug-Modus im Normalbetrieb (nur über `FLASK_DEBUG=true` für lokale Entwicklung).
     *   Unverschlüsselt: Die Plattform spricht http, nicht https. Im selben Netz lässt sich mitlesen. Das Admin-Passwort deshalb nirgends sonst verwenden und die Steuerzentrale möglichst am Server selbst bedienen.
@@ -111,8 +110,9 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 
 Voraussetzung: Python 3.11 oder höher (Markdown, das die Aufgabentexte darstellt, verlangt diese Version).
 Ubuntu 22.04 und Linux Mint 21 bringen noch Python 3.10 mit, dort reicht es nicht.
-Unter Windows beim Installieren von [python.org](https://www.python.org/downloads/)
-„Add python.exe to PATH“ ankreuzen.
+Unter Windows findet die Startdatei Python von selbst, ob es mit dem
+Python install manager oder dem älteren Installationsprogramm von
+[python.org](https://www.python.org/downloads/) kam.
 
 ### Der einfache Weg: Startdatei öffnen
 
@@ -342,7 +342,7 @@ unter dem die Teams ihren Wettbewerb sehen, trägt man beim Anlegen des
 Wettbewerbs ein. Unter *Einstellungen* steht nur der Standardname für die
 Zeit, in der kein Wettbewerb aktiv ist.
 
-Wie ein Wettbewerb **abläuft** – was eine Woche vorher, am Vortag, während
+Wie ein Wettbewerb **abläuft** – was rechtzeitig vorher, am Vortag, während
 des Wettbewerbs und danach zu tun ist, und was zu tun ist, wenn etwas klemmt –
 steht in **[docs/ADMIN_GUIDE.md](docs/ADMIN_GUIDE.md)**.
 
@@ -396,7 +396,7 @@ Knopf lädt eine ZIP-Datei herunter:
 
 | In der ZIP | Inhalt |
 |---|---|
-| `wettbewerb.json` | Name, Untertitel, Gruß, Zeiten, ob die Rangliste einfriert, ob Durchsagen eingeschaltet sind (ohne deren Text) und ob Teams selbst korrigieren dürfen, Aufgaben mit Tipp und Schwierigkeit, Teams, Abgaben mit Punkten, Feedback und Zeitpunkt |
+| `wettbewerb.json` | Name, Untertitel, Gruß, Zeiten, ob die Rangliste einfriert, ob Durchsagen eingeschaltet sind (ohne deren Text) und ob Teams selbst korrigieren dürfen, Aufgaben mit Hinweis und Schwierigkeit, Teams, Abgaben mit Punkten, Feedback und Zeitpunkt |
 | `abgaben/team_<n>/` | die abgegebenen Dateien, je Team ein Ordner |
 
 Eingelesen wird sie unter **➕ Neuer Wettbewerb → Oder aus einer Sicherung
@@ -475,7 +475,7 @@ Festgehalten wird, was etwas **anlegt, ändert oder wegnimmt** – und was
 |---|---|
 | Start | der Server ist hochgefahren, mit Adresse, Port und Version · gesicherte Datenbank vor einem Umbau · ein Wettbewerb, den das Update aktiv geschaltet hat, weil bisher keiner ausdrücklich aktiviert war · wie viele Abgaben vom ganzen Pfad auf den Ort unter `uploads/` umgestellt wurden (einmalig nach dem Update) · eine Warnung, wenn der `SECRET_KEY` kürzer als 32 Zeichen ist |
 | Aufbau | Wettbewerb angelegt, bearbeitet, aktiv geschaltet, gelöscht · Team angelegt, gelöscht, Passwort zurückgesetzt · übernommene Teams · Aufgabe angelegt, bearbeitet, gelöscht · Aufgaben gesichert und eingelesen · Wettbewerb gesichert (mit oder ohne Namen und Passwörter) und eingelesen · geänderte Einstellungen (nur welche Felder) · Bewertungszugang eingerichtet, Passwort geändert, abgeschaltet (ohne das Passwort) |
-| Wettbewerbstag | freigeschalteter oder wieder verborgener Tipp · gesendete oder entfernte Durchsage (ohne ihren Text) · abgelehnte Abgabe samt Grund (falsche Endung, leere Datei, zu groß, pausiert, beendet, schon abgegeben, zweimal kurz hintereinander abgeschickt) · zu große Sicherung · zurückgesetzte Abgabe · fehlgeschlagene Admin-Anmeldung mit Adresse |
+| Wettbewerbstag | freigeschalteter oder wieder verborgener Hinweis · gesendete oder entfernte Durchsage (ohne ihren Text) · abgelehnte Abgabe samt Grund (falsche Endung, leere Datei, zu groß, pausiert, beendet, schon abgegeben, zweimal kurz hintereinander abgeschickt) · zu große Sicherung · zurückgesetzte Abgabe · fehlgeschlagene Admin-Anmeldung mit Adresse |
 | Zum Abschluss | erzeugte Urkunden (Wettbewerb, Anzahl, Ausrichtung) · aufgeräumter Wettbewerb (wie viele Teams und Abgaben gelöscht) · geleerte Protokolldatei · gelöschte Sicherungskopien |
 | Störungen | eine Datei, die nicht gelöscht werden konnte · eine Urkunde, die nicht erzeugt werden konnte · jeder unbehandelte Fehler mit Traceback |
 
