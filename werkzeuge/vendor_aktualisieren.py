@@ -235,8 +235,8 @@ def setzen(liste, angaben):
             # uebernommen, und die Leerzeichen darin haben die Eingabe
             # zerlegt - in der PowerShell auch trotz Anfuehrungszeichen.
             if " " in angabe:
-                print("        Namen mit Leerzeichen gehen schief. Nimm den")
-                print(f"        kurzen Namen, zum Beispiel: {namen.split(', ')[0]}=1.2.3")
+                print("        Namen mit Leerzeichen gehen schief. Stattdessen den")
+                print(f"        kurzen Namen nehmen, zum Beispiel: {namen.split(', ')[0]}=1.2.3")
             print(f"        Möglich sind: {namen}")
             return False
 

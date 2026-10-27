@@ -373,7 +373,7 @@ def startmeldung(adresse, port, protokoll):
         zeilen.append(f"  http://{adresse}:{port}  (für andere Geräte im gleichen Netzwerk)")
     else:
         zeilen.append("  Die Adresse für andere Geräte konnte nicht ermittelt werden.")
-        zeilen.append(f"  Trage sie als {FESTE_ADRESSE}=192.168.… in die .env ein - sonst")
+        zeilen.append(f"  Sie gehört dann als {FESTE_ADRESSE}=192.168.… in die .env - sonst")
         zeilen.append("  steht auch auf der Startseite und im QR-Code keine brauchbare Adresse.")
 
     zeilen.append(f"Protokoll: {protokoll}")
