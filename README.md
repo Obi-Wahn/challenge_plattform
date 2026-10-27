@@ -360,7 +360,7 @@ Aktiviert zeigt er Bewertungen, Rangliste, Siegerehrung und Urkunden, ohne dass
 eine Klasse etwas abgeben muss. Er ist schon beendet; mit **Wieder öffnen**
 läuft er weiter. Passwörter haben die Teams nicht: Wer die Teamseite sehen
 will, vergibt einem Team unter **Teams** eins. Vor dem echten Wettbewerb
-diesen aktivieren, den Beispiel-Wettbewerb kannst du danach löschen.
+diesen aktivieren; der Beispiel-Wettbewerb lässt sich danach löschen.
 
 ## 📋 Protokolldatei
 

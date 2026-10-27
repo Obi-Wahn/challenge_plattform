@@ -33,7 +33,7 @@ Ohne Startdatei, etwa um am Code zu arbeiten:
     ```
 
 3.  **Konfiguration**
-    Erstelle eine `.env` Datei im Hauptverzeichnis (siehe `.env.example`):
+    Eine `.env` im Hauptverzeichnis anlegen (siehe `.env.example`):
     ```ini
     SECRET_KEY=dein-geheimer-schluessel
     ADMIN_PASSWORD=dein-sicheres-passwort
