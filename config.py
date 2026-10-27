@@ -24,7 +24,7 @@ def _require_env(key):
     value = os.environ.get(key)
     if not value:
         raise RuntimeError(
-            f"{key} ist nicht gesetzt. Kopiere .env.example zu .env und setze einen echten Wert, "
+            f"{key} ist nicht gesetzt. .env.example als .env kopieren und einen echten Wert setzen, "
             "bevor die Anwendung gestartet wird."
         )
     if value in PLATZHALTER:

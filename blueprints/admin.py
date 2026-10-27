@@ -468,7 +468,7 @@ def challenge_start_now(cid):
         flash(
             f"Die Zeit von „{challenge.title}“ läuft – {dauer} Minuten, bis "
             f"{zeitpunkt_text(challenge.end_time, jetzt)}. Er ist aber nicht der "
-            "aktive Wettbewerb: Die Teams sehen ihn erst, wenn du ihn aktivierst.",
+            "aktive Wettbewerb: Die Teams sehen ihn erst, wenn er aktiviert ist.",
             "warning"
         )
     return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))
@@ -650,7 +650,7 @@ def challenge_restore():
     if zahlen["teams"] and ohne_passwort:
         wer = ("Die Teams haben" if not zahlen["mit_passwort"]
                else f"{ohne_passwort} Team(s) haben")
-        meldung += (f" {wer} kein Passwort; neue vergibst du nach dem Aktivieren "
+        meldung += (f" {wer} kein Passwort; neue gibt es nach dem Aktivieren "
                     "unter Teams.")
     if zahlen["ohne_datei"]:
         meldung += f" Bei {zahlen['ohne_datei']} Abgabe(n) fehlte die Datei."
@@ -731,7 +731,7 @@ def challenge_finish(cid):
     db.session.commit()
     flash(
         f"„{challenge.title}“ ist beendet. Abgaben sind gesperrt – "
-        "jetzt könnt ihr Rangliste, Siegerehrung und Urkunden zeigen.",
+        "Rangliste, Siegerehrung und Urkunden können jetzt gezeigt werden.",
         "success"
     )
     return redirect(safe_redirect_target(url_for('admin.challenge_detail', cid=cid)))

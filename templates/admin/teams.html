@@ -9,19 +9,19 @@
 {% if challenge %}
 <p class="text-secondary">
   Teams des Wettbewerbs <strong class="text-light">{{ challenge.title }}</strong>.
-  Hat ein Team sein Passwort vergessen, kannst du hier ein neues setzen und es dem Team sagen –
+  Hat ein Team sein Passwort vergessen, lässt sich hier ein neues setzen und dem Team sagen –
   die bisherigen Abgaben und Punkte bleiben dabei erhalten.
 </p>
 
 {% if offene_namen %}
 <div class="alert alert-info">
-  ⏳ {{ offene_namen }} Team(s) haben Namen eingetragen, die noch auf deine Kontrolle warten.
+  ⏳ {{ offene_namen }} Team(s) haben Namen eingetragen, die noch auf Kontrolle warten.
   Erst nach dem Freigeben stehen sie auf der Urkunde.
 </div>
 {% elif not member_names_enabled %}
 <p class="text-secondary small">
-  Teams können ihre Namen für die Urkunde zurzeit nicht eintragen – das schaltest du in den
-  <a href="{{ url_for('admin.settings') }}">Einstellungen</a> frei.
+  Teams können ihre Namen für die Urkunde zurzeit nicht eintragen – freischalten lässt sich das in den
+  <a href="{{ url_for('admin.settings') }}">Einstellungen</a>.
 </p>
 {% endif %}
 {% else %}
@@ -75,7 +75,7 @@
         </div>
         {% elif team.member_list %}
         <div class="text-info small mb-2">
-          ⏳ Eingetragen – wartet auf deine Kontrolle
+          ⏳ Eingetragen – wartet auf Kontrolle
         </div>
         {% else %}
         <div class="text-secondary small mb-2">

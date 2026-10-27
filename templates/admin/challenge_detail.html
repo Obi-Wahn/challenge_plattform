@@ -95,7 +95,7 @@
       ❄️ Die Rangliste ist seit {{ challenge.freeze_point.strftime('%H:%M') }} Uhr eingefroren.
     </span>
     <span class="text-secondary small">
-      Die Siegerehrung zeigt dir den echten Stand, den Teams erst nach dem Auflösen.
+      Die Siegerehrung zeigt den echten Stand sofort, die Teams sehen ihn erst nach dem Auflösen.
     </span>
     <button class="btn btn-outline-info btn-sm">❄️ Rangliste auflösen</button>
   </form>
@@ -149,8 +149,8 @@
 {% if not is_current %}
 <div class="alert alert-secondary">
   Dies ist nicht der aktive Wettbewerb. Rangliste, Siegerehrung und die
-  Bewertungsseite zeigen immer den aktiven Wettbewerb – aktiviere diesen hier, wenn du
-  sie für ihn brauchst. Die Urkunden gibt es auch so, mit den Punkten und dem Namen
+  Bewertungsseite zeigen immer den aktiven Wettbewerb – werden sie für diesen
+  gebraucht, ihn hier aktivieren. Die Urkunden gibt es auch so, mit den Punkten und dem Namen
   von damals.
 </div>
 {% endif %}

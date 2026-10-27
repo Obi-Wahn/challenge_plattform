@@ -73,9 +73,9 @@
     <h3 class="mb-3">Namen der Teammitglieder</h3>
     <p class="text-secondary">
       Ist das eingeschaltet, sehen die Teams auf ihrer Seite ein Feld, in das sie ihre
-      Namen eintragen können. Auf die Urkunde kommen die Namen aber erst, wenn du sie
-      unter <a href="{{ url_for('admin.teams') }}">Teams verwalten</a> freigegeben hast.
-      Ändert ein Team danach noch etwas, musst du erneut freigeben.
+      Namen eintragen können. Auf die Urkunde kommen die Namen aber erst, wenn sie
+      unter <a href="{{ url_for('admin.teams') }}">Teams verwalten</a> freigegeben sind.
+      Ändert ein Team danach noch etwas, ist eine neue Freigabe nötig.
     </p>
 
     <div class="form-check form-switch">
@@ -125,7 +125,7 @@
       Steuerzentrale zu kommen. Angemeldet wird sich wie gewohnt über
       „Jury-Anmeldung“ unten auf jeder Seite; mit diesem Passwort geht es nur
       auf die Bewertungsseite: Abgaben ansehen und herunterladen, Punkte und
-      Feedback geben. Löschen, Freigeben und alles andere bleiben bei dir.
+      Feedback geben. Löschen, Freigeben und alles andere bleiben der Steuerzentrale vorbehalten.
     </p>
 
     {% if settings.review_access %}
@@ -140,7 +140,7 @@
       autocomplete="new-password" placeholder="mindestens 6 Zeichen">
     <p class="text-secondary small mt-2 mb-0">
       Bleibt das Feld leer, ändert sich nichts. Das Passwort steht nirgends
-      im Klartext und lässt sich nicht wieder anzeigen – notiere es dir also.
+      im Klartext und lässt sich nicht wieder anzeigen – also gleich notieren.
     </p>
 
     {% if settings.review_access %}

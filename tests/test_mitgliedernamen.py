@@ -317,7 +317,7 @@ class TestLehrkraftKontrolliert:
 
         seite = admin.get("/admin/teams").get_data(as_text=True)
 
-        assert "wartet auf deine Kontrolle" in seite
+        assert "wartet auf Kontrolle" in seite
 
 
 class TestAufDerUrkunde:

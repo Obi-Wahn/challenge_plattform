@@ -282,7 +282,7 @@ def passwort_erfragen(eingabe=getpass.getpass, anlass=ERSTER_START):
     """Fragt das Admin-Passwort ab, zweimal, bis beide Eingaben passen."""
     print()
     print(anlass)
-    print("Damit meldest du dich unter /admin an. Beim Tippen erscheinen keine Zeichen.")
+    print("Es gilt für die Anmeldung unter /admin. Beim Tippen erscheinen keine Zeichen.")
 
     while True:
         passwort = eingabe("Admin-Passwort: ")
