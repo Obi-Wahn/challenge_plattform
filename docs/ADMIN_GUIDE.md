@@ -210,7 +210,9 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   eigenen Abgabe unter **🧩 Unsere Skripte anzeigen**.
 - **MakeCode-Abgaben im Einzelnen**: Die Blöcke stehen in den Farben und mit
   den Texten des deutschen Calliope-Editors da, die Symbole als kleines
-  LED-Bild, nur in der Form von Scratch-Blöcken. Blöcke aus Erweiterungen wie
+  LED-Bild, nur in der Form von Scratch-Blöcken. Teile, die sich im Editor
+  mit ⊕ aufklappen lassen, etwa „in einem Intervall von … ms“, erscheinen nur,
+  wenn das Team sie aufgeklappt hat. Blöcke aus Erweiterungen wie
   dem MotionKit liest die Plattform aus der Datei selbst; wo eine Erweiterung
   keine deutschen Texte mitbringt, bleiben sie englisch. Eine `.hex` aus
   einem anderen Editor, etwa für Python, enthält keine Blöcke; das sagt die

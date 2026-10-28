@@ -352,55 +352,88 @@ def _farbe(kategorie):
 
 
 # Blöcke, die MakeCode selbst mitbringt und nicht aus der Bibliothek kommen.
-# Die Texte folgen dem deutschen Calliope-Editor. Platzhalter wie oben;
+# Ihre Texte sind die englischen Schlüssel aus MakeCode (pxtlib/blocks.ts);
+# die deutsche Fassung steht unter „texte“ in der Tabelle, so wie der Editor
+# sie live lädt. %1, %2 … werden der Reihe nach zu den Eingängen.
 # „hut“ und „klammer“ haben eine Klammer, „hut“ ist dabei oben glatt und
 # unten geschlossen wie die Ereignisblöcke im Editor.
 EINGEBAUT = {
-    "pxt-on-start": ("beim Start", "basic", "hut"),
-    "controls_repeat_ext": ("wiederhole %TIMES mal mache", "loops", "klammer"),
-    "device_while": ("während %COND mache", "loops", "klammer"),
-    "controls_while": ("während %COND mache", "loops", "klammer"),
-    "pxt_controls_for": ("für %VAR von 0 bis %TO mache", "loops", "klammer"),
-    "controls_simple_for": ("für %VAR von 0 bis %TO mache", "loops", "klammer"),
-    "pxt_controls_for_of": ("für Element %VAR von %LIST mache", "loops", "klammer"),
-    "controls_for_of": ("für Element %VAR von %LIST mache", "loops", "klammer"),
-    "pxt_pause_until": ("pausiere bis %PREDICATE", "loops", "stapel"),
-    "break_keyword": ("abbrechen", "loops", "stapel"),
-    "continue_keyword": ("fortsetzen", "loops", "stapel"),
-    "logic_negate": ("nicht %BOOL", "logic", "bedingung"),
-    "logic_compare": ("%A %OP %B", "logic", "bedingung"),
-    "logic_operation": ("%A %OP %B", "logic", "bedingung"),
-    "math_arithmetic": ("%A %OP %B", "math", "wert"),
-    "math_modulo": ("Rest von %DIVIDEND ÷ %DIVISOR", "math", "wert"),
-    "math_op2": ("%op von %x und %y", "math", "wert"),
-    "math_op3": ("Absolutwert von %x", "math", "wert"),
-    "math_js_op": ("%OP %ARG0", "math", "wert"),
-    "math_js_round": ("%OP %ARG0", "math", "wert"),
-    "variables_set": ("setze %VAR auf %VALUE", "variables", "stapel"),
-    "variables_change": ("ändere %VAR um %VALUE", "variables", "stapel"),
-    "text_length": ("Länge von %VALUE", "text", "wert"),
-    "lists_index_get": ("%LIST Wert an Position %INDEX", "arrays", "wert"),
-    "lists_index_set": ("%LIST setze Wert an Position %INDEX auf %VALUE", "arrays", "stapel"),
-    "lists_length": ("Länge des Arrays %VALUE", "arrays", "wert"),
-    "function_definition": ("Funktion %function_name", "functions", "hut"),
-    "procedures_defnoreturn": ("Funktion %NAME", "functions", "hut"),
-    "function_return": ("Rückgabe %RETURN_VALUE", "functions", "stapel"),
+    "pxt-on-start": (["on start %1 %2"], [], "basic", "hut"),
+    "controls_repeat_ext": (["repeat %1 times", "{id:repeat}do"], ["TIMES"], "loops", "klammer"),
+    "device_while": (["while %1", "{id:while}do"], ["COND"], "loops", "klammer"),
+    "controls_while": (["while %1", "{id:while}do"], ["COND"], "loops", "klammer"),
+    "pxt_controls_for": (["for %1 from 0 to %2", "{id:for}do"], ["VAR", "TO"], "loops", "klammer"),
+    "controls_simple_for": (["for %1 from 0 to %2", "{id:for}do"], ["VAR", "TO"], "loops", "klammer"),
+    "pxt_controls_for_of": (["for element %1 of %2", "{id:for_of}do"], ["VAR", "LIST"], "loops", "klammer"),
+    "controls_for_of": (["for element %1 of %2", "{id:for_of}do"], ["VAR", "LIST"], "loops", "klammer"),
+    "pxt_pause_until": (["pause until %1"], ["PREDICATE"], "loops", "stapel"),
+    "break_keyword": (["break"], [], "loops", "stapel"),
+    "continue_keyword": (["continue"], [], "loops", "stapel"),
+    "logic_negate": (["not %1"], ["BOOL"], "logic", "bedingung"),
+    "logic_compare": (["%1 %2 %3"], ["A", "OP", "B"], "logic", "bedingung"),
+    "logic_operation": (["%1 %2 %3"], ["A", "OP", "B"], "logic", "bedingung"),
+    "math_arithmetic": (["%1 %2 %3"], ["A", "OP", "B"], "math", "wert"),
+    "math_modulo": (["remainder of %1 / %2"], ["DIVIDEND", "DIVISOR"], "math", "wert"),
+    "math_op2": (["%1 of %2 and %3"], ["op", "x", "y"], "math", "wert"),
+    "math_op3": (["absolute of %1"], ["x"], "math", "wert"),
+    "math_js_op": (["%1 %2"], ["OP", "ARG0"], "math", "wert"),
+    "math_js_round": (["%1 %2"], ["OP", "ARG0"], "math", "wert"),
+    "variables_set": (["set %1 to %2"], ["VAR", "VALUE"], "variables", "stapel"),
+    "variables_change": (["change %1 by %2"], ["VAR", "VALUE"], "variables", "stapel"),
+    "text_length": (["length of %1"], ["VALUE"], "text", "wert"),
+    "lists_index_get": (["%1 get value at %2"], ["LIST", "INDEX"], "arrays", "wert"),
+    "lists_index_set": (["%1 set value at %2 to %3"], ["LIST", "INDEX", "VALUE"], "arrays", "stapel"),
+    "lists_length": (["length of array %1"], ["VALUE"], "arrays", "wert"),
+    "function_definition": (["function", "%1"], ["function_name"], "functions", "hut"),
+    "procedures_defnoreturn": (["function", "%1"], ["NAME"], "functions", "hut"),
+    "function_return": (["return %1"], ["RETURN_VALUE"], "functions", "stapel"),
 }
 
-# Blöcke mit beliebig vielen Eingängen, siehe _Wandler.aufruf().
+# Weitere Texte des Editors: „wenn … dann“, Blöcke mit beliebig vielen
+# Eingängen (siehe _Wandler.aufruf()).
+WENN, DANN, SONST_WENN, SONST = "{id:logic}if", "{id:logic}then", "{id:logic}else if", "{id:logic}else"
+VERBINDE, ARRAY_VON, AUFRUF = "join", "array of", "call"
 AUFRUFE = {"text_join", "lists_create_with", "function_call", "function_call_output",
            "procedures_callnoreturn", "procedures_callreturn"}
 
-# Auswahlwerte der eingebauten Blöcke, so wie der Editor sie zeigt.
+# Auswahlwerte der eingebauten Blöcke; Zeichen wie „=“ übersetzt der Editor nicht.
 AUSWAHL = {
     "EQ": "=", "NEQ": "≠", "LT": "<", "LTE": "≤", "GT": ">", "GTE": "≥",
-    "AND": "und", "OR": "oder", "TRUE": "wahr", "FALSE": "falsch",
-    "ADD": "+", "MINUS": "-", "MULTIPLY": "×", "DIVIDE": "÷", "POWER": "**",
-    "min": "min", "max": "max",
-    "sqrt": "Quadratwurzel", "sin": "sin", "cos": "cos", "tan": "tan",
-    "atan2": "atan2", "idiv": "ganzzahlige Division", "imul": "ganzzahlige Multiplikation",
-    "round": "runden", "ceil": "aufrunden", "floor": "abrunden", "trunc": "abschneiden",
+    "AND": "{id:op}and", "OR": "{id:op}or", "TRUE": "{id:boolean}true", "FALSE": "{id:boolean}false",
+    "ADD": "{id:op}+", "MINUS": "{id:op}-", "MULTIPLY": "{id:op}×", "DIVIDE": "{id:op}/", "POWER": "{id:op}**",
+    "min": "{id:op}min", "max": "{id:op}max",
+    "sqrt": "{id:op}square root", "sin": "{id:op}sin", "cos": "{id:op}cos", "tan": "{id:op}tan",
+    "asin": "{id:op}asin", "acos": "{id:op}acos", "atan2": "{id:op}atan2",
+    "idiv": "{id:op}integer /", "imul": "{id:op}integer ×",
+    "round": "{id:op}round", "ceil": "{id:op}ceiling", "floor": "{id:op}floor", "trunc": "{id:op}truncate",
 }
+
+
+def gebrauchte_texte():
+    """Alle englischen Schlüssel, deren deutsche Fassung die Tabelle braucht."""
+    schluessel = {WENN, DANN, SONST_WENN, SONST, VERBINDE, ARRAY_VON, AUFRUF, *AUSWAHL.values()}
+    for teile, _, _, _ in EINGEBAUT.values():
+        schluessel.update(teile)
+    return schluessel
+
+
+def deutsch(schluessel):
+    """Der deutsche Text zu einem Schlüssel; ohne Übersetzung der englische."""
+    deutsch = tabelle().get("texte", {}).get(schluessel, schluessel)
+    return re.sub(r"^\{id:[^}]*\}", "", deutsch)
+
+
+def _eingebaut(art):
+    """Die Vorlage eines eingebauten Blocks, etwa „%TIMES-mal wiederholen mache“."""
+    teile, eingaenge, _, _ = EINGEBAUT[art]
+
+    def eingang(treffer):
+        nummer = int(treffer.group(1))
+        return f"%{eingaenge[nummer - 1]}" if nummer <= len(eingaenge) else ""
+
+    vorlage = re.sub(r"%(\d)", eingang, " ".join(deutsch(teil) for teil in teile))
+    return " ".join(vorlage.split())
+
 
 # Schatten, die nur eine Zahl tragen. Bei manchen öffnet der Editor eine
 # Auswahl (Zeit, Takt), das zeigt der Pfeil.
@@ -464,7 +497,7 @@ class _Wandler:
         if wert in self.symbole:
             return self.led([punkt == "1" for punkt in self.symbole[wert]], auswahl=True)
         if wert in AUSWAHL:
-            return f"[{AUSWAHL[wert]} v]"
+            return f"[{zeichen_schuetzen(deutsch(AUSWAHL[wert]))} v]"
         if wert in self.werte:
             return f"[{zeichen_schuetzen(self.werte[wert])} v]"
         if re.fullmatch(r"[A-Za-z_]\w*(\.\w+)+", wert):
@@ -538,8 +571,8 @@ class _Wandler:
     def beschreibung(self, art):
         """(Vorlage, Farbe, Form, mit Bild) eines Blocks."""
         if art in EINGEBAUT:
-            text, kategorie, form = EINGEBAUT[art]
-            return text, _farbe(kategorie), form, False
+            _, _, kategorie, form = EINGEBAUT[art]
+            return _eingebaut(art), _farbe(kategorie), form, False
         eintrag = self.bloecke.get(art)
         if eintrag:
             return eintrag["text"], eintrag["farbe"], eintrag["form"], eintrag.get("bild", False)
@@ -599,7 +632,7 @@ class _Wandler:
         """Blöcke mit beliebig vielen Eingängen: Funktionsaufruf, „verbinde“, Array."""
         werte = [self.eingang(block, kind.get("name"), tiefe) or "()" for kind in _kinder(block, "value")]
         if art in ("text_join", "lists_create_with"):
-            kopf = "verbinde" if art == "text_join" else "Array von"
+            kopf = deutsch(VERBINDE if art == "text_join" else ARRAY_VON)
             kategorie = "text" if art == "text_join" else "arrays"
             return " ".join([kopf, *werte]), _farbe(kategorie), "wert"
         mutation = _mutation(block)
@@ -608,7 +641,7 @@ class _Wandler:
         if not name and feld is not None:
             name = feld.text or ""
         form = "stapel" if art in ("function_call", "procedures_callnoreturn") else "wert"
-        return " ".join(["Aufruf", zeichen_schuetzen(name), *werte]), _farbe("functions"), form
+        return " ".join([deutsch(AUFRUF), zeichen_schuetzen(name), *werte]), _farbe("functions"), form
 
     def zeile(self, block, tiefe):
         """(Text, Farbe, Form) eines Blocks, ohne die Klammern darin."""
@@ -665,7 +698,7 @@ class _Wandler:
             mit_sonst = mutation is not None and mutation.get("else") == "1"
             for nummer in range(weitere + 1):
                 bedingung = self.eingang(block, f"IF{nummer}", tiefe) or "<>"
-                kopf = "wenn %1 dann" if erstes else "sonst wenn %1 dann"
+                kopf = f"{deutsch(WENN if erstes else SONST_WENN)} %1 {deutsch(DANN)}"
                 self.klammern[kopf] = "c-block" if erstes else "celse"
                 zeilen.append(kopf.replace("%1", bedingung) + f" :: {logik}")
                 zeilen += self.mund(block, f"DO{nummer}", tiefe)
@@ -677,8 +710,9 @@ class _Wandler:
                 block, tiefe = innen, tiefe + 1
                 continue
             if mit_sonst:
-                self.klammern["sonst"] = "celse"
-                zeilen.append(f"sonst :: {logik}")
+                sonst = deutsch(SONST)
+                self.klammern[sonst] = "celse"
+                zeilen.append(f"{zeichen_schuetzen(sonst)} :: {logik}")
                 zeilen += self.mund(block, "ELSE", tiefe)
             zeilen.append("end")
             return zeilen
