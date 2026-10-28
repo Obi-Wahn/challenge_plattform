@@ -94,7 +94,7 @@ class TestAbweichungZumPdf:
 
         html = admin.get("/admin/urkunden").get_data(as_text=True)
 
-        assert "Im PDF stehen manche Namen anders" in html
+        assert "Diese Namen stehen im PDF anders" in html
         assert "Teamname „Die 🦊 Füchse“ – im PDF" in html
         assert "„Sükrü Yilmaz“" in html
 
@@ -104,7 +104,7 @@ class TestAbweichungZumPdf:
 
         html = admin.get("/admin/urkunden").get_data(as_text=True)
 
-        assert "Im PDF stehen manche Namen anders" not in html
+        assert "Diese Namen stehen im PDF anders" not in html
 
     def test_das_pdf_traegt_den_umgeschriebenen_namen(self, admin, make_challenge,
                                                       make_team, database):
