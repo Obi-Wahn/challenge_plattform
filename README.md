@@ -99,9 +99,10 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
     die eingebaute Helvetica: Buchstaben mit fremden Akzenten verlieren ihn („Şükrü“
     wird „Sükrü“), Emoji und andere Schriften fallen weg. Die Seite *Urkunden* nennt die
     betroffenen Namen.
-*   **MakeCode**: Texte, Farben und LED-Symbole der Calliope-Blöcke stammen aus
-    [MakeCode Calliope](https://github.com/microsoft/pxt-calliope) (MIT-Lizenz) und liegen
-    als `plattform/makecode_bloecke.json` im Repo.
+*   **MakeCode**: Formen, Farben und LED-Symbole der Calliope-Blöcke stammen aus
+    [MakeCode Calliope](https://github.com/microsoft/pxt-calliope) (MIT-Lizenz), die
+    deutschen Texte aus den Übersetzungen, die der Editor von makecode.calliope.cc lädt.
+    Beides liegt als `plattform/makecode_bloecke.json` im Repo, die Plattform lädt nichts nach.
 *   **Sicherheit**:
     *   Passwort-Hashing (Werkzeug Security).
     *   CSRF Protection (Flask-WTF).

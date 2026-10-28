@@ -130,8 +130,11 @@ besonders: Dort ändern sich schon mal Klassennamen oder Symbole.
 Für die Blöcke einer MakeCode-Abgabe braucht die Plattform zu jedem
 Grundblock des Calliope-Editors den deutschen Text, die Farbe und die Form,
 dazu die LED-Muster der Symbole. Das steht in `plattform/makecode_bloecke.json`,
-erzeugt aus dem Quelltext von MakeCode Calliope (MIT-Lizenz). Welche Fassung
-das war, steht unter `"quelle"` in der Datei.
+erzeugt aus dem Quelltext von MakeCode Calliope (MIT-Lizenz) und den deutschen
+Texten, die der Editor beim Start live von makecode.calliope.cc lädt. Nur diese
+stimmen mit dem überein, was im Editor zu sehen ist; die Übersetzungen unter
+`_locales/de` im Quelltext sind älter und dienen nur als Rückfall. Welche
+Fassung das war, steht unter `"quelle"` in der Datei.
 
 Erscheint ein neuer Editor mit neuen Blöcken, lässt sich die Tabelle neu
 erzeugen. Dafür drei Klone nebeneinander in einen Ordner legen, je auf dem
@@ -147,11 +150,12 @@ python werkzeuge/makecode_bloecke.py <Ordner mit den drei Klonen>
 pytest
 ```
 
-Das Werkzeug selbst braucht kein Internet. Für einige Blöcke bringt der
-Quelltext keine deutsche Übersetzung mit, etwa für Funk; die stehen von Hand
-übersetzt unter `ERGAENZUNG` im Werkzeug. Blöcke aus Erweiterungen wie dem
+Beim ersten Lauf lädt das Werkzeug die deutschen Texte nach
+`<Ordner>/uebersetzungen`, dafür braucht es Zugang zu makecode.calliope.cc.
+Liegen sie dort schon, nimmt es sie; `--neu-laden` holt sie frisch. Die
+Plattform selbst lädt nie etwas nach. Blöcke aus Erweiterungen wie dem
 MotionKit stehen nicht in der Tabelle: Die liest die Plattform aus der
-abgegebenen Datei selbst.
+abgegebenen Datei selbst, mit deren eigenen Übersetzungen.
 
 ## 🐍 Python-Pakete aktuell halten
 
@@ -269,7 +273,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_bewertungszugang.py` | das Passwort nur zum Bewerten: einrichten, anmelden, was es darf und was nicht, abmelden beim Wechsel |
 | `test_scratch_skripte.py` | die Skripte einer `.sb3` als Blöcke, auf Deutsch und robust gegen kaputte oder bearbeitete Dateien |
 | `test_snap_skripte.py` | die Skripte eines Snap!-Projekts als Blöcke, an echten Exporten aus Snap! 12 (`tests/snap/`), dazu Open Roberta und bearbeitete Dateien |
-| `test_makecode_skripte.py` | die Blöcke einer `.hex` oder `.mkcd` aus MakeCode für den Calliope mini, an einer echten Datei (`tests/makecode/`), mit Erweiterung, LED-Bildchen und kaputten Dateien |
+| `test_makecode_skripte.py` | die Blöcke einer `.hex` oder `.mkcd` aus MakeCode für den Calliope mini, an einer echten Datei (`tests/makecode/`), mit Erweiterung, LED-Bildchen, zugeklappten Eingängen, Texten wie im Editor und kaputten Dateien |
 | `test_skripte_teamseite.py` | ein Team sieht die Skripte seiner eigenen Abgabe, eine fremde bekommt es nicht zu sehen |
 | `test_aufraeumen.py` | hochgeladene Dateien verschwinden mit ihrer Abgabe |
 | `test_ablageort.py` | Abgaben werden auch nach einem Update in einen neuen Ordner gefunden und aufgeräumt |

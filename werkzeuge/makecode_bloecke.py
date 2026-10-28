@@ -3,9 +3,15 @@
 
 Die Blockansicht für MakeCode-Abgaben (plattform/makecode_skripte.py) braucht
 für jeden Grundblock seinen deutschen Text, seine Farbe und seine Form, dazu
-die Texte der Auswahlwerte und die LED-Muster der Symbole. All das steht im
-Quelltext des Editors, als Angaben über den Funktionen
-(//% blockId=… block="…") und in den Übersetzungen unter _locales/de.
+die Texte der Auswahlwerte und die LED-Muster der Symbole. Form, Farbe und
+englischer Text stehen im Quelltext des Editors, als Angaben über den
+Funktionen (//% blockId=… block="…").
+
+Die deutschen Texte lädt der Editor beim Start live von MakeCode, und nur
+diese stimmen mit dem überein, was im Editor zu sehen ist. Die älteren
+Übersetzungen unter _locales/de im Quelltext dienen nur als Rückfall. Das
+Skript lädt die Live-Texte nach <Ordner>/uebersetzungen (dafür braucht es
+einmal Netz zu makecode.calliope.cc); liegen sie dort schon, nimmt es sie.
 
 Gebraucht werden drei Klone nebeneinander in einem Ordner, je auf dem Stand,
 den der Editor gerade benutzt (steht in pxt-calliope/package.json):
@@ -17,8 +23,7 @@ den der Editor gerade benutzt (steht in pxt-calliope/package.json):
 
     python werkzeuge/makecode_bloecke.py <Ordner mit den drei Klonen>
 
-Das Skript braucht kein Internet, es liest nur die Klone und schreibt die
-Tabelle neu. Danach `pytest` und eine Abgabe einmal ansehen.
+Danach `pytest` und eine Abgabe einmal ansehen.
 Alle drei Projekte stehen unter der MIT-Lizenz.
 """
 
@@ -26,64 +31,22 @@ import argparse
 import json
 import re
 import sys
+import urllib.parse
+import urllib.request
 from pathlib import Path
 
 WURZEL = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(WURZEL))
 
-from plattform.makecode_skripte import TABELLE, bloecke_aus_quelltext  # noqa: E402
+from plattform.makecode_skripte import TABELLE, bloecke_aus_quelltext, gebrauchte_texte  # noqa: E402
+
+# Woher der deutsche Editor seine Texte holt (pxtlib/util.ts,
+# downloadLiveTranslationsAsync); „strings.json“ und „target-strings.json“
+# enthalten die eingebauten Blöcke wie „wiederhole“ und „wenn … dann“.
+LIVE = "https://makecode.calliope.cc/api/translations?lang=de&approved=true&filename="
 
 # Pakete, deren Blöcke ein Calliope-Projekt ohne Erweiterung zeigen kann.
 PAKETE = ["core", "core-mini-codal", "funk", "microphone"]
-
-# Blöcke, für die MakeCode Calliope keine deutsche Übersetzung im Quelltext
-# mitbringt (der Editor holt sie aus einem Übersetzungsdienst). Von Hand
-# übersetzt, nah an der Wortwahl der übrigen Blöcke; die Eingänge müssen
-# dieselben bleiben wie im Original.
-ERGAENZUNG = {
-    "radio_datagram_send": "Funk sende Zahl %value",
-    "radio_datagram_send_string": "Funk sende Zeichenfolge %msg",
-    "radio_datagram_send_value": "Funk sende|Wert %name|= %value",
-    "radio_set_group": "Funk setze Gruppe %ID",
-    "radio_set_transmit_power": "Funk setze Sendeleistung %power",
-    "radio_set_frequency_band": "Funk setze Frequenzband %band",
-    "radio_set_transmit_serial_number": "Funk setze Seriennummer übertragen %transmit",
-    "radio_on_number": "wenn Datenpaket empfangen",
-    "radio_on_number_drag": "wenn Datenpaket empfangen",
-    "radio_on_string": "wenn Datenpaket empfangen",
-    "radio_on_string_drag": "wenn Datenpaket empfangen",
-    "radio_on_value": "wenn Datenpaket empfangen",
-    "radio_on_value_drag": "wenn Datenpaket empfangen",
-    "radio_on_buffer": "wenn Datenpaket empfangen",
-    "radio_on_buffer_drag": "wenn Datenpaket empfangen",
-    "radio_on_packet": "wenn Datenpaket empfangen",
-    "radio_datagram_received_event": "Funk wenn Daten empfangen",
-    "radio_datagram_receive": "Funk empfange Zahl",
-    "radio_datagram_receive_string": "Funk empfange Zeichenfolge",
-    "radio_datagram_rssi": "Funk empfangene Signalstärke",
-    "radio_received_packet": "empfangenes Paket %type=radio_packet_property",
-    "radio_write_packet_serial": "Funk schreibe empfangenes Paket an seriell",
-    "radio_write_value_serial": "Funk schreibe Wert an seriell",
-    "music_playable_play": "spiele $toPlay $playbackMode",
-    "music_playable_play_default_bkg": "spiele $toPlay $playbackMode",
-    "music_string_playable": "Melodie $melody im Tempo $bpm|(bpm)",
-    "music_sound_is_playing": "Ton wird abgespielt",
-    "music_set_built_in_speaker_enable": "eingebauten Lautsprecher $enabled",
-    "soundExpression_playSoundEffect": "spiele Sound $sound $mode",
-    "synth_set_volume": "setze Lautstärke %volume",
-    "melody_on_event": "Musik bei %value",
-    "pin_set_audio_pin_enabled": "Audio-Pin aktivieren $enabled",
-    "input_logo_event": "wenn Logo $action",
-    "input_logo_is_pressed": "Logo ist gedrückt",
-    "device_set_led_colors": "setze LEDs auf %color1=colorNumberPicker %color2=colorNumberPicker "
-                             "%color3=colorNumberPicker || Helligkeit %brightness",
-    "motor_on": "Motor an mit %percent \\%",
-    "block_dual_motor": "Motor %motor|mit %percent \\%",
-    "string_split": "teile %this=text|bei %separator",
-    "string_charcode_at": "Zeichencode von $this=text|an Position $index",
-    "device_plot_bar_graph": "zeichne Balkendiagramm von $value bis $high|| seriell ausgeben $valueToConsole",
-    "device_touch_set_type": "setze %name auf Berührungsmodus %mode",
-}
 
 _MUSTER = re.compile(r"case\s+IconNames\.(\w+)\s*:\s*return\s+images\.createImage\(`([^`]*)`")
 
@@ -109,11 +72,32 @@ def dateien_eines_pakets(calliope, paket, gesucht):
     return texte
 
 
-def uebersetzungen(calliope):
+def live_texte(ordner, dateiname):
+    """Eine Datei mit Live-Übersetzungen, aus dem Ordner oder frisch geladen."""
+    ziel = ordner / dateiname.replace("/", "_")
+    if not ziel.is_file():
+        ordner.mkdir(parents=True, exist_ok=True)
+        with urllib.request.urlopen(LIVE + urllib.parse.quote(dateiname, safe=""), timeout=30) as antwort:
+            ziel.write_bytes(antwort.read())
+    texte = json.loads(ziel.read_text(encoding="utf-8"))
+    return {k: v for k, v in texte.items() if isinstance(v, str) and v}
+
+
+def uebersetzungen(calliope, ordner, ziel_id):
+    """Die deutschen Texte der Pakete: aus dem Quelltext, darüber die Live-Texte."""
     texte = {}
     for datei in sorted((calliope / "libs").glob("*/_locales/de/*-strings.json")):
         texte.update(json.loads(datei.read_text(encoding="utf-8")))
+    for paket in PAKETE:
+        name = json.loads((calliope / "libs" / paket / "pxt.json").read_text(encoding="utf-8"))["name"]
+        texte.update(live_texte(ordner, f"{ziel_id}/{name}-strings.json"))
     return texte
+
+
+def editor_texte(ordner, ziel_id):
+    """Die Texte der eingebauten Blöcke, die die Blockansicht braucht."""
+    alle = {**live_texte(ordner, "strings.json"), **live_texte(ordner, f"{ziel_id}/target-strings.json")}
+    return {schluessel: alle[schluessel] for schluessel in sorted(gebrauchte_texte()) if schluessel in alle}
 
 
 def symbole(calliope):
@@ -130,6 +114,7 @@ def symbole(calliope):
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("ordner", type=Path, help="Ordner mit pxt-calliope, pxt-common-packages und pxt")
+    parser.add_argument("--neu-laden", action="store_true", help="Live-Übersetzungen neu herunterladen")
     args = parser.parse_args()
 
     gesucht = {name: args.ordner / name for name in ("pxt-calliope", "pxt-common-packages", "pxt")}
@@ -139,6 +124,10 @@ def main():
     calliope = gesucht["pxt-calliope"]
     ziel = json.loads((calliope / "pxtarget.json").read_text(encoding="utf-8"))
     stand = json.loads((calliope / "package.json").read_text(encoding="utf-8"))["version"]
+    live = args.ordner / "uebersetzungen"
+    if args.neu_laden:
+        for datei in live.glob("*.json"):
+            datei.unlink()
 
     # Farben der Kategorien wie im Editor; ein Namensraum kann eine eigene nennen.
     kategorien = {name: farbe.lower() for name, farbe in ziel["appTheme"]["blockColors"].items()}
@@ -146,15 +135,13 @@ def main():
     quellen = []
     for paket in PAKETE:
         quellen += dateien_eines_pakets(calliope, paket, gesucht)
-    bloecke, werte = bloecke_aus_quelltext(quellen, uebersetzungen(calliope), kategorien)
-    for block_id, text in ERGAENZUNG.items():
-        if block_id in bloecke:
-            bloecke[block_id]["text"] = text
+    bloecke, werte = bloecke_aus_quelltext(quellen, uebersetzungen(calliope, live, ziel["id"]), kategorien)
 
     tabelle = {
         "quelle": f"MakeCode Calliope {stand} (github.com/microsoft/pxt-calliope, MIT-Lizenz), "
-                  "erzeugt von werkzeuge/makecode_bloecke.py",
+                  "deutsche Texte live von makecode.calliope.cc, erzeugt von werkzeuge/makecode_bloecke.py",
         "kategorien": kategorien,
+        "texte": editor_texte(live, ziel["id"]),
         "bloecke": dict(sorted(bloecke.items())),
         "werte": dict(sorted(werte.items())),
         "symbole": dict(sorted(symbole(calliope).items())),

@@ -11,13 +11,14 @@ nur die Zeilen, in denen das Projekt steckt.
 import io
 import json
 import lzma
+import re
 from pathlib import Path
 
 import pytest
 
 from plattform import makecode_skripte
 from plattform.makecode_skripte import (
-    KEIN_PROJEKT, OHNE_BLOECKE, OHNE_QUELLTEXT, bloecke_aus_quelltext, lies_projekt,
+    KEIN_PROJEKT, OHNE_BLOECKE, OHNE_QUELLTEXT, bloecke_aus_quelltext, gebrauchte_texte, lies_projekt,
     skripte_aus_projekt, skripte_der_abgabe, tabelle,
 )
 from tests.helpers import csrf_token
@@ -247,8 +248,22 @@ class TestBloecke:
 
         assert skripte(blockly(beim_start(ohne, mit))) == [
             "beim Start :: #54c9c9\n"
-            "zeige Nummer (7) :: #54c9c9\n"
-            "zeige Nummer (7) in einem intervall von (150) ms :: #54c9c9\n"
+            "zeige Zahl (7) :: #54c9c9\n"
+            "zeige Zahl (7) in einem Intervall von (150) ms :: #54c9c9\n"
+            "end"]
+
+    def test_zugeklappt_trotz_eingang_in_der_datei(self):
+        # Der Editor behält den Eingang in der Datei, auch wenn er mit ⊖ zu
+        # ist; maßgeblich ist die Zahl offener Eingänge in der Mutation.
+        def block(offen):
+            return ('<block type="device_show_number">'
+                    f'<mutation xmlns="http://www.w3.org/1999/xhtml" _expanded="{offen}" _input_init="true"></mutation>'
+                    f'<value name="number">{zahl(7)}</value><value name="interval">{zahl(150)}</value></block>')
+
+        assert skripte(blockly(beim_start(block(0), block(1)))) == [
+            "beim Start :: #54c9c9\n"
+            "zeige Zahl (7) :: #54c9c9\n"
+            "zeige Zahl (7) in einem Intervall von (150) ms :: #54c9c9\n"
             "end"]
 
     def test_schleifen_und_sonst(self):
@@ -261,16 +276,16 @@ class TestBloecke:
 
         assert figuren[0]["skripte"] == [
             "beim Start :: #54c9c9\n"
-            "wiederhole (4) mal mache :: #107c10\n"
+            "(4) -mal wiederholen mache :: #107c10\n"
             "Bildschirminhalt löschen :: #54c9c9\n"
             "end\n"
             "wenn <[wahr v] :: #006970> dann :: #006970\n"
-            "sonst :: #006970\n"
+            "ansonsten :: #006970\n"
             "Bildschirminhalt löschen :: #54c9c9\n"
             "end\n"
             "end"]
-        assert ["wiederhole %1 mal mache", "c-block"] in figuren[0]["klammern"]
-        assert ["sonst", "celse"] in figuren[0]["klammern"]
+        assert ["%1 -mal wiederholen mache", "c-block"] in figuren[0]["klammern"]
+        assert ["ansonsten", "celse"] in figuren[0]["klammern"]
 
     def test_rechnen_und_zufall(self):
         rechnen = ('<block type="math_arithmetic"><field name="OP">MULTIPLY</field>'
@@ -289,7 +304,7 @@ class TestBloecke:
     def test_wert_eines_ereignisses(self):
         block = '<block type="radio_on_number_drag"><field name="HANDLER_DRAG_PARAM_receivedNumber">receivedNumber</field></block>'
         assert skripte(blockly(block)) == [
-            "wenn Datenpaket empfangen (receivedNumber :: #a80000) :: #e3008c\nend"]
+            "wenn Datenpaket über Funk empfangen (receivedNumber :: #a80000) :: #e3008c\nend"]
 
     def test_text_eines_teams_wird_nicht_zu_syntax(self):
         setze = ('<block type="variables_set"><field name="VAR">a) v</field>'
@@ -366,7 +381,20 @@ class TestTabelle:
         bloecke = tabelle()["bloecke"]
         assert bloecke["device_forever"]["text"] == "dauerhaft"
         assert bloecke["device_button_selected_event"]["form"] == "hut"
-        assert bloecke["radio_datagram_send"]["text"] == "Funk sende Zahl %value"
+        assert bloecke["radio_datagram_send"]["text"] == "sende Zahl %value über Funk"
+
+    def test_texte_wie_im_editor(self):
+        # Die Live-Übersetzungen, nicht die älteren aus dem Quelltext
+        # („Button … ist gedrückt“, „zeige Zeichenfolge“).
+        bloecke = tabelle()["bloecke"]
+        assert bloecke["device_get_button2"]["text"] == "Knopf|%NAME|ist geklickt"
+        assert bloecke["device_print_message"]["text"].startswith("zeige|Text %text ||")
+        assert tabelle()["texte"]["repeat %1 times"] == "%1-mal wiederholen"
+
+    def test_alle_editor_texte_in_der_tabelle(self):
+        # Nur reine Zeichen wie „=“ oder „%1 %2“ übersetzt der Editor nicht.
+        fehlen = gebrauchte_texte() - set(tabelle()["texte"])
+        assert all(not re.search(r"[A-Za-z]", schluessel.replace("%", "")) for schluessel in fehlen), fehlen
 
 
 def abgeben(client, task, inhalt, endung=".hex"):
