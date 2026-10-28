@@ -8,6 +8,7 @@ Entscheidung trägt; der Inhalt kommt beim Aufklappen nach.
 """
 
 import io
+import re
 import zipfile
 
 import pytest
@@ -82,9 +83,9 @@ class TestDieSeiteBleibtSchlank:
 
 
 class TestAufgabentextNurEinmalUmwandeln:
-    """Jede Abgabe zeigt ihre Aufgabenbeschreibung. Bei 40 Teams und 10
-    Aufgaben wurden dieselben zehn Texte 370-mal umgewandelt - nach jeder
-    Bewertung von vorn."""
+    """Bis v1.24 zeigte jede Abgabe ihre Aufgabenbeschreibung. Bei 40 Teams
+    und 10 Aufgaben wurden dieselben zehn Texte 370-mal umgewandelt - nach
+    jeder Bewertung von vorn. Jetzt steht sie einmal je Aufgabe."""
 
     def test_gleicher_text_wird_einmal_umgewandelt(
             self, admin, make_challenge, make_task, make_team, flask_app,
@@ -110,7 +111,8 @@ class TestAufgabentextNurEinmalUmwandeln:
 
         html = admin.get("/admin/submissions").get_data(as_text=True)
 
-        assert html.count("<strong>läuft</strong>") == 5
+        # Sie steht einmal über den Abgaben der Aufgabe, nicht an jeder.
+        assert html.count("<strong>läuft</strong>") == 1
         assert len(aufrufe) == 1
 
     def test_geaenderter_text_wird_neu_umgewandelt(self, flask_app):
@@ -351,7 +353,8 @@ class TestNachAufgabenSortiert:
         html = admin.get("/admin/submissions").get_data(as_text=True)
 
         assert html.index("Berta") < html.index("Zora") < html.index("Anton")
-        assert "3 Abgaben · 2 offen" in html
+        kopf = " ".join(re.sub(r"<[^>]+>", "", html.split("Aufgabe 1: Katze")[1].split("</h2>")[0]).split())
+        assert kopf == "3 Abgaben · 2 offen"
 
     def test_eine_aufgabe_ohne_abgabe_bekommt_keinen_block(
             self, admin, make_challenge, make_task, make_team, database):
@@ -412,6 +415,117 @@ class TestNachAufgabenSortiert:
 
         assert "Springen zu" not in html
         assert 'href="#sprungleiste"' not in html
+
+
+class TestEingeklappt:
+    """Jede Aufgabe klappt mit ihren Abgaben ein, jede Abgabe ist eine Zeile.
+    Mit 13 Teams und 11 Aufgaben war die Seite vorher gut 50 000 Pixel hoch,
+    und nach jedem Speichern ging es zurück an ihren Anfang."""
+
+    def abgabe(self, database, team, task, punkte=None):
+        from plattform.models import Submission
+        abgabe = Submission(team_id=team.id, task_id=task.id, points=punkte,
+                            filename=f"{team.id}/task_{task.id}_a.sb3")
+        database.session.add(abgabe)
+        database.session.commit()
+        return abgabe
+
+    def aufgaben(self, html):
+        """{"aufgabe-1": True, ...} - ob die Aufgabe aufgeklappt ist."""
+        return {ziel: offen == " open"
+                for ziel, offen in re.findall(r'<details id="(aufgabe-\d+)"[^>]*?( open)?>', html)}
+
+    def test_aufgeklappt_ist_nur_was_noch_offen_ist(
+            self, admin, make_challenge, make_task, make_team, database):
+        challenge = make_challenge()
+        fertig = make_task(challenge, title="Fertig", position=1)
+        halb = make_task(challenge, title="Halb", position=2)
+        anton, berta = make_team(challenge, name="Anton"), make_team(challenge, name="Berta")
+        self.abgabe(database, anton, fertig, punkte=4)
+        self.abgabe(database, anton, halb, punkte=3)
+        self.abgabe(database, berta, halb)
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        assert self.aufgaben(html) == {"aufgabe-1": False, "aufgabe-2": True}
+        assert "1 Abgabe · alle bewertet ✔" in " ".join(html.split())
+        assert "Alle aufklappen" in html and "Alle zuklappen" in html
+
+    def test_eine_einzige_aufgabe_ist_immer_aufgeklappt(
+            self, admin, make_challenge, make_task, make_team, database):
+        challenge = make_challenge()
+        task = make_task(challenge)
+        self.abgabe(database, make_team(challenge), task, punkte=5)
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        assert self.aufgaben(html) == {"aufgabe-1": True}
+        assert "Alle aufklappen" not in html
+
+    def test_jede_abgabe_ist_ein_sprungziel(
+            self, admin, make_challenge, make_task, make_team, database):
+        challenge = make_challenge()
+        task = make_task(challenge)
+        abgabe = self.abgabe(database, make_team(challenge), task)
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        assert f'id="abgabe-{abgabe.id}"' in html
+
+    def test_nach_dem_speichern_geht_es_zurueck_zur_abgabe(
+            self, admin, make_challenge, make_task, make_team, database):
+        challenge = make_challenge()
+        task = make_task(challenge, max_points=5)
+        abgabe = self.abgabe(database, make_team(challenge), task)
+
+        antwort = admin.post("/admin/submissions", data={
+            "csrf_token": csrf_token(admin, "/admin/submissions"),
+            "submission_id": abgabe.id,
+            "points": "4",
+        })
+
+        assert antwort.headers["Location"] == f"/admin/submissions#abgabe-{abgabe.id}"
+
+    def test_nach_dem_zuruecksetzen_auch(
+            self, admin, make_challenge, make_task, make_team, database):
+        challenge = make_challenge()
+        task = make_task(challenge, max_points=5)
+        abgabe = self.abgabe(database, make_team(challenge), task, punkte=4)
+
+        antwort = admin.post("/admin/submissions", data={
+            "csrf_token": csrf_token(admin, "/admin/submissions"),
+            "submission_id": abgabe.id,
+            "soft_reset": "1",
+        })
+
+        assert antwort.headers["Location"] == f"/admin/submissions#abgabe-{abgabe.id}"
+
+    def test_eine_meldung_steht_oben_und_dort_geht_es_hin(
+            self, admin, make_challenge, make_task, make_team, database):
+        challenge = make_challenge()
+        task = make_task(challenge, max_points=5)
+        abgabe = self.abgabe(database, make_team(challenge), task)
+
+        antwort = admin.post("/admin/submissions", data={
+            "csrf_token": csrf_token(admin, "/admin/submissions"),
+            "submission_id": abgabe.id,
+            "points": "viele",
+        })
+
+        assert antwort.headers["Location"] == "/admin/submissions"
+
+    def test_nach_dem_loeschen_geht_es_zur_aufgabe(
+            self, admin, make_challenge, make_task, make_team, database):
+        challenge = make_challenge()
+        make_task(challenge, title="Erste", position=1)
+        zweite = make_task(challenge, title="Zweite", position=2)
+        abgabe = self.abgabe(database, make_team(challenge), zweite)
+
+        antwort = admin.post(f"/admin/reset/{abgabe.id}", data={
+            "csrf_token": csrf_token(admin, "/admin/submissions"),
+        })
+
+        assert antwort.headers["Location"] == "/admin/submissions#aufgabe-2"
 
 
 class TestDownload:

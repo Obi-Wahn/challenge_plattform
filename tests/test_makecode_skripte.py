@@ -415,7 +415,7 @@ class TestSeiten:
         abgabe = abgeben(client, task, LINIENFOLGER.read_bytes())
 
         seite = admin.get("/admin/submissions").get_data(as_text=True)
-        assert "🧩 Skripte anzeigen" in seite
+        assert "🧩 Skripte" in seite
         assert "scratchblocks.min.js" in seite
 
         daten = admin.get(f"/admin/submissions/{abgabe.id}/skripte").get_json()

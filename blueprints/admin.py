@@ -1003,6 +1003,18 @@ def submission_skripte(submission_id):
     return skripte_antwort(submission)
 
 
+def zurueck_zur_abgabe(submission):
+    """Zurück auf die Bewertungsseite, an die Zeile der Abgabe.
+
+    Bisher ging es nach jedem Speichern an den Anfang der Seite, und wer
+    eine Aufgabe nach der anderen bewertete, musste die Stelle neu suchen.
+    Gibt es etwas zu melden, bleibt es beim Anfang: Dort steht die Meldung.
+    """
+    if submission is None:
+        return redirect(url_for('admin.submissions'))
+    return redirect(url_for('admin.submissions', _anchor=f"abgabe-{submission.id}"))
+
+
 @admin_bp.route("/submissions", methods=["GET", "POST"])
 def submissions():
     if request.method == "POST":
@@ -1036,7 +1048,7 @@ def submissions():
                 submission.points = punkte
                 submission.feedback = feedback
                 db.session.commit()
-        return redirect(url_for('admin.submissions'))
+        return zurueck_zur_abgabe(submission)
 
     # Only the submissions of the current competition - older events stay in the
     # database but must not clutter the review list.
@@ -1056,7 +1068,8 @@ def submissions():
     # auch Teamseite und Rangliste zeigen. Innerhalb einer Aufgabe zuerst
     # die offenen, dann nach Teamname. Aufgaben ohne Abgabe fallen weg.
     gruppe_der_aufgabe = {
-        task.id: {"nummer": nummer, "titel": task.title, "abgaben": []}
+        task.id: {"nummer": nummer, "titel": task.title,
+                  "beschreibung": task.description, "abgaben": []}
         for nummer, task in enumerate(Task.geordnet(challenge.id), start=1)
     }
 
@@ -1070,9 +1083,6 @@ def submissions():
         gruppe["abgaben"].append({
             "id": s.id,
             "team_name": s.team.name,
-            "task_nummer": gruppe["nummer"],
-            "task_title": s.task.title,
-            "task_description": s.task.description,
             "max_points": s.task.max_points,
             "points": s.points,
             "feedback": s.feedback,
@@ -1115,14 +1125,23 @@ def submission_allow_resubmit(submission_id):
 
     return redirect(url_for('admin.submissions'))
 
+def nummer_der_aufgabe(task):
+    """Die Nummer, unter der die Aufgabe in der Rangliste steht (A1, A2 …),
+    nicht die der Datenbank - die zählt über alle Wettbewerbe weiter."""
+    return [t.id for t in Task.geordnet(task.challenge_id)].index(task.id) + 1
+
+
 @admin_bp.route("/reset/<int:submission_id>", methods=["POST"])
 def submission_reset(submission_id):
     submission = db.get_or_404(Submission, submission_id)
     team, aufgabe = submission.team.name, submission.task.title
+    # Zurück zur Aufgabe, nicht an den Anfang der Seite - die Abgabe gibt es
+    # ja nicht mehr. War es die letzte der Aufgabe, bleibt es beim Anfang.
+    nummer = nummer_der_aufgabe(submission.task)
     db.session.delete(submission)
     db.session.commit()
     ereignis("Abgabe zurückgesetzt: Team „%s“, Aufgabe „%s“", team, aufgabe)
-    return redirect(url_for('admin.submissions'))
+    return redirect(url_for('admin.submissions', _anchor=f"aufgabe-{nummer}"))
 
 @admin_bp.route("/download/<int:submission_id>")
 def download_submission(submission_id):
@@ -1145,10 +1164,7 @@ def download_submission(submission_id):
     # sie - bis v1.22 wurde aus „Кот.sb3“ ein „sb3“ ohne Punkt -, die der
     # Aufgabe: Ohne Endung lässt sich die Datei nicht per Doppelklick öffnen.
     ext = os.path.splitext(original_filename)[1] or submission.task.allowed_extension
-    # Die Nummer, unter der die Aufgabe in der Rangliste steht (A1, A2 …),
-    # nicht die der Datenbank - die zählt über alle Wettbewerbe weiter.
-    nummern = [t.id for t in Task.geordnet(submission.task.challenge_id)]
-    download_name = f"{team_clean}_A{nummern.index(submission.task_id) + 1}{ext}"
+    download_name = f"{team_clean}_A{nummer_der_aufgabe(submission.task)}{ext}"
     
     return send_from_directory(
         directory,
