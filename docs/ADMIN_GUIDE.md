@@ -199,14 +199,23 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   Plattform nicht. Soll niemand mehr mitbewerten, unter *Einstellungen* ein
   neues Passwort setzen oder **Bewertungszugang abschalten** – wer noch
   angemeldet ist, ist beim nächsten Klick draußen.
-- **Scratch- und Snap!-Abgaben ansehen**: Bei einer `.sb3` und bei einer
-  `.xml` aus Snap! zeigt **🧩 Skripte anzeigen** die Skripte jeder Figur als
-  Blöcke, nur ohne sie auszuführen. Ob das Projekt tut, was es soll, zeigt
-  erst **⬇️ Datei herunterladen** und Öffnen in Scratch oder Snap!. Unbekannte
-  Blöcke erscheinen grau mit ihrem englischen Namen, Kommentare fehlen. Ein
-  Programm aus Open Roberta, ebenfalls `.xml`, zeigt die Plattform nicht als
-  Blöcke, sondern sagt das. Die Teams sehen dieselben Blöcke ihrer eigenen
-  Abgabe unter **🧩 Unsere Skripte anzeigen**.
+- **Scratch-, Snap!- und MakeCode-Abgaben ansehen**: Bei einer `.sb3`, bei
+  einer `.xml` aus Snap! und bei einer `.hex` oder `.mkcd` aus MakeCode für
+  den Calliope mini zeigt **🧩 Skripte anzeigen** die Skripte als Blöcke, nur
+  ohne sie auszuführen. Ob das Projekt tut, was es soll, zeigt erst
+  **⬇️ Datei herunterladen** und Öffnen in Scratch, Snap! oder MakeCode.
+  Unbekannte Blöcke erscheinen grau mit ihrem englischen Namen, Kommentare
+  fehlen. Ein Programm aus Open Roberta, ebenfalls `.xml`, zeigt die Plattform
+  nicht als Blöcke, sondern sagt das. Die Teams sehen dieselben Blöcke ihrer
+  eigenen Abgabe unter **🧩 Unsere Skripte anzeigen**.
+- **MakeCode-Abgaben im Einzelnen**: Die Blöcke stehen in den Farben und mit
+  den Texten des deutschen Calliope-Editors da, die Symbole als kleines
+  LED-Bild, nur in der Form von Scratch-Blöcken. Blöcke aus Erweiterungen wie
+  dem MotionKit liest die Plattform aus der Datei selbst; wo eine Erweiterung
+  keine deutschen Texte mitbringt, bleiben sie englisch. Eine `.hex` aus
+  einem anderen Editor, etwa für Python, enthält keine Blöcke; das sagt die
+  Plattform dann. Den Projektnamen und die Beschreibung, die ein Team in
+  MakeCode eintippt, zeigt sie nicht an.
 - **Durchsage an alle Teams**, etwa „Noch 10 Minuten, bitte speichern“:
   einmal unter *Name & Zeiten* das Häkchen **📢 Durchsagen an die Teams**
   setzen, dann steht auf der Wettbewerbsseite unter den Knöpfen für die Uhr

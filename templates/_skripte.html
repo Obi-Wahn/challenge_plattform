@@ -1,6 +1,6 @@
-{# Zeichnet die Skripte einer Scratch- oder Snap!-Abgabe, auf der
+{# Zeichnet die Skripte einer Scratch-, Snap!- oder MakeCode-Abgabe, auf der
    Bewertungsseite wie auf der Teamseite. Die Bibliothek liegt im Repository;
-   einbinden nur, wenn auf der Seite eine .sb3 oder eine .xml steht.
+   einbinden nur, wenn auf der Seite eine .sb3, .xml, .hex oder .mkcd steht.
 
    Ein Knopf mit data-skripte-url holt beim ersten Klick die Skripte als JSON
    (skripte.py) und zeichnet sie in das Element mit der Kennung aus
@@ -22,20 +22,76 @@
     ["SNAP_FOREACH", "für jedes %1 von %2", "list", true],
     ["SNAP_WARP", "Warp", "control", false],
   ];
-  for (const [kennung, text, kategorie, schleife] of SNAP_KLAMMERN) {
-    const teile = text.split(/(%\d)/).map(teil => teil.trim()).filter(Boolean);
-    const eingang = teil => /^%\d$/.test(teil);
-    // Den Schlüssel bildet scratchblocks so: ohne Umlaute, klein geschrieben.
+
+  function klammerAnmelden(kennung, text, kategorie, form, schleife) {
+    const teile = text.split(/(%\d+)/).map(teil => teil.trim()).filter(Boolean);
+    const eingang = teil => /^%\d+$/.test(teil);
+    // Den Schlüssel bildet scratchblocks so: ohne Umlaute und ohne , % ? :,
+    // klein geschrieben.
     const schluessel = teile.map(teil => eingang(teil) ? "_" : teil).join(" ")
+      .replace(/ +/g, " ").replace(/[,%?:]/g, "")
       .replace(/ß/g, "ss").replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u")
-      .toLowerCase();
+      .trim().toLowerCase();
     scratchblocks.allLanguages.en.blocksByHash[schluessel] = [{
       id: kennung, spec: text, parts: teile,
       inputs: teile.filter(eingang).map(() => "%s"),
-      shape: "c-block", category: kategorie, hasLoopArrow: schleife,
+      shape: form, category: kategorie, hasLoopArrow: schleife,
     }];
     scratchblocks.allLanguages.en.commands[kennung] = text;
     scratchblocks.allLanguages.de.commands[kennung] = text;
+  }
+  for (const [kennung, text, kategorie, schleife] of SNAP_KLAMMERN) {
+    klammerAnmelden(kennung, text, kategorie, "c-block", schleife);
+  }
+
+  // Klammern aus MakeCode („beim Start“, „wenn Knopf …“, „wiederhole …“)
+  // nennt der Server mit der Antwort (makecode_skripte.py), denn welche es
+  // gibt, hängt auch von den Erweiterungen im Projekt ab.
+  function makecodeKlammernAnmelden(klammern) {
+    for (const [text, form] of klammern) {
+      klammerAnmelden("MAKECODE " + text, text, "control", form, false);
+    }
+  }
+
+  // Ereignisblöcke wie „beim Start“ sind in MakeCode oben glatt: Die Kerbe,
+  // die scratchblocks oben in jeden Block zeichnet, fällt beim ersten weg.
+  function obenGlatt(bild) {
+    const rand = [...bild.querySelectorAll("path")].find(pfad => /^M 0 4/.test(pfad.getAttribute("d") || ""));
+    if (rand) {
+      rand.setAttribute("d", rand.getAttribute("d").replace(/H 12 c[^L]*L/, "H 12 L"));
+    }
+  }
+
+  // An die Stelle jedes Platzhalters ▦▦ ein Raster aus 5 × 5 LEDs, der Reihe
+  // nach mit den Punkten aus der Antwort („1“ an, „0“ aus).
+  const SVG = "http://www.w3.org/2000/svg";
+  function ledsZeichnen(bild, alleLeds) {
+    const stellen = [...bild.querySelectorAll("text")].filter(text => text.textContent === "▦▦");
+    stellen.forEach((text, nummer) => {
+      const punkte = alleLeds[nummer];
+      if (!punkte) {
+        return;
+      }
+      const feld = text.parentNode;
+      const kasten = feld.querySelector("rect");
+      const hoehe = kasten ? Number(kasten.getAttribute("height")) : 32;
+      const zelle = (hoehe - 4) / 5;
+      const raster = document.createElementNS(SVG, "g");
+      raster.setAttribute("transform", "translate(8 2)");
+      const grund = document.createElementNS(SVG, "rect");
+      Object.entries({x: 0, y: 0, width: 5 * zelle, height: 5 * zelle, rx: 3,
+                      fill: "rgba(0, 0, 0, 0.3)"}).forEach(([name, wert]) => grund.setAttribute(name, wert));
+      raster.appendChild(grund);
+      for (let stelle = 0; stelle < 25; stelle++) {
+        const led = document.createElementNS(SVG, "rect");
+        Object.entries({x: (stelle % 5) * zelle + 1, y: Math.floor(stelle / 5) * zelle + 1,
+                        width: zelle - 2, height: zelle - 2, rx: 1.5,
+                        fill: punkte[stelle] === "1" ? "#ffffff" : "rgba(255, 255, 255, 0.12)"})
+          .forEach(([name, wert]) => led.setAttribute(name, wert));
+        raster.appendChild(led);
+      }
+      text.replaceWith(raster);
+    });
   }
 
   function skripteZeigen(ziel, daten) {
@@ -58,9 +114,20 @@
       titel.textContent = name;
       const flaeche = document.createElement("div");
       flaeche.className = "scratch-flaeche mb-3";
-      for (const text of figur.skripte) {
-        flaeche.appendChild(skriptZeichnen(text));
+      const makecode = Array.isArray(figur.klammern);
+      if (makecode) {
+        makecodeKlammernAnmelden(figur.klammern);
       }
+      figur.skripte.forEach((text, nummer) => {
+        const bild = skriptZeichnen(text, !makecode);
+        if (makecode && bild.tagName.toLowerCase() === "svg") {
+          if (figur.glatt && figur.glatt[nummer]) {
+            obenGlatt(bild);
+          }
+          ledsZeichnen(bild, (figur.leds && figur.leds[nummer]) || []);
+        }
+        flaeche.appendChild(bild);
+      });
       ziel.append(titel, flaeche);
     }
 
@@ -72,10 +139,14 @@
     }
   }
 
-  function skriptZeichnen(text) {
+  // Blöcke aus MakeCode stehen schon auf Deutsch da, übersetzt wird nur, was
+  // aus Scratch und Snap! kommt.
+  function skriptZeichnen(text, uebersetzen) {
     try {
       const dokument = scratchblocks.parse(text, {languages: ["en"]});
-      dokument.translate(scratchblocks.allLanguages.de);
+      if (uebersetzen) {
+        dokument.translate(scratchblocks.allLanguages.de);
+      }
       const bild = scratchblocks.newView(dokument, {style: "scratch3", scale: 0.675}).render();
       bild.classList.add("scratch-skript");
       return bild;

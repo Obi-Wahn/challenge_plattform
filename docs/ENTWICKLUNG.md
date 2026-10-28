@@ -8,6 +8,7 @@ einsetzt, braucht sie nicht: Installation und Funktionen stehen in der
 - [Von Hand einrichten](#-von-hand-einrichten)
 - [Vor einem Wettbewerb](#-vor-einem-wettbewerb)
 - [Frontend-Bibliotheken aktualisieren](#-frontend-bibliotheken-aktualisieren)
+- [MakeCode-Blöcke neu erzeugen](#-makecode-blöcke-neu-erzeugen)
 - [Python-Pakete aktuell halten](#-python-pakete-aktuell-halten)
 - [Tests](#-tests)
 - [Projektstruktur](#-projektstruktur)
@@ -123,6 +124,34 @@ ersetzt nur das, was sich geändert hat. Es braucht Internet – also am
 heimischen Rechner ausführen, nicht während eines Wettbewerbs. Bei einer
 **neuen Hauptversion** (der ersten Zahl) lohnt der Blick in die Oberfläche
 besonders: Dort ändern sich schon mal Klassennamen oder Symbole.
+
+## 🧩 MakeCode-Blöcke neu erzeugen
+
+Für die Blöcke einer MakeCode-Abgabe braucht die Plattform zu jedem
+Grundblock des Calliope-Editors den deutschen Text, die Farbe und die Form,
+dazu die LED-Muster der Symbole. Das steht in `plattform/makecode_bloecke.json`,
+erzeugt aus dem Quelltext von MakeCode Calliope (MIT-Lizenz). Welche Fassung
+das war, steht unter `"quelle"` in der Datei.
+
+Erscheint ein neuer Editor mit neuen Blöcken, lässt sich die Tabelle neu
+erzeugen. Dafür drei Klone nebeneinander in einen Ordner legen, je auf dem
+Stand, den `pxt-calliope/package.json` nennt:
+
+```bash
+git clone --depth 1 --branch v8.1.15 https://github.com/microsoft/pxt-calliope
+git clone --depth 1 --branch v13.2.8 https://github.com/microsoft/pxt-common-packages
+git clone --depth 1 --branch v13.1.8 --filter=blob:none --sparse https://github.com/microsoft/pxt
+git -C pxt sparse-checkout set libs/pxt-common
+
+python werkzeuge/makecode_bloecke.py <Ordner mit den drei Klonen>
+pytest
+```
+
+Das Werkzeug selbst braucht kein Internet. Für einige Blöcke bringt der
+Quelltext keine deutsche Übersetzung mit, etwa für Funk; die stehen von Hand
+übersetzt unter `ERGAENZUNG` im Werkzeug. Blöcke aus Erweiterungen wie dem
+MotionKit stehen nicht in der Tabelle: Die liest die Plattform aus der
+abgegebenen Datei selbst.
 
 ## 🐍 Python-Pakete aktuell halten
 
@@ -240,6 +269,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_bewertungszugang.py` | das Passwort nur zum Bewerten: einrichten, anmelden, was es darf und was nicht, abmelden beim Wechsel |
 | `test_scratch_skripte.py` | die Skripte einer `.sb3` als Blöcke, auf Deutsch und robust gegen kaputte oder bearbeitete Dateien |
 | `test_snap_skripte.py` | die Skripte eines Snap!-Projekts als Blöcke, an echten Exporten aus Snap! 12 (`tests/snap/`), dazu Open Roberta und bearbeitete Dateien |
+| `test_makecode_skripte.py` | die Blöcke einer `.hex` oder `.mkcd` aus MakeCode für den Calliope mini, an einer echten Datei (`tests/makecode/`), mit Erweiterung, LED-Bildchen und kaputten Dateien |
 | `test_skripte_teamseite.py` | ein Team sieht die Skripte seiner eigenen Abgabe, eine fremde bekommt es nicht zu sehen |
 | `test_aufraeumen.py` | hochgeladene Dateien verschwinden mit ihrer Abgabe |
 | `test_ablageort.py` | Abgaben werden auch nach einem Update in einen neuen Ordner gefunden und aufgeräumt |
@@ -314,7 +344,9 @@ challenge_plattform/
 │   ├── task_rules.py       # Regeln für Aufgabenwerte, für Formular und Import
 │   ├── skripte.py          # die Skripte einer Abgabe als Blöcke, für Bewertungs- und Teamseite
 │   ├── scratch_skripte.py  # liest die Skripte aus einer .sb3
-│   └── snap_skripte.py     # liest die Skripte aus einem Snap!-Projekt (.xml)
+│   ├── snap_skripte.py     # liest die Skripte aus einem Snap!-Projekt (.xml)
+│   ├── makecode_skripte.py # liest die Blöcke aus einer .hex oder .mkcd von MakeCode
+│   └── makecode_bloecke.json # Texte, Farben und LED-Symbole der Calliope-Blöcke
 ├── requirements.txt        # Abhängigkeiten
 ├── requirements-dev.txt    # zusätzlich zum Testen
 ├── pytest.ini              # Test-Einstellungen
@@ -334,7 +366,7 @@ challenge_plattform/
 ├── templates/              # HTML Templates
 ├── tests/                  # automatische Tests (pytest)
 ├── beispiele/              # fertige Aufgabensätze und ein Beispiel-Wettbewerb zum Einlesen
-├── werkzeuge/              # Hilfsskripte (Bibliotheken und Pakete prüfen)
+├── werkzeuge/              # Hilfsskripte (Bibliotheken und Pakete prüfen, MakeCode-Blöcke erzeugen)
 ├── docs/
 │   ├── ADMIN_GUIDE.md      # Leitfaden für den Wettbewerbstag
 │   ├── ENTWICKLUNG.md      # diese Anleitung
