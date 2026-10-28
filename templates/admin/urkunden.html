@@ -21,6 +21,28 @@
     (im Druckdialog {{ orientation.kurz }} wählen) oder die fertige PDF-Datei herunterladen.
   </p>
 
+  {% if abweichungen %}
+  {# Die Druckansicht zeigt jeden Namen wie eingegeben, die Schrift im PDF
+     kennt aber nicht jedes Zeichen. Ohne diesen Hinweis fiele das erst am
+     ausgedruckten Blatt auf. #}
+  {# Ein div statt p: style.css färbt jedes p für den dunklen Hintergrund
+     hell, auf dem hellen Kasten wäre der Text dann kaum zu lesen. #}
+  <div class="alert alert-info">
+    <div class="mb-2">
+      ℹ️ Im PDF stehen manche Namen anders als hier: Die Schrift der PDF-Datei
+      kennt nicht jedes Zeichen. Buchstaben mit fremden Akzenten verlieren sie,
+      Emoji und andere Schriften fallen weg. <strong>🖨️ Drucken</strong> zeigt
+      alles wie eingegeben.
+    </div>
+    <ul class="mb-0">
+      {% for abweichung in abweichungen %}
+      <li>{{ abweichung.art }} „{{ abweichung.eingegeben }}“ – im PDF
+        {% if abweichung.im_pdf %}„{{ abweichung.im_pdf }}“{% else %}weggelassen{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
   <div class="d-flex flex-wrap gap-2 mb-4">
     <button class="btn btn-primary" onclick="window.print();">
       🖨️ Drucken

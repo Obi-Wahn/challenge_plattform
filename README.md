@@ -95,7 +95,10 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Frontend**: HTML5, CSS3, Bootstrap 5, Markdown-Editor (EasyMDE), scratchblocks für die Skripte der Scratch-, Snap!- und MakeCode-Abgaben — alle Assets liegen lokal im Repo (`static/vendor/`), keine CDN-Abhängigkeit, funktioniert komplett offline.
 *   **PDF**: fpdf2 für die Urkunden. Die Handschriften unter `static/vendor/fonts/` stehen
     unter der SIL Open Font License (Lizenztexte liegen daneben) und sind mit im Repo,
-    damit die Urkunden auch ohne Internet entstehen.
+    damit die Urkunden auch ohne Internet entstehen. Für den übrigen Text nimmt das PDF
+    die eingebaute Helvetica: Buchstaben mit fremden Akzenten verlieren ihn („Şükrü“
+    wird „Sükrü“), Emoji und andere Schriften fallen weg. Die Seite *Urkunden* nennt die
+    betroffenen Namen.
 *   **MakeCode**: Texte, Farben und LED-Symbole der Calliope-Blöcke stammen aus
     [MakeCode Calliope](https://github.com/microsoft/pxt-calliope) (MIT-Lizenz) und liegen
     als `plattform/makecode_bloecke.json` im Repo.

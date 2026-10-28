@@ -1,6 +1,7 @@
 """Generation of the printable certificates (Urkunden) as PDF."""
 
 import os
+import unicodedata
 from datetime import datetime
 
 from fpdf import FPDF
@@ -109,14 +110,87 @@ _REPLACEMENTS = {
 }
 
 
-def pdf_safe(text):
-    text = str(text or "")
+# Buchstaben, die Unicode nicht in Grundbuchstabe und Akzent zerlegt - sie
+# sind eigene Zeichen. Ohne diese Zeilen fielen sie ganz weg: Aus „Łukasz“
+# würde „ukasz“, aus „Yılmaz“ „Ylmaz“.
+_UMSCHRIFT = {
+    "Ł": "L", "ł": "l", "ı": "i", "Đ": "D", "đ": "d",
+    "Œ": "OE", "œ": "oe", "ẞ": "SS",
+}
+
+
+def _in_latin1(zeichen):
+    return zeichen.encode("latin-1", errors="ignore").decode("latin-1") == zeichen
+
+
+def _vorbereitet(text):
+    """Der Text vor dem Umschreiben: zusammengesetzt und typografisch vereinfacht.
+
+    NFC macht aus einem „u“ mit nachgestelltem Trema wieder ein „ü“ - so
+    kommen Namen von manchen Tastaturen und Geräten an, und das Trema allein
+    kennt die Schrift nicht.
+    """
+    text = unicodedata.normalize("NFC", str(text or ""))
     for source, target in _REPLACEMENTS.items():
         text = text.replace(source, target)
-    # Anything still outside latin-1 (emoji, other scripts) is dropped.
-    cleaned = text.encode("latin-1", errors="ignore").decode("latin-1")
+    return text
+
+
+def _umgeschrieben(zeichen):
+    """Ein Zeichen außerhalb von latin-1, so gut die Schrift es kann - oder nichts.
+
+    Was einen Akzent trägt, den Helvetica nicht kennt, verliert ihn: „Ş“ wird
+    „S“, „ğ“ wird „g“, „ř“ wird „r“. Lieber ein Name ohne Häkchen als einer,
+    dem ein Buchstabe fehlt. Emoji und fremde Schriften lassen sich so nicht
+    retten, die fallen weiter weg - die Druckansicht sagt dann, wo.
+    """
+    if zeichen in _UMSCHRIFT:
+        return _UMSCHRIFT[zeichen]
+    zerlegt = "".join(teil for teil in unicodedata.normalize("NFKD", zeichen)
+                      if not unicodedata.combining(teil))
+    return zerlegt if _in_latin1(zerlegt) else ""
+
+
+def pdf_safe(text):
+    text = _vorbereitet(text)
+    cleaned = "".join(zeichen if _in_latin1(zeichen) else _umgeschrieben(zeichen)
+                      for zeichen in text)
     return " ".join(cleaned.split())
 
+
+def pdf_weicht_ab(text):
+    """Ob das PDF diesen Text anders zeigt als die Druckansicht.
+
+    Die Druckansicht ist HTML und zeigt jeden Namen so, wie er eingegeben
+    wurde. Wer dort kontrolliert, sähe sonst nicht, dass im PDF aus
+    „Şükrü“ „Sükrü“ wird oder ein Emoji fehlt. Gerade Anführungszeichen statt
+    typografischer zählen nicht als Abweichung - die fallen niemandem auf.
+    """
+    return not _in_latin1(_vorbereitet(text))
+
+
+def pdf_abweichungen(event_name, entries):
+    """Was im PDF anders steht als eingegeben, für den Hinweis in der Druckansicht.
+
+    Jeder Eintrag sagt, was es ist, wie es eingegeben wurde und wie es im
+    PDF steht. Die Namen der Teammitglieder einzeln, damit der Hinweis den
+    einen Namen zeigt und nicht die ganze Aufzählung.
+    """
+    kandidaten = [("Veranstaltungsname", event_name, "")]
+    for entry in entries:
+        # Ein Teamname, von dem nichts übrig bleibt, steht als „Team“ darauf.
+        kandidaten.append(("Teamname", entry["name"], "Team"))
+        kandidaten += [("Name", name, "") for name in entry.get("members") or []]
+
+    abweichungen = []
+    gesehen = set()
+    for art, text, ersatz in kandidaten:
+        if not text or not pdf_weicht_ab(text) or (art, text) in gesehen:
+            continue
+        gesehen.add((art, text))
+        abweichungen.append({"art": art, "eingegeben": text,
+                             "im_pdf": pdf_safe(text) or ersatz})
+    return abweichungen
 
 PLACE_LABELS = {1: "1. Platz", 2: "2. Platz", 3: "3. Platz"}
 

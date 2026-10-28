@@ -64,6 +64,36 @@ class TestZugriffsschutz:
         assert "Falsches Passwort" in antwort.get_data(as_text=True)
         assert client.get("/admin/dashboard").status_code == 302
 
+    def test_umlaute_im_passwort_vergleichen_ohne_fehler(self):
+        """compare_digest nimmt Zeichenketten nur aus ASCII - verglichen wird in Bytes."""
+        from blueprints.auth import passwort_stimmt
+
+        assert passwort_stimmt("Größe2026", "Größe2026") is True
+        assert passwort_stimmt("Grösse2026", "Größe2026") is False
+        assert passwort_stimmt("äöü", "geheim") is False
+        assert passwort_stimmt("🦊", "🦊") is True
+
+    def test_vertippter_umlaut_meldet_falsches_passwort(self, client):
+        antwort = client.post("/admin/login", data={
+            "csrf_token": csrf_token(client, "/admin/login"),
+            "password": "äöü",
+        })
+
+        assert antwort.status_code == 200
+        assert "Falsches Passwort" in antwort.get_data(as_text=True)
+
+    def test_admin_passwort_mit_umlaut_meldet_an(self, flask_app, client, monkeypatch):
+        """Der Starter nimmt beim ersten Start auch „Größe2026“ an."""
+        monkeypatch.setitem(flask_app.config, "ADMIN_PASSWORD", "Größe2026")
+
+        antwort = client.post("/admin/login", data={
+            "csrf_token": csrf_token(client, "/admin/login"),
+            "password": "Größe2026",
+        })
+
+        assert antwort.status_code == 302
+        assert client.get("/admin/dashboard").status_code == 200
+
 
 class TestSteuerzentrale:
     def test_zeigt_den_aktuellen_wettbewerb_mit_kennzahlen(
