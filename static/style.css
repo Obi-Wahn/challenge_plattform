@@ -1041,12 +1041,13 @@ input::placeholder, textarea::placeholder {
   opacity: 1;
 }
 
-/* Zugeklappt gibt es nichts, wovon man zurück nach oben müsste. */
-.abgaben-aufgabe:not([open]) .aufgabe-nach-oben {
+/* Zugeklappt gibt es weder eine Beschreibung zu zeigen noch etwas, wovon
+   man zurück nach oben müsste. */
+.abgaben-aufgabe:not([open]) .nur-aufgeklappt {
   display: none;
 }
 
-/* Eine Zeile je Abgabe, offene mit gelbem Rand vorn. Der Rand bleibt in
+/* Ein Block je Abgabe, offene mit gelbem Rand vorn. Der Rand bleibt in
    den runden Ecken der Karte. */
 .abgaben-liste {
   overflow: hidden;
@@ -1063,6 +1064,14 @@ input::placeholder, textarea::placeholder {
 
 .abgabe-offen {
   box-shadow: inset 4px 0 0 var(--bs-warning);
+}
+
+/* Gleich breit in jeder Zeile: „Bewertung speichern“ steht so immer an
+   derselben Stelle, ob „Zurücksetzen“ daneben steht oder nicht. */
+@media (min-width: 992px) {
+  .abgabe-knoepfe {
+    width: 29rem;
+  }
 }
 
 @media (max-width: 576px) {

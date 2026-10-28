@@ -193,13 +193,15 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   Aufgabe auf oder zu, oben stehen **Alle aufklappen** und **Alle zuklappen**.
   *Springen zu* führt direkt zu jeder Aufgabe und klappt sie auf; gelb sind
   die, in denen noch etwas offen ist. **↑ nach oben** führt von einer
-  aufgeklappten Aufgabe zurück zu dieser Leiste. **ℹ️ Aufgabenbeschreibung**
-  steht einmal über den Abgaben jeder Aufgabe.
-- **Eine Zeile je Abgabe**: Punkte, ein kurzes Feedback und **💾 Speichern**.
-  Danach steht die Seite wieder bei derselben Abgabe, auch wenn die Aufgabe
-  damit ganz bewertet ist. Offene Abgaben haben vorn einen gelben Rand.
-  **⬇️** lädt die Datei herunter, hinter **⋯** liegen
-  **♻️ Bewertung zurücksetzen** und **🗑 Abgabe vollständig löschen**.
+  aufgeklappten Aufgabe zurück zu dieser Leiste, daneben öffnet
+  **ℹ️ Aufgabenbeschreibung** die Beschreibung der Aufgabe.
+- **Zwei Zeilen je Abgabe**: Oben stehen Team und Abgabezeit, daneben
+  **🧩 Skripte anzeigen** (oder **📄 Code anzeigen**),
+  **⬇️ Datei herunterladen** und **🗑 Abgabe vollständig löschen**. Unten
+  stehen Punkte, ein kurzes Feedback, **✔ Bewertung speichern** und,
+  sobald es Punkte gibt, **♻️ Bewertung zurücksetzen**. Nach dem Speichern
+  steht die Seite wieder bei derselben Abgabe, auch wenn die Aufgabe damit
+  ganz bewertet ist. Offene Abgaben haben vorn einen gelben Rand.
 - **Mit Hilfe bewerten**: Wer mit dem Passwort für die Bewertung angemeldet
   ist, sieht dieselbe Seite, nur ohne **🗑 Abgabe vollständig löschen** und
   **🔓 Erneut abgeben erlauben**. Abgaben älterer Wettbewerbe erreicht der
@@ -209,9 +211,9 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   angemeldet ist, ist beim nächsten Klick draußen.
 - **Scratch-, Snap!- und MakeCode-Abgaben ansehen**: Bei einer `.sb3`, bei
   einer `.xml` aus Snap! und bei einer `.hex` oder `.mkcd` aus MakeCode für
-  den Calliope mini zeigt **🧩 Skripte** die Skripte als Blöcke, nur
+  den Calliope mini zeigt **🧩 Skripte anzeigen** die Skripte als Blöcke, nur
   ohne sie auszuführen. Ob das Projekt tut, was es soll, zeigt erst
-  Herunterladen mit **⬇️** und Öffnen in Scratch, Snap! oder MakeCode.
+  **⬇️ Datei herunterladen** und Öffnen in Scratch, Snap! oder MakeCode.
   Unbekannte Blöcke erscheinen grau mit ihrem englischen Namen, Kommentare
   fehlen. Ein Programm aus Open Roberta, ebenfalls `.xml`, zeigt die Plattform
   nicht als Blöcke, sondern sagt das. Die Teams sehen dieselben Blöcke ihrer
@@ -242,7 +244,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   ansehen, dann bewerten.
   Soll jede Korrektur einzeln freigegeben werden, unter *Name & Zeiten* das
   Häkchen **🔁 Teams dürfen ihre Abgabe selbst korrigieren** herausnehmen;
-  dann steht an jeder Abgabe hinter **⋯** wieder **🔓 Erneut abgeben erlauben**.
+  dann steht an jeder Abgabe wieder **🔓 Erneut abgeben erlauben**.
 - **Hinweis freischalten**, wenn eine Aufgabe zu schwer ist: auf der
   Aufgaben-Seite umschalten. Der Hinweis erscheint bei allen Teams innerhalb
   von etwa 15 Sekunden, ohne dass jemand neu laden muss.
@@ -321,9 +323,9 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Zwei Teams mit fast gleichem Namen | Beim **Registrieren** zählt die Schreibweise: „Die Hacker“ und „die hacker“ werden zwei verschiedene Teams. Umgebende Leerzeichen werden dagegen entfernt, `„ Team A “` wird zu `„Team A“`. Wenn das stört, Team löschen und neu registrieren lassen. |
 | Ein Team kommt nicht mehr rein | Passwort vergessen. `/admin` → *Teams* → neues Passwort setzen und dem Team sagen. Das alte zeigt die Plattform niemandem an, auch nicht dem Admin. |
 | Wer beim Bewerten hilft, landet wieder auf der Anmeldung | Das Passwort für die Bewertung wurde geändert oder der Zugang abgeschaltet – beides meldet ab. Unter *Einstellungen* → *Bewertungszugang* steht, ob er eingerichtet ist; das aktuelle Passwort weitergeben oder ein neues setzen. |
-| Ein Team hat die falsche Datei hochgeladen | Normalerweise nichts zu tun: Das Team lädt über **🔁 Korrektur abgeben** die richtige hoch. Ist das Häkchen **🔁 Teams dürfen ihre Abgabe selbst korrigieren** herausgenommen: `/admin` → *Bewertungen* → **⋯** → **🔓 Erneut abgeben erlauben** – das geht auch, bevor die Abgabe Punkte hat. Die Freigabe gilt **einmal**. Sobald das Team neu abgibt, verschwindet die bisherige Bewertung und die Abgabe landet wieder in der Warteschlange; bis dahin bleibt alles, wie es ist. |
+| Ein Team hat die falsche Datei hochgeladen | Normalerweise nichts zu tun: Das Team lädt über **🔁 Korrektur abgeben** die richtige hoch. Ist das Häkchen **🔁 Teams dürfen ihre Abgabe selbst korrigieren** herausgenommen: `/admin` → *Bewertungen* → **🔓 Erneut abgeben erlauben** – das geht auch, bevor die Abgabe Punkte hat. Die Freigabe gilt **einmal**. Sobald das Team neu abgibt, verschwindet die bisherige Bewertung und die Abgabe landet wieder in der Warteschlange; bis dahin bleibt alles, wie es ist. |
 | „Abgaben sind gerade gesperrt“ bei einem Team | Wettbewerb pausiert oder Endzeit überschritten. Die Meldung steht auf der Wettbewerbsseite des Teams. Gehört das Team zu einem anderen als dem aktiven Wettbewerb, landet es gar nicht erst dort, sondern auf der Startseite. |
-| Falsches Dateiformat wird abgewiesen | Das erlaubte Format steht pro Aufgabe und in der Meldung, die das Team bekommt. Prüfen, ob es zu dem passt, was die Umgebung tatsächlich exportiert (Scratch: `.sb3`, MakeCode-Calliope: `.hex`, Open Roberta und Snap!: `.xml`, Arduino: `.ino`, App Inventor: `.aia`, Jupyter: `.ipynb`). Open Roberta und Snap! teilen sich `.xml` – aus welcher der beiden Umgebungen die Datei stammt, prüft die Plattform beim Abgeben nicht; erst **🧩 Skripte** merkt es. |
+| Falsches Dateiformat wird abgewiesen | Das erlaubte Format steht pro Aufgabe und in der Meldung, die das Team bekommt. Prüfen, ob es zu dem passt, was die Umgebung tatsächlich exportiert (Scratch: `.sb3`, MakeCode-Calliope: `.hex`, Open Roberta und Snap!: `.xml`, Arduino: `.ino`, App Inventor: `.aia`, Jupyter: `.ipynb`). Open Roberta und Snap! teilen sich `.xml` – aus welcher der beiden Umgebungen die Datei stammt, prüft die Plattform beim Abgeben nicht; erst **🧩 Skripte anzeigen** merkt es. |
 | Ein Team will sich noch registrieren, der Wettbewerb ist beendet oder pausiert | Die Startseite nimmt dann keine neuen Teams an – sonst stünde das Team mit null Punkten in der Rangliste am großen Bildschirm. Soll es doch noch mitmachen: **🔓 Wieder öffnen** bzw. **▶ Fortsetzen** auf der Wettbewerbsseite, dann registrieren lassen. |
 | Start- oder Anmeldeseite sagt „Gerade ist kein Wettbewerb aktiv“ | Der aktive Wettbewerb wurde gelöscht, und noch ist kein anderer gewählt. `/admin` → auf der Steuerzentrale beim richtigen **✅ Aktivieren**. Danach können sich die Teams wieder registrieren und anmelden. |
 | Wettbewerb gelöscht, ein Team sitzt noch davor | Mit dem Wettbewerb sind seine Teams weg. Das Team landet beim nächsten Klick auf der Startseite und registriert sich dort für den nächsten Wettbewerb neu. |
