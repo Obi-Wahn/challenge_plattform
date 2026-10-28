@@ -251,6 +251,20 @@ class TestBloecke:
             "zeige Nummer (7) in einem intervall von (150) ms :: #54c9c9\n"
             "end"]
 
+    def test_zugeklappt_trotz_eingang_in_der_datei(self):
+        # Der Editor behält den Eingang in der Datei, auch wenn er mit ⊖ zu
+        # ist; maßgeblich ist die Zahl offener Eingänge in der Mutation.
+        def block(offen):
+            return ('<block type="device_show_number">'
+                    f'<mutation xmlns="http://www.w3.org/1999/xhtml" _expanded="{offen}" _input_init="true"></mutation>'
+                    f'<value name="number">{zahl(7)}</value><value name="interval">{zahl(150)}</value></block>')
+
+        assert skripte(blockly(beim_start(block(0), block(1)))) == [
+            "beim Start :: #54c9c9\n"
+            "zeige Nummer (7) :: #54c9c9\n"
+            "zeige Nummer (7) in einem intervall von (150) ms :: #54c9c9\n"
+            "end"]
+
     def test_schleifen_und_sonst(self):
         wiederhole = (f'<block type="controls_repeat_ext"><value name="TIMES">{zahl(4)}</value>'
                       '<statement name="DO"><block type="device_clear_display"></block></statement></block>')

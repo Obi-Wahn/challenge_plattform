@@ -549,9 +549,15 @@ class _Wandler:
         """(Text, Vorlage für scratchblocks) mit den Werten des Blocks.
 
         Was hinter „||“ steht, zeigt der Editor erst, wenn jemand den Block
-        mit ⊕ aufgeklappt hat; dann steht der Eingang auch in der Datei.
+        mit ⊕ aufgeklappt hat. Wie viele Eingänge offen sind, steht in der
+        Mutation („_expanded“); die Eingänge selbst können auch zugeklappt
+        noch in der Datei stehen. Ältere Dateien ohne diese Angabe zeigen,
+        was in der Datei steht.
         """
         grund, _, extra = vorlage.partition("||")
+        mutation = _mutation(block)
+        offen = mutation.get("_expanded") if mutation is not None else None
+        offen = _ganzzahl(offen) if offen is not None else None
         teile = []
 
         def text(stueck):
@@ -568,6 +574,8 @@ class _Wandler:
                 teile.append(("eingang", self.eingang(block, stueck, tiefe) or "()"))
         zerlegt = PLATZHALTER.split(extra.replace("|", " "))
         for nummer in range(1, len(zerlegt), 2):
+            if offen is not None and nummer // 2 >= offen:
+                break
             wert = self.eingang(block, zerlegt[nummer], tiefe)
             if wert is None:
                 break
