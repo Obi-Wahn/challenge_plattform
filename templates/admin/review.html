@@ -66,18 +66,18 @@
         {%- else %} · alle bewertet ✔{% endif %}
       </span>
     </h2>
+    {# Die Beschreibung ist für alle Abgaben einer Aufgabe dieselbe. #}
+    <button class="btn btn-sm btn-outline-info text-nowrap nur-aufgeklappt" type="button" data-bs-toggle="collapse"
+      data-bs-target="#desc-{{ gruppe.nummer }}" aria-expanded="false">
+      ℹ️ Aufgabenbeschreibung
+    </button>
     {% if gruppen|length > 1 %}
     {# Zurück zur Leiste, ohne durch alle Abgaben davor hochzuscrollen. #}
-    <a href="#sprungleiste" class="btn btn-sm btn-outline-secondary text-nowrap aufgabe-nach-oben">↑ nach oben</a>
+    <a href="#sprungleiste" class="btn btn-sm btn-outline-secondary text-nowrap nur-aufgeklappt">↑ nach oben</a>
     {% endif %}
   </summary>
 
   <div class="pt-4 pb-4">
-    {# Die Beschreibung ist für alle Abgaben einer Aufgabe dieselbe. #}
-    <button class="btn btn-sm btn-outline-secondary mb-3" type="button" data-bs-toggle="collapse"
-      data-bs-target="#desc-{{ gruppe.nummer }}" aria-expanded="false">
-      ℹ️ Aufgabenbeschreibung
-    </button>
     <div class="collapse mb-3" id="desc-{{ gruppe.nummer }}">
       <div class="card card-body bg-secondary bg-opacity-10">
         <div class="card-text text-light opacity-75">
@@ -88,7 +88,8 @@
 
     <div class="event-card abgaben-liste p-0">
       {% for submission in gruppe.abgaben %}
-      {# Eine Zeile je Abgabe. Was seltener gebraucht wird, liegt hinter ⋯. #}
+      {# Zwei Zeilen je Abgabe, alle Knöpfe sichtbar: Hinter einem „⋯“
+         musste man sie erst suchen. #}
       <div id="abgabe-{{ submission.id }}"
         class="abgabe-zeile abgaben-sprungziel{% if submission.points is none %} abgabe-offen{% endif %}">
         <form method="post" class="row g-2 align-items-center">
@@ -98,7 +99,10 @@
              gehen die Punkte nicht auf die neue, siehe admin.submissions(). #}
           <input type="hidden" name="fassung" value="{{ submission.fassung }}">
 
-          <div class="col-12 col-lg-3">
+          {# Oben, wer abgegeben hat und was man mit der Datei tun kann;
+             darunter das Bewerten. Speichern und Herunterladen stehen so
+             nicht mehr nebeneinander. #}
+          <div class="col-12 col-md">
             <div class="fw-semibold text-break">
               {% if submission.points is not none %}
               <span class="text-success" title="bewertet">✔</span>
@@ -106,20 +110,70 @@
               <span class="badge bg-warning text-dark">offen</span>
               {% endif %}
               {{ submission.team_name }}
+              <span class="small fw-normal text-secondary ms-1">
+                {%- if submission.abgegeben %}{{ submission.abgegeben.strftime('%H:%M') }} Uhr · {% endif -%}
+                {{ submission.endung }}{% if submission.groesse %}, {{ submission.groesse }}{% endif %}
+              </span>
+              {% if submission.resubmit_allowed %}
+              <span class="badge bg-info text-dark ms-1">🔓 Korrektur freigegeben</span>
+              {% endif %}
             </div>
-            <div class="small text-secondary">
-              {%- if submission.abgegeben %}{{ submission.abgegeben.strftime('%H:%M') }} Uhr · {% endif -%}
-              {{ submission.endung }}{% if submission.groesse %}, {{ submission.groesse }}{% endif %}
-            </div>
-            {% if submission.resubmit_allowed %}
-            <span class="badge bg-info text-dark mt-1">🔓 Korrektur freigegeben</span>
-            {% endif %}
             {% if not submission.als_text_lesbar and not submission.als_bloecke %}
             <div class="small text-secondary">📦 Lässt sich nicht anzeigen – zum Ansehen herunterladen.</div>
             {% endif %}
           </div>
 
-          <div class="col-5 col-sm-4 col-lg-2">
+          <div class="col-12 col-md-auto d-flex flex-wrap gap-2">
+            <!-- Der Inhalt wird erst geholt, wenn jemand ihn sehen will: Die Seite
+                 trug vorher jede Abgabe des Wettbewerbs vollständig mit sich. -->
+            {% if submission.als_text_lesbar %}
+            <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="collapse"
+              data-bs-target="#code-{{ submission.id }}" aria-expanded="false"
+              data-code-url="{{ url_for('admin.submission_code', submission_id=submission.id) }}"
+              data-code-ziel="code-text-{{ submission.id }}">
+              📄 Code anzeigen
+            </button>
+            {% elif submission.als_bloecke %}
+            <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="collapse"
+              data-bs-target="#skripte-{{ submission.id }}" aria-expanded="false"
+              data-skripte-url="{{ url_for('admin.submission_skripte', submission_id=submission.id) }}"
+              data-skripte-ziel="skripte-inhalt-{{ submission.id }}">
+              🧩 Skripte anzeigen
+            </button>
+            {% endif %}
+            <a href="{{ url_for('admin.download_submission', submission_id=submission.id) }}"
+              class="btn btn-sm btn-outline-light">⬇️ Datei herunterladen</a>
+
+            {# Löschen und Freigeben bleiben beim Admin, siehe NUR_BEWERTUNG in
+               blueprints/admin.py. #}
+            {% if not nur_bewertung %}
+            {# Dürfen Teams selbst korrigieren, braucht es keine Freigabe. #}
+            {% if not challenge.self_correction %}
+            {# formnovalidate: Die Knöpfe teilen sich das Formular mit dem
+               Punktefeld, und das ist ein Pflichtfeld. Ohne das Attribut hielt
+               der Browser beide an, solange die Abgabe noch keine Punkte hatte -
+               also genau dann, wenn ein Team die falsche Datei erwischt hat. #}
+            <button type="submit" formnovalidate
+              formaction="{{ url_for('admin.submission_allow_resubmit', submission_id=submission.id) }}"
+              class="btn btn-sm {% if submission.resubmit_allowed %}btn-info{% else %}btn-outline-info{% endif %}">
+              {% if submission.resubmit_allowed %}
+              🔒 Korrektur wieder sperren
+              {% else %}
+              🔓 Erneut abgeben erlauben
+              {% endif %}
+            </button>
+            {% endif %}
+            <button type="submit" formnovalidate formaction="{{ url_for('admin.submission_reset', submission_id=submission.id) }}"
+              class="btn btn-outline-danger btn-sm"
+              onclick="return confirm('Abgabe wirklich unwiderruflich löschen? Das Team kann dann neu abgeben.');">
+              🗑 Abgabe vollständig löschen
+            </button>
+            {% endif %}
+          </div>
+
+          <div class="w-100 m-0"></div>
+
+          <div class="col-5 col-sm-3 col-lg-2">
             <div class="input-group">
               <input type="number" name="points" class="form-control" min="0"
                 max="{{ submission.max_points }}"
@@ -129,75 +183,18 @@
             </div>
           </div>
 
-          <div class="col-7 col-sm-8 col-lg-3">
+          <div class="col-7 col-sm-9 col-lg">
             <input type="text" name="feedback" class="form-control" value="{{ submission.feedback or '' }}"
               placeholder="Feedback (optional)" aria-label="Feedback für {{ submission.team_name }}">
           </div>
 
-          <div class="col-12 col-lg-4 d-flex flex-wrap gap-2 justify-content-lg-end">
-            <button class="btn btn-sm btn-primary">💾 Speichern</button>
-            <!-- Der Inhalt wird erst geholt, wenn jemand ihn sehen will: Die Seite
-                 trug vorher jede Abgabe des Wettbewerbs vollständig mit sich. -->
-            {% if submission.als_text_lesbar %}
-            <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="collapse"
-              data-bs-target="#code-{{ submission.id }}" aria-expanded="false" title="Code anzeigen"
-              data-code-url="{{ url_for('admin.submission_code', submission_id=submission.id) }}"
-              data-code-ziel="code-text-{{ submission.id }}">
-              📄 Code
-            </button>
-            {% elif submission.als_bloecke %}
-            <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="collapse"
-              data-bs-target="#skripte-{{ submission.id }}" aria-expanded="false" title="Skripte anzeigen"
-              data-skripte-url="{{ url_for('admin.submission_skripte', submission_id=submission.id) }}"
-              data-skripte-ziel="skripte-inhalt-{{ submission.id }}">
-              🧩 Skripte
+          <div class="col-12 col-lg-auto d-flex flex-wrap gap-2 abgabe-knoepfe">
+            <button class="btn btn-primary">✔ Bewertung speichern</button>
+            {% if submission.points is not none %}
+            <button name="soft_reset" value="1" formnovalidate class="btn btn-outline-warning">
+              ♻️ Bewertung zurücksetzen
             </button>
             {% endif %}
-            <a href="{{ url_for('admin.download_submission', submission_id=submission.id) }}"
-              class="btn btn-sm btn-outline-light" title="Datei herunterladen" aria-label="Datei herunterladen">⬇️</a>
-            {# Mit dem Bewertungszugang und ohne Punkte bliebe dahinter nichts. #}
-            {% if submission.points is not none or not nur_bewertung %}
-            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse"
-              data-bs-target="#mehr-{{ submission.id }}" aria-expanded="false"
-              title="Weitere Aktionen" aria-label="Weitere Aktionen">⋯</button>
-            {% endif %}
-          </div>
-
-          <div class="col-12 collapse" id="mehr-{{ submission.id }}">
-            <div class="d-flex flex-wrap justify-content-lg-end gap-2 pt-1">
-              {% if submission.points is not none %}
-              <button name="soft_reset" value="1" formnovalidate class="btn btn-sm btn-outline-warning">
-                ♻️ Bewertung zurücksetzen
-              </button>
-              {% endif %}
-
-              {# Löschen und Freigeben bleiben beim Admin, siehe NUR_BEWERTUNG in
-                 blueprints/admin.py. #}
-              {% if not nur_bewertung %}
-              {# Dürfen Teams selbst korrigieren, braucht es keine Freigabe. #}
-              {% if not challenge.self_correction %}
-              {# formnovalidate: Die Knöpfe teilen sich das Formular mit dem
-                 Punktefeld, und das ist ein Pflichtfeld. Ohne das Attribut hielt
-                 der Browser beide an, solange die Abgabe noch keine Punkte hatte -
-                 also genau dann, wenn ein Team die falsche Datei erwischt hat. #}
-              <button type="submit" formnovalidate
-                formaction="{{ url_for('admin.submission_allow_resubmit', submission_id=submission.id) }}"
-                class="btn btn-sm {% if submission.resubmit_allowed %}btn-info{% else %}btn-outline-info{% endif %}">
-                {% if submission.resubmit_allowed %}
-                🔒 Korrektur wieder sperren
-                {% else %}
-                🔓 Erneut abgeben erlauben
-                {% endif %}
-              </button>
-              {% endif %}
-
-              <button type="submit" formnovalidate formaction="{{ url_for('admin.submission_reset', submission_id=submission.id) }}"
-                class="btn btn-outline-danger btn-sm"
-                onclick="return confirm('Abgabe wirklich unwiderruflich löschen? Das Team kann dann neu abgeben.');">
-                🗑 Abgabe vollständig löschen
-              </button>
-              {% endif %}
-            </div>
           </div>
         </form>
 

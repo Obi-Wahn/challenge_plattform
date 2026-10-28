@@ -309,20 +309,17 @@ class TestWasBeimAdminBleibt:
         assert "Erneut abgeben erlauben" not in html
         assert "zurück zur Steuerzentrale" not in html
 
-    def test_ohne_punkte_bleibt_kein_leeres_menue(self, bewerter, abgabe):
-        """Hinter ⋯ stünde für den Bewertungszugang nichts: Zurücksetzen gibt
-        es erst mit Punkten, Löschen und Freigeben gar nicht."""
+    def test_zuruecksetzen_gibt_es_erst_mit_punkten(self, bewerter, abgabe):
         from plattform.extensions import db
 
         abgabe.points = None
         db.session.commit()
         html = bewerter.get("/admin/submissions").get_data(as_text=True)
-        assert "Weitere Aktionen" not in html
+        assert "Bewertung zurücksetzen" not in html
 
         abgabe.points = 3
         db.session.commit()
         html = bewerter.get("/admin/submissions").get_data(as_text=True)
-        assert "Weitere Aktionen" in html
         assert "Bewertung zurücksetzen" in html
 
     def test_admin_sieht_die_knoepfe_weiter(self, admin, abgabe):

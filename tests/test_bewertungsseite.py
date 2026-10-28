@@ -418,7 +418,7 @@ class TestNachAufgabenSortiert:
 
 
 class TestEingeklappt:
-    """Jede Aufgabe klappt mit ihren Abgaben ein, jede Abgabe ist eine Zeile.
+    """Jede Aufgabe klappt mit ihren Abgaben ein, jede Abgabe ist ein Block.
     Mit 13 Teams und 11 Aufgaben war die Seite vorher gut 50 000 Pixel hoch,
     und nach jedem Speichern ging es zurück an ihren Anfang."""
 
@@ -461,6 +461,35 @@ class TestEingeklappt:
 
         assert self.aufgaben(html) == {"aufgabe-1": True}
         assert "Alle aufklappen" not in html
+
+    def test_alle_knoepfe_sind_zu_sehen(
+            self, admin, make_challenge, make_task, make_team, database):
+        """Speichern und Herunterladen wurden verwechselt, und hinter „⋯“
+        musste man Zurücksetzen und Löschen erst suchen (Tobias, nach #171)."""
+        challenge = make_challenge()
+        task = make_task(challenge)
+        self.abgabe(database, make_team(challenge), task, punkte=3)
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        assert "✔ Bewertung speichern" in html
+        assert "⬇️ Datei herunterladen" in html
+        assert "💾" not in html
+        assert "⋯" not in html
+        assert 'id="mehr-' not in html
+        assert "♻️ Bewertung zurücksetzen" in html
+        assert "🗑 Abgabe vollständig löschen" in html
+
+    def test_die_beschreibung_steht_im_kopf_der_aufgabe(
+            self, admin, make_challenge, make_task, make_team, database):
+        challenge = make_challenge()
+        task = make_task(challenge)
+        self.abgabe(database, make_team(challenge), task)
+
+        html = admin.get("/admin/submissions").get_data(as_text=True)
+
+        kopf = html.split('<details id="aufgabe-1"')[1].split("</summary>")[0]
+        assert "Aufgabenbeschreibung" in kopf
 
     def test_jede_abgabe_ist_ein_sprungziel(
             self, admin, make_challenge, make_task, make_team, database):
