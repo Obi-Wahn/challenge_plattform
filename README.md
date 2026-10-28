@@ -69,7 +69,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Aufräumen**: Nach dem Ende löscht ein Knopf alle Teams und Abgaben; Protokolldatei und alte Sicherungskopien lassen sich unter Einstellungen löschen.
 *   **Zeit im Griff**: Start- und Endzeit oder eine Dauer, „Jetzt starten für … Minuten“; die Pause hält die Uhr an.
 *   **Durchsagen** an alle Teams und über der Rangliste, je Wettbewerb einschaltbar.
-*   **Bewerten**: nach Aufgaben geordnet, offene zuerst, Scratch-, Snap!- und MakeCode-Skripte als Blöcke, Textformate im Browser, Download, Punkte und Feedback.
+*   **Bewerten**: nach Aufgaben geordnet und einklappbar, eine Zeile je Abgabe, offene zuerst, Scratch-, Snap!- und MakeCode-Skripte als Blöcke, Textformate im Browser, Download, Punkte und Feedback.
 *   **Bewertungszugang**: ein eigenes Passwort für Helfende, das nur die Bewertungsseite des aktiven Wettbewerbs öffnet.
 *   **Teams**: Passwort zurücksetzen, Namen für die Urkunde kontrollieren und freigeben.
 *   **Urkunden** als PDF, quer oder hoch, mit Unterschrift in Handschrift, auch für einen längst beendeten Wettbewerb.

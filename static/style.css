@@ -502,10 +502,6 @@ input::placeholder, textarea::placeholder {
 
 /* ====== Bewertungen ====== */
 /* Die Linie zwischen Abgabe und Bewertungsformular, nur angedeutet. */
-.abgabe-trenner {
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
 /* ====== Weitere Wettbewerbe in der Steuerzentrale ====== */
 /* Schmaler als eine .event-card: Das sind Zeilen einer Liste, keine Karten,
    und sie sollen unter den Kacheln nicht schwerer wiegen als diese. */
@@ -915,10 +911,6 @@ input::placeholder, textarea::placeholder {
 }
 
 [data-farbschema="hell"] .bereich-trenner,
-[data-farbschema="hell"] .abgabe-trenner {
-  border-color: rgba(30, 34, 53, 0.15);
-}
-
 [data-farbschema="hell"] .ranglisten-tabelle .ranglisten-spalte,
 [data-farbschema="hell"] .ranglisten-tabelle .ranglisten-gesamt {
   border-left-color: rgba(30, 34, 53, 0.25);
@@ -1017,6 +1009,68 @@ input::placeholder, textarea::placeholder {
   scroll-margin-top: 1.5rem;
 }
 
+/* Jede Aufgabe klappt mit ihren Abgaben ein. Der Pfeil ist gezeichnet, nicht
+   ▶: Das Zeichen zeigt Windows als blaues Kästchen, siehe test_zeichen.py. */
+.abgaben-aufgabe > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.abgaben-aufgabe > summary::-webkit-details-marker {
+  display: none;
+}
+
+.aufgabe-pfeil {
+  display: inline-block;
+  width: 0.55em;
+  height: 0.55em;
+  margin: 0 0.55em 0.12em 0.1em;
+  border-right: 0.14em solid currentColor;
+  border-bottom: 0.14em solid currentColor;
+  opacity: 0.6;
+  transform: rotate(-45deg);
+  transition: transform 0.15s;
+  vertical-align: middle;
+}
+
+.abgaben-aufgabe[open] .aufgabe-pfeil {
+  transform: rotate(45deg);
+}
+
+.abgaben-aufgabe > summary:hover .aufgabe-pfeil {
+  opacity: 1;
+}
+
+/* Zugeklappt gibt es nichts, wovon man zurück nach oben müsste. */
+.abgaben-aufgabe:not([open]) .aufgabe-nach-oben {
+  display: none;
+}
+
+/* Eine Zeile je Abgabe, offene mit gelbem Rand vorn. Der Rand bleibt in
+   den runden Ecken der Karte. */
+.abgaben-liste {
+  overflow: hidden;
+}
+
+.abgabe-zeile {
+  padding: 0.9rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.abgabe-zeile:first-child {
+  border-top: 0;
+}
+
+.abgabe-offen {
+  box-shadow: inset 4px 0 0 var(--bs-warning);
+}
+
+@media (max-width: 576px) {
+  .abgabe-zeile {
+    padding: 0.9rem 1rem;
+  }
+}
+
 /* Die Skripte einer Scratch-Abgabe, nebeneinander wie auf der Arbeitsfläche
    in Scratch. Große Projekte scrollen im Kasten, nicht die ganze Seite. */
 .scratch-skripte {
@@ -1036,6 +1090,10 @@ input::placeholder, textarea::placeholder {
 
 .scratch-skript {
   flex: none;
+}
+
+[data-farbschema="hell"] .abgabe-zeile {
+  border-top-color: rgba(30, 34, 53, 0.08);
 }
 
 [data-farbschema="hell"] .scratch-skripte {
