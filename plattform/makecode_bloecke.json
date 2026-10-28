@@ -1,0 +1,1571 @@
+{
+ "quelle": "MakeCode Calliope 8.1.15 (github.com/microsoft/pxt-calliope, MIT-Lizenz), erzeugt von werkzeuge/makecode_bloecke.py",
+ "kategorien": {
+  "basic": "#54c9c9",
+  "input": "#c94600",
+  "music": "#df4600",
+  "led": "#8169e6",
+  "radio": "#e3008c",
+  "motors": "#008272",
+  "logic": "#006970",
+  "loops": "#107c10",
+  "math": "#712672",
+  "variables": "#a80000",
+  "text": "#996600",
+  "advanced": "#42495f",
+  "functions": "#005a9e",
+  "arrays": "#e65722"
+ },
+ "bloecke": {
+  "analog_pin": {
+   "text": "analog pin $pin",
+   "form": "wert",
+   "farbe": "#a80000"
+  },
+  "analog_pin_shadow": {
+   "text": "$pin",
+   "form": "wert",
+   "farbe": "#a80000"
+  },
+  "analog_read_write_pin_shadow": {
+   "text": "$pin",
+   "form": "wert",
+   "farbe": "#a80000"
+  },
+  "array_indexof": {
+   "text": "%list| finde Position von %value",
+   "form": "wert",
+   "farbe": "#e65722"
+  },
+  "array_insertAt": {
+   "text": "%list| füge ein bei %index| Wert %value",
+   "form": "stapel",
+   "farbe": "#e65722"
+  },
+  "array_pickRandom": {
+   "text": "erhalte zufälligen Wert von %list",
+   "form": "wert",
+   "farbe": "#e65722"
+  },
+  "array_pop": {
+   "text": "rufe den letzten Wert ab und lösche ihn von %list",
+   "form": "wert",
+   "farbe": "#e65722"
+  },
+  "array_pop_statement": {
+   "text": "entferne letzten Wert von %list",
+   "form": "stapel",
+   "farbe": "#e65722"
+  },
+  "array_push": {
+   "text": "%list| füge Wert %value| am Ende hinzu",
+   "form": "stapel",
+   "farbe": "#e65722"
+  },
+  "array_removeat": {
+   "text": "%list| entferne Wert bei %index",
+   "form": "wert",
+   "farbe": "#e65722"
+  },
+  "array_removeat_statement": {
+   "text": "%list| entferne Werte bei %index",
+   "form": "stapel",
+   "farbe": "#e65722"
+  },
+  "array_reverse": {
+   "text": "kehre %list um",
+   "form": "stapel",
+   "farbe": "#e65722"
+  },
+  "array_shift": {
+   "text": "rufe den ersten Wert ab und lösche ihn von %list",
+   "form": "wert",
+   "farbe": "#e65722"
+  },
+  "array_shift_statement": {
+   "text": "entferne letzten Werten von %list",
+   "form": "stapel",
+   "farbe": "#e65722"
+  },
+  "array_unshift": {
+   "text": "%list| füge %value| am Anfang hinzu",
+   "form": "wert",
+   "farbe": "#e65722"
+  },
+  "array_unshift_statement": {
+   "text": "%list| füge %value| am Anfang hinzu",
+   "form": "stapel",
+   "farbe": "#e65722"
+  },
+  "basic_show_arrow": {
+   "text": "zeige Pfeil %i=device_arrow",
+   "form": "stapel",
+   "farbe": "#54c9c9"
+  },
+  "basic_show_compass": {
+   "text": "zeige Kompassnadel $interval|ms",
+   "form": "stapel",
+   "farbe": "#54c9c9"
+  },
+  "basic_show_icon": {
+   "text": "zeige Symbol %i || für %interval ms",
+   "form": "stapel",
+   "farbe": "#54c9c9"
+  },
+  "block_dual_motor": {
+   "text": "Motor %motor|mit %percent \\%",
+   "form": "stapel",
+   "farbe": "#008272"
+  },
+  "builtin_arrow_image": {
+   "text": "Pfeil Bild %i",
+   "form": "wert",
+   "farbe": "#7600a8"
+  },
+  "builtin_image": {
+   "text": "Symbol %i",
+   "form": "wert",
+   "farbe": "#7600a8"
+  },
+  "colorNumberPicker": {
+   "text": "%value",
+   "form": "stapel",
+   "farbe": "#888888"
+  },
+  "colorWheelHsvPicker": {
+   "text": "%value",
+   "form": "stapel",
+   "farbe": "#888888"
+  },
+  "colorWheelPicker": {
+   "text": "%value",
+   "form": "stapel",
+   "farbe": "#888888"
+  },
+  "color_id": {
+   "text": "%c",
+   "form": "wert",
+   "farbe": "#54c9c9"
+  },
+  "control_button_event_click": {
+   "text": "geklickt",
+   "form": "wert",
+   "farbe": "#c90072"
+  },
+  "control_button_event_down": {
+   "text": "gedrückt",
+   "form": "wert",
+   "farbe": "#c90072"
+  },
+  "control_button_event_value": {
+   "text": "%id",
+   "form": "wert",
+   "farbe": "#c90072"
+  },
+  "control_device_name": {
+   "text": "Gerätename",
+   "form": "wert",
+   "farbe": "#42495f"
+  },
+  "control_device_serial_number": {
+   "text": "Seriennnummer",
+   "form": "wert",
+   "farbe": "#42495f"
+  },
+  "control_event_source_id": {
+   "text": "%id",
+   "form": "wert",
+   "farbe": "#42495f"
+  },
+  "control_event_timestamp\"": {
+   "text": "Ereigniszeitstempel",
+   "form": "wert",
+   "farbe": "#42495f"
+  },
+  "control_event_value\"": {
+   "text": "Ereigniswert",
+   "form": "wert",
+   "farbe": "#42495f"
+  },
+  "control_event_value_id": {
+   "text": "%id",
+   "form": "wert",
+   "farbe": "#42495f"
+  },
+  "control_in_background": {
+   "text": "im Hintergrund ausführen",
+   "form": "hut",
+   "farbe": "#42495f"
+  },
+  "control_on_event": {
+   "text": "wenn Ereignis|von Quelle %src=control_event_source_id|mit Wert %value=control_event_value_id",
+   "form": "stapel",
+   "farbe": "#42495f"
+  },
+  "control_raise_event": {
+   "text": "Ereignis auslösen|von Quelle %src=control_event_source_id|mit Wert %value=control_event_value_id",
+   "form": "stapel",
+   "farbe": "#42495f"
+  },
+  "control_reset": {
+   "text": "zurücksetzen",
+   "form": "stapel",
+   "farbe": "#42495f"
+  },
+  "control_running_time": {
+   "text": "millis (ms)",
+   "form": "wert",
+   "farbe": "#42495f"
+  },
+  "control_wait_for_event": {
+   "text": "warte auf Ereignis|von %src|mit Wert %value",
+   "form": "stapel",
+   "farbe": "#42495f"
+  },
+  "control_wait_us": {
+   "text": "Warte (µs)%micros",
+   "form": "stapel",
+   "farbe": "#42495f"
+  },
+  "core_rgb": {
+   "text": "Rot %red|Grün %green|Blau %blue",
+   "form": "wert",
+   "farbe": "#54c9c9"
+  },
+  "device_acceleration": {
+   "text": "Beschleunigung (mg) |%NAME",
+   "form": "wert",
+   "farbe": "#c90072"
+  },
+  "device_analog_pitch": {
+   "text": "analoge Tonhöhe %frequency|für (ms) %ms",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "device_analog_pitch_volume": {
+   "text": "analoge Tonlautstärke einstellen",
+   "form": "wert",
+   "farbe": "#a80000"
+  },
+  "device_analog_set_pitch_pin": {
+   "text": "analogen Tonausgabepin setzen auf Pin %name",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "device_analog_set_pitch_volume": {
+   "text": "analoge Tonlautstärke einstellen $volume",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "device_arrow": {
+   "text": "%arrow",
+   "form": "wert",
+   "farbe": "#7600a8"
+  },
+  "device_beat": {
+   "text": "%fraction|Takt",
+   "form": "wert",
+   "farbe": "#df4600"
+  },
+  "device_build_big_image": {
+   "text": "erstelle großes Bild",
+   "form": "wert",
+   "bild": true,
+   "farbe": "#7600a8"
+  },
+  "device_build_image": {
+   "text": "erstelle Bild",
+   "form": "wert",
+   "bild": true,
+   "farbe": "#7600a8"
+  },
+  "device_builtin_melody": {
+   "text": "%melody",
+   "form": "wert",
+   "farbe": "#df4600"
+  },
+  "device_builtin_melody_playable": {
+   "text": "melody|$melody",
+   "form": "wert",
+   "farbe": "#df4600"
+  },
+  "device_button_event": {
+   "text": "wenn Knopf|%NAME|gedrückt",
+   "form": "hut",
+   "farbe": "#c90072"
+  },
+  "device_button_selected_event": {
+   "text": "wenn Knopf|%NAME|%eventType",
+   "form": "hut",
+   "farbe": "#c90072"
+  },
+  "device_change_tempo": {
+   "text": "ändere die Geschwindigkeit (bpm)|%value",
+   "form": "stapel",
+   "farbe": "#df4600"
+  },
+  "device_clear_display": {
+   "text": "Bildschirminhalt löschen",
+   "form": "stapel",
+   "farbe": "#54c9c9"
+  },
+  "device_forever": {
+   "text": "dauerhaft",
+   "form": "hut",
+   "farbe": "#54c9c9"
+  },
+  "device_gesture_event": {
+   "text": "wenn |%NAME",
+   "form": "hut",
+   "farbe": "#c90072"
+  },
+  "device_get_analog_pin": {
+   "text": "lese analoge Werte von|Pin %name",
+   "form": "wert",
+   "farbe": "#a80000"
+  },
+  "device_get_brightness": {
+   "text": "Helligkeit",
+   "form": "wert",
+   "farbe": "#8169e6"
+  },
+  "device_get_button2": {
+   "text": "Button|%NAME|ist gedrückt",
+   "form": "bedingung",
+   "farbe": "#c90072"
+  },
+  "device_get_digital_pin": {
+   "text": "lese digitale Werte von|Pin %name",
+   "form": "wert",
+   "farbe": "#a80000"
+  },
+  "device_get_light_level": {
+   "text": "Lichtstärke",
+   "form": "wert",
+   "farbe": "#c90072"
+  },
+  "device_get_magnetic_force": {
+   "text": "Magnetkraft (µT) |%NAME",
+   "form": "wert",
+   "farbe": "#c90072"
+  },
+  "device_get_rotation": {
+   "text": "Rotation (°)|%NAME",
+   "form": "wert",
+   "farbe": "#c90072"
+  },
+  "device_get_running_time": {
+   "text": "Laufzeit (ms)",
+   "form": "stapel",
+   "farbe": "#c90072"
+  },
+  "device_get_running_time_micros": {
+   "text": "Laufzeit (micros)",
+   "form": "stapel",
+   "farbe": "#c90072"
+  },
+  "device_heading": {
+   "text": "Kompassausrichtung (°)",
+   "form": "wert",
+   "farbe": "#c90072"
+  },
+  "device_led_enable": {
+   "text": "LED-Matrix aktivieren %on",
+   "form": "stapel",
+   "farbe": "#8169e6"
+  },
+  "device_led_toggle": {
+   "text": "schalte zwischen|x %x|y %y",
+   "form": "stapel",
+   "farbe": "#8169e6"
+  },
+  "device_note": {
+   "text": "%name",
+   "form": "wert",
+   "farbe": "#ffffff"
+  },
+  "device_pause": {
+   "text": "pausiere (ms) %pause",
+   "form": "stapel",
+   "farbe": "#54c9c9"
+  },
+  "device_pin_custom_event": {
+   "text": "wenn Pin %name| %eventType",
+   "form": "hut",
+   "farbe": "#c90072"
+  },
+  "device_pin_event": {
+   "text": "wenn Pin %name|gedrückt",
+   "form": "hut",
+   "farbe": "#c90072"
+  },
+  "device_pin_is_pressed": {
+   "text": "Pin %NAME|ist gedrückt",
+   "form": "bedingung",
+   "farbe": "#c90072"
+  },
+  "device_pin_released": {
+   "text": "wenn Pin %NAME|losgelassen",
+   "form": "hut",
+   "farbe": "#c90072"
+  },
+  "device_play_note": {
+   "text": "spiele|Note %note=device_note|für %duration=device_beat",
+   "form": "stapel",
+   "farbe": "#df4600"
+  },
+  "device_plot": {
+   "text": "Zeichne|x %x|y %y",
+   "form": "stapel",
+   "farbe": "#8169e6"
+  },
+  "device_plot_bar_graph": {
+   "text": "zeichne Balkendiagramm von $value bis $high|| seriell ausgeben $valueToConsole",
+   "form": "stapel",
+   "farbe": "#8169e6"
+  },
+  "device_plot_brightness": {
+   "text": "Zeichne|x %x|y %y|Helligkeit %brightness",
+   "form": "stapel",
+   "farbe": "#8169e6"
+  },
+  "device_point": {
+   "text": "Punkt|x %x|y %y",
+   "form": "bedingung",
+   "farbe": "#8169e6"
+  },
+  "device_point_brightness": {
+   "text": "Punkt|x %x|y %y Helligkeit",
+   "form": "wert",
+   "farbe": "#8169e6"
+  },
+  "device_print_message": {
+   "text": "zeige|Zeichenfolge %text || in einem intervall von %interval ms",
+   "form": "stapel",
+   "farbe": "#54c9c9"
+  },
+  "device_random": {
+   "text": "wähle eine zufällige Zahl von %min|bis %limit",
+   "form": "wert",
+   "farbe": "#712672"
+  },
+  "device_random_deprecated": {
+   "text": "wähle eine zufällige Zahl zwischen %min|und %limit",
+   "form": "wert",
+   "farbe": "#712672"
+  },
+  "device_rest": {
+   "text": "pausiere (ms)|%duration=device_beat",
+   "form": "stapel",
+   "farbe": "#df4600"
+  },
+  "device_ring": {
+   "text": "Klingelton (Hz) |%note = Device_note",
+   "form": "stapel",
+   "farbe": "#df4600"
+  },
+  "device_scroll_image": {
+   "text": "scrolle Bild %sprite(myImage)|mit Versatz %frameoffset|und Intervall (ms) %delay",
+   "form": "stapel",
+   "farbe": "#7600a8"
+  },
+  "device_set_accelerometer_range": {
+   "text": "setze Bewegungsmesser auf|%range",
+   "form": "stapel",
+   "farbe": "#c90072"
+  },
+  "device_set_analog_period": {
+   "text": "setze Zeitraum für analogen|Pin %pin|auf (µs)%micros",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "device_set_analog_pin": {
+   "text": "schreibe analogen|Pin %name|auf %value",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "device_set_brightness": {
+   "text": "setze Helligkeit auf %value",
+   "form": "stapel",
+   "farbe": "#8169e6"
+  },
+  "device_set_digital_pin": {
+   "text": "schreibe digitalen Wert von|pin %name|auf %value",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "device_set_led_color": {
+   "text": "setze LED-Farbe auf %color=color_id",
+   "form": "stapel",
+   "farbe": "#54c9c9"
+  },
+  "device_set_led_colors": {
+   "text": "setze LEDs auf %color1=colorNumberPicker %color2=colorNumberPicker %color3=colorNumberPicker || Helligkeit %brightness",
+   "form": "stapel",
+   "farbe": "#54c9c9"
+  },
+  "device_set_pin_events": {
+   "text": "Stelle Pin %pin ein|zum Ausgeben von %type|-Ereignissen",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "device_set_pull": {
+   "text": "setze Anziehungskraft von|Pin %pin|auf %pull",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "device_set_servo_pin": {
+   "text": "schreibe Servo an|Pin %name|auf %value",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "device_set_servo_pulse": {
+   "text": "setze den Puls von Servo an|Pin %value|auf (µs) %micros",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "device_set_tempo": {
+   "text": "ändere Geschwindigkeit auf (bpm)|%value",
+   "form": "stapel",
+   "farbe": "#df4600"
+  },
+  "device_show_image_offset": {
+   "text": "zeige Bild %sprite(myImage)|mit Versatz %offset ||und Intervall (ms) %interval",
+   "form": "stapel",
+   "farbe": "#7600a8"
+  },
+  "device_show_leds": {
+   "text": "zeige LEDs",
+   "form": "stapel",
+   "bild": true,
+   "farbe": "#54c9c9"
+  },
+  "device_show_number": {
+   "text": "zeige|Nummer %number || in einem intervall von %interval ms",
+   "form": "stapel",
+   "farbe": "#54c9c9"
+  },
+  "device_start_melody": {
+   "text": "starte Melodie %melody=device_builtin_melody| wiederhole %options",
+   "form": "stapel",
+   "farbe": "#df4600"
+  },
+  "device_stop_animation": {
+   "text": "halte Animation an",
+   "form": "stapel",
+   "farbe": "#8169e6"
+  },
+  "device_stop_melody": {
+   "text": "halte Melodie $options|an",
+   "form": "stapel",
+   "farbe": "#df4600"
+  },
+  "device_temperature": {
+   "text": "Temperatur (°C)",
+   "form": "wert",
+   "farbe": "#c90072"
+  },
+  "device_tempo": {
+   "text": "Geschwindkeit (bpm)",
+   "form": "wert",
+   "farbe": "#df4600"
+  },
+  "device_touch_set_type": {
+   "text": "setze %name auf Berührungsmodus %mode",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "device_turn_rgb_led_off": {
+   "text": "schalte RGB-LED aus",
+   "form": "stapel",
+   "farbe": "#54c9c9"
+  },
+  "device_unplot": {
+   "text": "schalte Pixel|x %x|y %y aus",
+   "form": "stapel",
+   "farbe": "#8169e6"
+  },
+  "deviceisgesture": {
+   "text": "Bewegung %gesture",
+   "form": "bedingung",
+   "farbe": "#c90072"
+  },
+  "digital_pin": {
+   "text": "digital pin $pin",
+   "form": "wert",
+   "farbe": "#a80000"
+  },
+  "digital_pin_shadow": {
+   "text": "$pin",
+   "form": "wert",
+   "farbe": "#a80000"
+  },
+  "every_interval": {
+   "text": "alle $interval ms",
+   "form": "hut",
+   "farbe": "#107c10"
+  },
+  "game_add_life": {
+   "text": "%lives|Leben hinzufügen",
+   "form": "stapel",
+   "farbe": "#008272"
+  },
+  "game_add_score": {
+   "text": "Ändere Spielstand um|%points",
+   "form": "stapel",
+   "farbe": "#008272"
+  },
+  "game_create_sprite": {
+   "text": "erzeuge Sprite an Position|x: %x|y:%y",
+   "form": "wert",
+   "farbe": "#008272"
+  },
+  "game_game_over": {
+   "text": "Spiel beendet",
+   "form": "stapel",
+   "farbe": "#008272"
+  },
+  "game_isgameover": {
+   "text": "Spiel ist beendet",
+   "form": "bedingung",
+   "farbe": "#008272"
+  },
+  "game_ispaused": {
+   "text": "ist pausiert",
+   "form": "bedingung",
+   "farbe": "#008272"
+  },
+  "game_isrunning": {
+   "text": "läuft",
+   "form": "bedingung",
+   "farbe": "#008272"
+  },
+  "game_pause": {
+   "text": "Pause",
+   "form": "stapel",
+   "farbe": "#008272"
+  },
+  "game_remove_life": {
+   "text": "%life|leben abziehen",
+   "form": "stapel",
+   "farbe": "#008272"
+  },
+  "game_resume": {
+   "text": "weiter",
+   "form": "stapel",
+   "farbe": "#008272"
+  },
+  "game_score": {
+   "text": "Spielstand",
+   "form": "wert",
+   "farbe": "#008272"
+  },
+  "game_set_life": {
+   "text": "setze Anzahl Leben auf %value",
+   "form": "stapel",
+   "farbe": "#008272"
+  },
+  "game_set_score": {
+   "text": "setze Punktzahl auf %points",
+   "form": "stapel",
+   "farbe": "#008272"
+  },
+  "game_start_countdown": {
+   "text": "Countdown| starten (ms) %duration",
+   "form": "stapel",
+   "farbe": "#008272"
+  },
+  "i2c_writenumber": {
+   "text": "I²C write number|at address %address|with value %value|of format %format|repeated %repeat",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "input_compass_calibrate": {
+   "text": "Kompass kalibrieren",
+   "form": "stapel",
+   "farbe": "#c90072"
+  },
+  "input_compass_is_calibrated": {
+   "text": "wurde der Kompass kalibriert",
+   "form": "bedingung",
+   "farbe": "#c90072"
+  },
+  "input_logo_event": {
+   "text": "wenn Logo $action",
+   "form": "hut",
+   "farbe": "#c90072"
+  },
+  "input_logo_is_pressed": {
+   "text": "Logo ist gedrückt",
+   "form": "bedingung",
+   "farbe": "#c90072"
+  },
+  "led_set_display_mode": {
+   "text": "LED-Matrix aktivieren $mode",
+   "form": "stapel",
+   "farbe": "#8169e6"
+  },
+  "lists_length": {
+   "text": "Array-Länge %VALUE",
+   "form": "wert",
+   "farbe": "#e65722"
+  },
+  "logic_random": {
+   "text": "wähle zufälligen Wahr- oder Falsch-Wert",
+   "form": "bedingung",
+   "farbe": "#712672"
+  },
+  "longTimePicker": {
+   "text": "%ms",
+   "form": "wert",
+   "farbe": "#107c10"
+  },
+  "math_constrain_value": {
+   "text": "begrenze %value|zwischen %low|und %high",
+   "form": "wert",
+   "farbe": "#712672"
+  },
+  "math_convert_unit": {
+   "text": "convert $value|from $type",
+   "form": "wert",
+   "farbe": "#712672"
+  },
+  "math_map": {
+   "text": "verteile %value|von niedrig %fromLow|high %fromHigh|zu hoch %toLow|high %toHigh",
+   "form": "wert",
+   "farbe": "#712672"
+  },
+  "melody_editor": {
+   "text": "$melody",
+   "form": "wert",
+   "farbe": "#df4600"
+  },
+  "melody_on_event": {
+   "text": "Musik bei %value",
+   "form": "hut",
+   "farbe": "#df4600"
+  },
+  "motor_command": {
+   "text": "motor %command",
+   "form": "stapel",
+   "farbe": "#008272"
+  },
+  "motor_on": {
+   "text": "Motor an mit %percent \\%",
+   "form": "stapel",
+   "farbe": "#008272"
+  },
+  "music_playable_play": {
+   "text": "spiele $toPlay $playbackMode",
+   "form": "stapel",
+   "farbe": "#df4600"
+  },
+  "music_playable_play_default_bkg": {
+   "text": "spiele $toPlay $playbackMode",
+   "form": "stapel",
+   "farbe": "#df4600"
+  },
+  "music_set_built_in_speaker_enable": {
+   "text": "eingebauten Lautsprecher $enabled",
+   "form": "stapel",
+   "farbe": "#df4600"
+  },
+  "music_sound_is_playing": {
+   "text": "Ton wird abgespielt",
+   "form": "bedingung",
+   "farbe": "#df4600"
+  },
+  "music_stop_all_sounds": {
+   "text": "alle Töne ausschalten",
+   "form": "stapel",
+   "farbe": "#df4600"
+  },
+  "music_string_playable": {
+   "text": "Melodie $melody im Tempo $bpm|(bpm)",
+   "form": "wert",
+   "farbe": "#df4600"
+  },
+  "music_tone_playable": {
+   "text": "tone $note for $duration",
+   "form": "wert",
+   "farbe": "#df4600"
+  },
+  "pin_map": {
+   "text": "verteile %value|von niedrig %fromLow|von hoch %fromHigh| bis niedrig %toLow|bis hoch %toHigh",
+   "form": "wert",
+   "farbe": "#a80000"
+  },
+  "pin_neopixel_matrix_width": {
+   "text": "Neopixel Matrixbreite |Pin %pin %width",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "pin_set_audio_pin": {
+   "text": "setze Audiopin $name",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "pin_set_audio_pin_enabled": {
+   "text": "Audio-Pin aktivieren $enabled",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "pins_i2c_readnumber": {
+   "text": "I²C read number|at address %address|of format %format|repeated %repeat",
+   "form": "wert",
+   "farbe": "#a80000"
+  },
+  "pins_on_pulsed": {
+   "text": "wenn|Pin %pin|gepulst %pulse",
+   "form": "hut",
+   "farbe": "#a80000"
+  },
+  "pins_pulse_duration": {
+   "text": "Impulsdauer (µs)",
+   "form": "wert",
+   "farbe": "#a80000"
+  },
+  "pins_pulse_in": {
+   "text": "Impuls in (µs)|Pin %name|mit %value",
+   "form": "wert",
+   "farbe": "#a80000"
+  },
+  "playMelody": {
+   "text": "spiele Melodie $melody im Tempo $tempo|(bpm)",
+   "form": "stapel",
+   "farbe": "#df4600"
+  },
+  "protractorPicker": {
+   "text": "%angle",
+   "form": "stapel",
+   "farbe": "#888888"
+  },
+  "radioRaiseEvent": {
+   "text": "radio raise event|from source %src=control_event_source_id|with value %value=control_event_value_id",
+   "form": "stapel",
+   "farbe": "#e3008c"
+  },
+  "radio_datagram_receive": {
+   "text": "Funk empfange Zahl",
+   "form": "wert",
+   "farbe": "#e3008c"
+  },
+  "radio_datagram_receive_string": {
+   "text": "Funk empfange Zeichenfolge",
+   "form": "wert",
+   "farbe": "#e3008c"
+  },
+  "radio_datagram_received_event": {
+   "text": "Funk wenn Daten empfangen",
+   "form": "hut",
+   "farbe": "#e3008c"
+  },
+  "radio_datagram_rssi": {
+   "text": "Funk empfangene Signalstärke",
+   "form": "wert",
+   "farbe": "#e3008c"
+  },
+  "radio_datagram_send": {
+   "text": "Funk sende Zahl %value",
+   "form": "stapel",
+   "farbe": "#e3008c"
+  },
+  "radio_datagram_send_string": {
+   "text": "Funk sende Zeichenfolge %msg",
+   "form": "stapel",
+   "farbe": "#e3008c"
+  },
+  "radio_datagram_send_value": {
+   "text": "Funk sende|Wert %name|= %value",
+   "form": "stapel",
+   "farbe": "#e3008c"
+  },
+  "radio_on_buffer": {
+   "text": "wenn Datenpaket empfangen",
+   "form": "hut",
+   "farbe": "#e3008c"
+  },
+  "radio_on_buffer_drag": {
+   "text": "wenn Datenpaket empfangen",
+   "form": "hut",
+   "farbe": "#e3008c"
+  },
+  "radio_on_number": {
+   "text": "wenn Datenpaket empfangen",
+   "form": "hut",
+   "farbe": "#e3008c"
+  },
+  "radio_on_number_drag": {
+   "text": "wenn Datenpaket empfangen",
+   "form": "hut",
+   "farbe": "#e3008c"
+  },
+  "radio_on_packet": {
+   "text": "wenn Datenpaket empfangen",
+   "form": "hut",
+   "farbe": "#e3008c"
+  },
+  "radio_on_string": {
+   "text": "wenn Datenpaket empfangen",
+   "form": "hut",
+   "farbe": "#e3008c"
+  },
+  "radio_on_string_drag": {
+   "text": "wenn Datenpaket empfangen",
+   "form": "hut",
+   "farbe": "#e3008c"
+  },
+  "radio_on_value": {
+   "text": "wenn Datenpaket empfangen",
+   "form": "hut",
+   "farbe": "#e3008c"
+  },
+  "radio_on_value_drag": {
+   "text": "wenn Datenpaket empfangen",
+   "form": "hut",
+   "farbe": "#e3008c"
+  },
+  "radio_packet_property": {
+   "text": "%note",
+   "form": "wert",
+   "farbe": "#e3008c"
+  },
+  "radio_received_packet": {
+   "text": "empfangenes Paket %type=radio_packet_property",
+   "form": "stapel",
+   "farbe": "#e3008c"
+  },
+  "radio_set_frequency_band": {
+   "text": "Funk setze Frequenzband %band",
+   "form": "stapel",
+   "farbe": "#e3008c"
+  },
+  "radio_set_group": {
+   "text": "Funk setze Gruppe %ID",
+   "form": "stapel",
+   "farbe": "#e3008c"
+  },
+  "radio_set_transmit_power": {
+   "text": "Funk setze Sendeleistung %power",
+   "form": "stapel",
+   "farbe": "#e3008c"
+  },
+  "radio_set_transmit_serial_number": {
+   "text": "Funk setze Seriennummer übertragen %transmit",
+   "form": "stapel",
+   "farbe": "#e3008c"
+  },
+  "radio_write_packet_serial": {
+   "text": "Funk schreibe empfangenes Paket an seriell",
+   "form": "stapel",
+   "farbe": "#e3008c"
+  },
+  "radio_write_value_serial": {
+   "text": "Funk schreibe Wert an seriell",
+   "form": "stapel",
+   "farbe": "#e3008c"
+  },
+  "serialSetRxBufferSize": {
+   "text": "setze serielle Puffergröße für RX auf $size",
+   "form": "stapel",
+   "farbe": "#002050"
+  },
+  "serialSetTxBufferSize": {
+   "text": "setze serielle Puffergröße für TX auf $size",
+   "form": "stapel",
+   "farbe": "#002050"
+  },
+  "serialWriteNewLinePadding": {
+   "text": "setze serielle Zeilenauffüllung auf $length",
+   "form": "stapel",
+   "farbe": "#002050"
+  },
+  "serial_delimiter_conv": {
+   "text": "%del",
+   "form": "wert",
+   "farbe": "#002050"
+  },
+  "serial_on_data_received": {
+   "text": "seriell|wenn Daten empfangen %delimiters=serial_delimiter_conv",
+   "form": "hut",
+   "farbe": "#002050"
+  },
+  "serial_read_buffer": {
+   "text": "seriell|Zeichenfolge lesen",
+   "form": "wert",
+   "farbe": "#002050"
+  },
+  "serial_read_line": {
+   "text": "seriell|Zeile lesen",
+   "form": "wert",
+   "farbe": "#002050"
+  },
+  "serial_read_until": {
+   "text": "seriell|lese bis %delimiter=serial_delimiter_conv",
+   "form": "wert",
+   "farbe": "#002050"
+  },
+  "serial_readbuffer": {
+   "text": "seriell|lesen bis %length",
+   "form": "wert",
+   "farbe": "#002050"
+  },
+  "serial_redirect": {
+   "text": "seriell|umleiten auf|TX %tx|RX %rx|mit Baudrate %rate",
+   "form": "stapel",
+   "farbe": "#002050"
+  },
+  "serial_redirect_to_usb": {
+   "text": "seriell|auf USB umleiten",
+   "form": "stapel",
+   "farbe": "#002050"
+  },
+  "serial_setbaudrate": {
+   "text": "seriell|setze Baudrate auf %rate",
+   "form": "stapel",
+   "farbe": "#002050"
+  },
+  "serial_writebuffer": {
+   "text": "seriell|setze Puffergröße auf %buffer=serial_readbuffer",
+   "form": "stapel",
+   "farbe": "#002050"
+  },
+  "serial_writeline": {
+   "text": "seriell|%text|als Zeile ausgeben",
+   "form": "stapel",
+   "farbe": "#002050"
+  },
+  "serial_writenumber": {
+   "text": "seriell|Zahl ausgeben %value",
+   "form": "stapel",
+   "farbe": "#002050"
+  },
+  "serial_writenumbers": {
+   "text": "seriell|%values|als Zahlen ausgeben",
+   "form": "stapel",
+   "farbe": "#002050"
+  },
+  "serial_writestring": {
+   "text": "seriell|Text ausgeben %text",
+   "form": "stapel",
+   "farbe": "#002050"
+  },
+  "serial_writevalue": {
+   "text": "seriell|Wertepaar ausgeben %name| und %value",
+   "form": "stapel",
+   "farbe": "#002050"
+  },
+  "soundExpression_builtinPlayableSoundEffect": {
+   "text": "$soundExpression",
+   "form": "stapel",
+   "farbe": "#df4600"
+  },
+  "soundExpression_builtinSoundEffect": {
+   "text": "$soundExpression",
+   "form": "stapel",
+   "farbe": "#df4600"
+  },
+  "soundExpression_createSoundEffect": {
+   "text": "$waveShape|| start frequency $startFrequency end frequency $endFrequency duration $duration start volume $startVolume end volume $endVolume effect $effect interpolation $interpolation",
+   "form": "wert",
+   "farbe": "#df4600"
+  },
+  "soundExpression_createSoundExpression": {
+   "text": "$waveShape|| start frequency $startFrequency end frequency $endFrequency duration $duration start volume $startVolume end volume $endVolume effect $effect interpolation $interpolation",
+   "form": "wert",
+   "farbe": "#df4600"
+  },
+  "soundExpression_playSoundEffect": {
+   "text": "spiele Sound $sound $mode",
+   "form": "stapel",
+   "farbe": "#df4600"
+  },
+  "soundLevel": {
+   "text": "Lautstärke",
+   "form": "wert",
+   "farbe": "#c90072"
+  },
+  "speedPicker": {
+   "text": "%speed",
+   "form": "wert",
+   "farbe": "#888888"
+  },
+  "spi_format": {
+   "text": "SPI-Format|Bits %bits|Modus %mode",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "spi_frequency": {
+   "text": "SPI-Frequenz %frequency",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "spi_pins": {
+   "text": "SPI Pins einstellen|MOSI %mosi|MISO %miso|SCK %sck",
+   "form": "stapel",
+   "farbe": "#a80000"
+  },
+  "spi_write": {
+   "text": "schreibe %value in SPI",
+   "form": "wert",
+   "farbe": "#a80000"
+  },
+  "stringFromCharCode": {
+   "text": "Text aus ASCII-Code %code",
+   "form": "wert",
+   "farbe": "#996600"
+  },
+  "string_charcode_at": {
+   "text": "Zeichencode von $this=text|an Position $index",
+   "form": "wert",
+   "farbe": "#996600"
+  },
+  "string_compare": {
+   "text": "vergleiche %this| mit %that",
+   "form": "wert",
+   "farbe": "#996600"
+  },
+  "string_get": {
+   "text": "Zeichen an Position %pos aus|%this",
+   "form": "wert",
+   "farbe": "#996600"
+  },
+  "string_includes": {
+   "text": "%this=text|beinhaltet %searchValue",
+   "form": "bedingung",
+   "farbe": "#996600"
+  },
+  "string_indexof": {
+   "text": "%this=text|finde index von %searchValue",
+   "form": "wert",
+   "farbe": "#996600"
+  },
+  "string_isempty": {
+   "text": "%this| ist leer",
+   "form": "bedingung",
+   "farbe": "#996600"
+  },
+  "string_parsefloat": {
+   "text": "wandle %text|in eine Zahl",
+   "form": "wert",
+   "farbe": "#996600"
+  },
+  "string_parseint": {
+   "text": "wandle %text|in eine Zahl",
+   "form": "wert",
+   "farbe": "#996600"
+  },
+  "string_split": {
+   "text": "teile %this=text|bei %separator",
+   "form": "wert",
+   "farbe": "#996600"
+  },
+  "string_substr": {
+   "text": "substring of %this=text|from %start|of length %length",
+   "form": "wert",
+   "farbe": "#996600"
+  },
+  "string_substr_new": {
+   "text": "extrahiere aus %this|beginnend mit %start|%length Zeichen",
+   "form": "wert",
+   "farbe": "#996600"
+  },
+  "synth_get_volume": {
+   "text": "volume",
+   "form": "wert",
+   "farbe": "#df4600"
+  },
+  "synth_set_volume": {
+   "text": "setze Lautstärke %volume",
+   "form": "stapel",
+   "farbe": "#df4600"
+  },
+  "text_length": {
+   "text": "Länge von %VALUE",
+   "form": "wert",
+   "farbe": "#996600"
+  },
+  "timePicker": {
+   "text": "%ms",
+   "form": "wert",
+   "farbe": "#888888"
+  },
+  "toggleDownUp": {
+   "text": "%down",
+   "form": "bedingung",
+   "farbe": "#888888"
+  },
+  "toggleHighLow": {
+   "text": "%high",
+   "form": "bedingung",
+   "farbe": "#888888"
+  },
+  "toggleOnOff": {
+   "text": "%on",
+   "form": "bedingung",
+   "farbe": "#888888"
+  },
+  "toggleUpDown": {
+   "text": "%up",
+   "form": "bedingung",
+   "farbe": "#888888"
+  },
+  "toggleWinLose": {
+   "text": "%win",
+   "form": "bedingung",
+   "farbe": "#888888"
+  },
+  "toggleYesNo": {
+   "text": "%yes",
+   "form": "bedingung",
+   "farbe": "#888888"
+  },
+  "turnRatioPicker": {
+   "text": "%turnratio",
+   "form": "wert",
+   "farbe": "#888888"
+  },
+  "variable_to_text": {
+   "text": "wandle $value=math_number um in Text",
+   "form": "wert",
+   "farbe": "#996600"
+  }
+ },
+ "werte": {
+  "AcceleratorRange.EightG": "8g",
+  "AcceleratorRange.FourG": "4g",
+  "AcceleratorRange.OneG": "1g",
+  "AcceleratorRange.TwoG": "2g",
+  "AnalogPin.A0_SCL": "C19 (A0 SCL)",
+  "AnalogPin.A0_SDA": "C20 (A0 SDA)",
+  "AnalogPin.A1_RX": "A1 RX",
+  "AnalogPin.A1_TX": "A1 TX",
+  "AnalogPin.C11": "C11 (nur schreiben)",
+  "AnalogPin.C12": "C12 (nur schreiben)",
+  "AnalogPin.C13": "C13 (nur schreiben)",
+  "AnalogPin.C14": "C14 (nur schreiben)",
+  "AnalogPin.C15": "C15 (nur schreiben)",
+  "AnalogPin.C16": "C16 (A1 RX)",
+  "AnalogPin.C17": "C17 (A1 TX, nur schreiben)",
+  "AnalogPin.C5": "C5 (nur schreiben)",
+  "AnalogPin.C6": "C6 (nur schreiben)",
+  "AnalogPin.C7": "C7 (nur schreiben)",
+  "AnalogPin.C8": "C8 (nur schreiben)",
+  "AnalogPin.C9": "C9 (nur schreiben)",
+  "AnalogPin.M0_DIR": "M0 Direction (nur schreiben)",
+  "AnalogPin.M0_SPEED": "M0 Geschwindigkeit (nur schreiben)",
+  "AnalogPin.M1_DIR": "M1 Richtung (nur schreiben)",
+  "AnalogPin.M1_SPEED": "M1 Geschwindigkeit (nur schreiben)",
+  "AnalogPin.M_MODE": "Motor Modus (nur schreiben)",
+  "AnalogPin.P3": "P3 (nur schreiben)",
+  "AnalogPin.RGB": "RGB (nur schreiben)",
+  "AnalogReadWritePin.A0_SCL": "C19 (A0 SCL)",
+  "AnalogReadWritePin.A0_SDA": "C20 (A0 SDA)",
+  "AnalogReadWritePin.A1_RX": "A1 RX",
+  "AnalogReadWritePin.C16": "C16 (A1 RX)",
+  "ArrowNames.East": "Osten",
+  "ArrowNames.North": "Norden",
+  "ArrowNames.NorthEast": "Nordost",
+  "ArrowNames.NorthWest": "Nordwest",
+  "ArrowNames.South": "Süden",
+  "ArrowNames.SouthEast": "Südosten",
+  "ArrowNames.SouthWest": "Südwesten",
+  "ArrowNames.West": "Westen",
+  "BaudRate.BaudRate115200": "115200",
+  "BaudRate.BaudRate1200": "1200",
+  "BaudRate.BaudRate14400": "14400",
+  "BaudRate.BaudRate19200": "19200",
+  "BaudRate.BaudRate2400": "2400",
+  "BaudRate.BaudRate28800": "28800",
+  "BaudRate.BaudRate31250": "31250",
+  "BaudRate.BaudRate38400": "38400",
+  "BaudRate.BaudRate4800": "4800",
+  "BaudRate.BaudRate57600": "57600",
+  "BaudRate.BaudRate9600": "9600",
+  "BeatFraction.Breve": "4",
+  "BeatFraction.Double": "2",
+  "BeatFraction.Eighth": "1/8",
+  "BeatFraction.Half": "1/2",
+  "BeatFraction.Quarter": "1/4",
+  "BeatFraction.Sixteenth": "1/16",
+  "BeatFraction.Whole": "1",
+  "Button.AB": "A+B",
+  "ButtonEvent.Click": "geklickt",
+  "ButtonEvent.Down": "gedrückt",
+  "ButtonEvent.Hold": "gehalten",
+  "ButtonEvent.LongClick": "lange geklickt",
+  "ButtonEvent.Up": "losgelassen",
+  "Colors.Blue": "Blau",
+  "Colors.Green": "Grün",
+  "Colors.Indigo": "Indigo",
+  "Colors.Off": "aus",
+  "Colors.Orange": "Orange",
+  "Colors.Purple": "Violett",
+  "Colors.Red": "Rot",
+  "Colors.Violet": "Veilchenblau",
+  "Colors.White": "Weiß",
+  "Colors.Yellow": "Gelb",
+  "Delimiters.CarriageReturn": "Zeilenumschaltung (\r)",
+  "Delimiters.Colon": ":",
+  "Delimiters.Comma": ",",
+  "Delimiters.Dollar": "$",
+  "Delimiters.Fullstop": ".",
+  "Delimiters.Hash": "#",
+  "Delimiters.NewLine": "Neue Zeile (\n)",
+  "Delimiters.Pipe": "|",
+  "Delimiters.SemiColon": ";",
+  "Delimiters.Space": "Leertaste",
+  "Delimiters.Tab": "Tabulator (\t)",
+  "DigitalPin.A0_SCL": "C19 (A0 SCL)",
+  "DigitalPin.A0_SDA": "C20 (A0 SDA)",
+  "DigitalPin.A1_RX": "A1 RX",
+  "DigitalPin.A1_TX": "A1 TX",
+  "DigitalPin.C16": "C16 (A1 RX)",
+  "DigitalPin.C17": "C17 (A1 TX)",
+  "Dimension.Strength": "Stärke",
+  "Dimension.X": "x",
+  "Dimension.Y": "y",
+  "Dimension.Z": "z",
+  "Direction.Left": "links",
+  "Direction.Right": "rechts",
+  "DisplayMode.BlackAndWhite": "black and white",
+  "DisplayMode.Greyscale": "Graustufen",
+  "Gesture.EightG": "8g",
+  "Gesture.FreeFall": "freier Fall",
+  "Gesture.LogoDown": "nach vorne neigen",
+  "Gesture.LogoUp": "nach hinten neigen",
+  "Gesture.ScreenDown": "LED-Matrix nach unten",
+  "Gesture.ScreenUp": "LED-Matrix nach oben",
+  "Gesture.Shake": "geschüttelt",
+  "Gesture.SixG": "6g",
+  "Gesture.ThreeG": "3g",
+  "Gesture.TiltLeft": "nach links neigen",
+  "Gesture.TiltRight": "nach rechts neigen",
+  "IconNames.Angry": "böse",
+  "IconNames.ArrowEast": "Pfeil Osten",
+  "IconNames.ArrowNorth": "Pfeil Norden",
+  "IconNames.ArrowNorthEast": "Pfeil Nordost",
+  "IconNames.ArrowNorthWest": "Pfeil Nordwest",
+  "IconNames.ArrowSouth": "Pfeil Süden",
+  "IconNames.ArrowSouthEast": "Pfeil Südost",
+  "IconNames.ArrowSouthWest": "Pfeil Südwest",
+  "IconNames.ArrowWest": "Pfeil Westen",
+  "IconNames.Asleep": "Schlafen",
+  "IconNames.Butterfly": "Schmetterling",
+  "IconNames.Chessboard": "Schachbrett",
+  "IconNames.Confused": "durcheinander",
+  "IconNames.Cow": "Kuh",
+  "IconNames.Diamond": "Diament",
+  "IconNames.Duck": "Ente",
+  "IconNames.EighthNote": "eighth note",
+  "IconNames.EigthNote": "Achtelnote",
+  "IconNames.Fabulous": "großartig",
+  "IconNames.Ghost": "Geist",
+  "IconNames.Giraffe": "Giraffe",
+  "IconNames.Happy": "glücklich",
+  "IconNames.Heart": "Herz",
+  "IconNames.House": "Haus",
+  "IconNames.LeftTriangle": "Dreieck links",
+  "IconNames.Meh": "meh",
+  "IconNames.No": "nein",
+  "IconNames.Pitchfork": "Heugabel",
+  "IconNames.QuarterNote": "Viertelnote",
+  "IconNames.Rabbit": "Hase",
+  "IconNames.Rollerskate": "Rollschuh",
+  "IconNames.Sad": "traurig",
+  "IconNames.Scissors": "Schere",
+  "IconNames.Silly": "albern",
+  "IconNames.Skull": "Schädel",
+  "IconNames.SmallDiamond": "kleiner Diamand",
+  "IconNames.SmallHeart": "kleines Herz",
+  "IconNames.SmallSquare": "kleiens Quadrat",
+  "IconNames.Snake": "Schlange",
+  "IconNames.Square": "Quadrat",
+  "IconNames.StickFigure": "Strichmännchen",
+  "IconNames.Surprised": "überrascht",
+  "IconNames.Sword": "Schwert",
+  "IconNames.TShirt": "T-Shirt",
+  "IconNames.Target": "Ziel",
+  "IconNames.Tortoise": "Schildkröte",
+  "IconNames.Triangle": "triangle",
+  "IconNames.Umbrella": "Dreieck",
+  "IconNames.Yes": "Ja",
+  "InterpolationCurve.Curve": "curve",
+  "InterpolationCurve.Linear": "linear",
+  "InterpolationCurve.Logarithmic": "logarithmic",
+  "LedSpriteProperty.Blink": "blinken",
+  "LedSpriteProperty.Brightness": "Helligkeit",
+  "LedSpriteProperty.Direction": "Richtung",
+  "LedSpriteProperty.X": "x",
+  "LedSpriteProperty.Y": "y",
+  "Melodies.BaDing": "ba ding",
+  "Melodies.Baddy": "baddy",
+  "Melodies.Birthday": "Geburtstag",
+  "Melodies.Blues": "Blues",
+  "Melodies.Chase": "chase",
+  "Melodies.Dadadadum": "dadadum",
+  "Melodies.Entertainer": "Unterhalter",
+  "Melodies.Funeral": "Beerdigung",
+  "Melodies.Funk": "funk",
+  "Melodies.JumpDown": "jump down",
+  "Melodies.JumpUp": "jump up",
+  "Melodies.Nyan": "nyan",
+  "Melodies.Ode": "ode",
+  "Melodies.PowerDown": "power down",
+  "Melodies.PowerUp": "power up",
+  "Melodies.Prelude": "prelude",
+  "Melodies.Punchline": "punchline",
+  "Melodies.Ringtone": "Klingelton",
+  "Melodies.Wawawawaa": "wawawawaa",
+  "Melodies.Wedding": "Hochzeit",
+  "MelodyOptions.Forever": "dauerhaft",
+  "MelodyOptions.ForeverInBackground": "dauerhaft im Hintergrund",
+  "MelodyOptions.Once": "einmal",
+  "MelodyOptions.OnceInBackground": "einmal im Hintergrund",
+  "MelodyStopOptions.All": "alle",
+  "MelodyStopOptions.Background": "Hintergrund",
+  "MelodyStopOptions.Foreground": "Vordergrund",
+  "MesDpadButtonInfo.ADown": "A runter",
+  "MesDpadButtonInfo.AUp": "A hoch",
+  "MesDpadButtonInfo.BDown": "B runter",
+  "MesDpadButtonInfo.BUp": "B hoch",
+  "MesDpadButtonInfo.CDown": "C runter",
+  "MesDpadButtonInfo.CUp": "C hoch",
+  "MesDpadButtonInfo.DDown": "D runter",
+  "MesDpadButtonInfo.DUp": "D hoch",
+  "MesDpadButtonInfo._1Down": "1 runter",
+  "MesDpadButtonInfo._1Up": "1 hoch",
+  "MesDpadButtonInfo._2Down": "2 runter",
+  "MesDpadButtonInfo._2Up": "2 hoch",
+  "MesDpadButtonInfo._3Down": "3 runter",
+  "MesDpadButtonInfo._3Up": "3 hoch",
+  "MesDpadButtonInfo._4Down": "4 runter",
+  "MesDpadButtonInfo._4Up": "4 hoch",
+  "Motor.M0": "M0",
+  "Motor.M0_M1": "M0 & M1",
+  "Motor.M1": "M1",
+  "MotorCommand.Break": "Pause",
+  "MotorCommand.Coast": "auslaufen",
+  "MotorCommand.Sleep": "schlafen",
+  "MusicEvent.BackgroundMelodyEnded": "Hintergrundmelodie beendet",
+  "MusicEvent.BackgroundMelodyNotePlayed": "Hintergrundmelodie Note gespielt",
+  "MusicEvent.BackgroundMelodyPaused": "Hintergrundmelodie angehalten",
+  "MusicEvent.BackgroundMelodyRepeated": "Hintergrundmelodie wiederholt",
+  "MusicEvent.BackgroundMelodyResumed": "Hintergrundmelodie fortgesetzt",
+  "MusicEvent.BackgroundMelodyStarted": "Hintergrundmelodie gestartet",
+  "MusicEvent.MelodyEnded": "Melodie beendet",
+  "MusicEvent.MelodyNotePlayed": "Melodie Note gespielt",
+  "MusicEvent.MelodyRepeated": "Melodie wiederholt",
+  "MusicEvent.MelodyStarted": "Melodie gestartet",
+  "Note.CSharp": "C#",
+  "Note.CSharp3": "C#3",
+  "Note.CSharp4": "C#4",
+  "Note.CSharp5": "C#5",
+  "Note.FSharp": "F#",
+  "Note.FSharp3": "F#3",
+  "Note.FSharp4": "F#4",
+  "Note.FSharp5": "F#5",
+  "Note.GSharp": "G#",
+  "Note.GSharp3": "G#3",
+  "Note.GSharp4": "G#4",
+  "Note.GSharp5": "G#5",
+  "PinEvent.Fall": "Fall",
+  "PinEvent.PulseHigh": "Puls hoch",
+  "PinEvent.PulseLow": "Puls runter",
+  "PinEvent.Rise": "aufsteigend",
+  "PinEventType.Edge": "Kante",
+  "PinEventType.None": "keine",
+  "PinEventType.Pulse": "Puls",
+  "PinEventType.Touch": "berührung",
+  "PinPullMode.PullDown": "nach unten",
+  "PinPullMode.PullNone": "keine",
+  "PinPullMode.PullUp": "nach oben",
+  "PulseValue.High": "hoch",
+  "PulseValue.Low": "runter",
+  "RadioPacketProperty.SerialNumber": "serial number",
+  "RadioPacketProperty.SignalStrength": "signal strength",
+  "RadioPacketProperty.Time": "time",
+  "Rotation.Pitch": "Winkel",
+  "Rotation.Roll": "rollen",
+  "SoundExpressionEffect.None": "none",
+  "SoundExpressionEffect.Tremolo": "tremolo",
+  "SoundExpressionEffect.Vibrato": "vibrato",
+  "SoundExpressionEffect.Warble": "warble",
+  "SoundExpressionPlayMode.InBackground": "in background",
+  "SoundExpressionPlayMode.UntilDone": "until done",
+  "TouchButtonEvent.LongPressed": "long pressed",
+  "TouchButtonEvent.Pressed": "pressed",
+  "TouchButtonEvent.Released": "released",
+  "TouchButtonEvent.Touched": "touched",
+  "TouchTarget.LOGO": "logo",
+  "TouchTarget.P0": "P0",
+  "TouchTarget.P1": "P1",
+  "TouchTarget.P2": "P2",
+  "TouchTarget.P3": "P3",
+  "TouchTargetMode.Capacitive": "capacitive",
+  "TouchTargetMode.Resistive": "resistive",
+  "UnitConversion.CelsiusToFahrenheit": "celsius to fahrenheit",
+  "UnitConversion.DegreesToRadians": "degrees to radians",
+  "UnitConversion.FahrenheitToCelsius": "fahrenheit to celsius",
+  "UnitConversion.RadiansToDegrees": "radians to degrees",
+  "WaveShape.Noise": "noise",
+  "WaveShape.Sawtooth": "sawtooth",
+  "WaveShape.Sine": "sine",
+  "WaveShape.Square": "square",
+  "WaveShape.Triangle": "triangle",
+  "music.PlaybackMode.InBackground": "in background",
+  "music.PlaybackMode.LoopingInBackground": "looping in background",
+  "music.PlaybackMode.UntilDone": "until done"
+ },
+ "symbole": {
+  "IconNames.Angry": "1000101010000001111110101",
+  "IconNames.ArrowEast": "0010000010111110001000100",
+  "IconNames.ArrowNorth": "0010001110101010010000100",
+  "IconNames.ArrowNorthEast": "0011100011001010100010000",
+  "IconNames.ArrowNorthWest": "1110011000101000001000001",
+  "IconNames.ArrowSouth": "0010000100101010111000100",
+  "IconNames.ArrowSouthEast": "1000001000001010001100111",
+  "IconNames.ArrowSouthWest": "0000100010101001100011100",
+  "IconNames.ArrowWest": "0010001000111110100000100",
+  "IconNames.Asleep": "0000011011000000111000000",
+  "IconNames.Butterfly": "1101111111001001111111011",
+  "IconNames.Chessboard": "0101010101010101010101010",
+  "IconNames.Confused": "0000001010000000101010101",
+  "IconNames.Cow": "1000110001111110111000100",
+  "IconNames.Diamond": "0010001010100010101000100",
+  "IconNames.Duck": "0110011100011110111000000",
+  "IconNames.EighthNote": "0010000110001011110011100",
+  "IconNames.EigthNote": "0010000110001011110011100",
+  "IconNames.Fabulous": "1111111011000000101001110",
+  "IconNames.Ghost": "0111010101111111111110101",
+  "IconNames.Giraffe": "1100001000010000111001010",
+  "IconNames.Happy": "0000001010000001000101110",
+  "IconNames.Heart": "0101011111111110111000100",
+  "IconNames.House": "0010001110111110111001010",
+  "IconNames.LeftTriangle": "1000011000101001001011111",
+  "IconNames.Meh": "1101100000000100010001000",
+  "IconNames.No": "1000101010001000101010001",
+  "IconNames.Pitchfork": "1010110101111110010000100",
+  "IconNames.QuarterNote": "0010000100001001110011100",
+  "IconNames.Rabbit": "1010010100111101101011110",
+  "IconNames.Rollerskate": "0001100011111111111101010",
+  "IconNames.Sad": "0000001010000000111010001",
+  "IconNames.Scissors": "1100111010001001101011001",
+  "IconNames.Silly": "1000100000111110001100011",
+  "IconNames.Skull": "0111010101111110111001110",
+  "IconNames.SmallDiamond": "0000000100010100010000000",
+  "IconNames.SmallHeart": "0000001010011100010000000",
+  "IconNames.SmallSquare": "0000001110010100111000000",
+  "IconNames.Snake": "1100011011010100111000000",
+  "IconNames.Square": "1111110001100011000111111",
+  "IconNames.StickFigure": "0010011111001000101010001",
+  "IconNames.Surprised": "0101000000001000101000100",
+  "IconNames.Sword": "0010000100001000111000100",
+  "IconNames.TShirt": "1101111111011100111001110",
+  "IconNames.Target": "0010001110110110111000100",
+  "IconNames.Tortoise": "0000001110111110101000000",
+  "IconNames.Triangle": "0000000100010101111100000",
+  "IconNames.Umbrella": "0111011111001001010011100",
+  "IconNames.Yes": "0000000001000101010001000"
+ }
+}

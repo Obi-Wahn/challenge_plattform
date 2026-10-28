@@ -1,6 +1,7 @@
 """Die Skripte einer Abgabe als Blöcke, für Bewertungsseite und Teamseite.
 
-Gelesen wird von scratch_skripte (.sb3) und snap_skripte (.xml); hier steht
+Gelesen wird von scratch_skripte (.sb3), snap_skripte (.xml) und
+makecode_skripte (.hex, .mkcd aus MakeCode für den Calliope mini); hier steht
 nur, welche Endung zu welchem Leser gehört und was bei einer Datei gilt, die
 es nicht mehr gibt. Wer eine Abgabe sehen darf, prüft die jeweilige Route.
 """
@@ -10,6 +11,7 @@ import re
 
 from flask import jsonify
 
+from plattform import makecode_skripte
 from plattform import scratch_skripte
 from plattform import snap_skripte
 
@@ -19,6 +21,8 @@ from plattform import snap_skripte
 BLOCK_LESER = {
     ".sb3": scratch_skripte.skripte_der_abgabe,
     ".xml": snap_skripte.skripte_der_abgabe,
+    ".hex": makecode_skripte.skripte_der_abgabe,
+    ".mkcd": makecode_skripte.skripte_der_abgabe,
 }
 
 # Die Hinweise der Leser raten der Lehrkraft, die Datei herunterzuladen. Ein
@@ -41,8 +45,8 @@ def skripte_antwort(submission, fuer_team=False):
     """
     leser = BLOCK_LESER.get(os.path.splitext(submission.filename)[1].lower())
     if leser is None:
-        figuren, hinweis = [], ("Nur Projekte aus Scratch 3 (.sb3) und Snap! (.xml) "
-                                "lassen sich so anzeigen.")
+        figuren, hinweis = [], ("Nur Projekte aus Scratch 3 (.sb3), Snap! (.xml) und "
+                                "MakeCode (.hex, .mkcd) lassen sich so anzeigen.")
     elif not os.path.isfile(submission.pfad):
         figuren, hinweis = [], "Die Datei liegt nicht mehr an ihrem Platz."
     else:

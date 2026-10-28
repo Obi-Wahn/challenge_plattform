@@ -54,7 +54,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Wettbewerbsseite**: alle Aufgaben durchnummeriert wie in der Rangliste, mit Schwierigkeit (🟢 einfach, 🟡 mittel, 🔴 schwer), Punkten, Feedback und der Restzeit als Leiste.
 *   **Aktualisiert sich selbst** alle 15 Sekunden: Pause, Hinweise, Durchsagen und neue Zeiten kommen ohne Neuladen an.
 *   **Abgabe je Aufgabe**: Processing (`.pde`), Scratch (`.sb`/`.sb3`), Python (`.py`), Java (`.java`), MakeCode/Calliope (`.hex`/`.mkcd`), Open Roberta und Snap! (`.xml`), Arduino (`.ino`), App Inventor (`.aia`), Jupyter (`.ipynb`) — das Format legt die Aufgabe fest.
-*   **Eigene Skripte ansehen**: Scratch- und Snap!-Abgaben als Blöcke, jedes Team nur seine eigene.
+*   **Eigene Skripte ansehen**: Scratch-, Snap!- und MakeCode-Abgaben als Blöcke, jedes Team nur seine eigene.
 *   **Hinweise**, die die Lehrkraft freischaltet, wenn ein Team nicht weiterkommt.
 *   **Korrektur**: Solange der Wettbewerb läuft, ersetzt ein Team seine Abgabe selbst; je Wettbewerb abschaltbar.
 *   **Namen für die Urkunde** trägt das Team selbst ein, auf die Urkunde kommen sie nach der Freigabe.
@@ -69,7 +69,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Aufräumen**: Nach dem Ende löscht ein Knopf alle Teams und Abgaben; Protokolldatei und alte Sicherungskopien lassen sich unter Einstellungen löschen.
 *   **Zeit im Griff**: Start- und Endzeit oder eine Dauer, „Jetzt starten für … Minuten“; die Pause hält die Uhr an.
 *   **Durchsagen** an alle Teams und über der Rangliste, je Wettbewerb einschaltbar.
-*   **Bewerten**: nach Aufgaben geordnet, offene zuerst, Scratch- und Snap!-Skripte als Blöcke, Textformate im Browser, Download, Punkte und Feedback.
+*   **Bewerten**: nach Aufgaben geordnet, offene zuerst, Scratch-, Snap!- und MakeCode-Skripte als Blöcke, Textformate im Browser, Download, Punkte und Feedback.
 *   **Bewertungszugang**: ein eigenes Passwort für Helfende, das nur die Bewertungsseite des aktiven Wettbewerbs öffnet.
 *   **Teams**: Passwort zurücksetzen, Namen für die Urkunde kontrollieren und freigeben.
 *   **Urkunden** als PDF, quer oder hoch, mit Unterschrift in Handschrift, auch für einen längst beendeten Wettbewerb.
@@ -92,10 +92,13 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 ## 🛠 Technologien
 
 *   **Backend**: Python, Flask, SQLAlchemy (SQLite), waitress (Produktiv-WSGI-Server).
-*   **Frontend**: HTML5, CSS3, Bootstrap 5, Markdown-Editor (EasyMDE), scratchblocks für die Skripte der Scratch- und Snap!-Abgaben — alle Assets liegen lokal im Repo (`static/vendor/`), keine CDN-Abhängigkeit, funktioniert komplett offline.
+*   **Frontend**: HTML5, CSS3, Bootstrap 5, Markdown-Editor (EasyMDE), scratchblocks für die Skripte der Scratch-, Snap!- und MakeCode-Abgaben — alle Assets liegen lokal im Repo (`static/vendor/`), keine CDN-Abhängigkeit, funktioniert komplett offline.
 *   **PDF**: fpdf2 für die Urkunden. Die Handschriften unter `static/vendor/fonts/` stehen
     unter der SIL Open Font License (Lizenztexte liegen daneben) und sind mit im Repo,
     damit die Urkunden auch ohne Internet entstehen.
+*   **MakeCode**: Texte, Farben und LED-Symbole der Calliope-Blöcke stammen aus
+    [MakeCode Calliope](https://github.com/microsoft/pxt-calliope) (MIT-Lizenz) und liegen
+    als `plattform/makecode_bloecke.json` im Repo.
 *   **Sicherheit**:
     *   Passwort-Hashing (Werkzeug Security).
     *   CSRF Protection (Flask-WTF).
