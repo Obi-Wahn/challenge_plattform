@@ -13,7 +13,7 @@ from plattform.certificates import (build_certificates_for, certificate_entry, s
                           urkundendatum,
                           SIGNATURE_FONTS, DEFAULT_SIGNATURE_FONT,
                           certificate_orientation, CERTIFICATE_ORIENTATIONS,
-                          DEFAULT_ORIENTATION, names_line)
+                          DEFAULT_ORIENTATION, names_line, pdf_abweichungen)
 from plattform.task_exchange import export_bytes, parse_tasks, ImportError_
 from plattform.wettbewerb_sicherung import (sicherung_bauen, sicherung_einlesen,
                                   SicherungFehler)
@@ -1316,7 +1316,10 @@ def certificates_print():
         ),
         # Dieselbe Aufzählung wie im PDF, damit Druckansicht und Datei
         # nicht auseinanderlaufen.
-        names_line=names_line
+        names_line=names_line,
+        # Wo sie es doch tun, weil die Schrift im PDF ein Zeichen nicht
+        # kennt - siehe certificates.pdf_weicht_ab().
+        abweichungen=pdf_abweichungen(event_branding(challenge)["name"], standings)
     )
 
 @admin_bp.route("/urkunden.pdf")

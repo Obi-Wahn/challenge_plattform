@@ -289,6 +289,11 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
    Die Teams können ihre eigene Urkunde nach dem Beenden selbst
    herunterladen – bei eingefrorener Rangliste erst nach dem Auflösen, denn
    auf der Urkunde steht der Platz.
+   Die Schrift im PDF kennt nicht jedes Zeichen: Buchstaben mit fremden
+   Akzenten verlieren ihn (aus „Şükrü Yılmaz“ wird „Sükrü Yilmaz“), Emoji
+   und andere Schriften fallen weg. Die Seite *Urkunden* nennt dann über den
+   Urkunden jeden betroffenen Namen und wie er im PDF steht. **🖨️ Drucken**
+   auf derselben Seite druckt alles wie eingegeben.
 5. **Eine Urkunde nachreichen**, wenn jemand gefehlt hat: Auf der
    Steuerzentrale unten *Beendet* aufklappen, beim gesuchten Wettbewerb
    **Öffnen →**, dort die Urkunden-Kachel. Das geht auch dann noch, wenn

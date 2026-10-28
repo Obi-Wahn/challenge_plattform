@@ -16,8 +16,15 @@ def passwort_stimmt(eingabe, erwartet):
     braucht damit unterschiedlich lange. Im Schul-LAN und hinter der Bremse
     von fünf Versuchen pro Minute ist daraus nichts zu holen - aber richtig
     vergleichen kostet hier nichts.
+
+    Verglichen werden Bytes, keine Zeichenketten: compare_digest nimmt
+    Zeichenketten nur aus reinem ASCII und wirft sonst einen TypeError. Ein
+    vertipptes „äöü“ endete so auf der Fehlerseite, und wer beim ersten
+    Start ein Admin-Passwort mit Umlaut gewählt hatte, kam selbst mit dem
+    richtigen nie hinein.
     """
-    return secrets.compare_digest(str(eingabe or ""), str(erwartet or ""))
+    return secrets.compare_digest(str(eingabe or "").encode("utf-8"),
+                                  str(erwartet or "").encode("utf-8"))
 
 @auth_bp.route("/admin/login", methods=["GET", "POST"])
 # Only actual login attempts count towards the limit - merely opening or

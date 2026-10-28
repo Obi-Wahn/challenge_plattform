@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import pypdf
 import pytest
 
-from plattform.certificates import build_certificates_pdf, pdf_safe
+from plattform.certificates import build_certificates_pdf, pdf_abweichungen, pdf_safe, pdf_weicht_ab
 from tests.helpers import csrf_token
 
 
@@ -36,6 +36,88 @@ class TestZeichenSaeuberung:
 
     def test_ein_name_nur_aus_emoji_wird_leer(self):
         assert pdf_safe("🚀🎵") == ""
+
+    @pytest.mark.parametrize("eingabe, erwartet", [
+        ("Şükrü Yılmaz", "Sükrü Yilmaz"),
+        ("Łukasz Wójcik", "Lukasz Wójcik"),
+        ("Ayşe Ağça", "Ayse Agça"),
+        ("Antonín Dvořák", "Antonín Dvorák"),
+        ("Nguyễn Văn", "Nguyen Van"),
+        ("Œdipus", "OEdipus"),
+    ])
+    def test_fremde_akzente_verlieren_nur_den_akzent(self, eingabe, erwartet):
+        """Vorher fiel der ganze Buchstabe weg: „ükrü Ylmaz“, „ukasz“."""
+        assert pdf_safe(eingabe) == erwartet
+
+    def test_nachgestelltes_trema_wird_zum_umlaut(self):
+        assert pdf_safe("Mu\u0308ller") == "Müller"
+
+    def test_fremde_schriften_fallen_weiter_weg(self):
+        assert pdf_safe("Иван") == ""
+
+
+class TestAbweichungZumPdf:
+    """Die Druckansicht sagt, wo das PDF einen Namen anders zeigt."""
+
+    @pytest.mark.parametrize("text", ["Katze läuft", "Runde – „eins“", "Müller", ""])
+    def test_latin1_und_typografie_weichen_nicht_ab(self, text):
+        assert pdf_weicht_ab(text) is False
+
+    @pytest.mark.parametrize("text", ["Şükrü", "Team 🚀", "Иван"])
+    def test_fremde_zeichen_weichen_ab(self, text):
+        assert pdf_weicht_ab(text) is True
+
+    def test_nennt_teamnamen_und_einzelne_mitglieder(self):
+        eintraege = [
+            dict(EINTRAG, name="Die 🦊 Füchse", members=["Anna Beispiel", "Şükrü Yılmaz"]),
+            dict(EINTRAG, team_id=2, name="Die Pixelpiraten", members=[]),
+        ]
+
+        abweichungen = pdf_abweichungen("Wettbewerb", eintraege)
+
+        assert abweichungen == [
+            {"art": "Teamname", "eingegeben": "Die 🦊 Füchse", "im_pdf": "Die Füchse"},
+            {"art": "Name", "eingegeben": "Şükrü Yılmaz", "im_pdf": "Sükrü Yilmaz"},
+        ]
+
+    def test_ein_teamname_ohne_reste_heisst_im_pdf_team(self):
+        abweichungen = pdf_abweichungen("Wettbewerb", [dict(EINTRAG, name="🚀🎵")])
+
+        assert abweichungen[0]["im_pdf"] == "Team"
+
+    def test_druckansicht_zeigt_den_hinweis(self, admin, make_challenge, make_team, database):
+        challenge = make_challenge()
+        team = make_team(challenge, name="Die 🦊 Füchse")
+        team.member_names = "Şükrü Yılmaz"
+        team.members_approved = True
+        database.session.commit()
+
+        html = admin.get("/admin/urkunden").get_data(as_text=True)
+
+        assert "Diese Namen stehen im PDF anders" in html
+        assert "Teamname „Die 🦊 Füchse“ – im PDF" in html
+        assert "„Sükrü Yilmaz“" in html
+
+    def test_druckansicht_schweigt_ohne_abweichung(self, admin, make_challenge, make_team):
+        challenge = make_challenge()
+        make_team(challenge, name="Die Pixelpiraten")
+
+        html = admin.get("/admin/urkunden").get_data(as_text=True)
+
+        assert "Diese Namen stehen im PDF anders" not in html
+
+    def test_das_pdf_traegt_den_umgeschriebenen_namen(self, admin, make_challenge,
+                                                      make_team, database):
+        challenge = make_challenge()
+        team = make_team(challenge, name="Team Yılmaz")
+        team.member_names = "Şükrü Yılmaz\nŁukasz Wójcik"
+        team.members_approved = True
+        database.session.commit()
+
+        text = pdf_text(admin.get(f"/admin/urkunden/{team.id}.pdf").data)
+
+        assert "Team Yilmaz" in text
+        assert "Sükrü Yilmaz und Lukasz Wójcik" in text
 
 
 class TestPdfAufbau:
