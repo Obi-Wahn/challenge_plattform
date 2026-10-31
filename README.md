@@ -42,9 +42,13 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 | --- | --- |
 | ![Steuerzentrale](docs/bilder/steuerzentrale.png) | ![Teamansicht](docs/bilder/teamansicht.png) |
 
-| Rangliste | Urkunde |
+| Abgaben bewerten | Rangliste |
 | --- | --- |
-| ![Rangliste](docs/bilder/rangliste.png) | ![Urkunde](docs/bilder/urkunde.png) |
+| ![Abgaben bewerten](docs/bilder/bewertung.png) | ![Rangliste](docs/bilder/rangliste.png) |
+
+| Siegerehrung | Urkunde |
+| --- | --- |
+| ![Siegerehrung](docs/bilder/siegerehrung.png) | ![Urkunde](docs/bilder/urkunde.png) |
 
 ## 🌟 Features
 
