@@ -178,7 +178,7 @@ python werkzeuge/pakete_pruefen.py
     Flask                       3.1.3      aktuell
     Werkzeug                    3.1.9  ->  3.1.10
     Flask-Limiter               4.1.1  ->  5.0.0  (neue Hauptversion - Änderungsliste lesen)
-    fpdf2                       2.8.9  ->  2.9.0  (nicht übernehmen: braucht Python >=3.12, die Anwendung setzt 3.11 voraus)
+    fpdf2                       2.9.0  ->  3.0.0  (nicht übernehmen: braucht Python >=3.12, die Anwendung setzt 3.11 voraus)
 ```
 
 Gekürzt; die neueren Fassungen hier sind ausgedacht, welche wirklich
