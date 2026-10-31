@@ -176,17 +176,18 @@ python werkzeuge/pakete_pruefen.py
 ```
   requirements.txt
     Flask                       3.1.3      aktuell
-    Werkzeug                    3.1.8  ->  3.1.9
+    Werkzeug                    3.1.9  ->  3.1.10
     Flask-Limiter               4.1.1  ->  5.0.0  (neue Hauptversion - Änderungsliste lesen)
-    fpdf2                       2.8.8  ->  2.9.0  (nicht übernehmen: braucht Python >=3.12, die Anwendung setzt 3.11 voraus)
+    fpdf2                       2.8.9  ->  2.9.0  (nicht übernehmen: braucht Python >=3.12, die Anwendung setzt 3.11 voraus)
 ```
 
-Gekürzt; welche Fassungen dort erscheinen, hängt vom Tag ab.
+Gekürzt; die neueren Fassungen hier sind ausgedacht, welche wirklich
+erscheinen, hängt vom Tag ab.
 
 Eine Fassung übernehmen:
 
 ```bash
-python werkzeuge/pakete_pruefen.py --setzen Werkzeug=3.1.9
+python werkzeuge/pakete_pruefen.py --setzen Werkzeug=3.1.10
 pip install -r requirements.txt -r requirements-dev.txt
 pytest
 ```
