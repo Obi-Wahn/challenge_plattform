@@ -228,7 +228,7 @@ class TestSeiten:
         seite = admin.get(f"/admin/urkunden?wettbewerb={alt.id}").get_data(as_text=True)
 
         assert "Calliope-Wettbewerb" in seite
-        assert ">🚀 Scratch-Wettbewerb</a>" in seite
+        assert "> Scratch-Wettbewerb</a>" in seite
 
     def test_ohne_wettbewerb_steht_der_standardname_in_der_leiste(self, einstellungen,
                                                                   client):
