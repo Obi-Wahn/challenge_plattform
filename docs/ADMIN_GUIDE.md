@@ -18,7 +18,7 @@ tun ist, und was zu tun ist, wenn etwas klemmt.
    Wettbewerbstag.
 
    Welche Fassung danach läuft, steht in der Startübersicht in der Zeile
-   **Version**, etwa „1.23.1 (Stand 27.10.2026)“. Mit der Nummer des neuesten
+   **Version**, etwa „1.25.0 (Stand 28.10.2026)“. Mit der Nummer des neuesten
    Releases auf GitHub vergleichen.
 
    Wer am Code arbeitet, lässt danach noch die Tests laufen und sieht nach
@@ -123,9 +123,8 @@ tun ist, und was zu tun ist, wenn etwas klemmt.
       nicht das Admin-Passwort) und weitergeben. Die Anmeldung läuft wie beim
       Admin über **Jury-Anmeldung** unten auf jeder Seite (die Seite heißt
       „Anmeldung für Admin und Bewertungszugang“), führt aber direkt auf die
-      Bewertungsseite, und von dort geht es nirgendwo anders hin. Löschen
-      und Freigeben sind dort ausgeblendet. Ohne Passwort gibt es diesen
-      Zugang nicht.
+      Bewertungsseite, und von dort geht es nirgendwo anders hin. Ohne
+      Passwort gibt es diesen Zugang nicht.
 - [ ] **Großen Bildschirm testen** mit der Rangliste `/scoreboard`. Die Restzeit steht
       dort oben, dieselbe, die die Teams sehen. Ist der Raum hell und die
       Tabelle blass, oben in der Leiste auf **☀️ Hell** wechseln. Der
@@ -148,9 +147,9 @@ tun ist, und was zu tun ist, wenn etwas klemmt.
    [Auf einem Rechner ohne Bildschirm](RASPBERRY_PI.md).
 2. Wettbewerb unter `/admin` **aktivieren**: Steht der richtige schon oben in
    der Statuszeile, ist nichts zu tun. Sonst steht er weiter unten unter
-   *Weitere Wettbewerbe* – dort **✅ Aktivieren**. „▶ Jetzt starten“ auf einem
-   nicht aktiven Wettbewerb startet nur seine Uhr; die Meldung danach sagt,
-   dass die Teams ihn erst nach dem Aktivieren sehen.
+   *Weitere Wettbewerbe* – dort **✅ Aktivieren**. **▶ Start** neben „Jetzt
+   starten für“ startet auf einem nicht aktiven Wettbewerb nur seine Uhr; die
+   Meldung danach sagt, dass die Teams ihn erst nach dem Aktivieren sehen.
 3. Rangliste `/scoreboard` auf dem großen Bildschirm öffnen. Oben läuft die Zeit, darunter
    füllt sich die Tabelle mit jeder Bewertung.
 4. Teams registrieren sich selbst auf der Startseite `/`: Teamname und ein
@@ -167,11 +166,11 @@ Drei Wege führen zur Endzeit, und gespeichert wird immer sie:
 - **Dauer in Minuten**: im selben Formular das Feld *Dauer in Minuten*
   füllen. Die Endzeit wird daraus ausgerechnet – Startzeit plus Dauer, ohne
   Startzeit ab jetzt. Eine eingetragene Endzeit wird dabei überschrieben.
-- **▶ Jetzt starten für … Minuten**: oben auf der Wettbewerbsseite, neben
-  **⏸ Pause** und **🏁 Wettbewerb beenden**. Ein Klick setzt Start auf jetzt
-  und Ende auf jetzt plus Dauer. Der Weg für die Schulstunde, in der es selten
-  pünktlich losgeht. Läuft die Uhr schon, ist der Knopf nur noch umrandet und
-  fragt vor einem Neustart nach.
+- **Jetzt starten für … Min.**: oben auf der Wettbewerbsseite, neben
+  **⏸ Pause** und **🏁 Wettbewerb beenden**. Ein Klick auf **▶ Start** setzt
+  Start auf jetzt und Ende auf jetzt plus Dauer. Der Weg für die Schulstunde,
+  in der es selten pünktlich losgeht. Läuft die Uhr schon, fragt der Knopf
+  vor einem Neustart nach.
 
 Alles davon geht auch **während** der Wettbewerb läuft: Die Teamseiten laden
 sich innerhalb von etwa 15 Sekunden von selbst neu und zeigen dann die neue
@@ -181,7 +180,7 @@ die plötzlich anders steht, verunsichert sonst.
 **In der nächsten Woche weitermachen:** am Ende der Stunde **⏸ Pause**
 drücken, in der nächsten Woche **▶ Fortsetzen**. Bei einer so langen Pause
 ist es sauberer, die Endzeit beim Fortsetzen neu zu setzen, statt sie um eine
-Woche verschieben zu lassen: *Jetzt starten für … Minuten* macht genau das in
+Woche verschieben zu lassen: *Jetzt starten für … Min.* macht genau das in
 einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 
 ### Während des Wettbewerbs
@@ -189,19 +188,9 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 - **Abgaben bewerten** unter `/admin` → *Bewertungen*. Die Abgaben stehen
   nach Aufgaben geordnet, so wie auf der Teamseite (*Aufgabe 1*, *Aufgabe 2*
   …), in jeder Aufgabe die offenen zuerst. Aufgeklappt sind nur die Aufgaben,
-  in denen noch etwas offen ist; ein Klick auf die Überschrift klappt eine
-  Aufgabe auf oder zu, oben stehen **Alle aufklappen** und **Alle zuklappen**.
-  *Springen zu* führt direkt zu jeder Aufgabe und klappt sie auf; gelb sind
-  die, in denen noch etwas offen ist. **↑ nach oben** führt von einer
-  aufgeklappten Aufgabe zurück zu dieser Leiste, daneben öffnet
-  **ℹ️ Aufgabenbeschreibung** die Beschreibung der Aufgabe.
-- **Zwei Zeilen je Abgabe**: Oben stehen Team und Abgabezeit, daneben
-  **🧩 Skripte anzeigen** (oder **📄 Code anzeigen**),
-  **⬇️ Datei herunterladen** und **🗑 Abgabe vollständig löschen**. Unten
-  stehen Punkte, ein kurzes Feedback, **✔ Bewertung speichern** und,
-  sobald es Punkte gibt, **♻️ Bewertung zurücksetzen**. Nach dem Speichern
-  steht die Seite wieder bei derselben Abgabe, auch wenn die Aufgabe damit
-  ganz bewertet ist. Offene Abgaben haben vorn einen gelben Rand.
+  in denen noch etwas offen ist; *Springen zu* führt direkt zu jeder Aufgabe
+  und klappt sie auf. Nach **✔ Bewertung speichern** steht die Seite wieder
+  bei derselben Abgabe, auch wenn die Aufgabe damit ganz bewertet ist.
 - **Mit Hilfe bewerten**: Wer mit dem Passwort für die Bewertung angemeldet
   ist, sieht dieselbe Seite, nur ohne **🗑 Abgabe vollständig löschen** und
   **🔓 Erneut abgeben erlauben**. Abgaben älterer Wettbewerbe erreicht der
@@ -218,16 +207,12 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   fehlen. Ein Programm aus Open Roberta, ebenfalls `.xml`, zeigt die Plattform
   nicht als Blöcke, sondern sagt das. Die Teams sehen dieselben Blöcke ihrer
   eigenen Abgabe unter **🧩 Unsere Skripte anzeigen**.
-- **MakeCode-Abgaben im Einzelnen**: Die Blöcke stehen in den Farben und mit
-  den Texten des deutschen Calliope-Editors da, die Symbole als kleines
-  LED-Bild, nur in der Form von Scratch-Blöcken. Teile, die sich im Editor
-  mit ⊕ aufklappen lassen, etwa „in einem Intervall von … ms“, erscheinen nur,
-  wenn das Team sie aufgeklappt hat. Blöcke aus Erweiterungen wie
-  dem MotionKit liest die Plattform aus der Datei selbst; wo eine Erweiterung
-  keine deutschen Texte mitbringt, bleiben sie englisch. Eine `.hex` aus
-  einem anderen Editor, etwa für Python, enthält keine Blöcke; das sagt die
-  Plattform dann. Den Projektnamen und die Beschreibung, die ein Team in
-  MakeCode eintippt, zeigt sie nicht an.
+- **MakeCode-Abgaben im Einzelnen**: Teile, die sich im Editor mit ⊕
+  aufklappen lassen, etwa „in einem Intervall von … ms“, erscheinen nur, wenn
+  das Team sie aufgeklappt hat. Erweiterungen wie das MotionKit ohne deutsche
+  Texte bleiben englisch. Eine `.hex` aus einem anderen Editor, etwa für
+  Python, enthält keine Blöcke; das sagt die Plattform dann. Projektname und
+  Beschreibung aus MakeCode zeigt sie nicht an.
 - **Durchsage an alle Teams**, etwa „Noch 10 Minuten, bitte speichern“:
   einmal unter *Name & Zeiten* das Häkchen **📢 Durchsagen an die Teams**
   setzen, dann steht auf der Wettbewerbsseite unter den Knöpfen für die Uhr
@@ -246,7 +231,8 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
   Häkchen **🔁 Teams dürfen ihre Abgabe selbst korrigieren** herausnehmen;
   dann steht an jeder Abgabe wieder **🔓 Erneut abgeben erlauben**.
 - **Hinweis freischalten**, wenn eine Aufgabe zu schwer ist: auf der
-  Aufgaben-Seite umschalten. Der Hinweis erscheint bei allen Teams innerhalb
+  Aufgaben-Seite bei der Aufgabe **💡 verborgen** anklicken, dann steht dort
+  **💡 sichtbar**. Der Hinweis erscheint bei allen Teams innerhalb
   von etwa 15 Sekunden, ohne dass jemand neu laden muss.
 - **Pausieren**, wenn etwas geklärt werden muss: **⏸ Pause** sperrt alle
   Abgaben und hält die Uhr an, **▶ Fortsetzen** gibt sie wieder frei und
@@ -341,7 +327,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | „Die Adresse für andere Geräte konnte nicht ermittelt werden“ beim Start, oder auf der Startseite steht `127.0.0.1` | Das Netz hat kein Gateway, die Anwendung kann ihre eigene Adresse nicht erfragen – sie sagt das beim Start. Adresse am Server ablesen (`ip addr` bzw. `ipconfig`) und als `LAN_ADRESSE=192.168.…` in die `.env` eintragen, dann neu starten. |
 | Restzeit oder Uhrzeiten liegen weit daneben | Die Uhr des Servers geht falsch – typisch für einen Raspberry Pi ohne Internet, der keine Uhr mit Batterie hat. Plattform beenden, mit `timedatectl` nachsehen, Zeit und Zeitzone setzen (siehe [Rechner ohne Bildschirm](RASPBERRY_PI.md)), neu starten und die Zeit des Wettbewerbs neu einstellen. |
 | Datenbank fehlt oder ist kaputt | Anwendung beenden. `data/challenge.db` zur Seite legen, die passende Sicherung `data/challenge-vor-…​.db` nach `data/challenge.db` umbenennen, neu starten. Die Sicherungen entstehen automatisch vor jeder Strukturänderung – eine regelmäßige Sicherung ersetzen sie nicht. |
-| Ein gesicherter Wettbewerb soll zurück | **➕ Neuer Wettbewerb** → unten **Oder aus einer Sicherung einlesen**, die ZIP wählen. Es entsteht ein neuer Wettbewerb, nicht aktiv – auch dann nicht, wenn gerade keiner aktiv ist. Der alte bleibt, wie er ist. Soll er weiterlaufen, ihn aktivieren. Waren die Passwörter mitgesichert, melden sich die Teams wie gewohnt an; sonst haben sie kein Passwort und bekommen nach dem Aktivieren unter **Teams** neue. Für Rangliste und Urkunden braucht es keins. Meldet die Seite, die ZIP sei beschädigt, ist nichts angelegt – eine andere Kopie der Datei nehmen. |
+| Ein gesicherter Wettbewerb soll zurück | **➕ Neuer Wettbewerb** → unten **Oder aus einer Sicherung einlesen**, die ZIP wählen. Es entsteht immer ein neuer, nicht aktiver Wettbewerb; was mitkommt und was mit den Passwörtern ist, steht in der README unter [Einen einzelnen Wettbewerb sichern](../README.md#einen-einzelnen-wettbewerb-sichern). |
 | Hochgeladene Dateien fehlen | Der Download sagt dann „liegt nicht mehr auf dem Server“. Die Abgaben liegen unter `uploads/<Team-Nummer>/`. Aus der letzten Sicherung dieses Verzeichnisses zurückkopieren; die Datenbank kennt nur den Ort innerhalb von `uploads/` und findet sie dort wieder, auch in einem anderen Ordner oder auf einem anderen Rechner. Ohne Sicherung bleiben Punkte und Bewertungen erhalten, nur die Programme sind weg. |
 | Etwas ist abgestürzt | In `logs/anwendung.log` steht der Fehler mit Zeitstempel und Adresse der Seite. Diese Datei ist auch nach dem Schließen des Terminals noch da. |
 | Wann wurde der Hinweis freigeschaltet? | Steht in `logs/anwendung.log` als „Tipp freigeschaltet“, mit Zeitstempel und Aufgabe – auch, wenn er wieder verborgen wurde. |
@@ -350,7 +336,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Nach STRG+C fragt Windows „Batchvorgang abbrechen (J/N)?“ | Die Frage stellt Windows bei jeder `.bat`-Datei. Die Plattform ist da schon beendet – J oder N, beides schließt das Fenster. |
 | `--aktualisieren` bricht ab: „In diesem Ordner sind Dateien der Plattform verändert worden“ | Darunter stehen die Dateien. Unter `static/vendor/` steckt nie etwas Eigenes; unter Windows sind es meist nur andere Zeilenenden, etwa nachdem `werkzeuge/vendor_aktualisieren.py` mit einer älteren Fassung gelaufen ist. Dann `git restore static/vendor`. Bei anderen Dateien erst mit `git diff <datei>` nachsehen, was sich geändert hat, Eigenes sichern, dann `git restore <datei>`. Danach die Startdatei noch einmal mit `--aktualisieren` aufrufen. |
 | Welche Fassung läuft hier? | Steht beim Start in der Übersicht in der Zeile **Version** und bei jedem Start in `logs/anwendung.log`. „+ 3 Änderungen“ heißt: drei Änderungen nach diesem Release. „unbekannt“ heißt nur, dass weder git noch die `stand.txt` aus dem ZIP es verraten – etwa bei einem von Hand kopierten Ordner. Dann auf GitHub das aktuelle Release als ZIP holen. |
-| „Gefunden wurde Python 3.10, die Plattform braucht 3.11 oder neuer.“ | Seit der Anhebung auf Python 3.11 reicht das Python von Ubuntu 22.04 und Linux Mint 21 nicht mehr (Mint 22 und Ubuntu 24.04 haben 3.12). Dort `sudo apt install python3.11 python3.11-venv` und dann `python3.11 starter.py` statt der Startdatei, oder den Rechner auf ein neueres System bringen. Unter Windows und macOS das aktuelle Python von python.org installieren. |
+| „Gefunden wurde Python 3.10, die Plattform braucht 3.11 oder neuer.“ | Das Python von Ubuntu 22.04 und Linux Mint 21 reicht nicht (Mint 22 und Ubuntu 24.04 haben 3.12). Dort `sudo apt install python3.11 python3.11-venv` und dann `python3.11 starter.py` statt der Startdatei, oder den Rechner auf ein neueres System bringen. Unter Windows und macOS das aktuelle Python von python.org installieren. |
 | Die Anwendung startet nicht | Meldung lesen: Fehlt `SECRET_KEY` oder `ADMIN_PASSWORD` in der `.env` oder steht dort noch ein Beispielwert, sagt sie das. Die Startdatei ersetzt Beispielwerte selbst. Bricht sie beim Sichern der Datenbank ab, ist meist die Platte voll. |
 
 ---

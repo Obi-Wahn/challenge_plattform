@@ -71,7 +71,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **Aufgaben** in Markdown mit Dateiformat, Schwierigkeit und Hinweis, sortierbar mit ▲ und ▼, als JSON zu sichern und wieder einzulesen; fertige Sätze für Scratch, Snap! und Calliope liegen unter `beispiele/`.
 *   **Wettbewerb sichern** als ZIP und als neuen Wettbewerb wieder einlesen, auch auf einem anderen Rechner; Namen und Passwörter nur auf Wunsch. Ein Beispiel-Wettbewerb liegt unter `beispiele/`.
 *   **Aufräumen**: Nach dem Ende löscht ein Knopf alle Teams und Abgaben; Protokolldatei und alte Sicherungskopien lassen sich unter Einstellungen löschen.
-*   **Zeit im Griff**: Start- und Endzeit oder eine Dauer, „Jetzt starten für … Minuten“; die Pause hält die Uhr an.
+*   **Zeit im Griff**: Start- und Endzeit oder eine Dauer, „Jetzt starten für … Min.“; die Pause hält die Uhr an.
 *   **Durchsagen** an alle Teams und über der Rangliste, je Wettbewerb einschaltbar.
 *   **Bewerten**: nach Aufgaben geordnet und einklappbar, offene zuerst, Scratch-, Snap!- und MakeCode-Skripte als Blöcke, Textformate im Browser, Download, Punkte und Feedback.
 *   **Bewertungszugang**: ein eigenes Passwort für Helfende, das nur die Bewertungsseite des aktiven Wettbewerbs öffnet.
@@ -100,9 +100,8 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 *   **PDF**: fpdf2 für die Urkunden. Die Handschriften unter `static/vendor/fonts/` stehen
     unter der SIL Open Font License (Lizenztexte liegen daneben) und sind mit im Repo,
     damit die Urkunden auch ohne Internet entstehen. Für den übrigen Text nimmt das PDF
-    die eingebaute Helvetica: Buchstaben mit fremden Akzenten verlieren ihn („Şükrü“
-    wird „Sükrü“), Emoji und andere Schriften fallen weg. Die Seite *Urkunden* nennt die
-    betroffenen Namen.
+    die eingebaute Helvetica, die nicht jedes Zeichen kennt; was das für Namen heißt,
+    steht im [Leitfaden](docs/ADMIN_GUIDE.md#schluss-und-siegerehrung).
 *   **MakeCode**: Formen, Farben und LED-Symbole der Calliope-Blöcke stammen aus
     [MakeCode Calliope](https://github.com/microsoft/pxt-calliope) (MIT-Lizenz), die
     deutschen Texte aus den Übersetzungen, die der Editor von makecode.calliope.cc lädt.
@@ -160,9 +159,8 @@ Die Umgebung bleibt an das Python gebunden, mit dem sie angelegt wurde; die
 Übersicht nennt es, etwa „Virtuelle Umgebung ..... vorhanden (Python 3.13)“.
 Wer auf ein neueres Python wechseln will, löscht den Ordner `.venv` und öffnet
 die Startdatei – dafür braucht es wieder einmal Internet. Wird das alte Python
-deinstalliert, merkt die Startdatei das und legt die Umgebung selbst neu an.
-Ebenso eine Umgebung mit Python 3.10 von vor der Anhebung auf 3.11: Die Pakete
-ließen sich darin nicht mehr installieren.
+deinstalliert oder ist es zu alt für die Pakete, merkt die Startdatei das und
+legt die Umgebung selbst neu an.
 
 **Beenden** mit STRG+C im Fenster.
 
@@ -170,7 +168,7 @@ ließen sich darin nicht mehr installieren.
 Coding-Wettbewerb-Plattform
 ===========================
 
-Version ................ 1.23.1 (Stand 27.10.2026)
+Version ................ 1.25.0 (Stand 28.10.2026)
 Python ................. 3.13.1
 Virtuelle Umgebung ..... vorhanden (Python 3.13)
 Pakete ................. aktuell
@@ -182,7 +180,7 @@ Die erste Zeile sagt, **welche Fassung** hier liegt. Die Nummer kommt aus
 dem Release, von Hand gepflegt wird sie nirgends: Bei git fragt die
 Startdatei git, bei einem ZIP hat GitHub sie beim Packen in `stand.txt`
 eingetragen. Enthält der Stand Änderungen nach dem letzten Release, steht
-das dabei, etwa „1.23.1 + 3 Änderungen (Stand 30.10.2026)“. Steht dort
+das dabei, etwa „1.25.0 + 3 Änderungen (Stand 31.10.2026)“. Steht dort
 „unbekannt“ – etwa bei einem von Hand kopierten Ordner –, läuft die
 Plattform trotzdem. Die Zeile steht auch im Protokoll.
 
