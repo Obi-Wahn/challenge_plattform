@@ -127,6 +127,16 @@ input::placeholder, textarea::placeholder {
   text-overflow: ellipsis;
 }
 
+/* Das Zeichen vor dem Namen ist dasselbe wie im Browser-Tab. Es sitzt auf
+   der Mitte der Schrift und schrumpft nicht, wenn der Name lang wird. */
+.navbar-brand .marke {
+  width: 1.4em;
+  height: 1.4em;
+  margin-right: 0.15em;
+  vertical-align: -0.3em;
+  flex-shrink: 0;
+}
+
 .qr-code {
   /* Auf dem Handy bleibt der Code klein: Wer ihn dort sieht, ist schon auf
      der Seite, und das Formular darunter soll nicht weiter nach unten

@@ -20,7 +20,7 @@ from logging.handlers import RotatingFileHandler
 from dotenv import load_dotenv
 load_dotenv()
 
-from flask import Flask, request, session
+from flask import Flask, request, send_from_directory, session
 from markupsafe import Markup, escape
 import markdown
 from plattform.config import Config, MIN_SCHLUESSEL, schluessel_zu_kurz
@@ -182,6 +182,15 @@ def create_app():
     app.register_blueprint(public_bp)
     app.register_blueprint(challenge_bp)
     app.register_blueprint(admin_bp)
+
+    # Browser fragen /favicon.ico von sich aus ab, auch ohne Verweis im Kopf
+    # der Seite - etwa bei einer Urkunde, die als PDF im Browser aufgeht.
+    # Ohne diese Route bekämen sie jedes Mal die 404-Seite, samt Blick in die
+    # Datenbank, wer angemeldet ist.
+    @app.route("/favicon.ico")
+    def favicon():
+        return send_from_directory(app.static_folder, "favicon.ico",
+                                   mimetype="image/vnd.microsoft.icon")
 
     # Custom Filters
     @app.template_filter('markdown')

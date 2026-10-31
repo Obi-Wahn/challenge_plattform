@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Favicon und Zeichen in der Leiste oben: eine Rakete im Pokal.
+       Selbst gezeichnet, ohne Schrift und ohne fremde Quellen, damit es auch
+       offline im Schul-LAN erscheint. favicon.ico und apple-touch-icon.png
+       sind aus dieser Datei gerendert. -->
+  <defs>
+    <radialGradient id="grund" cx="50%" cy="0%" r="100%">
+      <stop offset="0" stop-color="#2a3160"/>
+      <stop offset="1" stop-color="#0b0f1f"/>
+    </radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#grund)"/>
+  <g id="bild">
+    <!-- Pokal -->
+    <path d="M19 16 H11 V22 C11 29 16 33 22 33 M45 16 H53 V22 C53 29 48 33 42 33" fill="none" stroke="#fbbf24" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M18 10 H46 V24 C46 34 40 40 32 40 C24 40 18 34 18 24 Z" fill="#fbbf24"/>
+    <rect x="28" y="39" width="8" height="8" fill="#f59e0b"/>
+    <rect x="20" y="46" width="24" height="8" rx="2" fill="#fbbf24"/>
+    <!-- Rakete, schräg nach rechts oben, mit dunklem Rand gegen das Gold -->
+    <g transform="translate(32 24) rotate(45) scale(0.42) translate(-32 -33)">
+      <g fill="#1e2235" stroke="#1e2235" stroke-width="6" stroke-linejoin="round">
+        <path d="M23 32 L14 45 L14 50 L23 43 Z M41 32 L50 45 L50 50 L41 43 Z"/>
+        <path d="M32 6 C41 13 42 22 42 30 L42 44 L22 44 L22 30 C22 22 23 13 32 6 Z"/>
+        <path d="M26 44 L38 44 L32 60 Z"/>
+      </g>
+      <path d="M23 32 L14 45 L14 50 L23 43 Z M41 32 L50 45 L50 50 L41 43 Z" fill="#ef4444"/>
+      <path d="M32 6 C41 13 42 22 42 30 L42 44 L22 44 L22 30 C22 22 23 13 32 6 Z" fill="#e6e8ef"/>
+      <circle cx="32" cy="26" r="5.5" fill="#38bdf8" stroke="#1e2235" stroke-width="2.5"/>
+      <path d="M26 44 L38 44 L32 60 Z" fill="#f59e0b"/>
+      <path d="M29 44 L35 44 L32 53 Z" fill="#fde68a"/>
+    </g>
+  </g>
+</svg>

@@ -289,6 +289,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_navigation.py` | die obere Leiste, je nach Stand des Wettbewerbs, und der Zurück-Link oben auf den Admin-Seiten |
 | `test_farbschema.py` | hell oder dunkel: der Umschalter in der Leiste, die Wahl bleibt im Browser; Editorleiste und Ranglistenpunkte bleiben im dunklen Modus lesbar |
 | `test_zeichen.py` | bunte Zeichen tragen den Zusatz, der sie auch unter Windows bunt zeigt; Mülleimer und Pause bleiben überall Umriss |
+| `test_favicon.py` | Zeichen im Browser-Tab und in der Leiste, liegt selbst in static/ |
 | `test_fusszeile.py` | Name in der Fußzeile, Jury-Anmeldung, Link auf das Repository |
 | `test_admin.py` | Steuerzentrale, Wettbewerbs-Seite, Beenden, Aktivieren |
 | `test_fehlerseiten.py` | eigene deutsche Seiten für 400/403/404/413/429/500 |
