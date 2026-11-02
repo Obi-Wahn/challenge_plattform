@@ -7,6 +7,7 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
 [![Tests](https://github.com/Obi-Wahn/challenge_plattform/actions/workflows/tests.yml/badge.svg)](https://github.com/Obi-Wahn/challenge_plattform/actions/workflows/tests.yml)
 ![Flask](https://img.shields.io/badge/Flask-3.x-green.svg)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple.svg)
+![Lizenz](https://img.shields.io/badge/Lizenz-MIT-yellow.svg)
 
 ## ⚡ Schnellstart
 
@@ -430,8 +431,25 @@ Plattform nur einsetzt, braucht davon nichts.
 
 ## 🙏 Herkunft & Mitwirkende
 
-Dieses Projekt basiert auf der ursprünglichen Version von [frankjuchim](https://github.com/frankjuchim/challenge_plattform). Ein großer Teil der hier beschriebenen Weiterentwicklung (Sicherheits-Härtung, Offline-Fähigkeit, neue Funktionen, Übersetzungen) wurde mit Unterstützung von KI (Claude Code) umgesetzt.
+Dieses Projekt basiert auf der ursprünglichen Version von Frank Juchim
+([frankjuchim/challenge_plattform](https://github.com/frankjuchim/challenge_plattform)),
+entstanden für eine Weiterbildungsmaßnahme Informatik für Lehrkräfte.
+Weiterentwickelt von [Tobi](https://github.com/Obi-Wahn).
+Ein großer Teil der hier beschriebenen Weiterentwicklung (Sicherheits-Härtung, Offline-Fähigkeit, neue Funktionen, Übersetzungen) wurde mit Unterstützung von KI (Claude Code) umgesetzt.
 
 ## 📝 Lizenz
 
-Dieses Projekt wurde für eine Weiterbildungsmaßnahme Informatik für Lehrkräfte erstellt.
+Die Plattform steht unter der [MIT-Lizenz](LICENSE), mit dem Einverständnis
+von Frank Juchim als Urheber der ursprünglichen Fassung. Sie darf frei
+genutzt, verändert und weitergegeben werden, auch an andere Schulen, solange
+die Datei `LICENSE` mit den Urhebervermerken dabei bleibt.
+
+Mitgelieferte Fremdbestandteile behalten ihre eigenen Lizenzen: die
+Bibliotheken unter `static/vendor/` (Bootstrap, EasyMDE, scratchblocks: MIT;
+Font Awesome Free: Icons CC BY 4.0, Schriften SIL OFL 1.1, Code MIT) mit dem
+Vermerk jeweils am Dateianfang, die Handschriften unter `static/vendor/fonts/`
+(SIL OFL 1.1, Lizenztexte daneben) und die Calliope-Blockdaten in
+`plattform/makecode_bloecke.json` aus
+[MakeCode Calliope](https://github.com/microsoft/pxt-calliope) (MIT-Lizenz).
+Welche Fassung mit welcher Lizenz im Repository liegt, steht in
+`static/vendor/versionen.json`.
