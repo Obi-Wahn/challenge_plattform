@@ -331,6 +331,7 @@ challenge_plattform/
 ├── starter.py              # was die Startdateien tun: einrichten, dann starten
 ├── stand.py                # welche Version läuft, aus git oder stand.txt
 ├── stand.txt               # von GitHub im ZIP ausgefüllt, im Repository nur Platzhalter
+├── LICENSE                 # MIT-Lizenz mit den Urhebervermerken
 ├── app.py                  # Einstiegspunkt
 ├── plattform/              # die Module der Anwendung, app.py setzt sie zusammen
 │   ├── __init__.py         # bleibt ohne Import, der Starter holt network.py daraus
