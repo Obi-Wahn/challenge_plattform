@@ -8,11 +8,14 @@ tun ist, und was zu tun ist, wenn etwas klemmt.
 
 ## 📅 Rechtzeitig vorher
 
-1. **Anwendung auf den Stand bringen.** Die Startdatei einmal mit
-   `--aktualisieren` aufrufen, also `start_windows.bat --aktualisieren` in
-   der Eingabeaufforderung bzw. `./start_linux.sh --aktualisieren`. Wer die
-   Plattform als ZIP geholt hat, geht den Weg aus der README unter
-   [Aktualisieren](../README.md#aktualisieren) – dort stehen beide Fälle.
+1. **Anwendung auf den Stand bringen.**
+   *   **Als ZIP geholt:** das neue ZIP von der Release-Seite in einen
+       **neuen** Ordner entpacken und `data/`, `uploads/` und `.env` aus dem
+       alten hinüberkopieren, Schritt für Schritt in der README unter
+       [Aktualisieren](../README.md#aktualisieren).
+   *   **Mit git geholt:** die Startdatei einmal mit `--aktualisieren`
+       aufrufen, also `start_windows.bat --aktualisieren` in der
+       Eingabeaufforderung bzw. `./start_linux.sh --aktualisieren`.
 
    Das braucht Internet – also zu Hause oder am Lehrerrechner, nicht am
    Wettbewerbstag.
