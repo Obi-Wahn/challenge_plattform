@@ -212,6 +212,12 @@ prüft und die Plattform als Dienst starten lässt, steht in
 
 ### Aktualisieren
 
+*   **Als ZIP geholt:** Plattform beenden, das neue ZIP von der
+    [Release-Seite](https://github.com/Obi-Wahn/challenge_plattform/releases)
+    in einen **neuen** Ordner entpacken, aus dem alten `data/`, `uploads/`
+    und `.env` hinüberkopieren (`.env` ist oft versteckt, weil sie mit einem
+    Punkt beginnt), Startdatei im neuen Ordner öffnen. `--aktualisieren` sagt
+    dasselbe.
 *   **Mit git geholt:** die Startdatei mit `--aktualisieren` aufrufen, also
     `./start_linux.sh --aktualisieren` bzw. `start_windows.bat --aktualisieren`
     in der Eingabeaufforderung. Sie holt die neue Fassung mit
@@ -220,10 +226,6 @@ prüft und die Plattform als Dienst starten lässt, steht in
     Sind Dateien der Plattform von Hand geändert worden, bricht sie ab,
     statt sie zu überschreiben. Was dann zu tun ist, steht im Leitfaden
     unter [Wenn etwas klemmt](docs/ADMIN_GUIDE.md#-wenn-etwas-klemmt).
-*   **Als ZIP geholt:** Plattform beenden, das neue ZIP in einen **neuen**
-    Ordner entpacken, aus dem alten `data/`, `uploads/` und `.env` hinüber-
-    kopieren (`.env` ist oft versteckt, weil sie mit einem Punkt beginnt),
-    Startdatei im neuen Ordner öffnen. `--aktualisieren` sagt dasselbe.
 
 In beiden Fällen passt die Plattform die Datenbank beim Start selbst an,
 siehe [Daten und Sicherungen](#-daten-und-sicherungen).
