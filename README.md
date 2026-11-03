@@ -14,7 +14,8 @@ Eine Flask-basierte Webanwendung für Coding-Challenges, Hackathons und Programm
 1.  [Python 3.11 oder höher](https://www.python.org/downloads/) installieren.
 2.  Das Projekt als ZIP von der
     [Release-Seite](https://github.com/Obi-Wahn/challenge_plattform/releases)
-    herunterladen und entpacken.
+    herunterladen (beim neuesten Release unter *Assets* **Source code (zip)**)
+    und entpacken.
 3.  Die Startdatei für das eigene System öffnen: `start_windows.bat`,
     `start_macos.command` oder `start_linux.sh`. Sie richtet beim ersten Mal
     alles ein (dafür braucht es einmal Internet) und startet die Plattform.
@@ -128,10 +129,14 @@ Python install manager oder dem älteren Installationsprogramm von
 
 1.  **Herunterladen** – entweder als ZIP von der
     [Release-Seite](https://github.com/Obi-Wahn/challenge_plattform/releases)
-    und entpacken, oder mit git:
+    (beim neuesten Release unter *Assets* **Source code (zip)**) und
+    entpacken, oder mit git:
     ```bash
     git clone https://github.com/Obi-Wahn/challenge_plattform.git
     ```
+    Das ZIP bringt seinen Ordner mit, etwa `challenge_plattform-1.25.3`. Je
+    nach Entpackprogramm liegt er noch einmal in einem gleichnamigen Ordner;
+    gemeint ist der, in dem die Startdateien liegen.
 
 2.  **Startdatei öffnen**
 
@@ -178,9 +183,9 @@ Datenbank .............. vorhanden
 ```
 
 Die erste Zeile sagt, **welche Fassung** hier liegt. Die Nummer kommt aus
-dem Release, von Hand gepflegt wird sie nirgends: Bei git fragt die
-Startdatei git, bei einem ZIP hat GitHub sie beim Packen in `stand.txt`
-eingetragen. Enthält der Stand Änderungen nach dem letzten Release, steht
+dem Release, von Hand gepflegt wird sie nirgends: Bei einem ZIP hat GitHub
+sie beim Packen in `stand.txt` eingetragen, bei git fragt die Startdatei
+git. Enthält der Stand Änderungen nach dem letzten Release, steht
 das dabei, etwa „1.25.0 + 3 Änderungen (Stand 31.10.2026)“. Steht dort
 „unbekannt“ – etwa bei einem von Hand kopierten Ordner –, läuft die
 Plattform trotzdem. Die Zeile steht auch im Protokoll.
@@ -195,6 +200,9 @@ Plattform trotzdem. Die Zeile steht auch im Protokoll.
     `chmod +x start_macos.command` eingeben.
 *   **Windows** warnt bei Dateien aus dem Internet mit „Der Computer wurde
     durch Windows geschützt“: *Weitere Informationen → Trotzdem ausführen*.
+    Meldet die Startdatei „starter.py fehlt“, wurde sie direkt im ZIP
+    geöffnet: das ZIP erst entpacken (Rechtsklick → *Alle extrahieren*) und
+    die Startdatei im entpackten Ordner öffnen.
 *   **Linux**: Ein Doppelklick öffnet die Datei je nach Oberfläche im Editor.
     Darum im Terminal starten; fehlt das Ausführungsrecht,
     `sh start_linux.sh`. Unter Debian und Ubuntu fehlt für die virtuelle
@@ -214,15 +222,22 @@ prüft und die Plattform als Dienst starten lässt, steht in
 
 *   **Als ZIP geholt:** Plattform beenden, das neue ZIP von der
     [Release-Seite](https://github.com/Obi-Wahn/challenge_plattform/releases)
-    in einen **neuen** Ordner entpacken, aus dem alten `data/`, `uploads/`
-    und `.env` hinüberkopieren (`.env` ist oft versteckt, weil sie mit einem
-    Punkt beginnt), Startdatei im neuen Ordner öffnen. `--aktualisieren` sagt
-    dasselbe.
+    holen (unter *Assets* **Source code (zip)**) und neben dem alten Ordner
+    entpacken; der neue trägt die neue Nummer im Namen. Aus dem alten
+    `data/`, `uploads/` und `.env` hinüberkopieren. Die `.env` beginnt mit
+    einem Punkt und ist darum im Finder und unter Linux versteckt: Im Finder
+    zeigt Cmd+Umschalt+Punkt sie an, in den meisten Linux-Dateimanagern
+    Strg+H. Dann die Startdatei im neuen Ordner öffnen; sie richtet die
+    virtuelle Umgebung neu ein und braucht dafür einmal Internet. Läuft
+    alles, den alten Ordner löschen: Darin stehen noch Teamnamen, Abgaben,
+    das Protokoll und das Admin-Passwort. `--aktualisieren` sagt dasselbe.
 *   **Mit git geholt:** die Startdatei mit `--aktualisieren` aufrufen, also
     `./start_linux.sh --aktualisieren` bzw. `start_windows.bat --aktualisieren`
     in der Eingabeaufforderung. Sie holt die neue Fassung mit
     `git pull --ff-only`, ruft sich danach selbst in der neuen Fassung auf,
-    installiert geänderte Pakete nach und startet.
+    installiert geänderte Pakete nach und startet. git holt den neuesten
+    Stand, auch was nach dem letzten Release dazugekommen ist; die Version
+    heißt dann etwa „1.25.3 + 2 Änderungen“.
     Sind Dateien der Plattform von Hand geändert worden, bricht sie ab,
     statt sie zu überschreiben. Was dann zu tun ist, steht im Leitfaden
     unter [Wenn etwas klemmt](docs/ADMIN_GUIDE.md#-wenn-etwas-klemmt).
@@ -284,8 +299,8 @@ liegt, nicht die Datei selbst und nicht den Ordner der Installation. Nach einem
 Umzug in einen neuen Ordner oder auf einen anderen Rechner findet sie die
 Dateien also wieder. Wer aber nur `data/` sichert, hat nach einem Ausfall zwar
 die Punktestände, aber nicht die Programme, für die sie vergeben wurden. Beide
-Verzeichnisse gehören **nicht** ins Repository und werden von `.gitignore`
-ausgeschlossen.
+Verzeichnisse liefert die Plattform **nicht** mit: Kein Update überschreibt
+sie, und beim Aktualisieren per ZIP kopiert man sie selbst hinüber.
 
 Bringt eine neue Version der Anwendung eine Änderung an der Datenbankstruktur
 mit, wird diese beim Start automatisch ergänzt. **Vor der ersten solchen
@@ -420,8 +435,8 @@ nichts mehr in der Hand – und am Wettbewerbstag ist keine Zeit, den Fehler
 noch einmal herbeizuführen.
 
 Die Datei rotiert bei 1 MB und behält fünf ältere Stände; sie wächst also
-nicht unbegrenzt. Sie gehört nicht ins Repository und wird von `.gitignore`
-ausgeschlossen. Ein anderer Ort lässt sich über `LOG_DIR` in der `.env`
+nicht unbegrenzt. Sie kommt bei keinem Update mit; nach einem Update per ZIP
+beginnt im neuen Ordner eine neue. Ein anderer Ort lässt sich über `LOG_DIR` in der `.env`
 einstellen.
 
 ## 🛠 Entwicklung

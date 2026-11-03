@@ -12,7 +12,8 @@ tun ist, und was zu tun ist, wenn etwas klemmt.
    *   **Als ZIP geholt:** das neue ZIP von der Release-Seite in einen
        **neuen** Ordner entpacken und `data/`, `uploads/` und `.env` aus dem
        alten hinüberkopieren, Schritt für Schritt in der README unter
-       [Aktualisieren](../README.md#aktualisieren).
+       [Aktualisieren](../README.md#aktualisieren). Läuft alles, den alten
+       Ordner löschen, er enthält noch Namen und Abgaben.
    *   **Mit git geholt:** die Startdatei einmal mit `--aktualisieren`
        aufrufen, also `start_windows.bat --aktualisieren` in der
        Eingabeaufforderung bzw. `./start_linux.sh --aktualisieren`.
@@ -22,7 +23,8 @@ tun ist, und was zu tun ist, wenn etwas klemmt.
 
    Welche Fassung danach läuft, steht in der Startübersicht in der Zeile
    **Version**, etwa „1.25.0 (Stand 28.10.2026)“. Mit der Nummer des neuesten
-   Releases auf GitHub vergleichen.
+   Releases auf GitHub vergleichen. Mit git steht oft noch „+ 2 Änderungen“
+   dabei: git holt auch, was nach dem Release dazugekommen ist.
 
    Wer am Code arbeitet, lässt danach noch die Tests laufen und sieht nach
    neuen Paketen, siehe [docs/ENTWICKLUNG.md](ENTWICKLUNG.md#-vor-einem-wettbewerb).
@@ -338,7 +340,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Im Terminal steht „WARNING … Task queue depth is 1“ | Harmlos: Mehrere Geräte haben im selben Augenblick angefragt, und eine Anfrage hat kurz gewartet. Das passiert, wenn viele Teams zugleich abgeben oder die Seite laden. Erst wenn die Zahl dauerhaft wächst und Seiten spürbar langsam werden, ist der Rechner zu schwach. |
 | Nach STRG+C fragt Windows „Batchvorgang abbrechen (J/N)?“ | Die Frage stellt Windows bei jeder `.bat`-Datei. Die Plattform ist da schon beendet – J oder N, beides schließt das Fenster. |
 | `--aktualisieren` bricht ab: „In diesem Ordner sind Dateien der Plattform verändert worden“ | Darunter stehen die Dateien. Unter `static/vendor/` steckt nie etwas Eigenes; unter Windows sind es meist nur andere Zeilenenden, etwa nachdem `werkzeuge/vendor_aktualisieren.py` mit einer älteren Fassung gelaufen ist. Dann `git restore static/vendor`. Bei anderen Dateien erst mit `git diff <datei>` nachsehen, was sich geändert hat, Eigenes sichern, dann `git restore <datei>`. Danach die Startdatei noch einmal mit `--aktualisieren` aufrufen. |
-| Welche Fassung läuft hier? | Steht beim Start in der Übersicht in der Zeile **Version** und bei jedem Start in `logs/anwendung.log`. „+ 3 Änderungen“ heißt: drei Änderungen nach diesem Release. „unbekannt“ heißt nur, dass weder git noch die `stand.txt` aus dem ZIP es verraten – etwa bei einem von Hand kopierten Ordner. Dann auf GitHub das aktuelle Release als ZIP holen. |
+| Welche Fassung läuft hier? | Steht beim Start in der Übersicht in der Zeile **Version** und bei jedem Start in `logs/anwendung.log`. „+ 3 Änderungen“ heißt: drei Änderungen nach diesem Release. „unbekannt“ heißt nur, dass weder die `stand.txt` aus dem ZIP noch git es verraten – etwa bei einem von Hand kopierten Ordner. Dann auf GitHub das aktuelle Release als ZIP holen. |
 | „Gefunden wurde Python 3.10, die Plattform braucht 3.11 oder neuer.“ | Das Python von Ubuntu 22.04 und Linux Mint 21 reicht nicht (Mint 22 und Ubuntu 24.04 haben 3.12). Dort `sudo apt install python3.11 python3.11-venv` und dann `python3.11 starter.py` statt der Startdatei, oder den Rechner auf ein neueres System bringen. Unter Windows und macOS das aktuelle Python von python.org installieren. |
 | Die Anwendung startet nicht | Meldung lesen: Fehlt `SECRET_KEY` oder `ADMIN_PASSWORD` in der `.env` oder steht dort noch ein Beispielwert, sagt sie das. Die Startdatei ersetzt Beispielwerte selbst. Bricht sie beim Sichern der Datenbank ab, ist meist die Platte voll. |
 

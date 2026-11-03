@@ -4,6 +4,18 @@ rem Die eigentliche Arbeit macht starter.py - diese Datei sucht nur Python.
 setlocal
 cd /d "%~dp0"
 
+rem Doppelklick im noch nicht entpackten ZIP: Windows holt dann nur diese
+rem eine Datei in einen Temp-Ordner, starter.py liegt nicht daneben.
+if not exist "starter.py" (
+    echo starter.py fehlt neben dieser Datei.
+    echo Wahrscheinlich wurde sie direkt im ZIP geoeffnet. Das ZIP erst
+    echo entpacken: Rechtsklick, "Alle extrahieren". Dann die Startdatei
+    echo im entpackten Ordner oeffnen.
+    echo.
+    pause
+    exit /b 1
+)
+
 rem Jeder Kandidat wird kurz gestartet, ein Treffer von "where" reicht nicht:
 rem Es kann auch ein "py" finden, das die Eingabeaufforderung nicht startet.
 rem "py" bringt der Installer von python.org mit. "python" allein kann der
