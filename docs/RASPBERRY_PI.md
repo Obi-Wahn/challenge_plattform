@@ -5,16 +5,34 @@ Linux-Rechner, der nur per SSH erreichbar ist. Raspberry Pi OS bringt ab
 Bookworm ein passendes Python mit (3.11, bei Trixie 3.13). Alles Übrige
 steht in der [README](../README.md) und im [Leitfaden](ADMIN_GUIDE.md).
 
-1.  **Holen und einrichten**, per SSH auf dem Rechner, einmal mit Internet:
+1.  **Holen und einrichten**, per SSH auf dem Rechner, einmal mit Internet.
+
+    *   **Als ZIP:** Auf der
+        [Release-Seite](https://github.com/Obi-Wahn/challenge_plattform/releases)
+        beim neuesten Release unter *Assets* den Link **Source code (zip)**
+        kopieren. Auf dem Rechner holen, entpacken und den Ordner umbenennen
+        (hier für 1.25.3, die Nummer steht im Link und im Ordnernamen):
+        ```bash
+        wget -O plattform.zip https://github.com/Obi-Wahn/challenge_plattform/archive/refs/tags/v1.25.3.zip
+        unzip plattform.zip && rm plattform.zip
+        mv challenge_plattform-1.25.3 challenge_plattform
+        ```
+        Fehlt `unzip`: `sudo apt install unzip`. Das ZIP lässt sich auch an
+        einem anderen Rechner herunterladen und mit `scp` hinüberkopieren.
+    *   **Mit git:**
+        ```bash
+        git clone https://github.com/Obi-Wahn/challenge_plattform.git
+        ```
+
+    Danach in beiden Fällen:
     ```bash
-    git clone https://github.com/Obi-Wahn/challenge_plattform.git
     cd challenge_plattform
     ./start_linux.sh --ohne-browser
     ```
-    Wer das ZIP nimmt, kopiert es vorher hinüber (etwa mit `scp`) und
-    entpackt es dort mit `unzip`. Der erste Start fragt wie gewohnt das
-    Admin-Passwort ab. Bedient wird die Plattform danach vom Browser eines
-    anderen Geräts aus, über die Adresse in der Startübersicht.
+    Diesen Ordnernamen erwartet auch der Dienst weiter unten. Der erste Start
+    fragt wie gewohnt das Admin-Passwort ab. Bedient wird die Plattform danach
+    vom Browser eines anderen Geräts aus, über die Adresse in der
+    Startübersicht.
 
 2.  **Feste Adresse.** Bekommt der Rechner seine Adresse per DHCP, kann sie
     sich ändern – und mit ihr der QR-Code. Die Adresse darum im Router
@@ -75,11 +93,32 @@ sudo systemctl disable --now challenge-plattform  # wieder abschalten
 ```
 
 Die Uhrzeit aus Schritt 3 gilt dann genauso – der Dienst startet ja schon
-beim Einschalten. Zum **Aktualisieren** den Dienst mit
-`sudo systemctl stop challenge-plattform` anhalten, sonst meldet die
-Startdatei den Port als belegt. Dann `./start_linux.sh --aktualisieren
---ohne-browser`, nach der Startübersicht mit STRG+C beenden und den Dienst
-mit `sudo systemctl start challenge-plattform` wieder starten.
+beim Einschalten.
+
+**Aktualisieren.** Erst die Plattform beenden, als Dienst mit
+`sudo systemctl stop challenge-plattform`, sonst meldet die Startdatei den
+Port als belegt.
+
+*   **Als ZIP geholt:** das neue ZIP wie in Schritt 1 mit `wget` holen und
+    entpacken (hier 1.25.4), Daten hinüberkopieren und die Ordner tauschen,
+    damit der Dienst den neuen findet:
+    ```bash
+    cd ~
+    unzip plattform.zip && rm plattform.zip
+    cp -a challenge_plattform/data challenge_plattform/uploads challenge_plattform/.env challenge_plattform-1.25.4/
+    mv challenge_plattform challenge_plattform-alt
+    mv challenge_plattform-1.25.4 challenge_plattform
+    cd challenge_plattform
+    ./start_linux.sh --ohne-browser
+    ```
+    Der erste Start richtet die virtuelle Umgebung neu ein und braucht dafür
+    Internet. Läuft alles, den alten Ordner mit
+    `rm -rf ~/challenge_plattform-alt` löschen: Darin stehen noch Teamnamen,
+    Abgaben, das Protokoll und das Admin-Passwort.
+*   **Mit git geholt:** `./start_linux.sh --aktualisieren --ohne-browser`.
+
+Als Dienst danach die Startübersicht abwarten, mit STRG+C beenden und den
+Dienst mit `sudo systemctl start challenge-plattform` wieder starten.
 
 **SD-Karte.** Das Protokoll schreibt kaum etwas, der gewöhnliche Betrieb
 bleibt darin still (siehe [Protokolldatei](../README.md#-protokolldatei)). Geschrieben

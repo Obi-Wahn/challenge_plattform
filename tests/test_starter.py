@@ -466,6 +466,24 @@ class TestAktualisieren:
             assert muss_hinueber in text
         assert aufrufe.befehle == []
 
+    def test_zip_anleitung_nennt_download_internet_und_alten_ordner(self):
+        # Die meisten holen die Plattform als ZIP: Welche Datei, dass der
+        # erste Start Internet braucht und dass im alten Ordner noch Namen
+        # und das Passwort liegen, soll niemand erst suchen müssen.
+        assert "Source code (zip)" in starter.ZIP_ANLEITUNG
+        assert "Internet" in starter.ZIP_ANLEITUNG
+        assert "alten Ordner löschen" in starter.ZIP_ANLEITUNG
+
+    def test_fehlendes_git_nennt_einen_ausweg(self, ordner, monkeypatch):
+        (ordner / ".git").mkdir()
+        monkeypatch.setattr(starter.shutil, "which", lambda _: None)
+        aufrufe = Aufrufe()
+
+        with pytest.raises(starter.Abbruch) as fehler:
+            starter.aktualisieren(str(ordner), ausfuehren=aufrufe)
+        assert "ZIP" in str(fehler.value)
+        assert aufrufe.befehle == []
+
     def test_eigene_aenderungen_verhindern_das_aktualisieren(self, ordner, monkeypatch):
         (ordner / ".git").mkdir()
         monkeypatch.setattr(starter.shutil, "which", lambda _: "/usr/bin/git")
@@ -668,6 +686,13 @@ class TestStartdateien:
     def test_windows_datei_kommt_ohne_umlaute_aus(self):
         # Die Eingabeaufforderung liest die Datei in ihrer eigenen Codepage.
         (ROOT / "start_windows.bat").read_bytes().decode("ascii")
+
+    def test_windows_datei_merkt_ein_nicht_entpacktes_zip(self):
+        # Aus dem ZIP heraus geöffnet, liegt starter.py nicht daneben. Das
+        # fällt auf, bevor Python gesucht wird, und die Meldung sagt, was tun.
+        text = (ROOT / "start_windows.bat").read_text(encoding="utf-8")
+        assert text.index('if not exist "starter.py"') < text.index("py -3 -c ")
+        assert "Alle extrahieren" in text
 
     def test_windows_datei_nimmt_zuerst_den_py_starter(self):
         text = (ROOT / "start_windows.bat").read_text(encoding="utf-8")

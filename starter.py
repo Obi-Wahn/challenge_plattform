@@ -432,18 +432,22 @@ Diese Installation stammt aus einer ZIP-Datei, nicht aus git. Aktualisieren
 geht dann von Hand:
 
   1. Die Plattform beenden.
-  2. Die neue ZIP-Datei von der Release-Seite herunterladen:
+  2. Die neue ZIP-Datei herunterladen, auf der Release-Seite beim neuesten
+     Release unter Assets "Source code (zip)":
      https://github.com/Obi-Wahn/challenge_plattform/releases
-  3. Sie in einen NEUEN Ordner entpacken.
+  3. Sie neben dem alten Ordner entpacken. Der NEUE Ordner trägt die
+     Nummer im Namen, etwa challenge_plattform-1.25.3.
   4. Aus dem alten Ordner hinüberkopieren:
        data/      die Datenbank
        uploads/   die Abgaben der Teams
-       .env       Passwort und Einstellungen (Datei beginnt mit Punkt,
-                  ist also oft versteckt)
-  5. Die Startdatei im neuen Ordner öffnen.
+       .env       Passwort und Einstellungen (beginnt mit Punkt; im Finder
+                  zeigt Cmd+Umschalt+Punkt sie an, unter Linux meist Strg+H)
+  5. Die Startdatei im neuen Ordner öffnen. Sie richtet die virtuelle
+     Umgebung neu ein und braucht dafür einmal Internet.
 
 Die Datenbank passt die Plattform beim Start selbst an und legt vorher eine
-Sicherung an. Den alten Ordner erst löschen, wenn alles läuft."""
+Sicherung an. Läuft alles, den alten Ordner löschen: Darin stehen noch
+Teamnamen, Abgaben, das Protokoll und das Admin-Passwort."""
 
 
 def aktualisieren(basis=BASIS, ausfuehren=subprocess.run):
@@ -457,7 +461,12 @@ def aktualisieren(basis=BASIS, ausfuehren=subprocess.run):
         raise Abbruch(ZIP_ANLEITUNG)
 
     if shutil.which("git") is None:
-        raise Abbruch("Das ist eine git-Installation, aber git ist nicht installiert.")
+        raise Abbruch(
+            "Das ist eine git-Installation, aber git ist nicht installiert.\n"
+            "Entweder git installieren und die Startdatei noch einmal mit\n"
+            "--aktualisieren aufrufen, oder die neue Fassung als ZIP holen,\n"
+            "wie es die README unter \"Aktualisieren\" beschreibt."
+        )
 
     geaendert = ausfuehren(
         ["git", "status", "--porcelain", "--untracked-files=no"],
@@ -604,7 +613,7 @@ def neu_starten(basis=BASIS, browser=True, starten_mit=subprocess.Popen):
 def main(argumente=None):
     parser = argparse.ArgumentParser(description="Richtet die Plattform ein und startet sie.")
     parser.add_argument("--aktualisieren", action="store_true",
-                        help="vorher die neue Fassung mit git holen")
+                        help="vorher die neue Fassung holen (bei einem ZIP: Anleitung zeigen)")
     parser.add_argument("--ohne-browser", action="store_true",
                         help="kein Browserfenster öffnen")
     optionen = parser.parse_args(argumente)
