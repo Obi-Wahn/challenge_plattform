@@ -142,19 +142,45 @@ def configure_logging(app):
         waitress_log.setLevel(logging.INFO)
 
 
-def einmal_im_terminal(app):
-    """Verhindert, dass jede Meldung im Terminal doppelt steht.
+NUR_DATEI = {"nur_datei": True}
+"""Als ``extra=`` für eine Meldung, die nur in die Protokolldatei gehört."""
 
-    waitress ruft beim Start ``logging.basicConfig()`` auf und hängt damit
-    eine zweite Ausgabe ans Terminal. Die Meldungen der Anwendung stehen über
-    Flasks eigene Ausgabe schon dort - mit Zeitstempel - und kämen über die
-    zweite noch einmal, ohne. Die Protokolldatei betrifft das nicht, dort
-    stand jede Zeile immer nur einmal.
+
+def _nicht_nur_fuer_die_datei(eintrag):
+    return not getattr(eintrag, "nur_datei", False)
+
+
+def terminal_einrichten(app):
+    """Jede Meldung steht einmal im Terminal, und nichts doppelt zur Übersicht.
+
+    Was beim Start wichtig ist, steht schon in der Übersicht darüber. Ohne
+    das folgten noch „[…] INFO in app: Server gestartet …“ und
+    „INFO:waitress:Serving on http://0.0.0.0:8000“ - dieselbe Adresse ein
+    zweites Mal, und 0.0.0.0 führt kein Gerät zum Server. Die erste ist mit
+    ``NUR_DATEI`` markiert, von waitress kommen nur Warnungen und Fehler ins
+    Terminal. Die Ereignisse des Tages, etwa eine abgelehnte Abgabe, stehen
+    dort weiter; die Protokolldatei bekommt ohnehin alles.
+
+    Die Meldungen der Anwendung kommen über Flasks eigene Ausgabe, die von
+    waitress über die am obersten Logger. Die legt waitress sonst mit
+    ``logging.basicConfig()`` selbst an, ohne Grenze - steht dort schon eine,
+    lässt waitress es. Am 08.10.2026 stand so jede Meldung der Anwendung
+    doppelt da, darum ``propagate = False``.
 
     Nur für den echten Start: Die Tests lesen die Meldungen über ``caplog``,
     und das hört am obersten Logger mit.
     """
     app.logger.propagate = False
+    for handler in app.logger.handlers:
+        if handler.name != LOG_HANDLER_NAME:
+            handler.addFilter(_nicht_nur_fuer_die_datei)
+
+    terminal = logging.StreamHandler()
+    terminal.setLevel(logging.WARNING)
+    terminal.addFilter(_nicht_nur_fuer_die_datei)
+    terminal.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s in %(name)s: %(message)s"))
+    logging.getLogger().addHandler(terminal)
+    return terminal
 
 
 def create_app():
@@ -376,17 +402,27 @@ def startmeldung(adresse, port, protokoll):
     127.0.0.1 als Adresse "für andere Geräte" auszugeben - die führt kein
     Handy zum Server, und man sucht den Fehler dann bei der Firewall.
     """
-    zeilen = ["Server läuft auf:", f"  http://localhost:{port}  (auf diesem Rechner)"]
+    def zeile(was, ergebnis):
+        # Dieselbe Punktespalte wie die Übersicht der Startdatei darüber.
+        return f"{was} ".ljust(24, ".") + f" {ergebnis}"
 
+    # Die Adresse für die Teams zuerst: Die wird gesucht, abgetippt und mit
+    # der auf der Startseite verglichen.
     if adresse:
-        zeilen.append(f"  http://{adresse}:{port}  (für andere Geräte im gleichen Netzwerk)")
+        zeilen = [zeile("Für die Teams", f"http://{adresse}:{port}")]
     else:
-        zeilen.append("  Die Adresse für andere Geräte konnte nicht ermittelt werden.")
-        zeilen.append(f"  Sie gehört dann als {FESTE_ADRESSE}=192.168.… in die .env - sonst")
-        zeilen.append("  steht auch auf der Startseite und im QR-Code keine brauchbare Adresse.")
+        zeilen = [
+            zeile("Für die Teams", "Adresse unbekannt"),
+            "  Die Adresse für andere Geräte konnte nicht ermittelt werden.",
+            f"  Sie gehört dann als {FESTE_ADRESSE}=192.168.… in die .env - sonst",
+            "  steht auch auf der Startseite und im QR-Code keine brauchbare Adresse.",
+        ]
 
-    zeilen.append(f"Protokoll: {protokoll}")
-    zeilen.append("Zum Beenden: STRG+C\n")
+    zeilen.append(zeile("Auf diesem Rechner", f"http://localhost:{port}"))
+    zeilen.append(zeile("Protokoll", protokoll))
+    zeilen.append("")
+    zeilen.append("Zum Beenden: STRG+C")
+    zeilen.append("")
     return zeilen
 
 
@@ -432,6 +468,7 @@ if __name__ == "__main__":
         from waitress import serve
 
         adresse = lan_adresse()
+        terminal_einrichten(app)
 
         for zeile in startmeldung(
             adresse, port, os.path.join(app.config["LOG_DIR"], "anwendung.log")
@@ -443,13 +480,14 @@ if __name__ == "__main__":
         # Version, welche Fassung dabei lief.
         version = stand.ermitteln()
         if adresse:
-            app.logger.info("Server gestartet auf http://%s:%s, Version %s", adresse, port, version)
+            app.logger.info("Server gestartet auf http://%s:%s, Version %s", adresse, port, version,
+                            extra=NUR_DATEI)
         else:
+            # Im Terminal sagt das die Übersicht schon, darum nur in die Datei.
             app.logger.warning(
                 "Server gestartet auf Port %s, Version %s, die Netzwerkadresse ist unbekannt "
-                "(%s in der .env setzen).", port, version, FESTE_ADRESSE
+                "(%s in der .env setzen).", port, version, FESTE_ADRESSE, extra=NUR_DATEI
             )
 
-        einmal_im_terminal(app)
         serve(app, host="0.0.0.0", port=port)
 

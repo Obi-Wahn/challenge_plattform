@@ -225,8 +225,9 @@ def pakete_sicherstellen(basis=BASIS, ausfuehren=subprocess.run):
     except OSError:
         pass
 
-    print("Pakete werden installiert. Das braucht Internet und dauert")
-    print("beim ersten Mal ein bis zwei Minuten ...")
+    # In der Punktespalte, damit die Übersicht nicht unterbrochen wird. Kommt
+    # pip durch, folgt darunter "Pakete ... installiert".
+    zeile("Pakete", "werden installiert (Internet, 1 bis 2 Minuten) ...")
     ergebnis = ausfuehren([
         umgebungs_python(basis), "-m", "pip", "install",
         "--disable-pip-version-check", "-q",

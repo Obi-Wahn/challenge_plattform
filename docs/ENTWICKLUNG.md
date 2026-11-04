@@ -302,7 +302,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 | `test_starter.py` | die Schritte hinter den Startdateien, ohne echtes pip und git |
 | `test_stand.py` | die Version beim Start, aus git oder aus der `stand.txt` eines ZIPs |
 | `test_netzwerk.py` | die Adresse, unter der die Teams den Server erreichen |
-| `test_protokoll.py` | `logs/anwendung.log` entsteht, hält die wichtigen Ereignisse fest und bleibt beim gewöhnlichen Betrieb still, und im Terminal steht jede Meldung nur einmal |
+| `test_protokoll.py` | `logs/anwendung.log` entsteht, hält die wichtigen Ereignisse fest und bleibt beim gewöhnlichen Betrieb still, und im Terminal steht jede Meldung nur einmal, ohne die Adresse aus der Startübersicht zu wiederholen |
 | `test_migrations.py` | Datenbank aus einer älteren Version weiterbenutzen |
 | `test_task_exchange.py` | Aufgaben sichern und wiederverwenden |
 | `test_wettbewerb_sicherung.py` | einen ganzen Wettbewerb als ZIP sichern und als neuen einlesen, Namen und Passwörter nur auf Wunsch; der Beispiel-Wettbewerb liest sich ohne Anpassung ein |

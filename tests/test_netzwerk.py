@@ -134,6 +134,19 @@ class TestWennNichtsBekanntIst:
         assert "http://192.168.1.50:8000" in meldung
         assert FESTE_ADRESSE not in meldung
 
+    def test_die_adresse_fuer_die_teams_steht_zuerst(self):
+        # Die wird gesucht und abgetippt, localhost hilft keinem Team.
+        meldung = startmeldung("192.168.1.50", 8000, "logs/anwendung.log")
+
+        assert meldung[0] == "Für die Teams .......... http://192.168.1.50:8000"
+        assert meldung[1] == "Auf diesem Rechner ..... http://localhost:8000"
+
+    def test_ohne_adresse_steht_trotzdem_zuerst_die_zeile_fuer_die_teams(self):
+        meldung = startmeldung(None, 8000, "logs/anwendung.log")
+
+        assert meldung[0].startswith("Für die Teams ....")
+        assert "unbekannt" in meldung[0]
+
     def test_die_startmeldung_nennt_immer_das_protokoll(self):
         for adresse in (None, "192.168.1.50"):
             meldung = "\n".join(startmeldung(adresse, 8000, "logs/anwendung.log"))

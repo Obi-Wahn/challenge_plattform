@@ -7,10 +7,11 @@ bleibt, auch wenn niemand das Terminalfenster im Blick hatte.
 import io
 import logging
 import os
+import types
 
 import pytest
 
-from app import LOG_HANDLER_NAME, configure_logging, einmal_im_terminal
+from app import LOG_HANDLER_NAME, NUR_DATEI, configure_logging, terminal_einrichten
 
 
 def logdatei(flask_app):
@@ -55,34 +56,84 @@ class TestTerminal:
     """Am 08.10.2026 stand im Terminal jede Meldung doppelt, einmal als
     „[…] INFO in protokoll: …“ und einmal als „INFO:app: …“. Die zweite kam
     über die Ausgabe, die waitress beim Start mit ``logging.basicConfig()``
-    am obersten Logger anlegt."""
+    am obersten Logger anlegt.
+
+    Seit dem 04.11.2026 fehlen dort auch „Server gestartet …“ und „Serving
+    on http://0.0.0.0:8000“: Sie wiederholten nur die Adresse aus der
+    Übersicht darüber."""
 
     @pytest.fixture
-    def wie_nach_dem_start_von_waitress(self, flask_app):
+    def terminal(self, flask_app):
+        """Wie beim echten Start: Flasks eigene Ausgabe an der Anwendung und
+        eine zweite am obersten Logger, wie sie basicConfig() anlegen würde."""
+        flask_ausgabe = io.StringIO()
+        flask_handler = logging.StreamHandler(flask_ausgabe)
+        flask_app.logger.addHandler(flask_handler)
         zweite_ausgabe = io.StringIO()
-        handler = logging.StreamHandler(zweite_ausgabe)
-        logging.getLogger().addHandler(handler)
+        zweiter_handler = logging.StreamHandler(zweite_ausgabe)
+        logging.getLogger().addHandler(zweiter_handler)
         vorher = flask_app.logger.propagate
-        yield zweite_ausgabe
+        eigene = []
+
+        def einrichten():
+            handler = terminal_einrichten(flask_app)
+            eigene.append(handler)
+            ausgabe = io.StringIO()
+            handler.setStream(ausgabe)
+            return ausgabe
+
+        yield types.SimpleNamespace(
+            flask=flask_ausgabe, zweite=zweite_ausgabe, einrichten=einrichten,
+        )
         flask_app.logger.propagate = vorher
-        logging.getLogger().removeHandler(handler)
+        flask_app.logger.removeHandler(flask_handler)
+        logging.getLogger().removeHandler(zweiter_handler)
+        for handler in eigene:
+            logging.getLogger().removeHandler(handler)
 
-    def test_ohne_den_aufruf_stuende_die_meldung_doppelt(
-            self, flask_app, wie_nach_dem_start_von_waitress):
+    def test_ohne_den_aufruf_stuende_die_meldung_doppelt(self, flask_app, terminal):
         flask_app.logger.warning("Prüfzeile doppelt")
-        assert "Prüfzeile doppelt" in wie_nach_dem_start_von_waitress.getvalue()
+        assert "Prüfzeile doppelt" in terminal.flask.getvalue()
+        assert "Prüfzeile doppelt" in terminal.zweite.getvalue()
 
-    def test_meldung_steht_nur_einmal_im_terminal(
-            self, flask_app, wie_nach_dem_start_von_waitress):
-        einmal_im_terminal(flask_app)
+    def test_warnung_steht_nur_einmal_im_terminal(self, flask_app, terminal):
+        oben = terminal.einrichten()
         flask_app.logger.warning("Prüfzeile einmal")
-        assert "Prüfzeile einmal" not in wie_nach_dem_start_von_waitress.getvalue()
+        assert "Prüfzeile einmal" in terminal.flask.getvalue()
+        assert "Prüfzeile einmal" not in terminal.zweite.getvalue()
+        assert "Prüfzeile einmal" not in oben.getvalue()
 
-    def test_die_datei_bekommt_die_meldung_weiter(
-            self, flask_app, wie_nach_dem_start_von_waitress):
-        einmal_im_terminal(flask_app)
+    def test_ereignisse_des_tages_stehen_weiter_im_terminal(self, flask_app, terminal):
+        # Eine abgelehnte Abgabe soll man am Wettbewerbstag im Fenster sehen.
+        terminal.einrichten()
+        flask_app.logger.info("Abgabe abgelehnt: Prüfzeile")
+        assert "Abgabe abgelehnt: Prüfzeile" in terminal.flask.getvalue()
+        assert "Abgabe abgelehnt: Prüfzeile" in inhalt(flask_app)
+
+    def test_die_datei_bekommt_die_warnung_weiter(self, flask_app, terminal):
+        terminal.einrichten()
         flask_app.logger.warning("Prüfzeile Datei")
         assert "Prüfzeile Datei" in inhalt(flask_app)
+
+    @pytest.mark.parametrize("stufe", [logging.INFO, logging.WARNING])
+    def test_startzeile_steht_nur_in_der_datei(self, flask_app, terminal, stufe):
+        # Die Übersicht im Terminal sagt dasselbe schon, auch die Warnung
+        # zur fehlenden Netzwerkadresse.
+        oben = terminal.einrichten()
+        flask_app.logger.log(stufe, "Server gestartet auf Port 8000", extra=NUR_DATEI)
+        assert "Server gestartet" not in terminal.flask.getvalue()
+        assert "Server gestartet" not in oben.getvalue()
+        assert "Server gestartet" in inhalt(flask_app)
+
+    def test_waitress_zeigt_nur_stoerungen(self, flask_app, terminal):
+        oben = terminal.einrichten()
+        waitress = logging.getLogger("waitress")
+        waitress.info("Serving on http://0.0.0.0:8000")
+        waitress.warning("Task queue depth is 1")
+        assert "0.0.0.0" not in oben.getvalue()
+        assert "Task queue depth is 1" in oben.getvalue()
+        # Die Fehlersuche im Leitfaden zitiert die Zeile mit "WARNING".
+        assert "WARNING" in oben.getvalue()
 
 
 class TestInhalt:

@@ -234,6 +234,16 @@ class TestPakete:
         assert befehl[1:4] == ["-m", "pip", "install"]
         assert befehl[-1] == os.path.join(str(ordner), "requirements.txt")
 
+    def test_hinweis_steht_in_der_punktespalte(self, ordner, capsys):
+        # Früher zwei lose Zeilen mitten in der Übersicht.
+        umgebung_vortaeuschen(ordner)
+        starter.pakete_sicherstellen(str(ordner), ausfuehren=Aufrufe())
+
+        ausgabe = capsys.readouterr().out.splitlines()
+        assert ausgabe == ["Pakete ................. werden installiert (Internet, 1 bis 2 Minuten) ..."]
+        # Passt in ein Fenster mit 80 Zeichen, ohne umzubrechen.
+        assert len(ausgabe[0]) < 80
+
     def test_zweiter_start_installiert_nicht_noch_einmal(self, ordner):
         umgebung_vortaeuschen(ordner)
         aufrufe = Aufrufe()

@@ -180,6 +180,14 @@ Virtuelle Umgebung ..... vorhanden (Python 3.13)
 Pakete ................. aktuell
 Konfiguration .......... vorhanden
 Datenbank .............. vorhanden
+
+Starte die Plattform ...
+
+Für die Teams .......... http://192.168.1.50:8000
+Auf diesem Rechner ..... http://localhost:8000
+Protokoll .............. /home/…/challenge_plattform/logs/anwendung.log
+
+Zum Beenden: STRG+C
 ```
 
 Die erste Zeile sagt, **welche Fassung** hier liegt. Die Nummer kommt aus
@@ -189,6 +197,10 @@ git. Enthält der Stand Änderungen nach dem letzten Release, steht
 das dabei, etwa „1.25.0 + 3 Änderungen (Stand 31.10.2026)“. Steht dort
 „unbekannt“ – etwa bei einem von Hand kopierten Ordner –, läuft die
 Plattform trotzdem. Die Zeile steht auch im Protokoll.
+
+Unter **Für die Teams** steht die Adresse, die auch die Startseite über dem
+QR-Code zeigt. Danach erscheinen im Fenster nur noch die Ereignisse aus dem
+Protokoll, Warnungen und Fehler.
 
 **Wenn sich die Datei nicht öffnen lässt:**
 
