@@ -225,8 +225,9 @@ def pakete_sicherstellen(basis=BASIS, ausfuehren=subprocess.run):
     except OSError:
         pass
 
-    print("Pakete werden installiert. Das braucht Internet und dauert")
-    print("beim ersten Mal ein bis zwei Minuten ...")
+    # In der Punktespalte, damit die Übersicht nicht unterbrochen wird. Kommt
+    # pip durch, folgt darunter "Pakete ... installiert".
+    zeile("Pakete", "werden installiert (Internet, 1 bis 2 Minuten) ...")
     ergebnis = ausfuehren([
         umgebungs_python(basis), "-m", "pip", "install",
         "--disable-pip-version-check", "-q",
@@ -489,7 +490,10 @@ def aktualisieren(basis=BASIS, ausfuehren=subprocess.run):
         return kopf.stdout.strip() if kopf.returncode == 0 else None
 
     vorher = stand()
-    ergebnis = ausfuehren(["git", "pull", "--ff-only"], cwd=basis)
+    # --quiet: Ob sich etwas getan hat, sagt danach die Zeile "Aktualisieren",
+    # sonst stünde "Bereits aktuell." ein zweites Mal darüber. Fehler gibt
+    # git trotzdem aus.
+    ergebnis = ausfuehren(["git", "pull", "--ff-only", "--quiet"], cwd=basis)
     if ergebnis.returncode != 0:
         raise Abbruch("git pull ist gescheitert, die Meldung steht oben. Es wurde nichts verändert.")
 

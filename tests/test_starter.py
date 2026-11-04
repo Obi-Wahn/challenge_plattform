@@ -234,6 +234,16 @@ class TestPakete:
         assert befehl[1:4] == ["-m", "pip", "install"]
         assert befehl[-1] == os.path.join(str(ordner), "requirements.txt")
 
+    def test_hinweis_steht_in_der_punktespalte(self, ordner, capsys):
+        # Früher zwei lose Zeilen mitten in der Übersicht.
+        umgebung_vortaeuschen(ordner)
+        starter.pakete_sicherstellen(str(ordner), ausfuehren=Aufrufe())
+
+        ausgabe = capsys.readouterr().out.splitlines()
+        assert ausgabe == ["Pakete ................. werden installiert (Internet, 1 bis 2 Minuten) ..."]
+        # Passt in ein Fenster mit 80 Zeichen, ohne umzubrechen.
+        assert len(ausgabe[0]) < 80
+
     def test_zweiter_start_installiert_nicht_noch_einmal(self, ordner):
         umgebung_vortaeuschen(ordner)
         aufrufe = Aufrufe()
@@ -503,10 +513,12 @@ class TestAktualisieren:
 
         assert starter.aktualisieren(str(ordner), ausfuehren=aufrufe) == "aktualisiert"
         # Nur vorspulen: Ein Merge könnte Konflikte in den Ordner schreiben.
-        assert ["git", "pull", "--ff-only"] in aufrufe.befehle
+        # Leise, damit "Bereits aktuell." nicht neben der eigenen Zeile steht.
+        assert ["git", "pull", "--ff-only", "--quiet"] in aufrufe.befehle
 
     def test_ohne_neue_fassung_heisst_es_schon_aktuell(self, ordner, monkeypatch):
-        # Sonst stünde "aktualisiert" direkt unter "Already up to date.".
+        # Die Meldung von git selbst bleibt aus (--quiet), also muss diese
+        # Zeile sagen, dass es nichts Neues gab.
         (ordner / ".git").mkdir()
         monkeypatch.setattr(starter.shutil, "which", lambda _: "/usr/bin/git")
         aufrufe = Aufrufe(

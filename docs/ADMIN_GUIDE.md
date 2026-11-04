@@ -145,8 +145,8 @@ tun ist, und was zu tun ist, wenn etwas klemmt.
 1. Server starten: die Startdatei öffnen (`start_windows.bat`,
    `start_macos.command` oder `./start_linux.sh`), oder von Hand
    `python app.py` in der aktivierten Umgebung.
-   Im Terminal stehen beide Adressen (lokal und fürs Netzwerk) und der Pfad
-   der Protokolldatei. **Das Fenster offen lassen.**
+   Im Terminal stehen die Adresse für die Teams, die für diesen Rechner und
+   der Pfad der Protokolldatei. **Das Fenster offen lassen.**
 
    Auf einem Raspberry Pi vorher mit `timedatectl` die Uhrzeit prüfen, siehe
    [Auf einem Rechner ohne Bildschirm](RASPBERRY_PI.md).
