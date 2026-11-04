@@ -489,7 +489,10 @@ def aktualisieren(basis=BASIS, ausfuehren=subprocess.run):
         return kopf.stdout.strip() if kopf.returncode == 0 else None
 
     vorher = stand()
-    ergebnis = ausfuehren(["git", "pull", "--ff-only"], cwd=basis)
+    # --quiet: Ob sich etwas getan hat, sagt danach die Zeile "Aktualisieren",
+    # sonst stünde "Bereits aktuell." ein zweites Mal darüber. Fehler gibt
+    # git trotzdem aus.
+    ergebnis = ausfuehren(["git", "pull", "--ff-only", "--quiet"], cwd=basis)
     if ergebnis.returncode != 0:
         raise Abbruch("git pull ist gescheitert, die Meldung steht oben. Es wurde nichts verändert.")
 
