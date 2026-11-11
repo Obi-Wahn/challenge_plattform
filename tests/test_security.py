@@ -1,5 +1,7 @@
 """Schutzmechanismen, die im Schul-LAN wirken sollen."""
 
+import shutil
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -402,3 +404,31 @@ class TestGeheimerSchluessel:
         from app import schluesselwarnung
         assert "kürzer als 32 Zeichen" in schluesselwarnung("geheim")
         assert schluesselwarnung("k" * 32) is None
+
+
+ROOT = Path(__file__).resolve().parent.parent
+
+# Dateien, die nie ins öffentliche Repository dürfen. In der .env stehen
+# Schlüssel und Admin-Passwort, in settings.local.json speichert Claude Code
+# freigegebene Befehle im Klartext, samt Passwörtern darin.
+GEHEIM = (".env", ".claude/settings.local.json", "CLAUDE.local.md")
+
+
+class TestNichtsGeheimesImRepository:
+    def test_gitignore_nennt_die_dateien(self):
+        ignoriert = (ROOT / ".gitignore").read_text(encoding="utf-8").splitlines()
+        for eintrag in GEHEIM:
+            assert eintrag in ignoriert
+
+    @pytest.mark.skipif(not (ROOT / ".git").exists() or shutil.which("git") is None,
+                        reason="nur in einem git-Klon, nicht im ZIP")
+    def test_git_nimmt_sie_nicht_auf(self):
+        # .gitignore wirkt nur auf neue Dateien. Eine schon eingecheckte
+        # bliebe trotz Eintrag im Repository.
+        def git(*argumente):
+            return subprocess.run(["git", *argumente], cwd=ROOT,
+                                  capture_output=True, text=True)
+
+        for datei in GEHEIM:
+            assert git("check-ignore", "--no-index", "-q", datei).returncode == 0, datei
+        assert git("ls-files", "--", *GEHEIM).stdout == ""

@@ -54,6 +54,11 @@ logs/
 # Local debug artifacts
 cookies.txt
 
+# Lokale Dateien von Claude Code. In settings.local.json landen freigegebene
+# Befehle im Klartext, samt Passwörtern, die darin vorkommen.
+.claude/settings.local.json
+CLAUDE.local.md
+
 # macOS
 .DS_Store
 

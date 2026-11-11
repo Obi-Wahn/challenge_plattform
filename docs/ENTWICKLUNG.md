@@ -318,7 +318,7 @@ pytest -v                              # mit Namen jedes einzelnen Tests
 
 | Datei | prüft |
 | --- | --- |
-| `test_security.py` | CSRF, Passwörter, Uploads, Rate-Limit, keine Beispielwerte als Schlüssel |
+| `test_security.py` | CSRF, Passwörter, Uploads, Rate-Limit, keine Beispielwerte als Schlüssel, .env und lokale Claude-Code-Dateien nicht im Repository |
 | `test_eingaben.py` | Eingaben werden geprüft, auch am Formular vorbei |
 
 ## 📂 Projektstruktur
