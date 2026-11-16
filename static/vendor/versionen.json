@@ -4,7 +4,7 @@
     {
       "name": "Bootstrap",
       "npm": "bootstrap",
-      "version": "5.3.8",
+      "version": "5.3.9",
       "lizenz": "MIT",
       "dateien": {
         "dist/css/bootstrap.min.css": "bootstrap/css/bootstrap.min.css",
