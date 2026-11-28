@@ -52,6 +52,39 @@ def test_teamname_ist_im_selben_wettbewerb_nur_einmal_zu_haben(client, make_chal
     assert "Teamname vergeben" in antwort.get_data(as_text=True)
 
 
+class TestMindestlaengeTeampasswort:
+    """Ein Passwort aus zwei Zeichen rät ein Nachbarteam in der Pause."""
+
+    def test_zu_kurzes_passwort_legt_kein_team_an(self, client, make_challenge):
+        from plattform.models import MIN_TEAMPASSWORT, Team
+
+        make_challenge()
+        antwort = registrieren(client, "Team Blitz", "x" * (MIN_TEAMPASSWORT - 1))
+
+        assert antwort.status_code == 200
+        assert f"mindestens {MIN_TEAMPASSWORT} Zeichen" in antwort.get_data(as_text=True)
+        assert Team.query.count() == 0
+
+    def test_genau_lang_genug_geht_durch(self, client, make_challenge):
+        from plattform.models import MIN_TEAMPASSWORT
+
+        make_challenge()
+        assert registrieren(client, "Team Blitz", "x" * MIN_TEAMPASSWORT).status_code == 302
+
+    def test_vorhandenes_kurzes_passwort_gilt_weiter(self, flask_app, make_challenge, make_team):
+        """Geprüft wird beim Setzen - ein Team aus der Zeit davor kommt weiter hinein."""
+        make_team(make_challenge(), name="Team Blitz", password="ab")
+        assert anmelden(flask_app.test_client(), "Team Blitz", "ab").status_code == 302
+
+    def test_formular_sagt_es_vorher(self, client, make_challenge):
+        from plattform.models import MIN_TEAMPASSWORT
+
+        make_challenge()
+        html = client.get("/").get_data(as_text=True)
+        assert f'minlength="{MIN_TEAMPASSWORT}"' in html
+        assert f"Mindestens {MIN_TEAMPASSWORT} Zeichen." in html
+
+
 def test_derselbe_name_darf_in_zwei_wettbewerben_vorkommen(flask_app, make_challenge):
     from plattform.models import Team
 
@@ -147,6 +180,22 @@ class TestTeamVerwaltungImAdmin:
         }, follow_redirects=True)
 
         assert "nicht geändert" in antwort.get_data(as_text=True)
+        assert team.check_password("bleibt")
+
+    def test_zu_kurzes_passwort_aendert_nichts(self, admin, make_challenge, make_team):
+        from plattform.models import MIN_TEAMPASSWORT
+
+        challenge = make_challenge()
+        team = make_team(challenge, name="Team Blitz", password="bleibt")
+
+        antwort = admin.post(f"/admin/team/{team.id}/reset_password", data={
+            "csrf_token": csrf_token(admin, "/admin/teams"),
+            "new_password": "x" * (MIN_TEAMPASSWORT - 1),
+        }, follow_redirects=True)
+
+        html = antwort.get_data(as_text=True)
+        assert f"mindestens {MIN_TEAMPASSWORT} Zeichen" in html
+        assert "nicht geändert" in html
         assert team.check_password("bleibt")
 
     def test_team_loeschen_nimmt_seine_abgaben_mit(

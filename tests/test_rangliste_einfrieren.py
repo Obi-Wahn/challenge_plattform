@@ -288,6 +288,19 @@ class TestSiegerehrung:
         assert "Team Endspurt" in html
         assert "Rangliste auflösen" in html
 
+    def test_mit_altem_cookie_nach_neuem_passwort_nicht(self, flask_app, admin, make_challenge,
+                                                       make_task, make_team, monkeypatch):
+        """Die Siegerehrung fragt dieselbe Stelle wie die Steuerzentrale."""
+        self.eingefroren_beendet(make_challenge, make_task, make_team)
+        cookie = admin.get_cookie("session").value
+        monkeypatch.setitem(flask_app.config, "ADMIN_PASSWORD", "ganz-neues-passwort")
+
+        kopie = flask_app.test_client()
+        kopie.set_cookie("session", cookie)
+        html = kopie.get("/siegerehrung").get_data(as_text=True)
+        assert "Team Endspurt" not in html
+        assert "Die Rangliste ist eingefroren" in html
+
     def test_andere_bekommen_das_podium_nicht_vorab(self, client, make_challenge,
                                                     make_task, make_team):
         """Auch nicht im Quelltext - die Plätze stehen dort sonst nur verborgen."""

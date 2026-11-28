@@ -1,9 +1,9 @@
-from flask import (Blueprint, render_template, request, redirect, url_for, session,
+from flask import (Blueprint, render_template, request, redirect, url_for,
                    send_from_directory, send_file, flash, jsonify, current_app, abort)
 from plattform.extensions import db
 from plattform.models import (Team, Challenge, Task, Submission, Settings, TASK_FORMATS,
                     MAX_DAUER_MINUTEN, MAX_GRUSS, MAX_SEITENNAME, MAX_TITEL,
-                    MAX_UNTERTITEL,
+                    MAX_UNTERTITEL, MIN_TEAMPASSWORT,
                     TEXT_FORMATS, TASK_DIFFICULTIES, MAX_MEMBERS,
                     MAX_MEMBER_TEXT_LENGTH, format_member_names,
                     parse_member_names, event_branding)
@@ -18,7 +18,7 @@ from plattform.task_exchange import export_bytes, parse_tasks, ImportError_
 from plattform.wettbewerb_sicherung import (sicherung_bauen, sicherung_einlesen,
                                   SicherungFehler)
 from plattform.protokoll import ereignis, stoerung
-from plattform.sitzung import bewertung_angemeldet
+from plattform.sitzung import admin_angemeldet, bewertung_angemeldet
 from plattform.uploads import safe_name
 from plattform.skripte import als_bloecke, skripte_antwort
 from plattform.datenschutz import (groesse_text, protokoll_leeren, protokolldateien,
@@ -96,7 +96,7 @@ NUR_BEWERTUNG = {
 def restrict_admin():
     # Gilt für alles unter /admin außer der Anmeldung selbst: Die liegt in
     # auth_bp, und diese Prüfung läuft nur für die Seiten dieses Blueprints.
-    if session.get("is_admin"):
+    if admin_angemeldet():
         return None
     if bewertung_angemeldet():
         if request.endpoint in NUR_BEWERTUNG:
@@ -120,7 +120,7 @@ def bewertbare_abgabe(submission_id):
     die es nicht gibt: beides None.
     """
     submission = db.session.get(Submission, submission_id)
-    if submission is None or session.get("is_admin"):
+    if submission is None or admin_angemeldet():
         return submission
     aktiv = Challenge.current()
     if aktiv is None or submission.task.challenge_id != aktiv.id:
@@ -1055,7 +1055,7 @@ def submissions():
     challenge = Challenge.current()
     if not challenge:
         return render_template("admin/review.html", gruppen=[], challenge=None,
-                               nur_bewertung=not session.get("is_admin"))
+                               nur_bewertung=not admin_angemeldet())
 
     raw_submissions = Submission.query.join(Team).join(Task).filter(
         Task.challenge_id == challenge.id
@@ -1103,7 +1103,7 @@ def submissions():
     # und der Weg zur Steuerzentrale; restrict_admin() hält die Adressen zu.
     return render_template("admin/review.html", gruppen=gruppen, challenge=challenge,
                            hat_bloecke=hat_bloecke,
-                           nur_bewertung=not session.get("is_admin"))
+                           nur_bewertung=not admin_angemeldet())
 
 @admin_bp.route("/submissions/<int:submission_id>/allow_resubmit", methods=["POST"])
 def submission_allow_resubmit(submission_id):
@@ -1253,6 +1253,9 @@ def team_reset_password(team_id):
 
     if not new_password:
         flash(f"Kein Passwort eingegeben – das Passwort von Team „{team.name}“ wurde nicht geändert.", "warning")
+    elif len(new_password) < MIN_TEAMPASSWORT:
+        flash(f"Das Passwort braucht mindestens {MIN_TEAMPASSWORT} Zeichen – das Passwort "
+              f"von Team „{team.name}“ wurde nicht geändert.", "warning")
     else:
         team.set_password(new_password)
         db.session.commit()

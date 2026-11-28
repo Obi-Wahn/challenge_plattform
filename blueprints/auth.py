@@ -1,10 +1,11 @@
 import secrets
 
-from flask import Blueprint, render_template, request, redirect, url_for, session, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, current_app
 from plattform.extensions import limiter
 from plattform.models import Settings
 from plattform.protokoll import absender, stoerung
-from plattform.sitzung import bewertung_abmelden, bewertung_anmelden
+from plattform.sitzung import (admin_abmelden, admin_anmelden, bewertung_abmelden,
+                                bewertung_anmelden)
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -42,7 +43,7 @@ def admin_login():
     if request.method == "POST":
         password = request.form.get("password")
         if passwort_stimmt(password, current_app.config['ADMIN_PASSWORD']):
-            session["is_admin"] = True
+            admin_anmelden()
             return redirect(url_for('admin.dashboard'))
         if site_settings.check_review_password(password):
             bewertung_anmelden(site_settings)
@@ -62,6 +63,6 @@ def admin_login():
 
 @auth_bp.route("/admin/logout")
 def admin_logout():
-    session.pop("is_admin", None)
+    admin_abmelden()
     bewertung_abmelden()
     return redirect(url_for('public.index'))

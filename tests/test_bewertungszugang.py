@@ -190,6 +190,7 @@ class TestAnmelden:
         with bewerter.session_transaction() as sitzung:
             kennzeichen = sitzung.get("bewertung")
             assert not sitzung.get("is_admin")
+            assert not sitzung.get("admin")
         assert kennzeichen
         assert kennzeichen not in Settings.get().review_password_hash
 

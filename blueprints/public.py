@@ -1,9 +1,9 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, render_template, request, redirect, url_for
 from plattform.extensions import db, limiter
 from sqlalchemy.exc import IntegrityError
-from plattform.models import Challenge, Settings, Team, MAX_TEAMNAME
+from plattform.models import Challenge, Settings, Team, MAX_TEAMNAME, MIN_TEAMPASSWORT
 from plattform.scoring import get_standings, get_podium
-from plattform.sitzung import team_abmelden, team_anmelden
+from plattform.sitzung import admin_angemeldet, team_abmelden, team_anmelden
 from plattform.network import abtipp_adresse, join_url
 from plattform.protokoll import ereignis
 import base64
@@ -142,6 +142,9 @@ def index():
         if len(team_name) > MAX_TEAMNAME:
             return mit_fehler(f"Der Teamname darf höchstens {MAX_TEAMNAME} Zeichen lang sein.")
 
+        if len(password) < MIN_TEAMPASSWORT:
+            return mit_fehler(f"Das Passwort braucht mindestens {MIN_TEAMPASSWORT} Zeichen.")
+
         if len(password) > MAX_PASSWORT:
             return mit_fehler(f"Das Passwort darf höchstens {MAX_PASSWORT} Zeichen lang sein.")
 
@@ -259,7 +262,7 @@ def podest_sichtbar(challenge):
     """
     if challenge.status() != "finished":
         return False
-    if challenge.scoreboard_frozen and not session.get("is_admin"):
+    if challenge.scoreboard_frozen and not admin_angemeldet():
         return False
     _tasks, standings = get_standings(challenge)
     return bool(get_podium(standings))
@@ -274,7 +277,7 @@ def siegerehrung():
     # Solange die Rangliste eingefroren ist, sieht nur die angemeldete
     # Lehrkraft das Podium. Ein Team, das die Adresse am Handy aufruft,
     # bekommt es nicht vorab - auch nicht im Quelltext der Seite.
-    if challenge.scoreboard_frozen and not session.get("is_admin"):
+    if challenge.scoreboard_frozen and not admin_angemeldet():
         return render_template("siegerehrung.html", challenge=challenge,
                                podium=[], eingefroren=True)
 
