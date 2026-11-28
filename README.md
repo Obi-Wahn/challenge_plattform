@@ -56,7 +56,7 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
 
 ### Für die Teams
 *   **Beitritt per QR-Code** oder über die abgetippte Adresse, auf Desktop, Tablet und Smartphone.
-*   **Registrierung je Wettbewerb** mit Teamname und Passwort. Ist der Wettbewerb beendet oder pausiert oder keiner aktiv, nimmt die Startseite keine neuen Teams an.
+*   **Registrierung je Wettbewerb** mit Teamname und Passwort (mindestens 4 Zeichen). Ist der Wettbewerb beendet oder pausiert oder keiner aktiv, nimmt die Startseite keine neuen Teams an.
 *   **Wettbewerbsseite**: alle Aufgaben durchnummeriert wie in der Rangliste, mit Schwierigkeit (🟢 einfach, 🟡 mittel, 🔴 schwer), Punkten, Feedback und der Restzeit als Leiste.
 *   **Aktualisiert sich selbst** alle 15 Sekunden: Pause, Hinweise, Durchsagen und neue Zeiten kommen ohne Neuladen an.
 *   **Abgabe je Aufgabe**: Processing (`.pde`), Scratch (`.sb`/`.sb3`), Python (`.py`), Java (`.java`), MakeCode/Calliope (`.hex`/`.mkcd`), Open Roberta und Snap! (`.xml`), Arduino (`.ino`), App Inventor (`.aia`), Jupyter (`.ipynb`) — das Format legt die Aufgabe fest.
@@ -113,8 +113,9 @@ Für den Wettbewerbstag selbst: [Leitfaden](#-leitfaden-für-den-wettbewerbstag)
     *   CSRF Protection (Flask-WTF).
     *   Rate-Limiting auf den Anmeldeseiten (Flask-Limiter).
     *   Secure Filename Handling.
-    *   Kein Debug-Modus im Normalbetrieb (nur über `FLASK_DEBUG=true` für lokale Entwicklung).
+    *   Kein Debug-Modus im Normalbetrieb (nur über `FLASK_DEBUG=true` für lokale Entwicklung, dann nur am Rechner selbst erreichbar).
     *   Unverschlüsselt: Die Plattform spricht http, nicht https. Im selben Netz lässt sich mitlesen. Das Admin-Passwort deshalb nirgends sonst verwenden und die Steuerzentrale möglichst am Server selbst bedienen.
+    *   Ein neues `ADMIN_PASSWORD` in der `.env` meldet nach dem Neustart alle Admin-Sitzungen ab, auch eine mitgelesene.
 *   **Architektur**: Modularer Aufbau mit Flask Blueprints und Application Factory Pattern.
 
 ## 🚀 Installation & Setup
@@ -149,7 +150,7 @@ Python install manager oder dem älteren Installationsprogramm von
 Beim **ersten Start** richtet die Startdatei alles selbst ein: die virtuelle
 Umgebung `.venv`, die Pakete (dafür braucht es einmal **Internet** – also
 nicht erst am Wettbewerbstag im Schulnetz ausprobieren) und die `.env` mit
-einem zufälligen `SECRET_KEY`. Das Admin-Passwort fragt sie einmal ab. Danach
+einem zufälligen `SECRET_KEY`. Das Admin-Passwort (mindestens 8 Zeichen) fragt sie einmal ab. Danach
 startet die Plattform, und der Browser geht auf.
 
 Bei **jedem weiteren Start** prüft sie nur, ob noch alles da ist, und startet

@@ -410,6 +410,25 @@ class TestBeispielwerteErsetzen:
         assert starter.konfiguration_sicherstellen(str(ordner), passwort_holen=None) == "vorhanden"
         assert datei.read_text(encoding="utf-8") == inhalt
 
+    def test_kurzes_admin_passwort_bekommt_einen_hinweis(self, ordner, monkeypatch):
+        """Kein Abbruch und keine Rückfrage - am Wettbewerbstag soll alles starten."""
+        monkeypatch.delenv("SECRET_KEY", raising=False)
+        monkeypatch.delenv("ADMIN_PASSWORD", raising=False)
+        inhalt = f"SECRET_KEY={'s' * 64}\nADMIN_PASSWORD=meins\n"
+        datei = self.env(ordner, inhalt)
+
+        stand = starter.konfiguration_sicherstellen(str(ordner), passwort_holen=None)
+
+        assert stand == (f"vorhanden, Admin-Passwort kürzer als {starter.MIN_ADMIN_PASSWORT} "
+                         "Zeichen (in der .env ändern)")
+        assert datei.read_text(encoding="utf-8") == inhalt
+
+    def test_langes_admin_passwort_ohne_hinweis(self, ordner, monkeypatch):
+        monkeypatch.delenv("SECRET_KEY", raising=False)
+        monkeypatch.delenv("ADMIN_PASSWORD", raising=False)
+        self.env(ordner, f"SECRET_KEY={'s' * 64}\nADMIN_PASSWORD=Sommerfest2026\n")
+        assert starter.konfiguration_sicherstellen(str(ordner), passwort_holen=None) == "vorhanden"
+
     def test_env_mit_bom_aus_dem_windows_editor(self, ordner, monkeypatch):
         monkeypatch.delenv("SECRET_KEY", raising=False)
         monkeypatch.delenv("ADMIN_PASSWORD", raising=False)
@@ -450,19 +469,30 @@ class TestBeispielwerteErsetzen:
                 assert zeile.split("=", 1)[1] in starter.PLATZHALTER, zeile
 
     def test_anlass_steht_vor_der_frage(self, capsys):
-        eingaben = iter(["neu", "neu"])
+        eingaben = iter(["neues-passwort", "neues-passwort"])
         starter.passwort_erfragen(eingabe=lambda _: next(eingaben), anlass=starter.BEISPIEL_PASSWORT)
         assert "Beispielwert" in capsys.readouterr().out
 
 
 class TestPasswortAbfrage:
     def test_passwort_wird_zweimal_abgefragt_bis_es_passt(self, capsys):
-        eingaben = iter(["", "eins", "zwei", "o'brien", "a${B}", "richtig", "richtig"])
-        assert starter.passwort_erfragen(eingabe=lambda _: next(eingaben)) == "richtig"
+        eingaben = iter(["", "erstes-passwort", "zweites-passwort", "o'brien-1", "abc${B}xyz",
+                         "richtig-lang", "richtig-lang"])
+        assert starter.passwort_erfragen(eingabe=lambda _: next(eingaben)) == "richtig-lang"
         ausgabe = capsys.readouterr().out
         assert "nicht leer" in ausgabe
         assert "nicht überein" in ausgabe
         assert ausgabe.count("ohne ' und ohne ${") == 2
+
+    def test_zu_kurzes_passwort_wird_abgelehnt(self, capsys):
+        """Die Bremse auf der Anmeldung lässt 300 Versuche in der Stunde durch."""
+        laenge = starter.MIN_ADMIN_PASSWORT
+        eingaben = iter(["1234", "k" * (laenge - 1), "k" * laenge, "k" * laenge])
+        assert starter.passwort_erfragen(eingabe=lambda _: next(eingaben)) == "k" * laenge
+        ausgabe = capsys.readouterr().out
+        assert ausgabe.count(f"mindestens {laenge} Zeichen - ") == 2
+        # Und die Frage sagt es vorher.
+        assert f"mindestens {laenge} Zeichen." in ausgabe
 
 
 class TestAktualisieren:

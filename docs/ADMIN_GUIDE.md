@@ -158,9 +158,10 @@ tun ist, und was zu tun ist, wenn etwas klemmt.
 3. Rangliste `/scoreboard` auf dem großen Bildschirm öffnen. Oben läuft die Zeit, darunter
    füllt sich die Tabelle mit jeder Bewertung.
 4. Teams registrieren sich selbst auf der Startseite `/`: Teamname und ein
-   Passwort, das sie sich ausdenken. Jedes Team merkt sich beides. Danach
-   landen sie auf ihrer Wettbewerbsseite `/challenge`, wo die Restzeit über
-   den Aufgaben steht.
+   Passwort, das sie sich ausdenken: mindestens 4 Zeichen, und nicht der
+   Teamname oder „1234“, sonst rät es ein anderes Team. Jedes Team merkt sich
+   beides. Danach landen sie auf ihrer Wettbewerbsseite `/challenge`, wo die
+   Restzeit über den Aufgaben steht.
 
 ### Die Zeit einstellen
 
@@ -313,6 +314,7 @@ einem Klick. Abgaben, Punkte und Namen bleiben dabei alle erhalten.
 | Team tippt seinen Namen anders geschrieben | Beim **Anmelden** ist das in Ordnung: „die pixelpiraten“ findet „Die Pixelpiraten“, solange es nur ein Team dieses Namens gibt. Nur wenn zwei Teams nebeneinander existieren, die sich allein in der Schreibweise unterscheiden, muss die Schreibweise stimmen. |
 | Zwei Teams mit fast gleichem Namen | Beim **Registrieren** zählt die Schreibweise: „Die Hacker“ und „die hacker“ werden zwei verschiedene Teams. Umgebende Leerzeichen werden dagegen entfernt, `„ Team A “` wird zu `„Team A“`. Wenn das stört, Team löschen und neu registrieren lassen. |
 | Ein Team kommt nicht mehr rein | Passwort vergessen. `/admin` → *Teams* → neues Passwort setzen und dem Team sagen. Das alte zeigt die Plattform niemandem an, auch nicht dem Admin. |
+| Das Admin-Passwort ist vergessen oder anderen bekannt | Plattform beenden, in der `.env` unter `ADMIN_PASSWORD` ein neues eintragen (mindestens 8 Zeichen, ohne `'` und ohne `${`), neu starten. Wer als Admin angemeldet war, ist danach abgemeldet, auf jedem Gerät. Die Startübersicht weist auf ein Passwort unter 8 Zeichen hin. |
 | Wer beim Bewerten hilft, landet wieder auf der Anmeldung | Das Passwort für die Bewertung wurde geändert oder der Zugang abgeschaltet – beides meldet ab. Unter *Einstellungen* → *Bewertungszugang* steht, ob er eingerichtet ist; das aktuelle Passwort weitergeben oder ein neues setzen. |
 | Ein Team hat die falsche Datei hochgeladen | Normalerweise nichts zu tun: Das Team lädt über **🔁 Korrektur abgeben** die richtige hoch. Ist das Häkchen **🔁 Teams dürfen ihre Abgabe selbst korrigieren** herausgenommen: `/admin` → *Bewertungen* → **🔓 Erneut abgeben erlauben** – das geht auch, bevor die Abgabe Punkte hat. Die Freigabe gilt **einmal**. Sobald das Team neu abgibt, verschwindet die bisherige Bewertung und die Abgabe landet wieder in der Warteschlange; bis dahin bleibt alles, wie es ist. |
 | „Abgaben sind gerade gesperrt“ bei einem Team | Wettbewerb pausiert oder Endzeit überschritten. Die Meldung steht auf der Wettbewerbsseite des Teams. Gehört das Team zu einem anderen als dem aktiven Wettbewerb, landet es gar nicht erst dort, sondern auf der Startseite. |

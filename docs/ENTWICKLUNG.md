@@ -40,7 +40,7 @@ Ohne Startdatei, etwa um am Code zu arbeiten:
     ADMIN_PASSWORD=dein-sicheres-passwort
     FLASK_DEBUG=false
     ```
-    `SECRET_KEY` und `ADMIN_PASSWORD` sind Pflicht und müssen eigene Werte sein: Mit den Beispielwerten von hier oder aus `.env.example` startet die Anwendung nicht, denn wer den Schlüssel kennt, kommt ohne Passwort in die Steuerzentrale. Einen passenden Schlüssel gibt `python -c "import secrets; print(secrets.token_hex(32))"` aus. Ist er kürzer als 32 Zeichen, warnt die Anwendung beim Start. `FLASK_DEBUG` sollte in einem Netzwerk mit mehreren Nutzern (z. B. der Schul-LAN) immer auf `false` bleiben; der eingebaute Debugger erlaubt sonst beliebige Code-Ausführung auf dem Server.
+    `SECRET_KEY` und `ADMIN_PASSWORD` sind Pflicht und müssen eigene Werte sein: Mit den Beispielwerten von hier oder aus `.env.example` startet die Anwendung nicht, denn wer den Schlüssel kennt, kommt ohne Passwort in die Steuerzentrale. Einen passenden Schlüssel gibt `python -c "import secrets; print(secrets.token_hex(32))"` aus. Ist er kürzer als 32 Zeichen, warnt die Anwendung beim Start. Mit `FLASK_DEBUG=true` startet der Entwicklungsserver samt Debugger, der beliebige Code-Ausführung erlaubt. Er ist deshalb nur am Rechner selbst unter `http://localhost:8000` erreichbar, nicht von anderen Geräten; für einen Wettbewerb bleibt der Wert auf `false`.
 
 4.  **Datenbank vorbereiten**
     Nichts zu tun: Beim ersten Start legt die Anwendung die Datenbank an. Bringt

@@ -26,6 +26,12 @@ MAX_MEMBER_TEXT_LENGTH = 220
 # Sicherung holen die Grenzen deshalb von hier, damit keine Stelle eine
 # andere Zahl kennt.
 MAX_TEAMNAME = 100
+# Ein Passwort aus einem oder zwei Zeichen rät ein Nachbarteam in der Pause:
+# Die Teamnamen stehen auf der Rangliste, und mit der Selbstkorrektur ließe
+# sich dann die Abgabe eines anderen Teams ersetzen. Vier Zeichen bremsen
+# das, ohne Kinder beim Registrieren aufzuhalten. Ein vorhandenes kürzeres
+# Passwort gilt weiter - geprüft wird nur beim Setzen.
+MIN_TEAMPASSWORT = 4
 MAX_TITEL = 200
 MAX_AUFGABENTITEL = 200
 MAX_SEITENNAME = 100

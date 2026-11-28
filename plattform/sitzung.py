@@ -7,7 +7,10 @@ Anmeldung aber stehen. Hier entscheidet deshalb eine einzige Stelle, ob eine
 Anmeldung noch gilt, und räumt sie weg, sobald sie es nicht mehr tut.
 """
 
-from flask import session
+import hashlib
+import hmac
+
+from flask import current_app, session
 
 from plattform.extensions import db
 from plattform.models import Team
@@ -61,6 +64,52 @@ def angemeldetes_team(challenge):
         return None
 
     return team
+
+
+# ------------------------------------------------------------------ Admin
+
+def admin_kennzeichen():
+    """Das Kennzeichen, an dem die Anmeldung als Admin hängt.
+
+    Flask legt die Sitzung ins Cookie selbst, unterschrieben mit dem
+    SECRET_KEY. Stünde darin nur „ist Admin“, gälte ein einmal kopiertes
+    Cookie, solange der Schlüssel bleibt - also für immer, auch nach dem
+    Abmelden und nach einem neuen Passwort. Über http lässt sich ein Cookie
+    im selben Netz mitlesen. Das Kennzeichen hängt deshalb am Passwort:
+    Ein neues ADMIN_PASSWORD in der .env, danach neu starten, und jede alte
+    Admin-Sitzung ist draußen.
+
+    Es ist ein HMAC mit dem SECRET_KEY, kein Hash des Passworts allein: Das
+    Cookie ist unterschrieben, aber lesbar, und ein bloßer Hash ließe sich
+    für ein schwaches Passwort zurückraten.
+    """
+    schluessel = str(current_app.config["SECRET_KEY"]).encode("utf-8")
+    passwort = str(current_app.config["ADMIN_PASSWORD"]).encode("utf-8")
+    return hmac.new(schluessel, b"admin:" + passwort, hashlib.sha256).hexdigest()[:32]
+
+
+def admin_anmelden():
+    session.pop("is_admin", None)
+    session["admin"] = admin_kennzeichen()
+
+
+def admin_abmelden():
+    # „is_admin“ stand bis v1.25.9 in der Sitzung und gilt nicht mehr.
+    session.pop("admin", None)
+    session.pop("is_admin", None)
+
+
+def admin_angemeldet():
+    """Ob die Anmeldung als Admin noch gilt - sonst wird sie hier geräumt.
+
+    Eine Sitzung aus der Zeit vor dem Kennzeichen (nur „is_admin“) gilt
+    nicht: Der Admin meldet sich nach dem Update einmal neu an.
+    """
+    kennzeichen = session.get("admin")
+    if not kennzeichen or not hmac.compare_digest(str(kennzeichen), admin_kennzeichen()):
+        admin_abmelden()
+        return False
+    return True
 
 
 # ------------------------------------------------------- Bewertungszugang

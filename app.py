@@ -20,15 +20,16 @@ from logging.handlers import RotatingFileHandler
 from dotenv import load_dotenv
 load_dotenv()
 
-from flask import Flask, request, send_from_directory, session
+from flask import Flask, request, send_from_directory
 from markupsafe import Markup, escape
 import markdown
 from plattform.config import Config, MIN_SCHLUESSEL, schluessel_zu_kurz
 from plattform.extensions import db, csrf, limiter
-from plattform.models import MAX_ABGABE_BYTES
+from plattform.models import MAX_ABGABE_BYTES, MIN_TEAMPASSWORT
 from plattform.wettbewerb_sicherung import MAX_ZIP_BYTES
 from plattform.network import FESTE_ADRESSE, lan_adresse, server_port
 from plattform.protokoll import ereignis
+from plattform.sitzung import admin_angemeldet
 # Name des Handlers, damit ein zweiter Aufruf von create_app() - in den
 # Tests kommt das vor - nicht ein zweites Mal in dieselbe Datei schreibt.
 # Er steht in plattform/datenschutz.py, weil „Protokolldatei leeren“ den Handler
@@ -195,7 +196,7 @@ def create_app():
     # nur für die angemeldete Lehrkraft - ohne Anmeldung bleibt es bei 16 MB.
     @app.before_request
     def grenze_fuer_sicherung():
-        if request.endpoint == "admin.challenge_restore" and session.get("is_admin"):
+        if request.endpoint == "admin.challenge_restore" and admin_angemeldet():
             request.max_content_length = MAX_ZIP_BYTES
 
     # Initialize Extensions
@@ -217,6 +218,12 @@ def create_app():
     def favicon():
         return send_from_directory(app.static_folder, "favicon.ico",
                                    mimetype="image/vnd.microsoft.icon")
+
+    # Die Siegerehrung zeigt der angemeldeten Lehrkraft das Podest auch bei
+    # eingefrorener Rangliste - dieselbe Prüfung wie überall, siehe sitzung.py.
+    app.add_template_global(admin_angemeldet)
+    # Für die Formulare, in denen ein Team-Passwort gesetzt wird.
+    app.add_template_global(MIN_TEAMPASSWORT, "MIN_TEAMPASSWORT")
 
     # Custom Filters
     @app.template_filter('markdown')
@@ -361,7 +368,7 @@ def register_error_handlers(app):
         @app.errorhandler(code)
         def zeigen(error, code=code):
             if (code == 413 and request.endpoint == "admin.challenge_restore"
-                    and session.get("is_admin")):
+                    and admin_angemeldet()):
                 # Keine Abgabe, sondern eine Sicherung über der Grenze für
                 # Sicherungen - der Satz über Scratch-Klänge passte nicht.
                 # Ohne Adresse: Hier kommt nur hin, wer als Lehrkraft
@@ -440,14 +447,18 @@ def schluesselwarnung(schluessel):
             "Steuerzentrale. Die Startdatei ersetzt ihn beim nächsten Start selbst.")
 
 
+# Wo der Entwicklungsserver mit FLASK_DEBUG=true lauscht, siehe unten.
+DEBUG_ADRESSE = "127.0.0.1"
+
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all() # Auto-create tables for dev
         run_startup_migrations()
 
     # Debug mode is off by default: the built-in Werkzeug debugger allows
-    # arbitrary code execution and this app is bound to 0.0.0.0 for LAN access,
-    # so it must only be enabled explicitly for local development.
+    # arbitrary code execution. The normal server is bound to 0.0.0.0 for LAN
+    # access, the debug server only to this computer.
     warnung = schluesselwarnung(app.config["SECRET_KEY"])
     if warnung:
         print(f"Achtung: {warnung}")
@@ -458,8 +469,10 @@ if __name__ == "__main__":
 
     if debug_mode:
         # Flask's built-in dev server, with debugger and auto-reload, for local development only.
+        # Nur auf diesem Rechner erreichbar: Den Debugger schützt allein eine
+        # PIN, und im Schulnetz soll ihn niemand sonst aufrufen können.
         app.run(
-          host="0.0.0.0",
+          host=DEBUG_ADRESSE,
           port=port,
           debug=True
         )

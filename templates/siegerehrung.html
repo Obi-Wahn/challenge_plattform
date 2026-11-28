@@ -8,7 +8,7 @@
   </p>
 </div>
 
-{% if eingefroren and not podium and not session.get("is_admin") %}
+{% if eingefroren and not podium and not admin_angemeldet() %}
 <!-- Eingefroren sehen nur angemeldete Lehrkräfte das Podium. Wer die
      Adresse am Handy aufruft, erfährt das Ergebnis mit allen anderen. -->
 <div class="event-card text-center p-5">

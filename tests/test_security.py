@@ -224,6 +224,17 @@ class TestBetriebsmodus:
 
         assert os.environ.get("FLASK_DEBUG", "false").strip().lower() not in ("1", "true", "yes")
 
+    def test_debug_server_nur_auf_diesem_rechner(self):
+        """Den Debugger schützt nur eine PIN - im Schulnetz soll ihn niemand aufrufen."""
+        import app as anwendung
+
+        assert anwendung.DEBUG_ADRESSE == "127.0.0.1"
+        quelltext = Path(anwendung.__file__).read_text(encoding="utf-8")
+        start = quelltext.index("if debug_mode:")
+        debug_teil = quelltext[start:quelltext.index("else:", start)]
+        assert "host=DEBUG_ADRESSE" in debug_teil
+        assert "0.0.0.0" not in debug_teil
+
     def test_es_gibt_keine_eingebauten_zugangsdaten(self):
         """SECRET_KEY und ADMIN_PASSWORD müssen aus der Umgebung kommen."""
         from plattform import config
@@ -355,6 +366,60 @@ class TestSitzungsCookie:
         # Im Schul-LAN läuft die Anwendung über http. Mit Secure=True würde
         # der Browser das Cookie gar nicht erst schicken - niemand käme rein.
         assert flask_app.config["SESSION_COOKIE_SECURE"] is False
+
+
+class TestAdminSitzung:
+    """Ein kopiertes Admin-Cookie gilt nur so lange wie das Passwort.
+
+    Flask legt die Sitzung ins Cookie selbst. Stand darin nur „is_admin“,
+    öffnete ein einmal mitgelesenes Cookie die Steuerzentrale für immer -
+    auch nach dem Abmelden und nach einem neuen Passwort in der .env.
+    """
+
+    def test_angemeldet_mit_dem_kennzeichen(self, admin):
+        assert admin.get("/admin/dashboard").status_code == 200
+        with admin.session_transaction() as sitzung:
+            assert sitzung.get("admin")
+            assert "is_admin" not in sitzung
+
+    def test_im_cookie_steht_nicht_das_passwort(self, flask_app, admin):
+        from flask.sessions import SecureCookieSessionInterface
+
+        cookie = admin.get_cookie("session").value
+        inhalt = SecureCookieSessionInterface().get_signing_serializer(flask_app).loads(cookie)
+        assert ADMIN_PASSWORD not in str(inhalt)
+
+    def test_neues_passwort_wirft_alte_sitzungen_hinaus(self, flask_app, admin, monkeypatch):
+        cookie = admin.get_cookie("session").value
+        monkeypatch.setitem(flask_app.config, "ADMIN_PASSWORD", "ganz-neues-passwort")
+
+        kopie = flask_app.test_client()
+        kopie.set_cookie("session", cookie)
+        antwort = kopie.get("/admin/dashboard")
+
+        assert antwort.status_code == 302
+        assert "/admin/login" in antwort.headers["Location"]
+
+    def test_alte_sitzung_mit_is_admin_gilt_nicht_mehr(self, flask_app):
+        """So sah die Sitzung bis v1.25.9 aus - richtig unterschrieben."""
+        from flask.sessions import SecureCookieSessionInterface
+
+        cookie = SecureCookieSessionInterface().get_signing_serializer(flask_app).dumps(
+            {"is_admin": True})
+        client = flask_app.test_client()
+        client.set_cookie("session", cookie)
+
+        antwort = client.get("/admin/dashboard")
+        assert antwort.status_code == 302
+        assert "/admin/login" in antwort.headers["Location"]
+        with client.session_transaction() as sitzung:
+            assert "is_admin" not in sitzung
+
+    def test_abmelden_raeumt_die_sitzung(self, admin):
+        admin.get("/admin/logout")
+        with admin.session_transaction() as sitzung:
+            assert "admin" not in sitzung
+        assert "/admin/login" in admin.get("/admin/dashboard").headers["Location"]
 
 
 class TestGeheimerSchluessel:

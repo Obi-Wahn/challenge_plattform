@@ -64,6 +64,11 @@ PLATZHALTER = {
 # Wie MIN_SCHLUESSEL in plattform/config.py.
 MIN_SCHLUESSEL = 32
 
+# Die Bremse auf der Anmeldung lässt fünf Versuche pro Minute und Gerät
+# durch, 300 in der Stunde. Für „1234“ oder „schule“ reicht das. Ein
+# vorhandenes kürzeres Passwort bleibt, die Übersicht weist nur darauf hin.
+MIN_ADMIN_PASSWORT = 8
+
 # Wie lange nach dem Start auf den Server gewartet wird, bevor der Browser
 # aufgeht. Beim ersten Start legt die Anwendung erst die Datenbank an.
 BROWSER_WARTEZEIT = 30
@@ -283,7 +288,8 @@ def passwort_erfragen(eingabe=getpass.getpass, anlass=ERSTER_START):
     """Fragt das Admin-Passwort ab, zweimal, bis beide Eingaben passen."""
     print()
     print(anlass)
-    print("Es gilt für die Anmeldung unter /admin. Beim Tippen erscheinen keine Zeichen.")
+    print(f"Es gilt für die Anmeldung unter /admin und braucht mindestens {MIN_ADMIN_PASSWORT} Zeichen.")
+    print("Beim Tippen erscheinen keine Zeichen.")
 
     while True:
         passwort = eingabe("Admin-Passwort: ")
@@ -294,6 +300,10 @@ def passwort_erfragen(eingabe=getpass.getpass, anlass=ERSTER_START):
             # Das Apostroph beendete den Wert in der .env, und ${...} ersetzt
             # python-dotenv durch eine andere Einstellung.
             print("Bitte ohne ' und ohne ${ - beides bringt die .env durcheinander.")
+            continue
+        if len(passwort) < MIN_ADMIN_PASSWORT:
+            print(f"Bitte mindestens {MIN_ADMIN_PASSWORT} Zeichen - ein kurzes Passwort "
+                  "ist im Schulnetz schnell erraten.")
             continue
         if eingabe("Noch einmal: ") != passwort:
             print("Die beiden Eingaben stimmen nicht überein, bitte noch einmal.")
@@ -372,6 +382,9 @@ def vorhandene_env_pruefen(ziel, passwort_holen, umgebung=os.environ):
         neu["ADMIN_PASSWORD"] = passwort_eintrag(passwort_holen())
 
     if not neu:
+        if "ADMIN_PASSWORD" not in umgebung and len(passwort) < MIN_ADMIN_PASSWORT:
+            return (f"vorhanden, Admin-Passwort kürzer als {MIN_ADMIN_PASSWORT} Zeichen "
+                    "(in der .env ändern)")
         return "vorhanden"
 
     # utf-8-sig: Eine mit dem Windows-Editor gespeicherte .env beginnt mit
